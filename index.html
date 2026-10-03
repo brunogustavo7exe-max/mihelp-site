@@ -1,0 +1,2351 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MiHelp — pré-cadastro</title>
+<meta name="description" content="MiHelp: quem precisa de ajuda encontra, quem sabe fazer trabalha. Pré-cadastro grátis em Barra do Garças, Pontal do Araguaia e Aragarças.">
+<meta property="og:type" content="website"><meta property="og:title" content="MiHelp — quem precisa de ajuda encontra"><meta property="og:description" content="Faça seu pré-cadastro grátis. Lançamento no início de 2027 no Vale do Araguaia."><meta name="theme-color" content="#15130F">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23E8B93C'/%3E%3Ctext x='16' y='23' font-size='20' font-weight='800' text-anchor='middle' fill='%23201804' font-family='sans-serif'%3EM%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+:root{--bg:#15130F;--deep:#0D0C09;--surf:#1D1A14;--line:#332D20;--gold:#E8B93C;--gold2:#F0CD70;--text:#F4EEDF;--mute:#A79C82;--faint:#6E6552;--red:#D97757;--mono:'IBM Plex Mono',ui-monospace,monospace;--sans:'Inter',system-ui,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--deep);background-image:radial-gradient(800px 400px at 15% 0,#2a2210 0,transparent 70%);color:var(--text);font-family:var(--sans);min-height:100vh}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
+.wrap{max-width:1040px;margin:0 auto;padding:28px 18px 60px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}
+.mark{width:34px;height:34px;border-radius:9px;background:var(--gold);color:#201804;display:grid;place-items:center;font-weight:800}
+.brand b{color:var(--gold)}
+h1{font-size:clamp(34px,7vw,64px);line-height:1.02;margin:34px 0 12px;font-weight:800;letter-spacing:-.02em;position:relative}
+h1 span{display:block;color:var(--gold)}
+.glitch:hover,.glitch.on{animation:gl .35s steps(2) 2}
+@keyframes gl{0%{text-shadow:3px 0 #E8B93C88,-3px 0 #ffffff55;transform:translateX(-2px)}50%{text-shadow:-3px 0 #E8B93C88,3px 0 #ffffff55;transform:translateX(2px)}100%{text-shadow:none;transform:none}}
+.sub{font-family:var(--mono);color:var(--mute);font-size:14px;margin:0 0 30px;max-width:60ch}
+.sub::before{content:"> ";color:var(--gold)}
+.sub::after{content:"_";color:var(--gold);animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+.grid{display:grid;grid-template-columns:5fr 7fr;gap:18px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.win{background:var(--surf);border:1px solid var(--line);border-radius:12px 12px 6px 6px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.5)}
+.bar{display:flex;align-items:center;gap:8px;padding:8px 10px;background:linear-gradient(#3b3116,#221d10);border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--gold2)}
+.bar .t{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.bar i{width:13px;height:13px;border:1px solid var(--line);background:var(--bg);border-radius:3px}
+.bar i:last-child{background:var(--red);border-color:var(--red)}
+.body{padding:18px}
+.win.shake{animation:sk .5s}
+@keyframes sk{0%,100%{transform:none}20%{transform:translate(-9px,3px)}40%{transform:translate(8px,-4px)}60%{transform:translate(-6px,2px)}80%{transform:translate(5px,-2px)}}
+label{display:block;font-size:13px;font-weight:600;margin:0 0 5px}
+.f{margin-bottom:13px}
+input[type=text],input[type=tel],input[type=email]{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:11px 12px;color:var(--text);font:inherit;font-size:14px}
+input:focus,button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.role{display:flex;gap:8px;margin-bottom:14px}
+.role label{flex:1;margin:0;cursor:pointer}
+.role input{position:absolute;opacity:0}
+.role span{display:block;text-align:center;padding:11px 6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--mute);font-weight:700;font-size:13px}
+.role input:checked+span{background:var(--gold);color:#201804;border-color:var(--gold)}
+.role input:focus-visible+span{outline:2px solid var(--gold2);outline-offset:2px}
+.go{width:100%;border:0;border-radius:9px;background:var(--gold);color:#201804;font-weight:800;font-size:14px;padding:13px;cursor:pointer}
+.note{font-size:12px;color:var(--faint);margin:10px 0 0;line-height:1.5}
+.term{font-family:var(--mono);font-size:13px;line-height:1.7;color:var(--gold2);white-space:pre-wrap}
+.chat{display:grid;grid-template-columns:150px 1fr;min-height:360px}
+@media(max-width:520px){.chat{grid-template-columns:1fr}.who{border-right:0!important;border-bottom:1px solid var(--line)}}
+.who{border-right:1px solid var(--line);padding:12px;background:var(--bg);font-size:13px}
+.who h3{margin:0 0 8px;font-size:12px;color:var(--mute);font-weight:600}
+.who div{padding:5px 0;display:flex;align-items:center;gap:7px}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.on{}
+.d-on{background:var(--gold);box-shadow:0 0 6px var(--gold)}
+.d-busy{background:var(--red)}
+.d-away{border:2px solid var(--faint)}
+.who small{color:var(--faint);display:block;font-size:11px}
+.main{display:flex;flex-direction:column}
+.log{flex:1;padding:12px;font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-y:auto;max-height:300px}
+.log p{margin:0 0 6px}
+.log .n{color:var(--gold)}
+.log .s{color:var(--faint)}
+.send{display:flex;gap:6px;padding:10px;border-top:1px solid var(--line)}
+.send input{flex:1}
+.send button{border:1px solid var(--line);background:var(--bg);color:var(--gold2);border-radius:8px;padding:0 12px;font-weight:700;cursor:pointer;font-size:12px}
+.send button.p{background:var(--gold);color:#201804;border-color:var(--gold)}
+footer{margin-top:30px;font-family:var(--mono);font-size:12px;color:var(--faint)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+
+html{scroll-behavior:smooth}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.more{font-family:var(--mono);font-size:13px;color:var(--gold2);text-decoration:none;border:1px solid var(--line);background:var(--surf);padding:8px 14px;border-radius:8px}
+.more:hover,.more:focus-visible{border-color:var(--gold);outline:none}
+#saiba{margin-top:56px;scroll-margin-top:16px}
+#saiba h2{font-size:clamp(24px,4vw,34px);margin:0 0 6px;letter-spacing:-.01em}
+#saiba .lead{color:var(--mute);margin:0 0 20px;max-width:60ch;line-height:1.55}
+.tabs{display:flex;gap:2px;padding:8px 10px 0;background:var(--bg);border-bottom:1px solid var(--line)}
+.tabs button{border:1px solid var(--line);border-bottom:0;background:var(--surf);color:var(--mute);padding:9px 16px;border-radius:8px 8px 0 0;font:600 13px var(--sans);cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--gold);color:#201804;border-color:var(--gold)}
+.tabs button:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}
+.pane{display:none;padding:18px}
+.pane.show{display:block}
+.pane dl{margin:0;display:grid;grid-template-columns:1fr 1fr;gap:16px 26px}
+@media(max-width:640px){.pane dl{grid-template-columns:1fr}}
+.pane dt{font-weight:800;color:var(--gold2);margin-bottom:3px}
+.pane dd{margin:0;color:var(--mute);line-height:1.55;font-size:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
+.steps{margin:0;padding:0;list-style:none;font-family:var(--mono);font-size:13px;line-height:1.5}
+.steps li{padding:9px 0;border-bottom:1px dashed var(--line);color:var(--mute)}
+.steps li:last-child{border:0}
+.steps b{color:var(--gold);display:block;font-size:14px}
+.trust{margin:0;padding:0;list-style:none}
+.trust li{display:flex;gap:10px;align-items:flex-start;padding:9px 0;color:var(--mute);font-size:14px;line-height:1.5}
+.trust li b{color:var(--text);display:block}
+.trust .dot{margin-top:5px}
+.cta2{display:inline-block;margin-top:22px;background:var(--gold);color:#201804;font-weight:800;text-decoration:none;padding:13px 22px;border-radius:9px;font-size:14px}
+.cta2:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+
+.nv{display:flex;gap:8px}
+.chk{display:flex!important;gap:8px;font-size:12px!important;font-weight:400!important;color:var(--mute);line-height:1.5;margin:0 0 12px!important;cursor:pointer}
+.chk input{margin-top:2px;accent-color:var(--gold);flex:none}
+#seguranca{margin-top:56px;scroll-margin-top:16px}
+#seguranca h2{font-size:clamp(24px,4vw,34px);margin:0 0 6px;letter-spacing:-.01em}
+#seguranca .lead{color:var(--mute);margin:0 0 20px;max-width:60ch;line-height:1.55}
+#seguranca .two{margin-top:18px}
+.rules h3{margin:0 0 6px;font-size:14px;color:var(--gold2)}
+.rules ul{margin:0 0 14px;padding-left:18px;color:var(--mute);font-size:14px;line-height:1.6}
+.rules ul:last-child{margin-bottom:0}
+.rules p{margin:0 0 10px;color:var(--mute);font-size:14px;line-height:1.6}
+.rules p b{color:var(--text)}
+.honest{margin-top:18px;border:1px dashed var(--gold);border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:12.5px;line-height:1.65;color:var(--gold2)}
+
+.top{flex-wrap:wrap}
+.nv{flex-wrap:wrap}
+.tel{margin-top:18px}
+.tel .scr{position:relative;min-height:112px;padding:20px;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(120deg,#241d0c,#15130F)}
+.tel .tag{position:absolute;top:8px;right:10px;font:600 11px var(--mono);color:var(--faint)}
+.tel .ad{font-size:clamp(20px,3.4vw,30px);font-weight:800;color:var(--gold2);max-width:24ch}
+.tel .ad2{font:500 13px var(--mono);color:var(--mute);margin-top:6px;max-width:64ch}
+.tel .pg{height:3px;background:var(--line)}
+.tel .pg i{display:block;height:100%;width:0;background:var(--gold);animation:pg 5s linear infinite}
+@keyframes pg{to{width:100%}}
+#taxas,#duvidas,#apoie{margin-top:56px;scroll-margin-top:16px}
+#taxas h2,#duvidas h2,#apoie h2{font-size:clamp(24px,4vw,34px);margin:0 0 6px;letter-spacing:-.01em}
+#taxas .lead,#duvidas .lead,#apoie .lead{color:var(--mute);margin:0 0 20px;max-width:60ch;line-height:1.55}
+.tw{overflow-x:auto}
+.tb{width:100%;border-collapse:collapse;font-size:14px;min-width:420px}
+.tb th{text-align:left;font:600 12px var(--mono);color:var(--mute);padding:8px 10px;border-bottom:1px solid var(--line)}
+.tb td{padding:12px 10px;border-bottom:1px dashed var(--line);color:var(--text)}
+.tb td:nth-child(2){color:var(--gold);font:600 18px var(--mono)}
+details{border-bottom:1px solid var(--line);padding:13px 0}
+details:last-child{border:0}
+summary{cursor:pointer;font-weight:700;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"+ ";color:var(--gold);font-family:var(--mono)}
+details[open] summary::before{content:"- "}
+summary:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+details p{margin:8px 0 0;color:var(--mute);font-size:14px;line-height:1.6}
+details a,.rules a{color:var(--gold2)}
+
+/* legibilidade */
+:root{--read:#E4DCC6;--faint:#9A8F76}
+body{font-size:17px;line-height:1.6}
+.sub{font-size:16px;color:var(--read)}
+#saiba .lead,#taxas .lead,#seguranca .lead,#duvidas .lead,#apoie .lead,#patrocinio .lead{color:var(--read);font-size:17px;line-height:1.65;max-width:62ch}
+.rules p,.rules ul{font-size:16px;line-height:1.7;color:var(--read)}
+.rules ul{padding-left:20px}
+.rules li{margin-bottom:7px}
+.pane dt{font-size:17px}
+.pane dd{font-size:16px;line-height:1.65;color:var(--read)}
+.trust li{font-size:16px;color:var(--read)}
+.trust li b{font-size:17px}
+.steps li{font-size:15px;line-height:1.55;color:var(--read)}
+.steps b{font-size:16px}
+summary{font-size:17px}
+details p{font-size:16px;line-height:1.7;color:var(--read)}
+.tb{font-size:16px}
+.tb th{font-size:13px;color:var(--read)}
+.tb td{padding:14px 10px}
+.tb td:nth-child(2){font-size:22px}
+.note{font-size:14px}
+.chk{font-size:14px!important;color:var(--read)!important}
+label{font-size:15px}
+input[type=text],input[type=tel],input[type=email]{font-size:16px}
+.honest{font-size:14px}
+.bar{font-size:13px}
+.who{font-size:15px}
+.who h3{font-size:13px}
+.who small{font-size:12px;color:var(--mute)}
+.log{font-size:14px}
+.term{font-size:15px}
+footer{font-size:13px;color:var(--mute)}
+.more{font-size:14px}
+.tel .ad2{font-size:15px;color:var(--read)}
+.tabs button{font-size:15px}
+.role span{font-size:15px}
+.go,.cta2{font-size:16px}
+/* patrocinadores */
+#patrocinio{margin-top:56px;scroll-margin-top:16px}
+#patrocinio h2{font-size:clamp(24px,4vw,34px);margin:0 0 6px;letter-spacing:-.01em}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:640px){.slots{grid-template-columns:repeat(2,1fr)}}
+.slot{border:1px dashed var(--line);border-radius:10px;padding:28px 8px;text-align:center;font:600 14px var(--mono);color:var(--mute)}
+
+.vgi{margin:0 0 14px;color:var(--read);font-size:16px;line-height:1.6}
+.vgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:760px){.vgrid{grid-template-columns:repeat(2,1fr)}}
+.vg{min-height:136px;border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:12px;text-align:left;color:var(--text);font:inherit;display:flex;flex-direction:column;justify-content:space-between;gap:6px}
+.vg b{font-size:16px;line-height:1.25}
+.vg span.tx{font-size:14px;color:var(--read);line-height:1.4}
+.vg .tm{font:600 18px var(--mono);color:var(--gold)}
+.vg .tg{font:600 11px var(--mono);color:var(--faint)}
+.vg .pgb{height:3px;background:var(--line);margin-top:4px}
+.vg .pgb i{display:block;height:100%;background:var(--gold)}
+button.vg.open{border:1px dashed var(--gold);cursor:pointer;color:var(--gold2);align-items:flex-start}
+button.vg.open:hover,button.vg.open:focus-visible{background:#241d0c;border-style:solid;outline:none}
+button.vg.open small{font:500 13px var(--mono);color:var(--mute)}
+dialog{background:var(--surf);color:var(--text);border:1px solid var(--gold);border-radius:12px;padding:20px;width:min(92vw,460px);max-height:92vh;overflow:auto}
+dialog::backdrop{background:rgba(0,0,0,.75)}
+dialog h3{margin:0 0 12px;font-size:20px}
+.dur{border:0;padding:0;margin:0 0 10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dur legend{font-size:15px;font-weight:600;margin-bottom:6px;padding:0}
+.dur label{margin:0;cursor:pointer}
+.dur input{position:absolute;opacity:0}
+.dur span{display:block;text-align:center;padding:10px 4px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--mute);font-weight:700;font-size:14px;line-height:1.35}
+.dur input:checked+span{background:var(--gold);color:#201804;border-color:var(--gold)}
+.dur input:focus-visible+span{outline:2px solid var(--gold2);outline-offset:2px}
+.dur-custom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);flex-wrap:wrap}
+.dur-custom.is-on{border-color:var(--gold);background:rgba(232,185,60,.08)}
+.dur-custom .lbl{font-size:13px;color:var(--mute);font-weight:600}
+.dur-custom .lbl b{color:var(--gold2);display:block;font-size:15px;margin-top:2px}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--surf);color:var(--gold2);font:800 18px var(--sans);cursor:pointer;line-height:1}
+.stepper button:hover{border-color:var(--gold)}
+.stepper button:disabled{opacity:.35;cursor:not-allowed}
+.stepper .val{min-width:52px;text-align:center;font:700 16px var(--mono);color:var(--text)}
+#dtot{font:600 14px var(--mono);color:var(--gold2)!important;margin:4px 0 10px;line-height:1.45}
+.sos-wrap{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sos-wrap button{white-space:nowrap}
+.sos-count{font:600 11px var(--mono);color:var(--faint);letter-spacing:.02em}
+.sos-count.limite{color:var(--red)}
+.log p.urg{color:var(--gold2);font-weight:600}
+.log p.urg .al{color:var(--red);margin-right:4px;animation:bk 1.2s steps(1) infinite}
+.log p.urg-soft{color:var(--mute)}
+.stars{color:var(--gold);letter-spacing:1px;font-size:14px}
+.badge-novo{display:inline-block;border:1px solid var(--gold);color:var(--gold2);font:600 11px var(--mono);padding:2px 7px;border-radius:4px;margin-left:6px}
+.feira-note{border:1px dashed var(--line);border-radius:10px;padding:12px 14px;margin:0 0 18px;font-size:14px;color:var(--read);line-height:1.55;background:var(--bg)}
+.feira-note b{color:var(--gold2)}
+.perfil-demo{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.perfil-demo{grid-template-columns:1fr}}
+.dep{border-left:2px solid var(--gold);padding:6px 0 6px 12px;margin:8px 0;color:var(--mute);font-size:14px;line-height:1.45}
+.dep b{color:var(--text);font-size:13px}
+.status-line{font:600 13px var(--mono);color:var(--gold2);margin:4px 0 10px}
+.cat-row{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+.cat-row button{border:1px solid var(--line);background:var(--bg);color:var(--mute);border-radius:6px;padding:5px 10px;font:600 12px var(--sans);cursor:pointer}
+.cat-row button.on{background:var(--gold);color:#201804;border-color:var(--gold)}
+.dbt{display:flex;gap:8px;margin-top:6px}
+.dbt .go{flex:1}
+.cx{border:1px solid var(--line);background:var(--bg);color:var(--read);border-radius:9px;padding:0 16px;font:600 15px var(--sans);cursor:pointer}
+
+/* modo anos 2000 */
+.mq{overflow:hidden;white-space:nowrap;border-bottom:1px solid var(--gold);background:#1b1608;color:var(--gold2);font:600 13px var(--mono);padding:7px 0}
+.mqi{display:inline-block;animation:mq 50s linear infinite}
+@keyframes mq{to{transform:translateX(-50%)}}
+.shell{max-width:1420px;margin:0 auto}
+.side{display:none}
+@media(min-width:1200px){
+.shell{display:grid;grid-template-columns:172px minmax(0,1040px) 172px;gap:10px;justify-content:center;padding:0 10px}
+.side{display:block;position:sticky;top:calc(var(--sticky-h,0px) + 12px);align-self:start;margin-top:28px;max-height:calc(100vh - var(--sticky-h,0px) - 24px);overflow-y:auto;scrollbar-width:none}.side::-webkit-scrollbar{display:none}}
+.vcol{display:flex;flex-direction:column;gap:8px;padding:8px}
+.vcol .vg{min-height:120px;padding:9px}
+.vcol .vg b{font-size:14px}
+.vcol .vg span.tx{font-size:13px}
+.vcol .vg .tm{font-size:16px}
+button.vg.open small{font-size:12px}
+.nw{display:inline-block;background:var(--red);color:#201804;font:700 11px var(--mono);padding:2px 6px;border-radius:4px;margin-right:6px;animation:bk 1.6s steps(1) infinite}
+@keyframes bk{50%{opacity:.3}}
+button.more{cursor:pointer}
+.b88{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.b88 span{border:1px solid var(--line);background:var(--surf);padding:4px 8px;font:600 11px var(--mono);color:var(--mute);border-radius:3px}
+
+input[type=file]{width:100%;color:var(--read);font:inherit;font-size:14px;padding:8px;background:var(--bg);border:1px dashed var(--line);border-radius:8px}
+#dprev{display:block;max-width:100%;max-height:150px;margin-top:8px;border-radius:8px;border:1px solid var(--line)}
+.vg img{display:block;width:100%;height:78px;object-fit:cover;border-radius:6px}
+.vcol .vg img{height:56px}
+a.cta2,.rules a.cta2,.cta2:hover{color:#111!important}
+input[type=number]{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:11px 12px;color:var(--text);font:inherit;font-size:16px}
+.tk{display:flex;align-items:center;background:#0f0d08;border-bottom:1px solid var(--line);font:600 13px var(--mono);color:var(--read)}
+.tkl{flex:none;background:var(--gold);color:#111;padding:7px 12px;font-weight:800;letter-spacing:.04em}
+.tkw{overflow:hidden;white-space:nowrap;flex:1;padding:7px 0}
+.tk .tkx{margin:0 22px}
+.tki{display:inline-block;animation:mq 40s linear infinite}
+.tk:hover .tki{animation-play-state:paused}
+.tkg{display:inline-block}
+.tkx{margin:0 28px}
+.tkx b{color:var(--gold)}
+.tkx em{color:var(--gold2);font-style:normal}
+@media(prefers-reduced-motion:reduce){.tkw{overflow-x:auto}}
+button.cta2{border:0;cursor:pointer;font-family:inherit}
+button.slot{background:none;width:100%;cursor:pointer}
+.slot:hover,.slot:focus-visible{border-color:var(--gold);color:var(--gold2);outline:none}
+a.go{display:block;text-align:center;text-decoration:none;color:#111}
+dialog textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--text);font:13px var(--mono);padding:10px;resize:none;margin-bottom:4px}
+.pixv{font:800 34px var(--sans);color:var(--gold);margin:0 0 8px}
+.cp{border:1px solid var(--gold);background:none;color:var(--gold2);border-radius:8px;padding:8px 12px;font:600 14px var(--sans);cursor:pointer;margin:2px 0 12px}
+dialog h4{margin:14px 0 6px;font-size:16px}
+.pixs{padding-left:20px;margin:0 0 12px;color:var(--read);font-size:15px;line-height:1.6}
+a.cta2,.rules a.cta2{color:#111!important}
+.nojs{position:fixed;left:12px;right:12px;bottom:12px;z-index:50;background:var(--red);color:#111;padding:12px 14px;border-radius:10px;font:600 14px var(--sans);opacity:0;visibility:hidden;animation:nojs 0s 2.5s forwards}
+@keyframes nojs{to{opacity:1;visibility:visible}}
+[data-go]{cursor:pointer}
+[data-go]:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.ctabs{display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px 0;border-bottom:1px solid var(--line);background:var(--bg)}
+.ctabs .ct{border:1px solid var(--line);border-bottom:0;background:var(--surf);color:var(--mute);padding:7px 12px;border-radius:8px 8px 0 0;font:600 13px var(--sans);cursor:pointer}
+.ctw{display:inline-flex}
+.ctw .ct{border-radius:8px 0 0 0}
+.ctc{border:1px solid var(--line);border-bottom:0;border-left:0;background:var(--surf);color:var(--mute);padding:7px 9px;border-radius:0 8px 0 0;cursor:pointer;font-size:14px}
+.ctsala.on,.ctw.on .ct,.ctw.on .ctc{background:var(--gold);color:#111;border-color:var(--gold)}
+.ptools{display:flex;gap:6px;padding:6px 10px;border-bottom:1px solid var(--line);background:var(--bg)}
+.ptools[hidden]{display:none}
+.ptools button{border:1px solid var(--line);background:var(--surf);color:var(--read);border-radius:6px;padding:4px 10px;font:600 12px var(--sans);cursor:pointer}
+button.nm{background:none;border:0;padding:0;font:inherit;color:var(--gold);cursor:pointer;text-decoration:underline dotted}
+button.nm:hover{color:var(--gold2)}
+.log.priv{border-left:2px solid var(--gold)}
+.log[hidden]{display:none}
+#wholist{display:block;padding:0}
+#wholist div{padding:5px 0;display:flex;align-items:center;gap:7px;flex-wrap:nowrap}
+#wholist div .dot{align-self:center}
+.pgd{display:flex;gap:8px;justify-content:center;padding:8px 0 4px}
+.pgd .dtp{width:12px;height:12px;border-radius:50%;border:1px solid var(--gold);background:none;padding:0;cursor:pointer}
+.pgd .dtp.on{background:var(--gold)}
+.pgd .dtp:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+button.nm:not(.hp){color:var(--read)}
+button.nm.hp{color:var(--gold)}
+.tag{display:inline-block;margin:0 0 0 6px;padding:0 6px;border-radius:4px;font:600 11px var(--mono);border:1px solid var(--line);color:var(--mute);vertical-align:1px}
+.tag.h{border-color:var(--gold);color:var(--gold2)}
+.tag+.tag{margin-left:4px}
+#wholist .wh{display:flex;flex-direction:column;align-items:flex-start;min-width:0}
+#wholist .wh small{display:block;font-size:12px;color:var(--mute);margin-top:1px}
+
+/* ===== MOBILE COMPACTO ===== */
+@media(max-width:640px){
+  body{font-size:15px;line-height:1.5}
+  .wrap{padding:12px 10px 36px}
+  .brand{font-size:17px;gap:8px}
+  .mark{width:28px;height:28px;border-radius:7px;font-size:14px}
+  .nv{gap:6px;margin:8px 0 12px}
+  .nv a,.nv button,.more{font-size:12px;padding:6px 10px}
+  h1{font-size:clamp(22px,7vw,32px);margin:12px 0 8px}
+  .sub{font-size:13px;margin:0 0 12px;max-width:none}
+  .feira-note{padding:10px 12px;margin:0 0 12px;font-size:13px;line-height:1.45}
+  .grid{gap:12px}
+  .body{padding:12px}
+  .bar{padding:6px 8px;font-size:11px}
+  label{font-size:13px}
+  input[type=text],input[type=tel],input[type=email],input[type=number]{padding:10px;font-size:15px}
+  .role span{padding:10px 4px;font-size:13px}
+  .go,.cta2{padding:12px;font-size:14px}
+  .note,.chk{font-size:12px!important}
+  .chat{min-height:280px;grid-template-columns:1fr}
+  .who{max-height:88px;overflow-y:auto;padding:8px;font-size:12px;border-right:0;border-bottom:1px solid var(--line)}
+  .log{max-height:200px;font-size:12.5px;padding:8px}
+  .send{padding:8px;gap:4px;flex-wrap:wrap}
+  .send input{min-width:0;flex:1 1 120px;font-size:14px}
+  .send button,.sos-wrap button{font-size:12px;padding:8px 10px}
+  .sos-count{font-size:10px}
+  .cat-row{gap:4px;margin:0 0 6px;padding:0 4px}
+  .cat-row button{padding:4px 8px;font-size:11px}
+  .mq{font-size:11px;padding:5px 0}
+  .tk{font-size:11px}
+  .tkl{padding:5px 8px}
+  section{margin-top:32px}
+  section h2,#saiba h2,#taxas h2,#seguranca h2,#duvidas h2,#apoie h2,#patrocinio h2,#reputacao h2{font-size:clamp(18px,5vw,24px)}
+  .lead,#saiba .lead,#taxas .lead,#seguranca .lead,#duvidas .lead,#apoie .lead,#patrocinio .lead,#reputacao .lead{font-size:14px;margin:0 0 12px;line-height:1.5}
+  .rules p,.rules ul,details p,.steps li,.trust li,.pane dd{font-size:14px!important;line-height:1.5}
+  .steps b,.pane dt,.trust li b,summary{font-size:14px!important}
+  .tb{font-size:13px;min-width:300px}
+  .tb td{padding:8px 6px}
+  .tb td:nth-child(2){font-size:16px}
+  .two,.perfil-demo{grid-template-columns:1fr;gap:12px}
+  .vgrid{grid-template-columns:1fr 1fr;gap:8px}
+  .vg{min-height:100px;padding:10px}
+  .vg b{font-size:14px}
+  .slots{grid-template-columns:1fr 1fr}
+  .dur{grid-template-columns:repeat(3,1fr);gap:6px}
+  .dur span{padding:8px 2px;font-size:12px}
+  .dur-custom{padding:8px;gap:8px}
+  .stepper button{width:32px;height:32px}
+  footer{font-size:11px;margin-top:24px}
+  /* esconde laterais e deixa o miolo limpo */
+  .side{display:none!important}
+  .shell{display:block!important;padding:0}
+  /* nav: scroll horizontal se precisar */
+  .top{gap:8px}
+  .nv{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;max-width:100%}
+  .nv a,.nv button{flex:none}
+}
+@media(max-width:380px){
+  h1{font-size:20px}
+  .vgrid{grid-template-columns:1fr}
+  .role{flex-direction:column}
+}
+
+
+/* Header sticky com pubs ao lado do logo */
+.sticky-head{
+  position:sticky;top:0;z-index:45;
+  background:rgba(13,12,9,.94);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+  padding:8px 0 6px;
+  margin:0 0 8px;
+}
+.sticky-row{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.sticky-ads{
+  flex:1;min-width:0;display:flex;align-items:center;gap:8px;
+  background:var(--bg);border:1px solid var(--line);border-radius:10px;
+  padding:6px 8px;max-width:min(520px,62vw);
+}
+.sticky-tag{
+  flex:none;font:800 10px var(--mono);color:#201804;background:var(--gold);
+  padding:3px 6px;border-radius:4px;letter-spacing:.04em;
+}
+.sticky-slide{flex:1;min-width:0;line-height:1.2}
+.sticky-slide b{display:block;font-size:13px;color:var(--gold2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sticky-slide span{display:block;font-size:11px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.sticky-cta{
+  flex:none;border:0;border-radius:7px;background:var(--gold);color:#201804;
+  font:800 11px var(--sans);padding:7px 10px;cursor:pointer;white-space:nowrap;
+}
+.sticky-cta:hover{filter:brightness(1.05)}
+@media(max-width:640px){
+  .sticky-head{padding:6px 0 4px;margin:0 0 6px}
+  .sticky-row{gap:8px}
+  .sticky-ads{max-width:none;padding:5px 6px;gap:6px}
+  .sticky-slide b{font-size:12px}
+  .sticky-slide span{font-size:10px}
+  .sticky-cta{padding:6px 8px;font-size:10px}
+  .sticky-tag{font-size:9px;padding:2px 5px}
+  /* nav continua abaixo, scroll horizontal */
+}
+@media(max-width:400px){
+  .sticky-slide span{display:none}
+  .brand div:last-child{font-size:15px}
+}
+
+
+/* Letreiro MiHelp + Apoiadores fixos no scroll */
+.top-letreiros{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:var(--deep);
+  box-shadow:0 4px 14px rgba(0,0,0,.35);
+}
+.top-letreiros .mq{margin:0}
+.top-letreiros .tk{margin:0;border-bottom:1px solid var(--line)}
+
+/* Letreiro dos anunciantes + mobile das vagas */
+.tka{cursor:pointer;background:#17120a}
+.tka .tkl{background:var(--gold2)}
+.tka .tkx b{color:var(--gold2)}
+.tka .tkx i{font-style:normal;color:var(--mute);font-size:.85em}
+[id]{scroll-margin-top:calc(var(--sticky-h,0px) + 12px)}
+@media(max-width:640px){
+  .top-letreiros .mq{display:none}
+  .tk{font-size:12px}
+  .tkw{padding:9px 0}
+  .tkl{padding:9px 8px}
+  .vgrid{gap:10px}
+  .vg{min-height:130px;padding:12px}
+  .vg b{font-size:15px}
+  .vg .tx{font-size:13px;line-height:1.4}
+  .vgrid .vg img{height:84px;object-fit:cover}
+  .pgd{margin-top:10px}
+  .dtp{width:14px;height:14px}
+}
+
+
+/* sala ampliada */
+.bar .exp{border:1px solid var(--line);background:var(--bg);color:var(--gold2);border-radius:6px;padding:3px 10px;font:600 12px var(--mono);cursor:pointer}
+.bar .exp:hover{border-color:var(--gold)}
+.bar .exp:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+#cw.full{position:fixed;inset:0;z-index:60;border-radius:0;display:flex;flex-direction:column;max-width:none;margin:0;box-shadow:none;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+#cw.full .chat{flex:1;min-height:0;grid-template-rows:minmax(0,1fr)}
+#cw.full .who{overflow-y:auto;max-height:none}
+#cw.full .main{min-height:0}
+#cw.full .log{flex:1;min-height:0;max-height:none;font-size:14px}
+#cw.full .chat{grid-template-columns:200px 1fr}
+@media(max-width:520px){
+  #cw.full .chat{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
+  #cw.full .who{max-height:88px}
+}
+html.cw-open,html.cw-open body{overflow:hidden}
+
+/* SOS compacto e vermelho */
+.send .sos-wrap{gap:3px;justify-content:center}
+.send #nudge{background:var(--red);border-color:var(--red);color:#fff;font:800 12px var(--sans);letter-spacing:.04em;padding:6px 12px;border-radius:7px;line-height:1}
+.send #nudge:hover:not(:disabled){filter:brightness(1.12)}
+.send #nudge:disabled{opacity:.45;cursor:not-allowed}
+.send #nudge:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.send .sos-count{font-size:10px;letter-spacing:0}
+
+/* ao vivo, guilda e chat flutuante */
+.live .ev{display:flex;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px;line-height:1.45}
+.live .ev:last-child{border:0}
+.live .ev time{font:600 12px var(--mono);color:var(--faint);flex:none;padding-top:2px}
+.live .ev b{color:var(--text);display:block}
+.live .ev span{color:var(--mute)}
+.live .ev.novo b{color:var(--gold2)}
+.gl{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.gl{grid-template-columns:1fr}}
+.gc{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:var(--bg);display:flex;flex-direction:column;gap:6px}
+.gc .gt{font:600 11px var(--mono);color:var(--gold)}
+.gc h3{margin:0;font-size:15px}
+.gc p{margin:0;color:var(--mute);font-size:13.5px;line-height:1.5;flex:1}
+.gc .gm{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.gc .gv{font:600 13px var(--mono);color:var(--gold2)}
+.gc button{border:1px solid var(--line);background:var(--surf);color:var(--gold2);border-radius:6px;padding:6px 10px;font:600 12px var(--sans);cursor:pointer}
+.gc button:hover{border-color:var(--gold)}
+.gc button:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+#aovivo,#guilda{margin-top:56px;scroll-margin-top:16px}
+#aovivo h2,#guilda h2{font-size:clamp(24px,4vw,34px);margin:0 0 6px;letter-spacing:-.01em}
+#aovivo .lead,#guilda .lead{color:var(--mute);margin:0 0 20px;max-width:60ch;line-height:1.55}
+.fab{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:40;border:1px solid var(--gold);background:var(--surf);color:var(--gold2);border-radius:10px;padding:10px 14px;font:600 13px var(--mono);cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.5)}
+.fab span{color:var(--gold)}
+.fab:hover{background:var(--gold);color:#201804}
+.fab:hover span{color:#201804}
+.fab:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+html.cw-open .fab{display:none}
+
+/* respostas e mensagens para você */
+.log p.para-mim{background:rgba(110,200,170,.10);border-left:3px solid #6EC8AA;padding:4px 8px;margin-left:-4px;border-radius:0 6px 6px 0}
+.log p .tg{font:600 10px var(--mono);color:#6EC8AA;margin-left:8px}
+.log .cit{display:block;font-size:11.5px;color:var(--faint);border-left:2px solid var(--line);padding-left:6px;margin-bottom:2px}
+.log button.rp{border:0;background:none;color:var(--faint);font:600 11px var(--mono);cursor:pointer;margin-left:8px;padding:0}
+.log button.rp:hover,.log button.rp:focus-visible{color:var(--gold2);outline:none;text-decoration:underline}
+.rpbar{display:flex;align-items:center;gap:8px;padding:6px 10px;border-top:1px solid var(--line);background:var(--bg);font:12px var(--mono);color:var(--mute)}
+.rpbar[hidden]{display:none}
+.rpbar span{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.rpbar button{border:0;background:none;color:var(--gold2);font-size:16px;cursor:pointer;line-height:1}
+.rpbar button:focus-visible{outline:2px solid var(--gold2)}
+
+/* salas, lista online, meta */
+.rooms{display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:8px 10px;background:var(--surf);border-bottom:1px solid var(--line)}
+.rooms .rl{font:600 11px var(--mono);color:var(--faint);margin-right:2px}
+.rooms button{border:1px solid var(--line);background:var(--bg);color:var(--mute);border-radius:6px;padding:4px 9px;font:600 12px var(--sans);cursor:pointer}
+.rooms button.on{border-color:var(--gold);color:var(--gold2)}
+.rooms .sug{margin-left:auto;color:var(--faint);border-style:dashed}
+.rooms button:focus-visible,.wtabs button:focus-visible{outline:2px solid var(--gold2);outline-offset:1px}
+.rrule{margin:0;padding:6px 10px;font:12px var(--mono);color:var(--mute);border-bottom:1px solid var(--line);background:var(--bg);line-height:1.5}
+.rrule[hidden],.sugf[hidden]{display:none}
+.sugf{display:flex;gap:4px;padding:6px 10px;border-bottom:1px solid var(--line)}
+.sugf button{border:1px solid var(--gold);background:var(--gold);color:#201804;border-radius:8px;padding:0 12px;font-weight:700;font-size:12px;cursor:pointer}
+#wholist .wtabs{padding:0;gap:4px;margin-bottom:8px}
+.wtabs button{flex:1;border:1px solid var(--line);background:var(--surf);color:var(--mute);border-radius:6px;padding:5px 2px;font:600 11px var(--sans);cursor:pointer}
+.wtabs button.on{background:var(--gold);color:#201804;border-color:var(--gold)}
+.who select,.who input[type=text]{width:100%;margin-bottom:8px;background:var(--bg);border:1px solid var(--line);border-radius:6px;color:var(--text);padding:5px;font:12px var(--sans)}
+#wholist .wl{display:block;padding:0;max-height:240px;overflow-y:auto}
+#meta,#quem,#privacidade,#guia-chat{margin-top:56px;scroll-margin-top:16px}
+#meta h2,#quem h2,#privacidade h2,#guia-chat h2{font-size:clamp(24px,4vw,34px);margin:0 0 6px;letter-spacing:-.01em}
+#guia-chat .lead,#meta .lead{color:var(--mute);margin:0 0 20px;max-width:60ch;line-height:1.55}
+#quem .win,#privacidade .win{margin-top:14px}
+.mfig{margin:0 0 10px;font-size:15px;color:var(--mute)}.mfig b{color:var(--gold2);font-size:24px}
+.mbar{height:12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);overflow:hidden}
+.mbar i{display:block;height:100%;width:0;background:var(--gold)}
+a.wa{color:var(--gold2)}
+
+/* ajustes de celular */
+@media(max-width:640px){
+  .nv{flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .nv::-webkit-scrollbar{display:none}
+  .nv a,.nv button{flex:none;white-space:nowrap}
+  .rooms{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .rooms::-webkit-scrollbar{display:none}
+  .rooms button,.rooms .rl{flex:none;white-space:nowrap}
+  .rooms .sug{margin-left:0}
+  .rrule{font-size:11.5px}
+  .who{max-height:190px}
+  #wholist .wl{max-height:none;overflow:visible}
+  #cw.full .who{max-height:150px}
+  .fab{padding:7px 11px;font-size:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+  #aovivo,#guilda,#meta,#quem,#privacidade,#guia-chat{margin-top:36px}
+  .mfig b{font-size:20px}
+}
+
+/* chat no celular */
+.whotg{display:none}
+@media(max-width:640px){
+  .whotg{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:var(--bg);color:var(--gold2);font:700 13px var(--sans);padding:10px 12px;min-height:40px;cursor:pointer}
+  .who:not(.open){display:none}
+  .who.open{max-height:200px;overflow-y:auto}
+  .chat,#cw.full .chat{grid-template-columns:1fr}
+  .log{max-height:none;height:clamp(240px,50vh,420px);font-size:14px}
+  #cw.full .log{height:auto}
+  #cw.full .main>.note{display:none}
+  .send{flex-wrap:nowrap;align-items:stretch}
+  .send input{flex:1 1 auto;min-width:0;font-size:16px;padding:11px 10px}
+  .send button,.sos-wrap button{min-height:44px}
+  .log button.rp{padding:8px 6px}
+  .rooms button,.ctabs .ct,.ctc,.wtabs button{min-height:36px}
+  #cw .bar i{display:none}
+  .bar .exp{min-height:30px;padding:4px 12px;font-size:13px}
+  #cw.full{top:var(--vvt,0px);bottom:auto;height:var(--vvh,100dvh)}
+}
+
+/* ===== CHAT MOBILE v2 (correção de layout) ===== */
+/* [hidden] estava sendo ignorado porque display:flex vencia o atributo */
+.cat-row[hidden]{display:none}
+
+@media(max-width:640px){
+  /* grid -> coluna flex: some o bug da linha "auto" quando a lista de online está fechada */
+  #cw .chat,#cw.full .chat{display:flex;flex-direction:column;grid-template-columns:none;grid-template-rows:none;min-height:0}
+  #cw .who{flex:none}
+  #cw .main{flex:1 1 auto;display:flex;flex-direction:column;min-width:0;min-height:0}
+
+  /* áreas de mensagem: altura definida e sem estourar para os lados */
+  #cw .log{flex:none;height:clamp(260px,52vh,440px);max-height:none;overflow-y:auto;overflow-x:hidden;padding:10px;overflow-wrap:anywhere;word-break:break-word}
+  #cw.full .chat{flex:1 1 auto}
+  #cw.full .log{flex:1 1 0;height:auto;min-height:0}
+
+  /* mensagens com respiro, e "Responder" na própria linha */
+  #cw .log p{margin:0 0 10px;line-height:1.45}
+  #cw .log p.s{margin:0 0 8px}
+  #cw .log .cit{margin-bottom:3px}
+  #cw .log button.rp{display:block;margin:3px 0 0;padding:4px 0;min-height:0;font-size:12px}
+  #cw .log p.para-mim{margin-left:0}
+
+  /* faixas de cima: uma linha só, rolagem lateral */
+  #cw .ctabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  #cw .ctabs::-webkit-scrollbar{display:none}
+  #cw .ctabs .ct,#cw .ctabs .ctw{flex:none;white-space:nowrap}
+  #cw .cat-row{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:6px 10px;margin:0;border-top:1px solid var(--line)}
+  #cw .cat-row::-webkit-scrollbar{display:none}
+  #cw .cat-row button,#cw .cat-row span{flex:none;white-space:nowrap}
+  #cw .ptools{padding:6px 10px}
+
+  /* barra de envio */
+  #cw .send{flex:none;align-items:center;gap:6px;padding:8px 10px}
+  #cw .send .sos-wrap{flex:none}
+  #cw .send button.p{flex:none}
+
+  /* texto longo da prévia mais discreto */
+  #cw .main>.note{flex:none;font-size:11.5px!important;line-height:1.4;padding:0 10px 10px!important}
+  #cw .rrule{flex:none}
+}
+
+/* SOS: contador dentro do botão */
+.send #nudge{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;line-height:1}
+.send #nudge .sos-t{font:800 12px var(--sans);letter-spacing:.04em}
+.send #nudge .sos-count{font:700 11px var(--mono);color:#fff;opacity:.92;letter-spacing:0}
+.send #nudge .sos-count.limite{opacity:1;text-decoration:underline}
+
+/* perfil no lugar do cadastro */
+.meu-perfil h3{margin:14px 0 2px;font-size:20px;color:var(--gold2)}
+.meu-perfil h4{margin:14px 0 6px;font-size:15px}
+.meu-perfil .stars{margin:4px 0 6px}
+
+/* perfil fechado: vira aba no chat e o chat ocupa a largura toda */
+.grid.perfil-fechado{grid-template-columns:1fr}
+.grid.perfil-fechado>#cadWin{display:none}
+.bar i.fechavel{cursor:pointer}
+.bar i.fechavel:hover{filter:brightness(1.2)}
+.bar i.fechavel:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+#ctabs .ctperfil{color:var(--gold2);border-style:dashed;flex:none;white-space:nowrap}
+#ctabs .ctperfil:hover{border-color:var(--gold)}
+@media(max-width:640px){#cadWin .bar i.fechavel{width:24px;height:24px}}
+
+/* status: quadradinho do perfil e cores */
+#perfSq{width:13px;height:13px;padding:0;border:1px solid var(--line);border-radius:3px;cursor:pointer;flex:none}
+#perfSq[hidden]{display:none}
+#perfSq[data-st=disponivel]{background:#6EC8AA;border-color:#6EC8AA}
+#perfSq[data-st=ocupado]{background:#F2C94C;border-color:#F2C94C}
+#perfSq.novo{animation:bk 1.2s steps(1) infinite}
+#perfSq:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.d-st-disponivel{background:#6EC8AA;box-shadow:0 0 6px #6EC8AA}
+.d-st-ocupado{background:#F2C94C}
+.st-row{display:flex;gap:8px;margin:6px 0 10px}
+.st-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);background:var(--bg);color:var(--mute);border-radius:8px;padding:10px 6px;font:700 14px var(--sans);cursor:pointer}
+.st-btn::before{content:"";width:11px;height:11px;border-radius:3px;background:var(--c)}
+.st-btn[data-s=disponivel]{--c:#6EC8AA}
+.st-btn[data-s=ocupado]{--c:#F2C94C}
+.st-btn[aria-pressed=true]{color:var(--text);border-color:var(--c);box-shadow:inset 0 0 0 1px var(--c)}
+.st-btn:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+@media(max-width:640px){#perfSq{width:26px;height:26px;border-radius:5px}}
+
+/* ===== painel ADM ===== */
+.tag.t{border-color:#6EC8AA;color:#6EC8AA}
+#dpq{display:block;width:190px;max-width:60%;margin:0 auto 12px;border-radius:8px;background:#fff;padding:8px}
+#dpq[hidden]{display:none}
+.adm-x{display:none;border:0;background:none;color:var(--red);font:600 11px var(--mono);cursor:pointer;margin-left:8px;padding:0}
+body.adm .adm-x{display:inline}
+.admbar{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:45;display:flex;gap:6px}
+.admbar[hidden]{display:none}
+.admexit{border:1px solid var(--line);background:var(--surf);color:var(--read);border-radius:8px;padding:8px 12px;font:700 12px var(--sans);cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.5)}
+.admexit:hover{border-color:var(--red);color:var(--text)}
+.admexit:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.admchip{border:1px solid var(--gold);background:var(--gold);color:#201804;border-radius:8px;padding:8px 12px;font:800 12px var(--mono);cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.5)}
+.admchip[hidden]{display:none}
+#admDlg{width:min(96vw,780px)}
+#admDlg h4{margin:16px 0 6px;font-size:16px;color:var(--gold2)}
+#admDlg select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:11px 12px;color:var(--text);font:inherit;font-size:16px}
+#admDlg input[type=text],#admDlg input[type=email],#admDlg input[type=number]{margin-bottom:0}
+.ahead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.ahead h3{margin:0}
+.ahead .cx{padding:8px 14px}
+.aproto{border:1px dashed var(--gold);border-radius:8px;padding:8px 10px;color:var(--gold2)!important}
+.atabs{display:flex;gap:4px;overflow-x:auto;margin:12px 0;border-bottom:1px solid var(--line);scrollbar-width:none}
+.atabs::-webkit-scrollbar{display:none}
+.atabs button{flex:none;border:1px solid var(--line);border-bottom:0;background:var(--surf);color:var(--mute);padding:9px 14px;border-radius:8px 8px 0 0;font:600 14px var(--sans);cursor:pointer}
+.atabs button.on{background:var(--gold);color:#201804;border-color:var(--gold)}
+.atabs button:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}
+.aviso{background:rgba(110,200,170,.12);border-left:3px solid #6EC8AA;padding:8px 10px;margin:0 0 10px;border-radius:0 6px 6px 0;color:var(--text);font-size:14px}
+.arow{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--line);flex-wrap:wrap}
+.arow .ainfo{display:flex;flex-direction:column;min-width:0;flex:1 1 200px}
+.arow .ainfo span{color:var(--mute);font-size:13px;line-height:1.4}
+.arow .ainfo b{font-size:15px}
+.aact{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.aact input{width:150px}
+.arow .cx,.arow .cp{margin:0;padding:8px 12px;font-size:14px}
+.arow.fechada .ainfo{opacity:.55}
+.badge-st{display:inline-block;font:700 11px var(--mono);padding:2px 6px;border-radius:4px;border:1px solid var(--gold);color:var(--gold2);margin-left:6px}
+.badge-st.ok{border-color:#6EC8AA;color:#6EC8AA}
+.aqr{display:block;width:170px;background:#fff;padding:8px;border-radius:8px;margin:6px 0}
+.apaste{border:1px dashed var(--gold);border-radius:10px;padding:18px 12px;text-align:center;color:var(--gold2);font:600 14px var(--mono);margin:8px 0;cursor:text}
+.apaste:focus{outline:2px solid var(--gold2);outline-offset:2px;background:rgba(232,185,60,.06)}
+@media(max-width:640px){.aact input{width:100%}.aact{width:100%}}
+
+.admbox{border-top:1px dashed var(--gold);margin-top:14px;padding-top:2px}
+.admbox h4{margin:10px 0 8px;font-size:15px;color:var(--gold2)}
+body.adm .vg:not(.open){cursor:pointer}
+body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color:var(--red);outline:none}
+</style>
+<script>
+/* ===== LIGAÇÃO COM O WIX ===== 
+   Para ligar o site ao banco de dados do Wix, cole o Client ID entre as aspas de clientId.
+   Deixe vazio ('') para o site rodar só em modo demonstração, sem salvar nada.
+   bots: true  = mantém os bonecos de demonstração na sala (com a etiqueta "bot")
+   bots: false = só pessoas de verdade                                                */
+window.MH_CFG={clientId:'a633f724-c9b4-4ba8-a3f0-ef20c3c17279',bots:true};
+</script>
+</head>
+<body>
+<div id="topLetreiros" class="top-letreiros">
+<div class="mq" aria-hidden="true"><div class="mqi"><span>★ MIHELP: CONECTANDO QUEM PRECISA A QUEM SABE FAZER ★ PRÉ-CADASTRO GRÁTIS ★ LANÇAMENTO NO INÍCIO DE 2027 ★ BARRA DO GARÇAS · PONTAL DO ARAGUAIA · ARAGARÇAS ★ &nbsp;</span><span>★ MIHELP: CONECTANDO QUEM PRECISA A QUEM SABE FAZER ★ PRÉ-CADASTRO GRÁTIS ★ LANÇAMENTO NO INÍCIO DE 2027 ★ BARRA DO GARÇAS · PONTAL DO ARAGUAIA · ARAGARÇAS ★ &nbsp;</span></div></div>
+<div class="tk tka" id="tka" role="region" aria-label="Letreiro dos anunciantes do outdoor digital" data-go="vagas"><div class="tkw"><div class="tki" id="tkai"></div></div></div>
+<div class="tk" role="region" aria-label="Letreiro de apoiadores do MiHelp"><div class="tkw"><div class="tki" id="tki"></div></div></div>
+</div>
+<div class="shell">
+<aside class="side" aria-label="Publicidade"><div class="win"><div class="bar"><span class="t">publicidade</span><i></i><i></i><i></i></div><div class="vcol" id="vleft"><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button></div></div></aside>
+<div class="wrap">
+  <header class="top"><div class="brand"><div class="mark">M</div><div>Mi<b>Help</b></div></div><nav class="nv"><a class="more" href="#saiba">Saiba mais</a><a class="more" href="#meta">Meta</a><a class="more" href="#guia-chat">Guia do chat</a><a class="more" href="#aovivo">Ao vivo</a><a class="more" href="#guilda">Guilda</a><a class="more" href="#reputacao">Reputação</a><a class="more" href="#seguranca">Segurança</a><a class="more" href="#duvidas">Dúvidas</a><a class="more" href="#apoie">Empresas e apoio</a><a class="more" href="#patrocinio">Patrocinadores</a></nav></header>
+  <h1 class="glitch" id="h">Quem precisa de ajuda encontra.<span>Quem sabe fazer, trabalha.</span></h1>
+  <p class="sub">Lançamento no início de 2027 em Barra do Garças, Pontal do Araguaia e Aragarças. Entre na lista e converse com o pessoal enquanto isso.</p>
+  <p class="feira-note"><b>Feira digital do Vale.</b> Por enquanto o site é ponto de encontro: cliente e profissional se conhecem, conversam e acompanham a ideia do MiHelp. <b>Não há cobrança por serviço nem mediação de trabalho aqui</b> — isso começa com o app. Agora a receita do projeto vem dos <b>outdoors digitais</b> (anúncios por minuto).</p>
+
+  <section id="meta" aria-labelledby="mt">
+  <h2 id="mt">Meta de apoio</h2>
+  <p class="lead">O apoio de vocês paga o que falta para o app sair do papel. Aqui está a meta e para onde vai cada real.</p>
+  <div class="two">
+    <div class="win"><div class="bar"><span class="t">meta.txt</span><i></i><i></i><i></i></div>
+      <div class="body"><p class="mfig"><b id="mArr">R$ 0</b> de <b id="mAlvo">R$ 5.000</b></p>
+      <div class="mbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="mBar"><i></i></div>
+      <p class="note" id="mPct">0% da meta.</p>
+      <p class="note"><b>Valores de exemplo:</b> o dono do site edita o objeto META no código. Só entra no total o que o Pix confirmar.</p>
+      <a class="cta2" href="#apoie">Quero apoiar</a></div></div>
+    <div class="win"><div class="bar"><span class="t">para-onde-vai.txt — EXEMPLO</span><i></i><i></i><i></i></div>
+      <div class="body rules"><ul id="mUsos"></ul></div></div>
+  </div>
+  </section>
+  <div class="grid">
+    <section class="win" id="cadWin" aria-label="Pré-cadastro">
+      <div class="bar"><span class="t">pré-cadastro</span><i></i><i></i><i></i></div>
+      <div class="body" id="reg">
+        <form id="f" novalidate>
+          <div class="role">
+            <label><input type="radio" name="r" value="Cliente" checked><span>Sou Cliente</span></label>
+            <label><input type="radio" name="r" value="Helper"><span>Sou Helper</span></label>
+          </div>
+          <div class="f" id="trab" hidden><label for="w">Com o que você trabalha?</label><input id="w" type="text" list="trabs" maxlength="30" placeholder="Ex.: pintor, eletricista, DJ" autocomplete="off"><datalist id="trabs"><option value="Pintura"><option value="Pedreiro"><option value="Eletricista"><option value="Encanador"><option value="Diarista"><option value="Ar-condicionado"><option value="Babá"><option value="Cuidador de idosos"><option value="Fotografia"><option value="DJ"><option value="Mecânica"><option value="Jardinagem"><option value="Marcenaria"><option value="Manicure"><option value="Aulas particulares"><option value="Gás de cozinha"><option value="Chaveiro"><option value="Borracheiro"></datalist><p class="note" style="margin:6px 0 0">Aparece no chat ao lado do seu nome, para os clientes te encontrarem.</p></div>
+          <div class="f"><label for="n">Nome</label><input id="n" type="text" required autocomplete="name"></div>
+          <div class="f"><label for="t">Telefone</label><input id="t" type="tel" required inputmode="numeric" placeholder="(66) 90000-0000" autocomplete="tel"></div>
+          <div class="f"><label for="e">E-mail</label><input id="e" type="email" required autocomplete="email"></div>
+          <label class="chk"><input type="checkbox" id="aceite" required> Concordo em receber avisos do MiHelp e com o uso dos meus dados para o pré-cadastro. <a href="#privacidade">Ler a política de privacidade</a>.</label>
+          <p class="note" id="ferr" role="alert" style="color:var(--red);display:none;margin:0 0 10px"></p>
+          <button class="go" type="submit" id="btnCad">Garantir meu lugar</button>
+          <p class="note">Cadastro gratuito. Marque o aceite acima para entrar. <a class="wa" href="#" target="_blank" rel="noopener">Convidar amigos pelo WhatsApp</a></p>
+          <p class="note previa"><b>Protótipo:</b> por enquanto seus dados não são guardados em lugar nenhum e só você vê o seu cadastro.</p>
+        </form>
+      </div>
+    </section>
+
+    <section class="win" id="cw" aria-label="Sala de conversa">
+      <div class="bar"><span class="t">Sala do Vale — online 24h</span><button type="button" id="cwExp" class="exp" aria-pressed="false" aria-controls="cw" aria-label="Ampliar a sala de conversa">Ampliar</button><button type="button" id="perfSq" hidden aria-label="Meu perfil"></button><i></i><i></i><i></i></div>
+      <div class="chat">
+        <div class="who">
+          <h3>Na sala agora</h3>
+          <div id="wholist"><small>Ninguém por enquanto</small></div>
+        </div>
+        <div class="main">
+          <button type="button" class="whotg" id="whoTg" aria-expanded="false" aria-controls="wholist">Online ▾</button>
+          <div class="rooms" id="rooms" aria-label="Salas"><span class="rl">Salas:</span></div>
+          <form class="sugf" id="sugf" hidden><input type="text" id="sugi" maxlength="30" placeholder="Que sala você quer?" aria-label="Sugerir uma sala"><button type="submit">Sugerir</button></form>
+          <p class="rrule" id="rrule" hidden></p>
+          <div class="ctabs" id="ctabs"><button type="button" class="ct ctsala on" data-c="sala">Geral</button></div>
+          <div class="ptools" id="ptools" hidden><button type="button" id="pbloq">Bloquear</button><button type="button" id="pden">Denunciar</button></div>
+          <div class="log" id="log" aria-live="polite">
+            <p class="s">*** sala aberta: seja o primeiro a falar ***</p>
+          </div>
+          <div class="cat-row" id="catRow" hidden>
+            <span style="font:600 12px var(--mono);color:var(--faint);align-self:center">Emergência:</span>
+            <button type="button" data-cat="Encanador" title="Cano estourado, vazamento grande">Encanador</button>
+            <button type="button" data-cat="Gás de cozinha" title="O botijão acabou">Gás de cozinha</button>
+            <button type="button" data-cat="Elétrica" class="on" title="Sem energia, curto, fio exposto">Elétrica</button>
+            <button type="button" data-cat="Chaveiro" title="Trancado para fora de casa ou do carro">Chaveiro</button>
+            <button type="button" data-cat="Borracheiro" title="Pneu furado na estrada">Borracheiro</button>
+          </div>
+          <div class="rpbar" id="rpBar" hidden><span id="rpTxt"></span><button type="button" id="rpX" aria-label="Cancelar resposta">×</button></div>
+          <form class="send" id="sf">
+            <input type="text" id="m" placeholder="Cadastre-se para falar" aria-label="Mensagem" autocomplete="off" disabled>
+            <div class="sos-wrap">
+              <button type="button" id="nudge" title="Chamado urgente por categoria. O número mostra os usados hoje." aria-label="SOS, chamados urgentes usados hoje: 0 de 3" disabled><span class="sos-t">SOS</span><span class="sos-count" id="sosCount">0/3</span></button>
+            </div>
+            <button class="p" type="submit" id="sbtn" disabled>Enviar</button>
+          </form>
+          <p class="note previa" style="margin:0;padding:0 12px 12px">Visitantes só leem. Quem se cadastra fala na sala e no privado. <b>SOS</b>: só para emergência de verdade (cano estourado, gás acabou, sem energia, trancado para fora, pneu furado), limite 3/dia. Risco de vida: ligue 193, 192 ou 190. Digite <b>/help</b> para ver os comandos. Prévia: bots são simulados.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+  <section id="aovivo" aria-labelledby="av">
+  <h2 id="av">Ao vivo na feira</h2>
+  <p class="lead">O que acontece na rede, em tempo real. No app, esse painel mostra a cidade se mexendo.</p>
+  <div class="win"><div class="bar"><span class="t">ao-vivo.log — EXEMPLO ILUSTRATIVO</span><i></i><i></i><i></i></div>
+    <div class="body live" id="lvList" role="log" aria-live="off"></div></div>
+  </section>
+  <section id="guilda" aria-labelledby="gd">
+  <h2 id="gd">Guilda MiHelp</h2>
+  <p class="lead">Tem algo para resolver? Publique. Sabe fazer? Aceite uma missão. Trabalho, serviço, recompensa e achados e perdidos.</p>
+  <div class="win"><div class="bar"><span class="t">missoes.txt — EXEMPLO ILUSTRATIVO</span><i></i><i></i><i></i></div>
+    <div class="body"><div class="gl" id="gdList"></div>
+    <p class="note" id="gdMsg" role="status">Prévia do que vem no app. Missões, nomes e valores são inventados, e hoje o site não intermedeia trabalho.</p></div></div>
+  </section>
+  <section id="reputacao" aria-labelledby="rp">
+  <h2 id="rp">Reputação na feira</h2>
+  <p class="lead">Regra clara: os dois lados avaliam. Perfil novo não nasce com nota máxima.</p>
+  <div class="perfil-demo">
+    <div class="win"><div class="bar"><span class="t">perfil do helper — EXEMPLO ILUSTRATIVO</span><i></i><i></i><i></i></div>
+      <div class="body rules">
+        <p><b>Seu Zé</b> · Pintura <span class="badge-novo">Novo na feira</span></p>
+        <p class="status-line">● Online · aceito chamado hoje em Barra</p>
+        <p class="stars">☆☆☆☆☆ · ainda sem avaliação</p>
+        <p style="margin-top:10px;color:var(--mute);font-size:14px">Exemplo ilustrativo, com nomes e notas inventados. Depois do primeiro serviço no app, a média aparece assim:</p>
+        <p class="stars">★★★★☆ <span style="color:var(--mute);font:600 13px var(--mono)">4,2 · 8 serviços</span></p>
+        <div class="dep"><b>Depoimento · Ana C.</b><br>Pontual e deixou tudo limpo. Combinamos pelo MiHelp.</div>
+        <div class="dep"><b>Depoimento · Marcos P.</b><br>Preço justo. Voltaria a chamar.</div>
+      </div></div>
+    <div class="win"><div class="bar"><span class="t">como funciona a nota</span><i></i><i></i><i></i></div>
+      <div class="body rules">
+        <ul>
+          <li><b>1 a 5 estrelas</b> — todo mundo já entende.</li>
+          <li><b>Cliente e Helper</b> se avaliam depois do serviço.</li>
+          <li><b>Novo na feira</b> — sem nota até concluir o primeiro trabalho.</li>
+          <li><b>Depoimento</b> curto e opcional, para quem quiser contar como foi.</li>
+          <li><b>Perfil verificado</b> — selo para quem confirma a identidade, com taxa menor no app.</li>
+          <li><b>Denúncia</b> — qualquer um pode avisar sobre conduta errada, e o caso fica registrado.</li>
+          <li><b>Status</b> de uma linha: disponível, ocupado, região.</li>
+          <li>No app, a meta é ir <b>tirando os desonestos</b> com histórico real, não só propaganda.</li>
+        </ul>
+      </div></div>
+  </div>
+</section>
+  <div class="win" id="vagas" style="margin-top:18px">
+    <div class="bar"><span class="t">outdoors digitais — ao vivo</span><i></i><i></i><i></i></div>
+    <div class="body">
+      <p class="vgi"><span class="nw">NOVO!</span> Outdoors digitais: cada R$ 1 vale 1 minuto no ar. Clique numa vaga aberta. São 30 slots: cada área troca de página sozinha a cada 10 segundos, e as bolinhas levam direto a uma página. No computador, tem vagas aqui em cima e nas laterais. Todo anúncio aparece como <b>Publicidade</b>.</p>
+      <div class="vgrid" id="vgrid"><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button></div>
+      <p class="note" id="vgmsg" role="status"></p>
+    </div>
+  </div>
+  <dialog id="dlg" aria-labelledby="dt">
+    <form id="df">
+      <h3 id="dt">Coloque seu anúncio</h3>
+      <fieldset class="dur"><legend>Por quanto tempo?</legend>
+        <label><input type="radio" name="d" value="5" checked data-mode="preset"><span>5 min<br>R$ 5</span></label>
+        <label><input type="radio" name="d" value="10" data-mode="preset"><span>10 min<br>R$ 10</span></label>
+        <label><input type="radio" name="d" value="30" data-mode="preset"><span>30 min<br>R$ 30</span></label>
+      </fieldset>
+      <div class="dur-custom" id="durCustom">
+        <div class="lbl">Ou escolha as horas<br><b id="horasLbl">1 hora</b></div>
+        <div class="stepper">
+          <button type="button" id="horasMenos" aria-label="Diminuir horas">−</button>
+          <span class="val" id="horasVal">1</span>
+          <button type="button" id="horasMais" aria-label="Aumentar horas">+</button>
+        </div>
+        <input type="radio" name="d" value="60" id="dCustom" data-mode="custom" hidden>
+      </div>
+      <div class="f"><label for="dn">Nome do negócio</label><input id="dn" type="text" required maxlength="40"></div>
+      <div class="f"><label for="dx">Texto do anúncio (até 60 letras)</label><input id="dx" type="text" required maxlength="60"></div>
+      <div class="f"><label for="dl">Link ou WhatsApp (opcional)</label><input id="dl" type="text" maxlength="80"></div>
+      <div class="f"><label for="di">Imagem (opcional)</label><input id="di" type="file" accept="image/png,image/jpeg,image/webp"><img id="dprev" alt="Prévia da imagem escolhida" hidden><p class="note" id="dierr" role="alert" style="color:var(--red)"></p></div>
+      <p class="note" id="dtot"></p>
+      <p class="note">Todo anúncio, com ou sem imagem, é conferido antes de ir ao ar. Não aceitamos conteúdo enganoso, golpe, conteúdo adulto ou ofensivo.</p>
+      <div class="dbt"><button class="go" type="submit">Pagar por Pix</button><button class="cx" type="button" id="dcx">Cancelar</button></div>
+    </form>
+  </dialog>
+  <dialog id="dap" aria-labelledby="dapt">
+    <form id="dapf">
+      <h3 id="dapt">Quero apoiar</h3>
+      <p class="note" id="dapi" style="margin-top:0"></p>
+      <div class="f"><label for="apn">Seu nome ou nome da empresa</label><input id="apn" type="text" required maxlength="40"></div>
+      <div class="f"><label for="apv">Valor (R$)</label><input id="apv" type="number" required min="1" step="1" inputmode="numeric" placeholder="Ex.: 20"></div>
+      <label class="chk"><input type="checkbox" id="apl" checked> Quero aparecer no letreiro de apoiadores</label>
+      <label class="chk"><input type="checkbox" id="apm"> Mostrar também o valor no letreiro</label>
+      <div class="dbt"><button class="go" type="submit">Continuar para o Pix</button><button class="cx" type="button" id="dapx">Cancelar</button></div>
+    </form>
+  </dialog>
+  <dialog id="dpix" aria-labelledby="dpt">
+    <h3 id="dpt">Pagar por Pix</h3>
+    <p class="pixv" id="dpv"></p>
+    <img id="dpq" hidden alt="QR code do Pix">
+    <p class="note" style="margin-top:0">Abra o app do seu banco, escolha Pix, Pix copia e cola, e cole o código abaixo. O valor já vem preenchido.</p>
+    <label for="dpc">Pix copia e cola</label>
+    <textarea id="dpc" readonly rows="3"></textarea>
+    <button type="button" class="cp" id="dcopc">Copiar código</button>
+    <p class="note" style="margin:0 0 6px">Ou use a chave Pix (e-mail): <b id="dpk"></b></p>
+    <button type="button" class="cp" id="dcopk">Copiar chave</button>
+    <h4>Depois de pagar</h4>
+    <ol class="pixs">
+      <li>Envie o comprovante e o resumo abaixo para <b id="dpce"></b>.</li>
+      <li id="dpe"></li>
+      <li>Nós conferimos e colocamos no ar.</li>
+    </ol>
+    <label for="dpr">Resumo do pedido</label>
+    <textarea id="dpr" readonly rows="6"></textarea>
+    <button type="button" class="cp" id="dcopr">Copiar resumo</button>
+    <div class="dbt"><button type="button" class="go" id="dpm">Abrir e-mail</button><button class="cx" type="button" id="dpx">Fechar</button></div>
+    <button type="button" class="cp" id="dpp" hidden>Ver como fica (só na sua tela)</button>
+  </dialog>
+
+  <section id="saiba" aria-labelledby="sh">
+  <h2 id="sh">Conheça o MiHelp</h2>
+  <p class="lead">Um só aplicativo, duas portas de entrada. Escolha a sua.</p>
+  <div class="win">
+    <div class="bar"><span class="t">saiba-mais.txt</span><i></i><i></i><i></i></div>
+    <div class="tabs" role="tablist" aria-label="Para quem é">
+      <button role="tab" id="tc" aria-selected="true" aria-controls="pc">Sou Cliente</button>
+      <button role="tab" id="th" aria-selected="false" aria-controls="ph">Sou Helper</button>
+    </div>
+    <div class="pane show" id="pc" role="tabpanel" aria-labelledby="tc">
+      <dl>
+        <div><dt>Peça o que quiser</dt><dd>Pintor, eletricista, diarista, DJ: se existe o trabalho, tem lugar aqui.</dd></div>
+        <div><dt>Escolha com confiança</dt><dd>Veja nota, portfólio e comentários antes de decidir. A escolha é sempre sua.</dd></div>
+        <div><dt>Pague pelo app</dt><dd>O pagamento fica registrado na contratação, com valor, taxas e status à vista.</dd></div>
+        <div><dt>Avalie os dois lados</dt><dd>Sua opinião ajuda a manter a plataforma confiável para todo mundo.</dd></div>
+      </dl>
+    </div>
+    <div class="pane" id="ph" role="tabpanel" aria-labelledby="th">
+      <dl>
+        <div><dt>Sem custo para começar</dt><dd>Cadastro gratuito. Você só paga uma taxa quando um trabalho é fechado de verdade.</dd></div>
+        <div><dt>Você escolhe quando</dt><dd>Aceite os pedidos que quiser, no horário que fizer sentido para você.</dd></div>
+        <div><dt>Repasse organizado</dt><dd>Escolha receber toda semana ou todo mês e acompanhe seu saldo e o próximo repasse no app.</dd></div>
+        <div><dt>Sua reputação, seu ativo</dt><dd>Cadastre até 5 habilidades, monte seu portfólio e cresça pela sua nota.</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="win">
+      <div class="bar"><span class="t">como-funciona.log</span><i></i><i></i><i></i></div>
+      <div class="body"><ol class="steps">
+        <li><b>1. Peça</b>Descreva o que precisa ou escolha uma categoria.</li>
+        <li><b>2. Escolha</b>Veja quem está disponível, com nota e preço.</li>
+        <li><b>3. Combine</b>Pague pelo app. Tudo fica registrado.</li>
+        <li><b>4. Avalie</b>Serviço confirmado, repasse no ciclo escolhido.</li>
+      </ol></div>
+    </div>
+    <div class="win">
+      <div class="bar"><span class="t">por-que-confiar.txt</span><i></i><i></i><i></i></div>
+      <div class="body"><ul class="trust">
+        <li><span class="dot d-on"></span><span><b>Verificação de identidade</b>Feita para os Helpers depois do cadastro.</span></li>
+        <li><span class="dot d-on"></span><span><b>Privacidade protegida</b>Nome completo e contato só aparecem depois que o pedido é aceito.</span></li>
+        <li><span class="dot d-on"></span><span><b>Avaliação dos dois lados</b>Cliente avalia o Helper e o Helper avalia o cliente.</span></li>
+        <li><span class="dot d-on"></span><span><b>Time local acompanhando</b>Nossa equipe acompanha de perto os primeiros atendimentos.</span></li>
+      </ul></div>
+    </div>
+  </div>
+  <a class="cta2" href="#reg">Quero fazer parte</a>
+</section>
+<section id="taxas" aria-labelledby="tx">
+  <h2 id="tx">Quanto custa</h2>
+  <p class="lead">No site de agora: grátis para conversar e se cadastrar. Taxa de serviço só no app, quando ele lançar.</p>
+  <div class="win"><div class="bar"><span class="t">taxas.txt</span><i></i><i></i><i></i></div>
+    <div class="body rules">
+      <p class="feira-note" style="margin-top:0"><b>Fase 1 (este site):</b> sem cobrança por serviço e sem equipe indo na casa de ninguém. É feira digital — interação e proposta. <b>Fase 2 (app):</b> contratação pelo app, avaliação 1–5 estrelas dos dois lados, e verificação de serviço para ir tirando os ruins do ramo.</p>
+      <div class="tw"><table class="tb"><thead><tr><th>Perfil do Helper (no app)</th><th>Taxa</th><th>Em um trabalho de R$ 500</th></tr></thead>
+        <tbody><tr><td>Comum</td><td>15%</td><td>R$ 75</td></tr><tr><td>Verificado</td><td>10%</td><td>R$ 50</td></tr></tbody></table></div>
+      <ul style="margin-top:14px">
+        <li>A taxa aparece para o cliente antes de confirmar o pedido. O Helper recebe o valor que definiu.</li>
+        <li>Perfil verificado tem taxa menor: incentivo para quem confirma a identidade.</li>
+        <li>Pedir orçamento é sempre grátis.</li>
+        <li>Avaliação: <b>1 a 5 estrelas</b>, dos dois lados. Perfil novo aparece como <span class="badge-novo">Novo na feira</span> (sem nota até o primeiro serviço).</li>
+        <li>Outdoors digitais (anúncios no site) são outra coisa: pagos por Pix, R$ 1/min, com desconto em pacotes longos. Veja <a href="#apoie">Empresas e apoio</a>.</li>
+        <li>Valores de lançamento. Podem mudar, sempre com aviso prévio.</li>
+      </ul>
+    </div></div>
+</section>
+
+
+
+<section id="guia-chat" aria-labelledby="gc">
+  <h2 id="gc">Guia do chat</h2>
+  <p class="lead">Tudo o que o chat tem, o que faz e o que não faz. Sem letra miúda.</p>
+  <div class="two"><div class="win"><div class="bar"><span class="t">salas.txt</span><i></i><i></i><i></i></div><div class="body rules"><p><b>O que é:</b> salas por assunto: Geral, Classificados, Amizade, Construção e reformas, Vagas e bicos.</p><p><b>Como usa:</b> clique no nome da sala. A regra dela fica fixa no topo.</p><p><b>Não é:</b> sala criada por qualquer um. Por enquanto você só <b>sugere</b> uma sala. Criar salas livremente fica para o app, com moderação.</p></div></div><div class="win"><div class="bar"><span class="t">quem-esta-online.txt</span><i></i><i></i><i></i></div><div class="body rules"><p><b>O que é:</b> a lista de quem está na sala, em duas abas: Helpers e Clientes, com o total de cada uma.</p><p><b>Como usa:</b> entre em Helpers e escolha o ofício (pintura, elétrica...). Com mais de 15 pessoas, aparece uma busca. Clique no nome para ver o perfil e conversar no privado.</p><p><b>Não é:</b> garantia de que a pessoa responde agora. Na prévia, os nomes com etiqueta bot são simulados.</p></div></div></div>
+  <div class="two"><div class="win"><div class="bar"><span class="t">responder-e-avisos.txt</span><i></i><i></i><i></i></div><div class="body rules"><p><b>O que é:</b> o botão <b>Responder</b> em cada mensagem e o destaque verde "para você".</p><p><b>Como usa:</b> clique em Responder, escreva e envie. Sua mensagem leva a citação. Quando alguém citar você ou responder a você, a mensagem fica verde, e a aba Geral ganha um ●.</p><p><b>Não é:</b> notificação no celular. Isso só vem com o app.</p></div></div><div class="win"><div class="bar"><span class="t">ao-vivo-guilda-comandos.txt</span><i></i><i></i><i></i></div><div class="body rules"><p><b>Ao vivo:</b> painel de acontecimentos da rede. <b>Guilda:</b> missões de trabalho, recompensa, serviço e achados e perdidos; "Falar com..." abre o privado com quem publicou.</p><p><b>Comandos:</b> digite /help no chat.</p><p><b>Não é:</b> real ainda. Ao vivo, missões, nomes e valores são <b>exemplos inventados</b>. O site não intermedeia trabalho.</p></div></div></div>
+</section>
+<section id="seguranca" aria-labelledby="sg">
+  <h2 id="sg">Regras claras para os dois lados</h2>
+  <p class="lead">O MiHelp protege quem contrata e quem trabalha. Cada situação importante tem uma regra, uma tela e um registro.</p>
+  <div class="two">
+    <div class="win"><div class="bar"><span class="t">quem-contrata.txt</span><i></i><i></i><i></i></div>
+      <div class="body rules"><ul>
+        <li>Informa a verdade sobre o serviço, o local e os riscos que conhece.</li>
+        <li>Paga o valor combinado na forma apresentada no app.</li>
+        <li>Registra e aprova qualquer mudança de escopo ou de preço.</li>
+        <li>Sem ameaça, assédio ou pressão. Avaliação só de experiência real.</li>
+      </ul></div></div>
+    <div class="win"><div class="bar"><span class="t">quem-trabalha.txt</span><i></i><i></i><i></i></div>
+      <div class="body rules"><ul>
+        <li>Oferece só o que sabe e pode fazer, com perfil e preço verdadeiros.</li>
+        <li>Cumpre data e condições combinadas, ou avisa e registra o novo acordo.</li>
+        <li>Responde pelos danos causados por sua atuação, conforme a lei.</li>
+        <li>Não abandona serviço já iniciado.</li>
+      </ul></div></div>
+  </div>
+  <div class="two">
+    <div class="win"><div class="bar"><span class="t">tudo-fica-registrado.log</span><i></i><i></i><i></i></div>
+      <div class="body rules">
+        <p>Toda contratação tem um número único e uma linha do tempo automática: pedido, orçamento, mudanças de preço (quem pediu, quanto mudou, quem aceitou), mensagens, fotos de antes e depois, pagamento, conclusão e avaliações.</p>
+        <p><b>Teve problema?</b> Todo pedido tem o botão "Tive um problema": serviço não realizado ou abandonado, dano, cobrança errada, comportamento inadequado. Você envia fotos e o histórico já vai junto.</p>
+      </div></div>
+    <div class="win"><div class="bar"><span class="t">fechou-aqui-paga-aqui.txt</span><i></i><i></i><i></i></div>
+      <div class="body rules">
+        <p>Se a contratação foi combinada e confirmada pelo MiHelp, o pagamento segue pelo MiHelp, quando essa opção estiver disponível.</p>
+        <p>Trocar telefone ou conversar por outro app não é problema. O que não pode é usar o MiHelp só para achar contato e fechar por fora de propósito, fugindo das regras. Isso vale para cliente e Helper, e a análise considera o contexto. Conforme a gravidade, pode haver aviso, limitação de funções, suspensão ou encerramento da conta.</p>
+      </div></div>
+  </div>
+  <div class="two">
+    <div class="win"><div class="bar"><span class="t">seus-dados.txt</span><i></i><i></i><i></i></div>
+      <div class="body rules">
+        <p>Quem trabalha só vê o necessário sobre você em cada etapa. Nome completo, foto nítida e contato aparecem depois que o Helper aceita o pedido. Seguimos a LGPD, e a verificação de identidade não significa juntar documentos à toa.</p>
+      </div></div>
+    <div class="win"><div class="bar"><span class="t">avaliacoes.txt</span><i></i><i></i><i></i></div>
+      <div class="body rules">
+        <p>Só quem participou de uma contratação real pode avaliá-la. Comprar, vender ou fabricar avaliação é proibido, e você pode contestar uma avaliação ou denunciar fraude. Nota alta não é garantia do serviço, e nota baixa não é prova de má-fé.</p>
+      </div></div>
+  </div>
+  <div class="two" id="sos-regras">
+    <div class="win"><div class="bar"><span class="t">sos-o-que-e.txt</span><i></i><i></i><i></i></div>
+      <div class="body rules">
+        <h3>SOS é só para emergência de verdade</h3>
+        <p>Tem que ser algo que não pode esperar o dia seguinte e que causa dano ou grande transtorno agora. Exemplos:</p>
+        <ul>
+          <li><b>Encanador:</b> cano estourado ou vazamento grande.</li>
+          <li><b>Gás de cozinha:</b> o botijão acabou e você precisa agora.</li>
+          <li><b>Elétrica:</b> sem energia em casa, curto, fio exposto.</li>
+          <li><b>Chaveiro:</b> trancado para fora de casa ou do carro.</li>
+          <li><b>Borracheiro:</b> pneu furado na estrada.</li>
+        </ul>
+        <p><b>Não é SOS:</b> pintura, ar-condicionado, DJ, aula particular, reforma e qualquer serviço que pode ser agendado. Para esses, use o chat normal ou a Guilda.</p>
+      </div></div>
+    <div class="win"><div class="bar"><span class="t">sos-leia-antes.txt</span><i></i><i></i><i></i></div>
+      <div class="body rules">
+        <h3>O que o SOS faz e o que não faz</h3>
+        <ul>
+          <li>Avisa os Helpers da categoria escolhida. Os outros veem só uma mensagem normal.</li>
+          <li>Limite de <b>3 por dia</b> por pessoa, para o alerta continuar valendo.</li>
+          <li>Não garante que alguém vai responder nem em quanto tempo.</li>
+          <li>Mau uso (trote ou serviço que não é emergência) pode levar a aviso, limitação ou suspensão.</li>
+        </ul>
+        <p><b>Risco de vida, fogo, cheiro forte de gás ou violência:</b> ligue <b>193</b> (Bombeiros), <b>192</b> (SAMU) ou <b>190</b> (Polícia). O SOS do MiHelp <b>não substitui</b> esses números.</p>
+      </div></div>
+  </div>
+  <div class="honest">&gt; o que o MiHelp não promete: que nenhum problema vai acontecer, nem seguro ou cobertura financeira automática.<br>&gt; esta página é um resumo. Os Termos de Uso e a Política de Privacidade completos serão publicados antes do lançamento.</div>
+</section>
+<section id="privacidade" aria-labelledby="pv">
+  <h2 id="pv">Privacidade em resumo</h2>
+  <div class="win"><div class="bar"><span class="t">privacidade.txt</span><i></i><i></i><i></i></div>
+    <div class="body rules">
+      <p><b>O que pedimos:</b> nome, telefone, e-mail e, para Helpers, o ofício. <b>Para quê:</b> avisar você do lançamento e mostrar seu nome na sala.</p>
+      <p><b>Seus direitos (LGPD):</b> pedir para ver, corrigir ou apagar seus dados, quando quiser, pelo contato em "Quem faz o MiHelp".</p>
+      <p><b>Hoje, nesta prévia,</b> nada do que você digita é guardado. A política completa será publicada antes do lançamento.</p>
+    </div></div>
+</section>
+<section id="duvidas" aria-labelledby="dv">
+  <h2 id="dv">Dúvidas comuns</h2>
+  <p class="lead">Clique na pergunta para ver a resposta.</p>
+  <div class="win"><div class="bar"><span class="t">perguntas.txt</span><i></i><i></i><i></i></div>
+    <div class="body rules">
+      <details><summary>O que é o MiHelp?</summary><p>Um aplicativo que conecta quem precisa de um serviço a quem sabe fazer, de pintor a diarista, babá e DJ. Você pode entrar como Cliente ou como Helper (o profissional).</p></details>
+      <details><summary>Quando lança e onde?</summary><p>O lançamento está previsto para o início de 2027, em Barra do Garças, Pontal do Araguaia e Aragarças. Vamos ficar só nessa região por pelo menos 12 meses, para cuidar bem de cada atendimento.</p></details>
+      <details><summary>Preciso pagar para me cadastrar?</summary><p>Não. O cadastro é grátis para clientes e Helpers. A taxa só existe quando um trabalho é fechado pelo app. Veja a tabela em <a href="#taxas">Quanto custa</a>.</p></details>
+      <details><summary>Como escolho o profissional?</summary><p>Você escolhe direto na lista, vendo nota, portfólio, comentários e preço. Se não souber quem escolher, pode mandar o pedido para vários Helpers bem avaliados, e o primeiro a aceitar assume.</p></details>
+      <details><summary>Como sei que o Helper é confiável?</summary><p>Você vê a nota e os comentários de quem já contratou, e cada serviço tem histórico. Helpers podem ter o selo de perfil verificado, que confirma a identidade. Os detalhes da verificação serão divulgados antes do lançamento. A nota e o selo ajudam, mas não são garantia do serviço.</p></details>
+      <details><summary>Como o Helper começa a receber pedidos?</summary><p>Depois de juntar 5 avaliações. Uma boa saída é convidar 5 clientes de trabalhos que você já fez fora do app. Eles precisam ser pessoas diferentes, com CPF e telefone próprios.</p></details>
+      <details><summary>Como o Helper recebe?</summary><p>Você escolhe receber toda semana (o dia de repasse é a terça-feira) ou todo mês. No app aparecem seu saldo, o próximo repasse e o histórico. Um valor que fica liberado depois do fechamento do ciclo entra no ciclo seguinte.</p></details>
+      <details><summary>O que é o SOS e quando devo usar?</summary><p>É um alerta para emergência de verdade: cano estourado, gás de cozinha que acabou, sem energia, trancado para fora ou pneu furado. Serviços que podem esperar, como pintura ou ar-condicionado, não são SOS. São 3 por dia. Se houver risco de vida, fogo ou cheiro forte de gás, ligue 193, 192 ou 190. Veja os detalhes em <a href="#sos-regras">Regras claras</a>.</p></details>
+      <details><summary>E se acontecer um problema no serviço?</summary><p>Todo pedido tem o botão "Tive um problema". Você conta o que aconteceu, anexa fotos e o histórico já vai junto para a nossa equipe analisar.</p></details>
+      <details><summary>Meus dados ficam protegidos?</summary><p>Quem trabalha só vê o necessário em cada etapa. Nome completo, foto nítida e contato só aparecem depois que o Helper aceita o pedido. Seguimos a LGPD.</p></details>
+      <details><summary>Posso falar no privado com alguém do chat?</summary><p>Pode, depois de se cadastrar. É só clicar no nome da pessoa. No chat aparece apenas o primeiro nome e a inicial do segundo, e nada do seu perfil é compartilhado. Se vocês combinarem de trocar telefone, a escolha é de vocês, mas para ter histórico e mais segurança, feche o serviço pelo app. Você pode bloquear e denunciar qualquer conversa.</p></details>
+      <details><summary>Sou MEI ou tenho empresa. Posso entrar?</summary><p>MEI se cadastra como Helper, do mesmo jeito que um autônomo. Empresas com equipe e folha de pagamento ficam para uma fase futura. Se você quer divulgar sua empresa, veja <a href="#apoie">Empresas e apoio</a>.</p></details>
+      <details><summary>Quais serviços têm?</summary><p>Obras (pintura, pedreiro, encanador...), dia a dia (elétrica, diarista, ar-condicionado...) e mais trabalhos (babá, cuidador de idoso, fotógrafo, DJ...). Se o que você precisa não está na lista, a busca do app encontra.</p></details>
+    </div></div>
+</section>
+
+<section id="quem" aria-labelledby="qm">
+  <h2 id="qm">Quem faz o MiHelp</h2>
+  <div class="win"><div class="bar"><span class="t">quem-faz.txt</span><i></i><i></i><i></i></div>
+    <div class="body rules"><p><b>D'Castro Labs</b> · Barra do Garças, MT. Projeto feito aqui no Vale, para o Vale.</p>
+    <p>Contato: <b>[EDITE: seu WhatsApp ou Instagram]</b>. Foto e história curta de quem criou também ficam aqui.</p></div></div>
+</section>
+<section id="apoie" aria-labelledby="ap">
+  <h2 id="ap">Empresas e apoio</h2>
+  <p class="lead">Tem um negócio na região ou quer ajudar o MiHelp a sair do papel? Tem dois jeitos.</p>
+  <div class="two">
+    <div class="win"><div class="bar"><span class="t">outdoors-digitais.txt</span><i></i><i></i><i></i></div>
+      <div class="body rules">
+        <p><b>Outdoors digitais</b> — as vagas no topo do site. Você paga pelos minutos e sua marca aparece. É a forma de apoiar o MiHelp e divulgar na região.</p>
+        <p><b>Preço:</b> R$ 1 por minuto. Atalhos de 5, 10 ou 30 min, ou +/− de 1 a 24 horas. A partir de 2h, desconto progressivo.</p>
+        <div class="tw" style="margin:12px 0">
+          <table class="tb">
+            <thead><tr><th>Tempo</th><th>Desconto</th><th>Você paga</th></tr></thead>
+            <tbody>
+              <tr><td>Até 1 hora</td><td>0%</td><td>R$ 1 / min</td></tr>
+              <tr><td>2 horas</td><td>8%</td><td>R$ 110</td></tr>
+              <tr><td>3–5 horas</td><td>12%</td><td>ex. 3h = R$ 158</td></tr>
+              <tr><td>6–11 horas</td><td>20%</td><td>ex. 6h = R$ 288</td></tr>
+              <tr><td>12–23 horas</td><td>28%</td><td>ex. 12h = R$ 518</td></tr>
+              <tr><td>24 horas</td><td>35%</td><td>R$ 936 (de R$ 1.440)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ol class="steps">
+          <li><b>1. Clique numa vaga aberta</b></li>
+          <li><b>2. Escolha o tempo</b>Preset ou horas com +/−. Total e desconto aparecem na hora.</li>
+          <li><b>3. Pague por Pix</b>Nome, texto, link e imagem opcional.</li>
+          <li><b>4. Entra no ar</b>Conferimos e publicamos.</li>
+        </ol>
+        <p style="margin-top:12px">Todo anúncio marcado como publicidade. Sem conteúdo enganoso, golpe, adulto ou ofensivo.</p>
+        <a class="cta2" href="#vagas">Quero um outdoor digital</a>
+      </div></div>
+    <div class="win"><div class="bar"><span class="t">apoiar-o-mihelp.txt</span><i></i><i></i><i></i></div>
+      <div class="body rules">
+        <p>Quer ajudar no desenvolvimento do app? Um apoio por Pix ajuda a pagar as próximas etapas do desenvolvimento. Quem apoiar pode, se quiser, ter o nome no letreiro de apoiadores, lá no topo do site.</p>
+        <p><b>Apoio não é investimento.</b> Ele não dá participação na empresa e não promete retorno financeiro.</p>
+        <button type="button" class="cta2" data-apoio="apoio">Quero apoiar</button>
+      </div></div>
+  </div>
+</section>
+<section id="patrocinio" aria-labelledby="pt">
+  <h2 id="pt">Patrocinadores</h2>
+  <p class="lead">Empresas que acreditam no MiHelp e ajudam o app a nascer no Vale do Araguaia.</p>
+  <div class="win"><div class="bar"><span class="t">mural-de-patrocinadores.txt</span><i></i><i></i><i></i></div>
+    <div class="body rules">
+      <div class="slots"><button type="button" class="slot" data-apoio="patrocinio">Vaga aberta</button><button type="button" class="slot" data-apoio="patrocinio">Vaga aberta</button><button type="button" class="slot" data-apoio="patrocinio">Vaga aberta</button><button type="button" class="slot" data-apoio="patrocinio">Vaga aberta</button></div>
+      <p><b>Quer ver sua marca aqui?</b> Patrocinadores aparecem neste mural, com nome e logo, e podem ter anúncio nas vagas pelo tempo combinado.</p>
+      <p>Patrocínio é divulgação da sua marca. Não é investimento e não dá participação na empresa.</p>
+      <button type="button" class="cta2" data-apoio="patrocinio">Quero patrocinar</button>
+    </div></div>
+</section>
+<footer>MiHelp — mais do que serviços, é solução.</footer>
+</div>
+<aside class="side" aria-label="Publicidade"><div class="win"><div class="bar"><span class="t">publicidade</span><i></i><i></i><i></i></div><div class="vcol" id="vright"><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button></div></div></aside>
+</div>
+<div class="nojs" id="nojs" role="alert">O JavaScript do site não carregou ou deu erro. Dono do site: aperte F12, abra a aba Console e veja a mensagem em vermelho.</div>
+<script>
+// MiHelp: JavaScript da página. Se algo falhar, o erro aparece no Console (F12) com o nome MiHelp.
+(function(){
+// Troque para false quando cadastro, chat e anúncios estiverem ligados ao Wix
+const PREVIA = !(window.MH_CFG&&window.MH_CFG.clientId);
+// Mostra anúncios de exemplo para você ver o visual. Troque para false antes de abrir para o público
+const EXEMPLOS = PREVIA;
+window.MH_TITULOS=(function(){try{return JSON.parse(localStorage.getItem('mihelp_adm_v1:titulos'))||{}}catch(e){return {}}})();
+// ====== Pix, apoio e letreiro de apoiadores ======
+// Para trocar a chave Pix, o nome ou o e-mail de contato, mude só as linhas abaixo.
+const PIX={chave:'mihelpmarketing@gmail.com',nome:'MIHELP',cidade:'BARRA DO GARCAS',contato:'mihelpmarketing@gmail.com'};window.MH_PIX=PIX;
+// Lista do letreiro de apoiadores. Para adicionar alguém que pediu para aparecer, coloque uma linha assim:
+// {nome:'Maria', valor:20, mostrarValor:true},
+const APOIADORES=[];
+const tlv=(id,v)=>id+String(v.length).padStart(2,'0')+v;
+function crc16(s){let c=0xFFFF;for(let i=0;s.length>i;i++){c^=s.charCodeAt(i)*256;for(let k=0;8>k;k++){c=(c&0x8000)?(((c*2)^0x1021)&0xFFFF):((c*2)&0xFFFF)}}return c.toString(16).toUpperCase().padStart(4,'0')}
+function pixPayload(valor){
+const conta=tlv('00','br.gov.bcb.pix')+tlv('01',PIX.chave);
+let p=tlv('00','01')+tlv('01','11')+tlv('26',conta)+tlv('52','0000')+tlv('53','986');
+if(valor)p+=tlv('54',valor.toFixed(2));
+p+=tlv('58','BR')+tlv('59',PIX.nome)+tlv('60',PIX.cidade)+tlv('62',tlv('05','***'))+'6304';
+return p+crc16(p)}
+async function copiar(texto,btn){
+try{await navigator.clipboard.writeText(texto)}catch(e){const t=document.createElement('textarea');t.value=texto;document.body.append(t);t.select();try{document.execCommand('copy')}catch(x){}t.remove()}
+if(btn){const o=btn.textContent;btn.textContent='Copiado!';setTimeout(()=>{btn.textContent=o},1600)}}
+function abrirPix(o){
+const g=id=>document.getElementById(id),d=g('dpix');
+g('dpt').textContent=o.titulo;
+g('dpv').textContent='R$ '+o.valor.toFixed(2).replace('.',',');
+g('dpc').value=pixPayload(o.valor);
+g('dpk').textContent=PIX.chave;{const q=g('dpq');if(q){if(PIX.qr){q.src=PIX.qr;q.hidden=false}else q.hidden=true}}
+g('dpce').textContent=PIX.contato;
+g('dpr').value=o.resumo;
+g('dpe').textContent=o.extra||'';g('dpe').hidden=!o.extra;
+const mail='mailto:'+PIX.contato+'?subject='+encodeURIComponent(o.assunto)+'&body='+encodeURIComponent(o.resumo+'\n\n(anexe o comprovante do Pix)');g('dpm').onclick=()=>{window.location.href=mail};
+const pp=g('dpp');pp.hidden=!o.previa||!PREVIA;pp.onclick=()=>{o.previa();d.close()};
+d.showModal()}
+let modoAp='apoio';
+function abrirApoio(modo){
+modoAp=modo;const pat=modo==='patrocinio',g=id=>document.getElementById(id);
+g('dapf').reset();
+g('dapt').textContent=pat?'Quero patrocinar':'Quero apoiar';
+g('dapi').textContent=pat?'Patrocinadores aparecem no mural do site, com nome e logo. Digite o valor do patrocínio.':'Seu apoio ajuda a pagar as próximas etapas do desenvolvimento. Apoio não é investimento e não dá participação na empresa.';
+g('dap').showModal()}
+function construirTicker(){
+const w=document.getElementById('tki');if(!w)return;
+let lista=APOIADORES;
+if(!lista.length&&EXEMPLOS)lista=[{nome:'Maria (exemplo)',valor:20,mostrarValor:true},{nome:'Empresa Exemplo',valor:100,mostrarValor:true},{nome:'João (exemplo)',valor:10,mostrarValor:false},{nome:'Apoiador Exemplo',valor:50,mostrarValor:true}];
+const mk=()=>{const s=document.createElement('span');s.className='tkg';
+if(!lista.length){const i=document.createElement('span');i.className='tkx';i.textContent='Seja o primeiro apoiador do MiHelp. Clique em Empresas e apoio.';s.append(i);return s}
+lista.forEach(a=>{const i=document.createElement('span');i.className='tkx';const up=document.createElement('b');up.textContent='● ';i.append(up,document.createTextNode(a.nome.toUpperCase()));
+s.append(i)});return s};
+w.textContent='';const a=mk(),b=mk();b.setAttribute('aria-hidden','true');w.append(a,b);
+w.style.animationDuration=Math.max(28,lista.length*7)+'s'}
+window.MH_APOIO={set:l=>{APOIADORES.length=0;l.forEach(x=>APOIADORES.push(x));construirTicker()}};
+function iniciarPix(){window.MH_abrirPix=abrirPix;
+const g=id=>document.getElementById(id);
+g('dcopc').onclick=e=>copiar(g('dpc').value,e.currentTarget);
+g('dcopk').onclick=e=>copiar(PIX.chave,e.currentTarget);
+g('dcopr').onclick=e=>copiar(g('dpr').value,e.currentTarget);
+g('dpx').onclick=()=>g('dpix').close();
+g('dapx').onclick=()=>g('dap').close();
+document.querySelectorAll('[data-apoio]').forEach(b=>b.addEventListener('click',()=>abrirApoio(b.dataset.apoio)));
+g('dapf').addEventListener('submit',e=>{e.preventDefault();
+const nome=g('apn').value.trim(),valor=Number(g('apv').value),noLet=g('apl').checked,mostra=g('apm').checked;
+if(!nome||!(valor>=1))return;
+const pat=modoAp==='patrocinio';g('dap').close();
+try{if(window.MH_DB&&MH_DB.ok)MH_DB.pedido({tipo:pat?'patrocinio':'apoio',nome,valor,mostrarValor:mostra,noLetreiro:noLet}).then(()=>{const m=g('vgmsg');if(m)m.textContent='Pedido de '+(pat?'patrocínio':'apoio')+' registrado. Ele entra no letreiro depois que o Pix for confirmado.'}).catch(()=>{})}catch(x){}
+abrirPix({titulo:pat?'Patrocínio':'Apoio ao MiHelp',valor,
+resumo:(pat?'PATROCÍNIO':'APOIO')+' MIHELP\nNome: '+nome+'\nValor: R$ '+valor.toFixed(2).replace('.',',')+'\nAparecer no letreiro: '+(noLet?'sim':'não')+'\nMostrar o valor: '+(mostra?'sim':'não'),
+assunto:(pat?'Patrocínio':'Apoio')+' MiHelp — '+nome,
+extra:pat?'Anexe o logo da empresa no e-mail.':'',
+previa:noLet?()=>{APOIADORES.push({nome,valor,mostrarValor:mostra});construirTicker()}:null})});
+construirTicker()}
+
+try{
+const $=id=>document.getElementById(id);
+// Participantes simulados (bots) para o protótipo. Troque para false para desligar.
+const BOTS=(window.MH_CFG||{}).bots!==false;
+document.addEventListener('click',function(e){
+const b=e.target.closest&&e.target.closest('button[type=submit]');if(!b||!b.form)return;
+const f=b.form;if(f.id==='f'||f.noValidate)return;
+e.preventDefault();
+if(!f.checkValidity()){try{f.reportValidity()}catch(x){const inv=f.querySelector(':invalid');if(inv)inv.focus()}return}
+f.dispatchEvent(new Event('submit',{cancelable:true,bubbles:true}))},true);
+(function(){const t=document.getElementById('topLetreiros');if(!t)return;const set=()=>document.documentElement.style.setProperty('--sticky-h',t.offsetHeight+'px');set();window.addEventListener('resize',set);if(window.ResizeObserver)new ResizeObserver(set).observe(t)})();
+let eu=null,ativa='sala',respA=null;const bloqueados=new Set();
+const painel={sala:$('log')};
+const PESSOAS=[
+{nome:'Ana C.',role:'cliente',bot:true},
+{nome:'Marcos P.',role:'cliente',bot:true},
+{nome:'Seu Zé',role:'helper',work:'Pintura',bot:true},
+{nome:'Duda L.',role:'helper',work:'DJ',bot:true},
+{nome:'Carla M.',role:'helper',work:'Elétrica',bot:true},
+{nome:'Rui T.',role:'helper',work:'Ar-condicionado',bot:true,status:'ocupado'},
+{nome:'Toninho',role:'helper',work:'Encanador',bot:true,status:'ocupado'},
+{nome:'Nando G.',role:'helper',work:'Gás de cozinha',bot:true},
+{nome:'Beto C.',role:'helper',work:'Chaveiro',bot:true},
+{nome:'Jota B.',role:'helper',work:'Borracheiro',bot:true},
+{nome:'Sr. Paulo',role:'cliente',bot:true,oculto:true,missao:'Repositor para trabalho temporário'},
+{nome:'Dona Lúcia',role:'cliente',bot:true,oculto:true,missao:'Gato desaparecido'},
+{nome:'Bia S.',role:'cliente',bot:true,oculto:true,missao:'Ajuda com mudança de móveis'},
+{nome:'Tiago R.',role:'cliente',bot:true,oculto:true,missao:'Chave perdida perto da praça'}];
+const por=n=>PESSOAS.find(p=>p.nome===n);
+const REAIS={};
+const visiveis=()=>(BOTS?PESSOAS.filter(p=>!p.oculto&&!bloqueados.has(p.nome)):[]).concat(Object.values(REAIS).filter(p=>p.visto&&Date.now()-p.visto<1800000&&!bloqueados.has(p.nome)&&!(eu&&p.nome===eu.nome)));
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const depois=(ms,f)=>setTimeout(f,ms);
+function nomeCurto(t){const p=t.replace(/[^A-Za-zÀ-ÿ ]/g,' ').trim().split(/\s+/).filter(Boolean);if(!p.length)return '';const cap=x=>x.charAt(0).toUpperCase()+x.slice(1).toLowerCase();return p.length>1?cap(p[0])+' '+p[1].charAt(0).toUpperCase()+'.':cap(p[0])}
+function trabCurto(t){const x=t.replace(/[^A-Za-zÀ-ÿ \-]/g,' ').replace(/\s+/g,' ').trim().slice(0,30);return x?x.charAt(0).toUpperCase()+x.slice(1):''}
+function rolar(el){el.scrollTop=el.scrollHeight}
+function nota(pane,t){const p=document.createElement('p');p.className='s';p.textContent=t;pane.append(p);rolar(pane)}
+function etiqueta(pes){const f=document.createDocumentFragment();
+if(pes.role==='helper'){const s=document.createElement('span');s.className='tag h';s.textContent=pes.work;f.append(s)}
+if(pes.bot){const s=document.createElement('span');s.className='tag b';s.textContent='bot';f.append(s)}
+const tt=(window.MH_TITULOS||{})[pes.nome];if(tt){const s=document.createElement('span');s.className='tag t';s.textContent=tt;f.append(s)}
+return f}
+function linha(pane,pes,texto,resp){const meu=eu&&pes===eu;const p=document.createElement('p');p.dataset.de=pes.nome;
+if(resp){const q=document.createElement('span');q.className='cit';q.textContent='↪ '+resp.nome+': '+resp.texto;p.append(q)}
+const n=document.createElement('button');n.className='n nm'+(pes.role==='helper'?' hp':'');n.textContent=pes.nome;
+n.type='button';n.dataset.u=pes.nome;n.title='Ver perfil de '+pes.nome;
+p.append(n,etiqueta(pes),document.createTextNode(': '+texto));
+const dx=document.createElement('button');dx.type='button';dx.className='adm-x';dx.textContent='apagar';dx.setAttribute('aria-label','Apagar mensagem (admin)');p.append(dx);
+const para=!meu&&eu&&((resp&&resp.nome===eu.nome)||texto.toLowerCase().includes(eu.nome.toLowerCase()));
+if(para){p.classList.add('para-mim');const tg=document.createElement('span');tg.className='tg';tg.textContent='para você';p.append(tg);
+if(pane===painel.sala&&ativa!=='sala'){const t=document.querySelector('#ctabs .ctsala');if(t)t.textContent='Geral ●'}}
+if(!meu){const r=document.createElement('button');r.type='button';r.className='rp';r.textContent='Responder';r.dataset.rp=pes.nome;r.dataset.tx=texto.slice(0,60);r.setAttribute('aria-label','Responder '+pes.nome);p.append(r)}
+pane.append(p);
+while(pane.children.length>80)pane.firstChild.remove();rolar(pane)}
+let lf={aba:'helper',of:'Todos',q:''};
+function desenharOnline(foco){const w=$('wholist');w.textContent='';
+const todos=visiveis().slice();if(eu)todos.push(eu);
+const H=todos.filter(p=>p.role==='helper'),C=todos.filter(p=>p.role!=='helper');
+const tb=document.createElement('div');tb.className='wtabs';
+[['helper','Helpers',H.length],['cliente','Clientes',C.length]].forEach(([k,t,n])=>{const b=document.createElement('button');b.type='button';b.textContent=t+' ('+n+')';b.className=lf.aba===k?'on':'';b.onclick=()=>{lf.aba=k;lf.of='Todos';lf.q='';desenharOnline()};tb.append(b)});w.append(tb);
+let lista=lf.aba==='helper'?H:C;const ofs=[...new Set(H.map(p=>p.work))];
+if(lf.aba==='helper'&&ofs.length>=2){const se=document.createElement('select');se.setAttribute('aria-label','Filtrar por ofício');['Todos'].concat(ofs).forEach(o=>{const op=document.createElement('option');op.textContent=o;op.selected=o===lf.of;se.append(op)});se.onchange=()=>{lf.of=se.value;desenharOnline()};w.append(se);if(lf.of!=='Todos')lista=lista.filter(p=>p.work===lf.of)}
+if(todos.length>15){const q=document.createElement('input');q.type='text';q.placeholder='Buscar nome ou ofício';q.setAttribute('aria-label','Buscar pessoa');q.value=lf.q;q.oninput=()=>{lf.q=q.value;desenharOnline(true)};w.append(q);
+if(lf.q){const t=lf.q.toLowerCase();lista=lista.filter(p=>(p.nome+' '+(p.work||'')).toLowerCase().includes(t))}if(foco)setTimeout(()=>{q.focus();q.setSelectionRange(q.value.length,q.value.length)})}
+const wl=document.createElement('div');wl.className='wl';
+const item=(pes)=>{const voce=eu&&pes===eu,d=document.createElement('div'),dot=document.createElement('span'),col=document.createElement('span'),sm=document.createElement('small');
+const stt=pes.status||'disponivel';dot.className='dot d-st-'+stt;col.className='wh';
+const nm=document.createElement('button');nm.type='button';nm.className='nm'+(pes.role==='helper'?' hp':'');nm.dataset.u=pes.nome;nm.textContent=pes.nome+(voce?' (você)':'');nm.title='Ver perfil de '+pes.nome;
+sm.textContent=(pes.adm?'Administrador':pes.role==='helper'?'Helper · '+pes.work:'Cliente')+(pes.bot?' · bot':'')+(stt==='ocupado'?' · ocupado':'')+(((window.MH_TITULOS||{})[pes.nome])?' · '+window.MH_TITULOS[pes.nome]:'');
+col.append(nm,sm);d.append(dot,col);wl.append(d)};
+lista.forEach(item);
+if(!lista.length){const m=document.createElement('small');m.textContent='Ninguém por enquanto';wl.append(m)}
+w.append(wl);const tg=$('whoTg');if(tg)tg.textContent='Online ('+todos.length+') '+(tg.getAttribute('aria-expanded')==='true'?'▴':'▾')}
+function mostrarResp(){const b=$('rpBar');if(!b)return;if(!respA){b.hidden=true;return}$('rpTxt').textContent='Respondendo a '+respA.nome+': “'+respA.texto+'”';b.hidden=false}
+function mostrar(c){ativa=c;respA=null;mostrarResp();if(c==='sala'){const t=document.querySelector('#ctabs .ctsala');if(t)t.textContent='Geral'}for(const k in painel)painel[k].hidden=(k!==c);
+document.querySelectorAll('#ctabs .ctw,#ctabs .ctsala').forEach(e=>e.classList.toggle('on',(e.dataset.c||'sala')===c));
+$('ptools').hidden=(c==='sala'||c.startsWith('r:'));
+document.querySelectorAll('#rooms button[data-r]').forEach(b=>b.classList.toggle('on',b.dataset.r===c));
+const sr=SALAS.find(x=>x[0]===c),rr2=$('rrule');rr2.hidden=!sr;if(sr)rr2.textContent='Regra desta sala: '+sr[2];
+$('m').placeholder=eu?(c==='sala'||c.startsWith('r:')?'Digite aqui':'Mensagem privada'):'Cadastre-se para falar'}
+function abaDe(nome){return Array.from(document.querySelectorAll('#ctabs .ctw')).find(e=>e.dataset.c===nome)}
+function fechar(nome){if(painel[nome]){painel[nome].remove();delete painel[nome]}const a=abaDe(nome);if(a)a.remove();mostrar('sala')}
+function abrirPrivado(nome,quieto){
+if(!eu){nota(painel.sala,'*** cadastre-se para falar no privado ***');return}
+if(nome===eu.nome||bloqueados.has(nome))return;
+if(!painel[nome]){const d=document.createElement('div');d.className='log priv';d.hidden=true;d.setAttribute('aria-live','polite');$('sf').before(d);painel[nome]=d;
+const w=document.createElement('span');w.className='ctw';w.dataset.c=nome;
+const b=document.createElement('button');b.type='button';b.className='ct';b.textContent=nome;b.onclick=()=>mostrar(nome);
+const x=document.createElement('button');x.type='button';x.className='ctc';x.textContent='×';x.setAttribute('aria-label','Fechar conversa com '+nome);x.onclick=()=>fechar(nome);
+w.append(b,x);$('ctabs').append(w);
+nota(d,'*** conversa privada com '+nome+' (só vocês dois veem) ***');
+if(por(nome))nota(d,'*** '+nome+' é um bot de demonstração: as respostas são automáticas ***');else if(window.MH_DB&&MH_DB.ok)nota(d,'*** conversa com '+nome+'. Se a pessoa estiver fora da sala, ela vê quando voltar. ***');
+nota(d,'Cuidado: nunca envie senhas, códigos ou dados de banco. Para contratar com segurança, feche o serviço pelo app.')}
+conversou.add(nome);if(quieto)return;mostrar(nome);$('m').focus()}
+window.MH_missao=function(nome,tit){
+  if(!eu)return false;
+  abrirPrivado(nome);const pane=painel[nome];
+  if(pane&&!pane.dataset.m){pane.dataset.m='1';depois(900,()=>fala(pane,nome,'Oi! Sobre a missão \"'+tit+'\": ainda está aberta. Me conta como você pode ajudar.'))}
+  return true};
+function liberarChat(){if(typeof liberarChatForcado==='function')liberarChatForcado();else{const m=$('m'),n=$('nudge'),s=$('sbtn');if(m)m.disabled=false;if(n)n.disabled=false;if(s)s.disabled=false;}}
+// ---- bots ----
+function fala(pane,nome,texto){const b=por(nome);if(!BOTS||!b||bloqueados.has(nome)||!pane.isConnected)return;linha(pane,b,texto)}
+const CONVERSAS=[
+[['Ana C.','preciso de um eletricista para trocar o quadro de luz, alguém indica?'],['Carla M.','Trabalho com elétrica aqui em Barra. Me chama no privado que a gente combina.'],['Ana C.','Vou chamar, obrigada!']],
+[['Marcos P.','alguém pinta apartamento de 2 quartos? Quero um orçamento'],['Seu Zé','Pinto sim. Manda uma foto das paredes pra eu ver o estado.'],['Marcos P.','Mando já, valeu seu Zé']],
+[['Duda L.','sábado estou livre para festa, alguém precisa de DJ?'],['Ana C.','Tenho um aniversário no fim do mês, quanto fica?'],['Duda L.','Depende das horas. Me chama no privado que eu explico.']],
+[['Rui T.','antes do calor apertar, vale limpar o ar-condicionado'],['Marcos P.','o meu está pingando, será que é grave?'],['Rui T.','Costuma ser o dreno entupido. É rápido de resolver.']],
+[['Ana C.','quando o app abre mesmo?'],['Seu Zé','Início de 2027, aqui no Vale do Araguaia.'],['Carla M.','Já fiz meu pré-cadastro de Helper, bora!']],
+[['Marcos P.','como funciona o pagamento no app?'],['Carla M.','Cada Helper define o preço e a taxa aparece antes de fechar o serviço.'],['Marcos P.','Entendi, valeu']]];
+let ocupado=false,ult=-1;
+function conversa(){if(!BOTS||ocupado||document.hidden)return;let i;do{i=Math.floor(Math.random()*CONVERSAS.length)}while(i===ult);ult=i;ocupado=true;let t=0;
+CONVERSAS[i].forEach(([n,tx],k)=>{if(k>0)t+=2500+Math.random()*2500;depois(t,()=>fala(painel.sala,n,tx))});depois(t+500,()=>{ocupado=false})}
+const MAPA=[[/eletric|elétric|luz|tomada|fiação|fiacao/,'Carla M.'],[/pint|parede|tinta/,'Seu Zé'],[/\bdj\b|festa|aniversári|aniversari|som/,'Duda L.'],[/ar.?condicionado|split|geladeira/,'Rui T.']];
+function responder(texto){
+if(!BOTS||!eu)return;const t=texto.toLowerCase(),sala=painel.sala,ms=1500+Math.random()*1700;
+const quem=(MAPA.find(([re])=>re.test(t))||[])[1];
+if(/^(oi|olá|ola|e aí|e ai|bom dia|boa tarde|boa noite|opa)/.test(t)){depois(ms,()=>fala(sala,rnd(['Ana C.','Marcos P.']),eu.nome+', bem-vindo(a) à sala!'));return}
+if(/preciso|procuro|alguém|alguem|indica|orçamento|orcamento|quanto/.test(t)){
+if(quem)depois(ms,()=>fala(sala,quem,eu.nome+', posso ajudar com isso. Me chama no privado que a gente combina.'));
+else depois(ms,()=>fala(sala,rnd(['Seu Zé','Carla M.','Duda L.','Rui T.']),eu.nome+', conta mais: o que você precisa e para quando?'));return}
+if(eu.role==='helper'&&(/faço|faco|trabalho|atendo|ofere|disponível|disponivel/.test(t)||t.includes(eu.work.toLowerCase()))){
+depois(ms,()=>fala(sala,rnd(['Ana C.','Marcos P.']),eu.nome+', estou precisando de '+eu.work.toLowerCase()+' aqui em Barra. Posso te chamar no privado?'));return}
+if(/obrigad|valeu/.test(t)){depois(ms,()=>fala(sala,rnd(['Ana C.','Seu Zé','Carla M.']),eu.nome+', imagina!'));return}
+if(Math.random()>0.5)depois(ms,()=>fala(sala,rnd(['Ana C.','Marcos P.','Seu Zé','Duda L.']),rnd(['Boa!','Concordo.','Interessante, conta mais.','Quem sabe alguém aqui indica.'])))}
+const contador={};
+function respPriv(pane,nome,texto){
+const b=por(nome);if(!BOTS||!b||!eu)return;const t=texto.toLowerCase();let r;
+if(/telefone|número|numero|whats|zap|pix|cpf|senha|código|codigo|cart/.test(t))r='Sou um bot de demonstração e não tenho telefone nem dados reais. No app de verdade, vocês combinam pelo chat e fecham o serviço pelo MiHelp.';
+else{const k=contador[nome]=(contador[nome]||0)+1;let L;
+if(b.missao)L=['Oi! Sobre a missão "'+b.missao+'": me conta quando você consegue e como pode ajudar.','Combinado. No app, valor e data ficam registrados antes de confirmar.','Fechado, a gente confirma tudo pelo app quando ele abrir.'];
+else if(b.role==='helper'&&eu.role==='cliente')L=['Oi! Me conta o que você precisa e para quando.','Dá para fazer sim. Pode mandar mais detalhes do local e do serviço?','Combinado. No app de verdade, preço e data ficam registrados antes de confirmar.'];
+else if(b.role==='cliente'&&eu.role==='helper')L=['Oi! Você atende aqui em Barra?','Quanto você costuma cobrar por esse tipo de serviço?','Fechado. Quando o app abrir, a gente combina por lá.'];
+else L=['Oi! Tudo bem?','Também estou por aqui acompanhando a sala.','Combinado, a gente se fala pela sala.'];
+r=L[(k-1)%3]}
+depois(1500+Math.random()*1500,()=>{if(painel[nome]===pane)linha(pane,b,r)})}
+
+// ---- mini perfil e avaliações ----
+const AV={'Ana C.':[['Rui T.',5,'Cliente pontual e educada.']],'Marcos P.':[['Seu Zé',4,'Combinou direitinho.']],
+'Seu Zé':[['Ana C.',5,'Pintou a sala rápido e deixou limpo.'],['Marcos P.',4,'Preço justo.']],
+'Duda L.':[['Ana C.',5,'Festa animada, voltaria a chamar.']],
+'Carla M.':[['Marcos P.',5,'Resolveu a queda de energia no mesmo dia.'],['Ana C.',4,'Explicou tudo antes de começar.']],
+'Rui T.':[['Marcos P.',4,'Ar gelando de novo.']]};
+const conversou=new Set(),msgsPriv={};
+const estr=n=>'★'.repeat(n)+'☆'.repeat(5-n);
+function resumo(nome){const l=AV[nome]||[];if(!l.length)return null;return {m:l.reduce((a,x)=>a+x[1],0)/l.length,n:l.length}}
+function pessoa(nome){return (eu&&eu.nome===nome)?eu:(por(nome)||REAIS[nome])}
+function avaliar(alvo,nota_,txt){const l=AV[alvo.nome]=AV[alvo.nome]||[];const i=l.findIndex(x=>x[0]===eu.nome);const r=[eu.nome,nota_,txt];if(i>=0)l[i]=r;else l.push(r);try{if(window.MH_DB&&MH_DB.ok)MH_DB.avaliar(alvo.nome,eu.nome,nota_,txt)}catch(x){}}
+let pfDlg=null;
+function abrirPerfil(nome){
+const pes=pessoa(nome);if(!pes)return;fecharHover();
+if(!pfDlg){pfDlg=document.createElement('dialog');pfDlg.setAttribute('aria-label','Perfil');document.body.append(pfDlg);pfDlg.addEventListener('click',e=>{if(e.target===pfDlg)pfDlg.close()})}
+const d=pfDlg;d.textContent='';const meu=eu&&pes===eu;
+const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+d.append(mk('h3',0,pes.nome+(meu?' (você)':'')));
+d.append(mk('p','note',(pes.adm?'Administrador':pes.role==='helper'?'Helper · '+pes.work:'Cliente')+(pes.bot?' · bot de demonstração':'')));
+d.append(mk('p','status-line','● '+stLabel(pes)));
+const r=resumo(pes.nome);
+if(r){d.append(mk('p','stars',estr(Math.round(r.m))+'  '+r.m.toFixed(1).replace('.',',')+' · '+r.n+(r.n>1?' avaliações':' avaliação')))}
+else{const q=mk('p','stars','☆☆☆☆☆ · ainda sem avaliação');d.append(q);d.append(mk('span','badge-novo','Novo na feira'))}
+if(pes.bot)d.append(mk('p','note','Avaliações de exemplo, com notas inventadas para mostrar como vai funcionar.'));
+d.append(mk('h4',0,pes.role==='helper'?'Comentários sobre o trabalho':'Comentários sobre o cliente'));
+const l=AV[pes.nome]||[];
+if(!l.length)d.append(mk('p','note','Ainda não tem comentários.'));
+l.slice().reverse().forEach(x=>{const [de,n,t]=x;const b=mk('div','dep');b.append(mk('b',0,de+' · '+estr(n)));b.append(document.createElement('br'),document.createTextNode(t||'(sem comentário)'));if(window.MH_depAdm&&document.body.classList.contains('adm'))window.MH_depAdm(pes,x,b);d.append(b)});
+const ac=mk('div','perfil-acoes');ac.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:14px';
+if(!meu){
+ const pv=mk('button','cta2','Falar no privado');pv.type='button';pv.onclick=()=>{d.close();abrirPrivado(pes.nome)};ac.append(pv);
+ if(eu){const can=conversou.has(pes.nome);
+  const av=mk('button','more','Avaliar');av.type='button';av.disabled=!can;av.onclick=()=>formAval(pes);ac.append(av);
+  if(!can)d.append(mk('p','note','Para avaliar, converse com a pessoa no privado primeiro. Assim só avalia quem falou com ela.'))}
+ else d.append(mk('p','note','Cadastre-se para conversar e avaliar.'))
+}else d.append(mk('p','note','Assim as outras pessoas veem o seu perfil.'+(l.length?' Nesta prévia, as avaliações vêm de bots de demonstração.':' A média aparece depois das primeiras avaliações.')));
+const fc=mk('button','more','Fechar');fc.type='button';fc.onclick=()=>d.close();ac.append(fc);d.append(ac);
+if(window.MH_perfilAdm&&document.body.classList.contains('adm'))window.MH_perfilAdm(pes,d);
+d.showModal()}
+function formAval(pes){const d=pfDlg;d.textContent='';
+const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+d.append(mk('h3',0,'Avaliar '+pes.nome));
+let nt=5;const row=mk('div');row.style.cssText='display:flex;gap:6px;margin:8px 0';
+const bs=[];for(let i=1;i<=5;i++){const b=mk('button','more','★ '+i);b.type='button';b.setAttribute('aria-pressed',i===nt);b.onclick=()=>{nt=i;bs.forEach((x,k)=>{x.setAttribute('aria-pressed',k+1===nt);x.style.background=k+1===nt?'var(--gold)':'';x.style.color=k+1===nt?'#111':''})};bs.push(b);row.append(b)}
+bs[4].style.background='var(--gold)';bs[4].style.color='#111';d.append(row);
+const lb=mk('label',0,'Comentário (opcional, até 80 letras)');lb.htmlFor='avt';const ti=document.createElement('input');ti.id='avt';ti.type='text';ti.maxLength=80;d.append(lb,ti);
+const ac=mk('div');ac.style.cssText='display:flex;gap:8px;margin-top:14px';
+const ok=mk('button','cta2','Enviar avaliação');ok.type='button';ok.onclick=()=>{avaliar(pes,nt,ti.value.trim());abrirPerfil(pes.nome)};
+const ca=mk('button','more','Voltar');ca.type='button';ca.onclick=()=>abrirPerfil(pes.nome);ac.append(ok,ca);d.append(ac);ti.focus()}
+// cartãozinho ao passar o mouse
+let hc=null,ht=null;
+function fecharHover(){clearTimeout(ht);if(hc)hc.hidden=true}
+document.addEventListener('mouseover',e=>{const b=e.target.closest&&e.target.closest('[data-u]');if(!b||!matchMedia('(hover:hover)').matches)return;
+clearTimeout(ht);ht=setTimeout(()=>{const pes=pessoa(b.dataset.u);if(!pes)return;
+if(!hc){hc=document.createElement('div');hc.style.cssText='position:fixed;z-index:200;background:var(--surf);border:1px solid var(--gold);border-radius:10px;padding:8px 10px;font-size:13px;max-width:240px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.5)';document.body.append(hc)}
+const r=resumo(pes.nome);hc.textContent=pes.nome+' · '+(pes.role==='helper'?pes.work:'Cliente')+' · '+(r?'★ '+r.m.toFixed(1).replace('.',',')+' ('+r.n+')':'Novo na feira')+'. Clique para ver o perfil.';
+const q=b.getBoundingClientRect();hc.hidden=false;hc.style.left=Math.min(q.left,innerWidth-250)+'px';hc.style.top=(q.bottom+6)+'px'},350)});
+document.addEventListener('mouseout',e=>{if(e.target.closest&&e.target.closest('[data-u]'))fecharHover()});
+document.addEventListener('scroll',fecharHover,true);
+function aoFalarPrivado(c){if(!por(c)||!eu)return;msgsPriv[c]=(msgsPriv[c]||0)+1;
+if(msgsPriv[c]===3&&!(AV[eu.nome]||[]).some(x=>x[0]===c))depois(4500,()=>{if(!painel[c])return;
+const l=AV[eu.nome]=AV[eu.nome]||[];l.push([c,rnd([4,5,5]),rnd(['Conversa tranquila e educada.','Respondeu rápido.','Fácil de combinar.'])]);
+renderMeuPerfil(true);nota(painel[c],'*** '+c+' (bot) deixou uma avaliação no seu perfil. Clique no seu nome para ver ***')})}
+// ---- cadastro ----
+function atualizarPapel(){const h=document.querySelector('input[name=r]:checked').value==='Helper';$('trab').hidden=!h;$('w').required=h}
+document.querySelectorAll('input[name=r]').forEach(r=>r.addEventListener('change',atualizarPapel));
+function mostrarErroCad(msg){
+  const el=$('ferr');
+  if(el){el.style.display='block';el.textContent=msg;}
+  else alert(msg);
+}
+function liberarChatForcado(){
+  ['m','nudge','sbtn'].forEach(id=>{
+    const el=$(id);
+    if(el){ el.disabled=false; el.removeAttribute('disabled'); }
+  });
+  const cr=$('catRow'); if(cr){ cr.hidden=false; cr.removeAttribute('hidden'); }
+  try{desenharOnline();}catch(e){}
+  try{mostrar(ativa||'sala');}catch(e){}
+  if(typeof atualizarSosCount==='function') try{atualizarSosCount();}catch(e){}
+  const mi=$('m');
+  if(mi){ mi.placeholder='Digite aqui'; try{mi.focus();}catch(e){} }
+}
+const ST={disponivel:'Disponível',ocupado:'Ocupado'};
+const stLabel=p=>ST[p.status||'disponivel'];
+function atualizarQuadrado(){
+  const q=$('perfSq');if(!q)return;
+  const fechado=document.querySelector('.grid').classList.contains('perfil-fechado');
+  q.hidden=!(eu&&fechado);if(!eu)return;
+  q.dataset.st=eu.status||'disponivel';
+  q.title='Meu perfil · '+stLabel(eu)+'. Clique para abrir.';
+  q.setAttribute('aria-label',q.title)}
+function fecharPerfilJanela(){
+  document.querySelector('.grid').classList.add('perfil-fechado');
+  atualizarQuadrado()}
+function abrirPerfilJanela(){
+  const cw=$('cw');if(cw.classList.contains('full')){const x=$('cwExp');if(x)x.click()}
+  document.querySelector('.grid').classList.remove('perfil-fechado');
+  const q=$('perfSq');if(q)q.classList.remove('novo');
+  atualizarQuadrado();
+  const w=$('cadWin');if(w)w.scrollIntoView({behavior:'smooth',block:'nearest'})}
+{const q=$('perfSq');if(q)q.addEventListener('click',abrirPerfilJanela)}
+function renderMeuPerfil(novo){
+  const reg=$('reg'); if(!reg||!eu) return;
+  const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+  const bar=reg.parentElement&&reg.parentElement.querySelector('.bar .t'); if(bar) bar.textContent='meu perfil';
+  const bi=reg.parentElement.querySelectorAll('.bar i'),red=bi[bi.length-1];
+  if(red&&!red.dataset.ok){red.dataset.ok='1';red.className='fechavel';red.setAttribute('role','button');red.tabIndex=0;red.setAttribute('aria-label','Fechar perfil');red.title='Fechar (vira uma aba no chat)';red.onclick=fecharPerfilJanela;red.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fecharPerfilJanela()}}}
+  if(novo&&document.querySelector('.grid').classList.contains('perfil-fechado')){const q=$('perfSq');if(q)q.classList.add('novo')}
+  reg.textContent=''; reg.classList.add('meu-perfil');
+  reg.append(mk('div','term','> acesso liberado.\nBem-vindo(a), '+eu.nome+'!\nJá pode conversar na sala ao lado.'));
+  reg.append(mk('h3',0,eu.nome));
+  reg.append(mk('p','note',(eu.adm?'Administrador':eu.role==='helper'?'Helper · '+eu.work:'Cliente')));
+  reg.append(mk('p','note','Meu status (aparece na lista de online e no quadradinho do chat):'));
+  const sr=mk('div','st-row');sr.setAttribute('role','group');sr.setAttribute('aria-label','Meu status');
+  Object.keys(ST).forEach(k=>{const b=mk('button','st-btn',ST[k]);b.type='button';b.dataset.s=k;b.setAttribute('aria-pressed',(eu.status||'disponivel')===k?'true':'false');
+    b.onclick=()=>{eu.status=k;renderMeuPerfil();atualizarQuadrado();desenharOnline()};sr.append(b)});
+  reg.append(sr);
+  const r=resumo(eu.nome);
+  if(r){reg.append(mk('p','stars',estr(Math.round(r.m))+'  '+r.m.toFixed(1).replace('.',',')+' · '+r.n+(r.n>1?' avaliações':' avaliação')))}
+  else{reg.append(mk('p','stars','☆☆☆☆☆ · ainda sem avaliação'));reg.append(mk('span','badge-novo','Novo na feira'))}
+  reg.append(mk('h4',0,eu.role==='helper'?'Comentários sobre o seu trabalho':'Comentários sobre você'));
+  const l=AV[eu.nome]||[];
+  if(!l.length) reg.append(mk('p','note','Ainda não tem comentários. Converse com alguém no privado para começar.'));
+  l.slice().reverse().forEach(([de,n,t])=>{const b=mk('div','dep');b.append(mk('b',0,de+' · '+estr(n)));b.append(document.createElement('br'),document.createTextNode(t||'(sem comentário)'));reg.append(b)});
+  reg.append(mk('p','note','Assim as outras pessoas veem o seu perfil. Nesta prévia, as avaliações vêm de bots de demonstração, com notas inventadas.'));
+}
+function fazerCadastro(e){
+  if(e) e.preventDefault();
+  try{
+    const ferr=$('ferr'); if(ferr){ferr.style.display='none';ferr.textContent='';}
+    const r=document.querySelector('input[name=r]:checked');
+    if(!r){mostrarErroCad('Escolha: Sou Cliente ou Sou Helper.');return false;}
+    const nRaw=$('n')?$('n').value:'';
+    const n=nomeCurto(nRaw);
+    if(!n){mostrarErroCad('Digite seu nome.');if($('n'))$('n').focus();return false;}
+    const tel=($('t')&&$('t').value||'').trim();
+    if(tel.length<8){mostrarErroCad('Digite um telefone válido (com DDD).');if($('t'))$('t').focus();return false;}
+    const em=($('e')&&$('e').value||'').trim();
+    if(!em || em.indexOf('@')<1){mostrarErroCad('Digite um e-mail válido.');if($('e'))$('e').focus();return false;}
+    const ace=$('aceite');
+    if(ace && !ace.checked){mostrarErroCad('Marque a caixinha de aceite para continuar.');ace.focus();return false;}
+    const role=r.value==='Helper'?'helper':'cliente';
+    const work=role==='helper'?trabCurto(($('w')&&$('w').value)||''):'';
+    if(role==='helper'&&!work){mostrarErroCad('Diga com o que você trabalha.');if($('w'))$('w').focus();return false;}
+    let nome=n;for(let k=2;(PESSOAS.some(p=>p.nome===nome)||(window.MH_DB&&MH_DB.tem(nome)))&&k<50;k++)nome=n+' ('+k+')';
+    eu={nome,role,work,status:'disponivel'};
+    try{if(window.MH_DB)MH_DB.cadastrar({nome,role,work,tel,em})}catch(x){console.error(x)}
+    renderMeuPerfil();
+    liberarChatForcado();
+    if(typeof liberarChat==='function'){ try{liberarChat();}catch(err){console.error(err);liberarChatForcado();} }
+    // garante de novo após 50ms (alguns browsers re-desabilitam)
+    setTimeout(liberarChatForcado, 50);
+    setTimeout(liberarChatForcado, 300);
+    
+    if(BOTS)depois(1300,()=>{
+      try{
+        if(role==='helper')fala(painel.sala,'Ana C.',nome+', bem-vindo(a)! Você trabalha com '+work.toLowerCase()+'? Tem gente procurando por aqui.');
+        else fala(painel.sala,'Carla M.',nome+', bem-vindo(a)! Se precisar de alguém, é só falar na sala.');
+      }catch(e){}
+    });
+    return true;
+  }catch(err){
+    console.error('MiHelp cadastro:',err);
+    mostrarErroCad('Erro no cadastro: '+err.message+'. Abra o Console (F12) e me envie a mensagem vermelha.');
+    return false;
+  }
+}
+$('f').addEventListener('submit',fazerCadastro);
+const btnCad=$('btnCad');
+if(btnCad) btnCad.addEventListener('click',function(ev){ fazerCadastro(ev); });
+
+function respBot(nome,v){const b=por(nome);if(!BOTS||!b||bloqueados.has(nome))return;
+depois(1500+Math.random()*1500,()=>{if(bloqueados.has(nome))return;linha(painel.sala,b,eu.nome+', '+rnd(['entendi! Me conta mais detalhes.','combinado. Se preferir, me chama no privado.','boa! Pode contar comigo.']),{nome:eu.nome,texto:v.slice(0,60)})})}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button.rp');if(!b)return;
+if(!eu){nota(painel[ativa]||painel.sala,'*** cadastre-se para responder ***');return}
+respA={nome:b.dataset.rp,texto:b.dataset.tx};mostrarResp();$('m').focus()});
+$('rpX').addEventListener('click',()=>{respA=null;mostrarResp();$('m').focus()});
+const SALAS=[['sala','Geral','conversa livre e SOS. Para vender ou procurar serviço, use as outras salas.'],['r:classificados','Classificados','compra, venda e troca. Não pague antes de ver o item. Nada ilegal.'],['r:amizade','Amizade','bate-papo e conhecer gente. Sem oferta de serviço ou venda.'],['r:construcao','Construção e reformas','pedreiro, pintura, elétrica e orçamento. Combine o preço por escrito.'],['r:vagas','Vagas e bicos','diárias e trabalho temporário. Diga o que é, o valor e o dia.']];
+const SEMENTE={'r:classificados':[['Marcos P.','vendo uma bicicleta aro 26, pouco uso. Quem quiser, chama no privado'],['Ana C.','alguém tem berço para vender ou doar?']],'r:amizade':[['Duda L.','bom dia, Vale! Quem vai na praça no fim de semana?'],['Ana C.','eu vou! Levo o tereré']],'r:construcao':[['Marcos P.','alguém indica pedreiro para fazer um muro?'],['Carla M.','Trabalho com elétrica. Se precisar de ponto novo, me chama']],'r:vagas':[['Ana C.','preciso de diarista na terça, meio período'],['Marcos P.','ajudante de pedreiro, 3 diárias, aqui em Barra']]};
+function abrirSala(c){if(painel[c])return;const d=document.createElement('div');d.className='log';d.hidden=true;d.setAttribute('aria-live','polite');$('log').after(d);painel[c]=d;nota(d,'*** sala de demonstração: quem tem a etiqueta bot é simulado ***');(SEMENTE[c]||[]).forEach(([n,t])=>linha(d,por(n),t))}
+SALAS.filter(x=>x[0]!=='sala').forEach(([k,n])=>{const b=document.createElement('button');b.type='button';b.dataset.r=k;b.textContent=n;b.onclick=()=>{abrirSala(k);mostrar(k)};$('rooms').append(b)});
+{const sg=document.createElement('button');sg.type='button';sg.className='sug';sg.textContent='+ Sugerir sala';sg.onclick=()=>{$('sugf').hidden=!$('sugf').hidden;if(!$('sugf').hidden)$('sugi').focus()};$('rooms').append(sg)}
+$('sugf').addEventListener('submit',e=>{e.preventDefault();const v=$('sugi').value.trim();if(!v)return;$('sugi').value='';$('sugf').hidden=true;nota(painel[ativa]||painel.sala,'*** Sugestão "'+v+'" anotada (prévia). No app, a equipe analisa as sugestões. ***')});
+mostrar('sala');
+function comando(v,pane){
+  const c=v.slice(1).split(/\s+/)[0].toLowerCase();
+  if(c==='help'){['/help — lista os comandos','/status — quem está na sala','/guilda — missões de exemplo','/sos — quantos SOS ainda restam hoje','/emergencia — telefones de emergência','/limpar — limpa esta conversa'].forEach(t=>nota(pane,t))}
+  else if(c==='status'){const n=$('wholist').querySelectorAll('div').length;nota(pane,'*** '+(n?n+(n===1?' pessoa':' pessoas')+' na sala agora':'ninguém na sala por enquanto')+' ***')}
+  else if(c==='guilda'){nota(pane,'*** missões de exemplo (prévia do app) ***');(window.MH_MISSOES||[]).forEach(m=>nota(pane,'• '+m.t+' — '+m.v))}
+  else if(c==='sos'){nota(pane,'*** SOS usados hoje: '+urgenciasHoje+'/'+MAX_URG+' ***')}
+  else if(c==='emergencia'){['Bombeiros: 193 (fogo, cheiro forte de gás, resgate)','SAMU: 192 (saúde)','Polícia: 190','O SOS do MiHelp chama profissionais, não substitui esses números.'].forEach(t=>nota(pane,t))}
+  else if(c==='limpar'){pane.querySelectorAll('p').forEach(x=>x.remove());nota(pane,'*** conversa limpa ***')}
+  else nota(pane,'*** comando não existe. Digite /help ***');
+}
+$('sf').addEventListener('submit',e=>{e.preventDefault();const v=$('m').value.trim();if(!v||!eu)return;const pane=painel[ativa],c=ativa;if(v[0]==='/'){$('m').value='';comando(v,pane);return}const rr=respA;linha(pane,eu,v,rr);try{if(window.MH_DB&&MH_DB.ok&&!(c!=='sala'&&!c.startsWith('r:')&&por(c)))MH_DB.enviar(c,eu,v,rr)}catch(x){}respA=null;mostrarResp();if(c!=='sala')aoFalarPrivado(c);$('m').value='';if(c==='sala'){if(rr&&por(rr.nome))respBot(rr.nome,v);else responder(v)}else respPriv(pane,c,v)});
+let urgenciasHoje=(function(){try{const o=JSON.parse(localStorage.getItem('mh_sos')||'null'),h=new Date().toDateString();return o&&o.d===h?o.n:0}catch(e){return 0}})(); const MAX_URG=3; let catUrg='Elétrica';
+function atualizarSosCount(){
+  const el=$('sosCount'); if(!el)return;
+  el.textContent=urgenciasHoje+'/'+MAX_URG;
+  const bt=$('nudge'); if(bt) bt.setAttribute('aria-label','SOS, chamados urgentes usados hoje: '+urgenciasHoje+' de '+MAX_URG);
+  el.classList.toggle('limite', urgenciasHoje>=MAX_URG);
+}
+document.querySelectorAll('#catRow button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#catRow button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); catUrg=b.dataset.cat;
+}));
+$('nudge').addEventListener('click',()=>{
+  if(!eu||!(ativa==='sala'||ativa.startsWith('r:')))return;
+  if(urgenciasHoje>=MAX_URG){nota(painel.sala,'*** limite de 3 urgências por dia atingido — use o chat normal ***');return;}
+  urgenciasHoje++; atualizarSosCount();try{localStorage.setItem('mh_sos',JSON.stringify({d:new Date().toDateString(),n:urgenciasHoje}))}catch(x){}
+  try{if(window.MH_DB&&MH_DB.ok)MH_DB.enviar('sala',eu,'SOS '+catUrg,null,{tipo:'sos',categoria:catUrg})}catch(x){}
+  const w=$('cw');w.classList.remove('shake');void w.offsetWidth;w.classList.add('shake');
+  // mensagem: quem é da categoria "vê" alerta (simulado no texto)
+  const p=document.createElement('p'); p.className='urg';
+  const al=document.createElement('span'); al.className='al'; al.textContent='⚠';
+  p.append(al, document.createTextNode(' SOS '+catUrg+' — '+eu.nome+' precisa agora'));
+  painel.sala.append(p); while(painel.sala.children.length>80)painel.sala.firstChild.remove(); painel.sala.scrollTop=painel.sala.scrollHeight;
+  nota(painel.sala,'*** Risco de vida, fogo, cheiro forte de gás ou violência: ligue 193 (Bombeiros), 192 (SAMU) ou 190 (Polícia). O SOS do MiHelp não substitui. ***');
+  if(ativa!=='sala')nota(painel[ativa],'*** SOS enviado na sala Geral, onde os helpers recebem o alerta ***');
+  // para quem não é da área, eco normal
+  const soft=document.createElement('p'); soft.className='urg-soft'; soft.textContent='(quem não é de '+catUrg+' vê só: '+eu.nome+': preciso de '+catUrg.toLowerCase()+')';
+  painel.sala.append(soft);
+  // bot helper da categoria responde
+  const mapa={Elétrica:'Carla M.',Encanador:'Toninho','Gás de cozinha':'Nando G.',Chaveiro:'Beto C.',Borracheiro:'Jota B.'};
+  const quem=mapa[catUrg]||'Carla M.';
+  setTimeout(()=>{const b=por(quem);if(b&&!bloqueados.has(quem))linha(painel.sala,b,eu.nome+', vi seu SOS de '+catUrg+'. Me chama no privado.',{nome:eu.nome,texto:'SOS '+catUrg})},1200);
+});
+atualizarSosCount();
+document.addEventListener('click',e=>{const b=e.target.closest('[data-u]');if(b)abrirPerfil(b.dataset.u)});
+$('ctabs').querySelector('.ctsala').addEventListener('click',()=>mostrar('sala'));
+$('pbloq').addEventListener('click',()=>{const n=ativa;if(n==='sala')return;bloqueados.add(n);Array.from(painel.sala.querySelectorAll('p')).filter(p=>p.dataset.de===n).forEach(p=>{p.hidden=true});fechar(n);desenharOnline();nota(painel.sala,'*** você bloqueou '+n+' ***')});
+$('pden').addEventListener('click',()=>{if(ativa==='sala')return;if(window.MH_denuncia)window.MH_denuncia(ativa);nota(painel[ativa],PREVIA?'*** Denúncia (prévia): no site de verdade, a conversa é enviada para a nossa equipe. ***':'*** Denúncia enviada para a nossa equipe. ***')});
+if(BOTS){nota(painel.sala,'*** sala de demonstração: quem tem a etiqueta bot é simulado. Clique num nome para falar no privado ***');depois(1500,conversa);setInterval(conversa,17000)}
+desenharOnline();mostrar('sala');atualizarPapel();
+window.MH_UI={online:()=>desenharOnline(),eu:()=>eu,
+perfil:n=>{if(pfDlg&&pfDlg.open)pfDlg.close();abrirPerfil(n)},
+avs:()=>AV,
+entrarAdm:n=>{n=String(n||'').trim().replace(/\s+/g,' ').slice(0,24);if(!n)return 'Digite um nome.';
+ if(PESSOAS.some(p=>p.nome===n))return 'Esse nome já é de outra pessoa na sala. Escolha outro.';
+ if(eu){const old=eu.nome;if(old!==n){if(AV[old]){AV[n]=AV[old];delete AV[old]}eu.nome=n}}
+ else eu={nome:n,role:'cliente',work:'',status:'disponivel'};
+ eu.adm=true;renderMeuPerfil();liberarChatForcado();desenharOnline();return true},pessoas:()=>PESSOAS.concat(eu?[eu]:[]),
+banir:n=>{bloqueados.add(n);Object.values(painel).forEach(pn=>Array.from(pn.querySelectorAll('p')).filter(x=>x.dataset.de===n).forEach(x=>{x.hidden=true}));if(painel[n])fechar(n);desenharOnline()},
+desbanir:n=>{bloqueados.delete(n);Object.values(painel).forEach(pn=>Array.from(pn.querySelectorAll('p')).filter(x=>x.dataset.de===n).forEach(x=>{x.hidden=false}));desenharOnline()}};
+
+// ---- recepção de dados reais (vindos do banco) ----
+function sosLinha(pane,nome,cat){const p=document.createElement('p');p.className='urg';const al=document.createElement('span');al.className='al';al.textContent='⚠';p.append(al,document.createTextNode(' SOS '+cat+' — '+nome+' precisa agora'));pane.append(p);while(pane.children.length>80)pane.firstChild.remove();rolar(pane)}
+let rxMuda=false;
+function realDe(nome,papel,oficio,quando){if(!nome||por(nome))return null;let p=REAIS[nome];
+if(!p)p=REAIS[nome]={nome,role:papel==='helper'?'helper':'cliente',work:oficio||'',real:true};
+else{p.role=papel==='helper'?'helper':'cliente';if(oficio)p.work=oficio}
+if(quando&&(!p.visto||quando>p.visto)){p.visto=quando;rxMuda=true}return p}
+window.MH_RX={
+ aviso:t=>nota(painel.sala,t),
+ msg(m){const q=m._quando||Date.now();const sou=eu&&m.autor===eu.nome;
+  const p=sou?eu:realDe(m.autor,m.papel,m.oficio,q);
+  if(m.tipo==='entrada'){if(!sou&&Date.now()-q<90000)nota(painel.sala,'*** '+m.autor+' entrou na sala ***');return}
+  if(!p||bloqueados.has(m.autor))return;
+  const sala=String(m.sala||'sala');
+  const resp=m.respNome?{nome:m.respNome,texto:m.respTexto||''}:null;
+  if(sala.indexOf('pv:')===0){
+   if(!eu)return;const nomes=sala.slice(3).split('|');if(nomes.indexOf(eu.nome)<0)return;
+   const outro=nomes.find(x=>x!==eu.nome);if(!outro||bloqueados.has(outro)||por(outro))return;
+   if(!painel[outro])abrirPrivado(outro,true);
+   if(!painel[outro])return;
+   linha(painel[outro],p,m.texto,resp);
+   if(!sou&&ativa!==outro){const a=abaDe(outro);if(a){const b=a.querySelector('.ct');if(b&&b.textContent.charAt(0)!=='●')b.textContent='● '+b.textContent}}
+   return}
+  let key=sala;if(key!=='sala'){if(!SALAS.some(x=>x[0]===key))return;abrirSala(key)}
+  const pane=painel[key];if(!pane)return;
+  if(m.tipo==='sos'){if(!sou)sosLinha(pane,m.autor,m.categoria||'');return}
+  if(sou&&m._local)return;
+  linha(pane,p,m.texto,resp)},
+ fim(){if(rxMuda){rxMuda=false;try{desenharOnline()}catch(x){}}},
+ avs(rows){rows.forEach(r=>{const l=AV[r.alvo]||(AV[r.alvo]=[]);const i=l.findIndex(x=>x[0]===r.de);const v=[r.de,r.estrelas,r.texto||''];if(i>=0)l[i]=v;else l.push(v)})},
+ ads(list){const A=window.MH_ADS;if(!A)return;const novos=new Set();
+  list.forEach(a=>{const i=(a.vaga|0)-1;if(i<0||i>=A.total)return;novos.add(i);A.put(i,{name:a.nome,text:a.texto||'',end:a.fim,total:a.minutos*60000,tag:'',img:a.imagem||null,_db:1})});
+  (window._mhAdsDb||new Set()).forEach(i=>{if(!novos.has(i)){const v=A.vs()[i];if(v&&v._db)A.clear(i)}});window._mhAdsDb=novos},
+ apoio:l=>{if(window.MH_APOIO)window.MH_APOIO.set(l)}
+};
+const h=$('h');setTimeout(()=>{h.classList.add('on');setTimeout(()=>h.classList.remove('on'),700)},600);
+
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{
+document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('show',p.id===b.getAttribute('aria-controls')))}));
+
+
+
+}catch(e){console.error('MiHelp (chat e cadastro):',e)}
+try{(function(){
+const dlg=document.getElementById('dlg'),msg=document.getElementById('vgmsg');
+const PG=3,PER=10;let pag=0,seguro=false;
+const cont=[[0,4,document.getElementById('vgrid')],[4,7,document.getElementById('vleft')],[7,10,document.getElementById('vright')]];
+const mobMQ=matchMedia('(max-width:640px)');let pausaAte=0;
+const T0=Date.now(),ex=(n,t,min)=>({name:n,text:t,end:T0+min*60000,total:min*60000,tag:'exemplo'});
+let vs=new Array(PG*PER).fill(null),cur=0,imgData=null;
+if(EXEMPLOS){vs[0]=ex('Seu anúncio aqui','Exemplo de anúncio com o tempo contando.',45);vs[1]=ex('Sua marca no Vale','Anuncie por R$ 1 o minuto.',120);vs[4]=ex('Anúncio de exemplo','Texto de até 60 letras.',30);vs[6]=ex('Sua empresa aqui','Clique numa vaga aberta para anunciar.',90);vs[8]=ex('Vaga de exemplo','O anúncio entra depois do Pix.',60);vs[12]=ex('Padaria Exemplo','Pão quente toda hora.',25);vs[25]=ex('Oficina Exemplo','Revisão e troca de óleo.',70);vs[18]=ex('Mercado Exemplo','Ofertas da semana.',50)}
+const fmt=ms=>{const t=Math.max(0,Math.ceil(ms/1000)),h=Math.floor(t/3600),m=Math.floor(t%3600/60),x=t%60,p=v=>String(v).padStart(2,'0');return (h?h+':'+p(m):m)+':'+p(x)};
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function slot(v,i){
+if(!v){const b=el('button','vg open');b.type='button';b.append(el('b',0,'Vaga aberta'),el('small',0,'A partir de R$ 5. Clique para anunciar'));b.onclick=()=>openD(i);return b}
+const d=el('div','vg');d.append(el('span','tg','Publicidade'+(v.tag?' · '+v.tag:'')));if(v.img){const im=el('img');im.src=v.img;im.alt='Imagem do anúncio de '+v.name;d.append(im)}d.append(el('b',0,v.name),el('span','tx',v.text));const tm=el('span','tm',fmt(v.end-Date.now()));tm.dataset.i=i;const pg=el('div','pgb'),bar=el('i');pg.append(bar);d.append(tm,pg);return d}
+const pontosEls=cont.map(([a,b,c])=>{const d=el('div','pgd');c.after(d);return d});
+function pontos(){pontosEls.forEach(d=>{d.textContent='';for(let q=0;PG>q;q++){const b=el('button',q===pag?'dtp on':'dtp');b.type='button';b.setAttribute('aria-label','Vagas, página '+(q+1)+' de '+PG);b.onclick=()=>{pag=q;build()};d.append(b)}})}
+function faixa(k,a,b){if(mobMQ.matches){return k===0?[0,PER]:[0,0]}return [a,b]}
+let assin='';
+function letreiro(){const w=document.getElementById('tkai');if(!w)return;
+const ativos=[];vs.forEach(v=>{if(v&&v.end>Date.now())ativos.push(v)});
+const sig=ativos.map(v=>v.name+'|'+v.text+'|'+(v.tag||'')).join('~');if(sig===assin&&w.firstChild)return;assin=sig;
+const mk=()=>{const g=document.createElement('span');g.className='tkg';
+if(!ativos.length){const i=document.createElement('span');i.className='tkx';i.textContent='Anuncie aqui. Toque para ver as vagas.';g.append(i);return g}
+ativos.forEach(v=>{const i=document.createElement('span');i.className='tkx';const b=document.createElement('b');b.textContent='● ';i.append(b,document.createTextNode(v.name.toUpperCase()));
+g.append(i)});return g};
+w.textContent='';const a=mk();w.append(a);
+const larg=w.parentElement.clientWidth||360;let n=1;while(a.offsetWidth*n<larg*1.2&&n<8){n++;a.after(mk())}
+const base=[...w.children];base.forEach(x=>w.append(x.cloneNode(true)));[...w.children].slice(base.length).forEach(x=>x.setAttribute('aria-hidden','true'));
+w.style.animationDuration=Math.max(24,a.offsetWidth*n/60)+'s'}
+function build(){cont.forEach(([a0,b0,c],k)=>{const[a,b]=faixa(k,a0,b0);c.textContent='';for(let i=a;b>i;i++){const g=pag*PER+i;c.append(slot(vs[g],g))}});pontos();letreiro()}
+mobMQ.addEventListener&&mobMQ.addEventListener('change',build);
+['pointerdown','touchstart'].forEach(ev=>document.getElementById('vgrid').addEventListener(ev,()=>{pausaAte=Date.now()+20000},{passive:true}));
+cont.forEach(([a,b,c])=>{const pai=c.parentElement;['mouseenter','focusin'].forEach(ev=>pai.addEventListener(ev,()=>{seguro=true}));['mouseleave','focusout'].forEach(ev=>pai.addEventListener(ev,()=>{seguro=false}))});
+const semMov=matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(!semMov)setInterval(()=>{if(seguro||Date.now()<pausaAte||document.hidden||document.querySelector('dialog[open]'))return;pag=(pag+1)%PG;build();tick()},10000);
+function tick(){let ch=false;vs.forEach((v,i)=>{if(v&&Date.now()>=v.end){vs[i]=null;ch=true}});if(ch){build();return}
+document.querySelectorAll('.vg .tm').forEach(t=>{const v=vs[t.dataset.i];t.textContent=fmt(v.end-Date.now());t.nextSibling.firstChild.style.width=Math.max(0,100*(v.end-Date.now())/v.total)+'%'})}
+let horasCustom=1;
+const MIN_H=1, MAX_H=24;
+function precoAnuncio(min){
+  const cheio=min; let pct=0;
+  if(min>=60*24) pct=0.35; else if(min>=60*12) pct=0.28; else if(min>=60*6) pct=0.20;
+  else if(min>=60*3) pct=0.12; else if(min>=60*2) pct=0.08;
+  const final=Math.max(1, Math.round(cheio*(1-pct)));
+  return {cheio, final, pct, economia:cheio-final};
+}
+function fmtTempo(min){
+  if(min<60) return min+' minutos';
+  const h=Math.floor(min/60), m=min%60;
+  if(m===0) return h===1?'1 hora':h+' horas';
+  return h+'h '+m+'min';
+}
+function minutosAtuais(){
+  const sel=document.querySelector('input[name=d]:checked');
+  if(sel && sel.dataset.mode==='custom') return horasCustom*60;
+  return sel ? +sel.value : 5;
+}
+function tot(){
+  const m=minutosAtuais(); const p=precoAnuncio(m);
+  let txt='Total: R$ '+p.final+' — '+fmtTempo(m)+' no ar';
+  if(p.pct>0) txt+=' · de R$ '+p.cheio+' com '+(Math.round(p.pct*100))+'% off (economia R$ '+p.economia+')';
+  document.getElementById('dtot').textContent=txt;
+  document.getElementById('horasVal').textContent=String(horasCustom);
+  document.getElementById('horasLbl').textContent=horasCustom===1?'1 hora':horasCustom+' horas';
+  document.getElementById('dCustom').value=String(horasCustom*60);
+  document.getElementById('durCustom').classList.toggle('is-on', document.getElementById('dCustom').checked);
+  document.getElementById('horasMenos').disabled=horasCustom<=MIN_H;
+  document.getElementById('horasMais').disabled=horasCustom>=MAX_H;
+}
+function openD(i){
+  cur=i;horasCustom=1;
+  document.getElementById('df').reset();
+  const p5=document.querySelector('input[name=d][value="5"]'); if(p5) p5.checked=true;
+  imgData=null;document.getElementById('dprev').hidden=true;document.getElementById('dierr').textContent='';
+  document.getElementById('dt').textContent='Outdoor digital — vaga '+(i+1);
+  tot();dlg.showModal();
+}
+document.querySelectorAll('input[name=d][data-mode="preset"]').forEach(r=>r.addEventListener('change',tot));
+document.getElementById('durCustom').addEventListener('click',e=>{
+  if(e.target.closest('button')) return;
+  document.getElementById('dCustom').checked=true;tot();
+});
+document.getElementById('horasMenos').onclick=()=>{ if(horasCustom<=MIN_H) return; horasCustom--; document.getElementById('dCustom').checked=true; tot(); };
+document.getElementById('horasMais').onclick=()=>{ if(horasCustom>=MAX_H) return; horasCustom++; document.getElementById('dCustom').checked=true; tot(); };
+document.getElementById('dcx').onclick=()=>dlg.close();
+document.getElementById('df').addEventListener('submit',e=>{e.preventDefault();
+const m=minutosAtuais(),p=precoAnuncio(m),nome=document.getElementById('dn').value.trim(),texto=document.getElementById('dx').value.trim(),link=document.getElementById('dl').value.trim(),vaga=cur,foto=imgData;
+const item={name:nome,text:texto,end:0,total:m*60000,tag:PREVIA?"prévia":"",img:foto};
+dlg.close();
+try{if(window.MH_DB&&MH_DB.ok)MH_DB.pedido({tipo:'outdoor',nome,texto,link,vaga:vaga+1,minutos:m,valor:p.final,imagem:foto||''}).then(()=>{msg.textContent='Pedido registrado. Seu outdoor entra no ar depois que o Pix for confirmado.'}).catch(()=>{msg.textContent='Não consegui registrar o pedido online. Envie o comprovante por e-mail que a gente coloca no ar.'})}catch(x){}
+abrirPix({titulo:'Outdoor digital — vaga '+(vaga+1),valor:p.final,
+resumo:'OUTDOOR DIGITAL MIHELP\nVaga: '+(vaga+1)+'\nTempo: '+fmtTempo(m)+'\nValor: R$ '+p.final+',00'+(p.pct?(' (de R$ '+p.cheio+' com '+(Math.round(p.pct*100))+'% off)'):'')+'\nNegócio: '+nome+'\nTexto: '+texto+'\nLink ou WhatsApp: '+(link||'-')+'\nImagem: '+(foto?'sim (anexar no e-mail)':'não'),
+assunto:'Outdoor digital MiHelp — '+nome,
+extra:'O tempo só começa a contar quando o anúncio entrar no ar.'+(foto?' Anexe a imagem no e-mail.':''),
+previa:()=>{item.end=Date.now()+m*60000;vs[vaga]=item;build();tick();msg.textContent='Prévia só na sua tela: o outdoor de verdade entra depois da confirmação do Pix.'}})});
+
+const di=document.getElementById('di'),dprev=document.getElementById('dprev'),dier=document.getElementById('dierr');
+di.addEventListener('change',()=>{
+imgData=null;dprev.hidden=true;dier.textContent='';
+const f=di.files[0];if(!f)return;
+if(!/^image\/(png|jpeg|webp)$/.test(f.type)){dier.textContent='Use uma imagem PNG, JPG ou WEBP.';di.value='';return}
+if(f.size>8*1024*1024){dier.textContent='Imagem muito grande. Use uma de até 8 MB.';di.value='';return}
+const url=URL.createObjectURL(f),im=new Image();
+im.onload=()=>{const s=Math.min(1,480/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);imgData=c.toDataURL('image/jpeg',0.8);dprev.src=imgData;dprev.hidden=false;URL.revokeObjectURL(url)};
+im.onerror=()=>{dier.textContent='Não consegui abrir essa imagem.';di.value='';URL.revokeObjectURL(url)};
+im.src=url});
+build();tick();setInterval(tick,1000);
+window.MH_ADS={vs:()=>vs,total:PG*PER,put:(i,v)=>{vs[i]=v;build();tick()},clear:i=>{vs[i]=null;build();tick()}};
+document.getElementById('nojs')?.remove();
+if(PREVIA)msg.textContent='Prévia: os anúncios ainda não são salvos online.';
+document.querySelectorAll('.previa').forEach(e=>{e.hidden=!PREVIA});
+})();
+
+}catch(e){console.error('MiHelp (vagas):',e)}
+try{iniciarPix()}catch(e){console.error('MiHelp (pix e letreiro):',e)}
+
+function iniciarStickyAds(){
+  return; // pubs no header removidas — só letreiros sticky
+  const name=document.getElementById('stickyAdName');
+  const text=document.getElementById('stickyAdText');
+  const cta=document.getElementById('stickyAdCta');
+  if(!name||!text) return;
+  const slides=[
+    {name:'Vaga aberta',text:'Outdoor digital · a partir de R$ 5'},
+    {name:'Seu negócio no Vale',text:'Barra · Pontal · Aragarças · R$ 1/min'},
+    {name:'Pacote 24h com 35% off',text:'Anuncie o dia todo por R$ 936'},
+    {name:'Vaga aberta',text:'Clique em Anunciar e escolha o tempo'}
+  ];
+  let i=0;
+  function paint(){
+    const s=slides[i];
+    name.textContent=s.name;
+    text.textContent=s.text;
+  }
+  paint();
+  if(cta){
+    cta.onclick=function(e){
+      e.preventDefault();
+      const v=document.getElementById('vagas');
+      if(v) v.scrollIntoView({behavior:'smooth',block:'start'});
+      // tenta abrir primeira vaga livre
+      const open=document.querySelector('#vgrid .vg.open');
+      if(open) setTimeout(function(){ open.click(); }, 400);
+    };
+  }
+  if(document.getElementById('stickyAds')&&!document.getElementById('stickyAds').dataset.rot){
+    document.getElementById('stickyAds').dataset.rot='1';
+    setInterval(function(){
+      if(document.hidden) return;
+      i=(i+1)%slides.length;
+      paint();
+    }, 4000);
+  }
+}
+try{iniciarStickyAds();}catch(e){console.error('MiHelp sticky ads:',e)}
+
+try{
+document.querySelectorAll('a[href^="#"]').forEach(a=>{const h=a.getAttribute('href');if(h.length>1){a.dataset.go=h.slice(1);a.removeAttribute('href');a.setAttribute('role','link');a.tabIndex=0}});
+const ir=el=>{const alvo=document.getElementById(el.dataset.go);if(alvo)alvo.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'})};
+document.addEventListener('click',e=>{const a=e.target.closest('[data-go]');if(a){e.preventDefault();ir(a)}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'){const a=e.target.closest?e.target.closest('[data-go]'):null;if(a){e.preventDefault();ir(a)}}});
+}catch(e){console.error('MiHelp (links internos):',e)}
+})();
+</script>
+<script>
+try{
+(function(){
+  const cw=document.getElementById('cw'),btn=document.getElementById('cwExp');
+  if(!cw||!btn)return;
+  function set(on){
+    cw.classList.toggle('full',on);
+    document.documentElement.classList.toggle('cw-open',on);
+    btn.textContent=on?'Reduzir':'Ampliar';
+    btn.setAttribute('aria-pressed',on?'true':'false');
+    btn.setAttribute('aria-label',on?'Voltar ao tamanho normal':'Ampliar a sala de conversa');
+    const log=document.getElementById('log');
+    if(log)log.scrollTop=log.scrollHeight;
+    if(on){const m=document.getElementById('m');if(m&&!m.disabled)m.focus()}
+    else cw.scrollIntoView({block:'center'});
+  }
+  btn.addEventListener('click',()=>set(!cw.classList.contains('full')));
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&cw.classList.contains('full')&&!document.querySelector('dialog[open]'))set(false);
+  });
+})();
+}catch(e){console.error('MiHelp (sala ampliada):',e)}
+</script>
+<button type="button" id="chatFab" class="fab" aria-label="Abrir o chat ampliado">Chat <span>●</span></button>
+<script>
+try{
+(function(){
+  const M=[
+    {p:'Sr. Paulo',g:'TRABALHO',t:'Repositor para trabalho temporário',d:'Mercado da cidade procura repositor por alguns dias.',v:'diária a combinar'},
+    {p:'Dona Lúcia',g:'RECOMPENSA',t:'Gato desaparecido',d:'Sumiu perto da praça. Publique só informações seguras.',v:'recompensa'},
+    {p:'Bia S.',g:'SERVIÇO',t:'Ajuda com mudança de móveis',d:'Desmontar e transportar móveis para outro endereço.',v:'a combinar'},
+    {p:'Tiago R.',g:'ACHADOS E PERDIDOS',t:'Chave perdida perto da praça',d:'Chaveiro com chaveiro azul. Quem achar combina a devolução.',v:'recompensa'}
+  ];
+  window.MH_MISSOES=M;
+  const gl=document.getElementById('gdList'),gm=document.getElementById('gdMsg');
+  if(gl){M.forEach(m=>{
+    const c=document.createElement('div');c.className='gc';
+    const a=document.createElement('div');a.className='gt';a.textContent=m.g;
+    const h=document.createElement('h3');h.textContent=m.t;
+    const p=document.createElement('p');p.textContent=m.d;
+    const r=document.createElement('div');r.className='gm';
+    const v=document.createElement('span');v.className='gv';v.textContent=m.v;
+    const b=document.createElement('button');b.type='button';b.textContent='Falar com '+m.p;
+    b.addEventListener('click',()=>{
+      if(window.MH_missao&&window.MH_missao(m.p,m.t)){if(gm)gm.textContent='Conversa aberta com '+m.p+' no chat (aba privada).';const cw=document.getElementById('cw');if(cw)cw.scrollIntoView({behavior:'smooth',block:'center'})}
+      else{if(gm)gm.textContent='Cadastre-se no formulário para falar com '+m.p+', quem publicou esta missão.';const r=document.getElementById('reg');if(r)r.scrollIntoView({behavior:'smooth',block:'center'})}});
+    r.append(v,b);c.append(a,h,p,r);gl.append(c)})}
+
+  const E=[['Helper de jardinagem ficou disponível','Barra do Garças'],['Nova missão publicada','Repositor · diária a combinar'],['Alguém entrou na Sala do Vale','conversa aberta'],['Nova avaliação','Pintura · ★★★★★'],['Vaga aberta no outdoor digital','a partir de R$ 5'],['Nova missão','Gato desaparecido · recompensa'],['Helper de elétrica ficou disponível','Pontal do Araguaia'],['Pedido de ajuda','Montagem de móveis · Aragarças']];
+  const L=document.getElementById('lvList');let k=0;
+  const hh=d=>d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  function add(d,novo){
+    const e=E[k++%E.length],row=document.createElement('div');row.className='ev'+(novo?' novo':'');
+    const t=document.createElement('time');t.textContent=hh(d);
+    const w=document.createElement('div'),b=document.createElement('b'),s=document.createElement('span');
+    b.textContent=e[0];s.textContent=e[1];w.append(b,s);row.append(t,w);L.prepend(row);
+    while(L.children.length>6)L.lastChild.remove();
+    if(novo)setTimeout(()=>row.classList.remove('novo'),4000);
+  }
+  if(L){
+    const n=Date.now();for(let i=4;i>=1;i--)add(new Date(n-i*3*60000),false);
+    setInterval(()=>{if(document.hidden)return;add(new Date(),true)},9000);
+  }
+  const fab=document.getElementById('chatFab'),x=document.getElementById('cwExp');
+  if(fab&&x)fab.addEventListener('click',()=>{if(x.getAttribute('aria-pressed')!=='true')x.click()});
+})();
+}catch(e){console.error('MiHelp (ao vivo e guilda):',e)}
+</script>
+<script>
+try{
+(function(){
+  const META={alvo:5000,arrecadado:0,usos:[['Desenvolvimento do app',50],['Servidor, domínio e segurança',20],['Divulgação em Barra, Pontal e Aragarças',20],['Custos de pagamento e legais',10]]};
+  const f=n=>'R$ '+n.toLocaleString('pt-BR');
+  const pct=Math.min(100,Math.round(META.arrecadado/META.alvo*100));
+  document.getElementById('mArr').textContent=f(META.arrecadado);
+  document.getElementById('mAlvo').textContent=f(META.alvo);
+  document.querySelector('#mBar i').style.width=pct+'%';
+  document.getElementById('mBar').setAttribute('aria-valuenow',pct);
+  document.getElementById('mPct').textContent=pct+'% da meta.';
+  const u=document.getElementById('mUsos');
+  META.usos.forEach(x=>{const li=document.createElement('li');const b=document.createElement('b');b.textContent=x[1]+'% ';li.append(b,document.createTextNode(x[0]+' · '+f(Math.round(META.alvo*x[1]/100))));u.append(li)});
+  const t='Vem para o MiHelp! Quem precisa de ajuda encontra, quem sabe fazer trabalha. Pré-cadastro grátis: '+location.href.split('#')[0];
+  document.querySelectorAll('a.wa').forEach(a=>{a.href='https://wa.me/?text='+encodeURIComponent(t)});
+})();
+}catch(e){console.error('MiHelp (meta):',e)}
+</script>
+<script>
+try{
+(function(){
+  const tg=document.getElementById('whoTg'),w=document.querySelector('.who');
+  if(tg&&w)tg.addEventListener('click',()=>{const o=w.classList.toggle('open');tg.setAttribute('aria-expanded',o);tg.textContent=tg.textContent.replace(/[▴▾]/,o?'▴':'▾')});
+  if(window.visualViewport){const v=window.visualViewport,r=document.documentElement.style,u=()=>{r.setProperty('--vvh',v.height+'px');r.setProperty('--vvt',v.offsetTop+'px')};v.addEventListener('resize',u);v.addEventListener('scroll',u);u()}
+})();
+}catch(e){console.error('MiHelp (chat celular):',e)}
+</script>
+<script>
+try{(function(){
+const $=id=>document.getElementById(id);
+const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const ADS=window.MH_ADS,UI=window.MH_UI,PIX=window.MH_PIX,TIT=window.MH_TITULOS;
+if(!ADS||!UI||!PIX||!TIT){console.error('MiHelp admin: ganchos não encontrados');return}
+
+// ---- armazenamento: hoje é o navegador. Para ligar ao Wix, troque só get/set ----
+const K='mihelp_adm_v1:';
+const store={
+  get(k,d){try{const v=localStorage.getItem(K+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(K+k,JSON.stringify(v));return true}catch(e){return false}}
+};
+
+// ---- aplicar o que foi salvo ----
+Object.assign(PIX,store.get('pix',{}));
+{const sv=store.get('avs',null);if(sv){const A=UI.avs();Object.keys(A).forEach(k=>delete A[k]);Object.assign(A,sv)}}
+const banidos=new Set(store.get('banidos',[]));
+banidos.forEach(n=>UI.banir(n));
+store.get('ads',[]).forEach(a=>{if(a&&a.end>Date.now()&&a.i>=0&&a.i<ADS.total)ADS.put(a.i,{name:a.name,text:a.text,end:a.end,total:a.total,tag:a.tag||'',img:a.img||null})});
+let OC=store.get('oc',null);
+if(!OC){OC=[
+ {id:1,quem:'Duda L.',motivo:'(exemplo) Denúncia: combinou no chat e cobrou por fora.',origem:'chat',quando:Date.now()-3600e3,status:'aberta',nota:''},
+ {id:2,quem:'Anúncio da vaga 3',motivo:'(exemplo) Texto com promessa enganosa.',origem:'anúncio',quando:Date.now()-7200e3,status:'aberta',nota:''}];
+ store.set('oc',OC)}
+const salvarOC=()=>store.set('oc',OC);
+const abertas=()=>OC.filter(o=>o.status==='aberta').length;
+window.MH_denuncia=nome=>{OC.unshift({id:Date.now(),quem:nome,motivo:'Denúncia feita no chat (prévia).',origem:'chat',quando:Date.now(),status:'aberta',nota:''});salvarOC();chipUpd()};
+
+// ---- utilidades ----
+const salvarAds=()=>store.set('ads',ADS.vs().map((v,i)=>v&&v.end>Date.now()&&!/exemplo|prévia/.test(v.tag||'')?{i,name:v.name,text:v.text,end:v.end,total:v.total,tag:v.tag||'',img:v.img||null}:null).filter(Boolean));
+const salvarAvs=()=>store.set('avs',UI.avs());
+const estr=k=>'★'.repeat(k)+'☆'.repeat(5-k);
+const savePix=()=>store.set('pix',{chave:PIX.chave,nome:PIX.nome,cidade:PIX.cidade,contato:PIX.contato,qr:PIX.qr||null});
+const rest=ms=>{const m=Math.max(0,Math.ceil(ms/60000));return m>=60?Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'min':m+' min'};
+const quando=t=>new Date(t).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});
+function inp(type,max,ph){const i=document.createElement('input');i.type=type;if(max)i.maxLength=max;if(ph)i.placeholder=ph;return i}
+function campo(txt,el){const d=mk('div','f');const l=mk('label',0,txt);if(!el.id)el.id='af'+Math.random().toString(36).slice(2,8);l.htmlFor=el.id;d.append(l,el);return d}
+function sel(opts){const s=document.createElement('select');opts.forEach(([v,t])=>{const o=mk('option',0,t);o.value=v;s.append(o)});return s}
+function lerImg(file,max,tipo,q){return new Promise((ok,err)=>{
+ if(!/^image\//.test(file.type))return err(new Error('Escolha um arquivo de imagem.'));
+ const url=URL.createObjectURL(file),im=new Image();
+ im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(url);ok(c.toDataURL(tipo,q))};
+ im.onerror=()=>{URL.revokeObjectURL(url);err(new Error('Não consegui abrir essa imagem.'))};im.src=url})}
+
+// ---- login por PIN (guardado só como hash, neste navegador) ----
+async function hpin(p){try{if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('mihelp:'+p));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}}catch(e){}return 'x'+btoa(unescape(encodeURIComponent('mihelp:'+p)))}
+const logado=()=>{try{return sessionStorage.getItem('mh_adm')==='1'}catch(e){return false}};
+function entrar(){try{sessionStorage.setItem('mh_adm','1')}catch(e){}document.body.classList.add('adm');bar.hidden=false;chipUpd();abrirPainel()}
+function sairAdm(){try{sessionStorage.removeItem('mh_adm')}catch(e){}document.body.classList.remove('adm');bar.hidden=true;document.querySelectorAll('dialog[open]').forEach(x=>{try{x.close()}catch(e){}})}
+function abrirLogin(){
+  const tem=!!store.get('pin',null);
+  const d=mk('dialog');d.setAttribute('aria-label','Entrar no painel');
+  const f=mk('form');f.append(mk('h3',0,tem?'Entrar no painel':'Crie o PIN do painel'));
+  if(!tem)f.append(mk('p','note','É a primeira vez neste navegador. Escolha um PIN de pelo menos 4 caracteres.'));
+  const a=inp('password',32,'PIN');a.required=true;a.autocomplete=tem?'current-password':'new-password';
+  f.append(campo('PIN',a));
+  let b2=null;if(!tem){b2=inp('password',32,'Repita o PIN');b2.required=true;f.append(campo('Repita o PIN',b2))}
+  const er=mk('p','note');er.style.color='var(--red)';er.setAttribute('role','alert');f.append(er);
+  const bt=mk('div','dbt');const ok=mk('button','go',tem?'Entrar':'Criar PIN');ok.type='submit';const cx=mk('button','cx','Cancelar');cx.type='button';cx.onclick=()=>d.close();bt.append(ok,cx);f.append(bt);
+  f.addEventListener('submit',async e=>{e.preventDefault();er.textContent='';
+    if(!tem){if(a.value.length<4){er.textContent='Use pelo menos 4 caracteres.';return}if(a.value!==b2.value){er.textContent='Os dois PINs não são iguais.';return}
+      if(!store.set('pin',await hpin(a.value))){er.textContent='Não consegui salvar neste navegador.';return}}
+    else if(await hpin(a.value)!==store.get('pin',null)){er.textContent='PIN incorreto.';a.value='';a.focus();return}
+    d.close();entrar()});
+  d.append(f);d.addEventListener('close',()=>d.remove());document.body.append(d);d.showModal();a.focus()}
+
+// ---- painel ----
+const dlg=mk('dialog');dlg.id='admDlg';dlg.setAttribute('aria-label','Painel do administrador');document.body.append(dlg);
+const bar=mk('div','admbar');bar.hidden=true;
+const chip=mk('button','admchip','ADM');chip.type='button';chip.onclick=()=>abrirPainel();
+const sair=mk('button','admexit','Sair do ADM');sair.type='button';sair.onclick=()=>sairAdm();
+bar.append(chip,sair);document.body.append(bar);
+function chipUpd(){const n=abertas();chip.textContent='ADM'+(n?' · '+n:'')}
+let aba='ads',aviso='',corpoEl=null;
+const ABAS=[['ads','Anúncios'],['pes','Pessoas'],['pix','Pix'],['oc','Ocorrências'],['eu','Meu acesso'],['cfg','Ajustes']];
+function say(t){aviso=t;desenhar()}
+function abrirPainel(){if(!logado())return abrirLogin();desenhar();if(!dlg.open)dlg.showModal()}
+function desenhar(){
+  dlg.textContent='';
+  const h=mk('div','ahead');h.append(mk('h3',0,'Painel ADM'));const gx=mk('div','aact');const sx=mk('button','cx','Sair do ADM');sx.type='button';sx.onclick=sairAdm;const x=mk('button','cx','Fechar');x.type='button';x.onclick=()=>dlg.close();gx.append(sx,x);h.append(gx);
+  dlg.append(h,mk('p','note aproto','Protótipo: o que você muda aqui vale só neste navegador. Para valer para todo mundo, o painel precisa ser ligado ao Wix.'));
+  const tb=mk('div','atabs');tb.setAttribute('role','tablist');
+  ABAS.forEach(([k,t])=>{const n=k==='oc'?abertas():0;const bt=mk('button',k===aba?'on':'',t+(n?' ('+n+')':''));bt.type='button';bt.setAttribute('role','tab');bt.setAttribute('aria-selected',String(k===aba));bt.onclick=()=>{aba=k;aviso='';desenhar()};tb.append(bt)});
+  corpoEl=mk('div','abody');dlg.append(tb,corpoEl);
+  if(aviso){const a=mk('p','aviso',aviso);a.setAttribute('role','status');corpoEl.append(a)}
+  ({ads:tAds,pes:tPes,pix:tPix,oc:tOc,eu:tEu,cfg:tCfg})[aba](corpoEl);
+  dlg.scrollTop=0;chipUpd()}
+
+// ---- aba Anúncios ----
+function tAds(b){
+  b.append(mk('h4',0,'Publicar anúncio'));
+  b.append(mk('p','note','Use depois que o Pix cair (tipo Pago) ou para dar cortesia (tipo Grátis). Entra no ar na hora.'));
+  const f=mk('form');
+  const vaga=sel([['auto','Primeira vaga livre']].concat(ADS.vs().map((v,i)=>[String(i),'Vaga '+(i+1)+(v?' — ocupada por '+v.name+' (será substituída)':' — livre')])));
+  const nome=inp('text',40),texto=inp('text',60);nome.required=texto.required=true;
+  const tempo=sel([['5','5 minutos'],['10','10 minutos'],['30','30 minutos'],['60','1 hora'],['120','2 horas'],['360','6 horas'],['720','12 horas'],['1440','24 horas'],['custom','Outro tempo (em minutos)']]);
+  const cust=inp('number',0,'Minutos');cust.min='1';cust.max='10080';cust.hidden=true;
+  tempo.onchange=()=>{cust.hidden=tempo.value!=='custom'};
+  const tipo=sel([['pago','Pago (Pix confirmado)'],['gratis','Grátis (cortesia)']]);
+  const file=inp('file');file.accept='image/png,image/jpeg,image/webp';
+  f.append(campo('Vaga',vaga),campo('Nome do negócio',nome),campo('Texto (até 60 letras)',texto),campo('Tempo no ar',tempo),cust,campo('Tipo',tipo),campo('Imagem (opcional)',file));
+  const go=mk('button','go','Publicar agora');go.type='submit';f.append(go);
+  f.addEventListener('submit',async e=>{e.preventDefault();
+    const m=tempo.value==='custom'?Math.round(Number(cust.value)):Number(tempo.value);
+    if(!(m>=1))return say('Digite o tempo em minutos.');
+    let i;if(vaga.value==='auto'){i=ADS.vs().findIndex(v=>!v);if(i<0)return say('Todas as vagas estão ocupadas. Escolha uma para substituir.')}else i=Number(vaga.value);
+    let img=null;if(file.files[0]){try{img=await lerImg(file.files[0],480,'image/jpeg',.8)}catch(x){return say(x.message)}}
+    ADS.put(i,{name:nome.value.trim(),text:texto.value.trim(),end:Date.now()+m*60000,total:m*60000,tag:tipo.value==='gratis'?'cortesia':'',img});
+    const ok=salvarAds();say('Anúncio publicado na vaga '+(i+1)+'.'+(ok?'':' Atenção: não coube no armazenamento do navegador, então ele some ao recarregar.'))});
+  b.append(f);
+  b.append(mk('h4',0,'No ar agora'));
+  let n=0;
+  ADS.vs().forEach((v,i)=>{if(!v)return;n++;
+    const r=mk('div','arow'),info=mk('div','ainfo');
+    info.append(mk('b',0,'Vaga '+(i+1)+' · '+v.name),mk('span',0,v.text+' · '+(v.tag?v.tag+' · ':'')+'restam '+rest(v.end-Date.now())));
+    const rm=mk('button','cx','Remover');rm.type='button';rm.onclick=()=>{ADS.clear(i);salvarAds();say('Anúncio da vaga '+(i+1)+' removido.')};
+    r.append(info,rm);b.append(r)});
+  if(!n)b.append(mk('p','note','Nenhum anúncio no ar.'));
+  else{const all=mk('button','cx','Remover todos');all.type='button';all.style.marginTop='10px';all.onclick=()=>{if(!confirm('Remover todos os '+n+' anúncios?'))return;ADS.vs().forEach((v,i)=>{if(v)ADS.clear(i)});salvarAds();say('Todos os anúncios foram removidos.')};b.append(all)}
+}
+
+// ---- aba Pessoas ----
+function tPes(b){
+  
+  b.append(mk('h4',0,'Títulos e banimento'));
+  b.append(mk('p','note','O título aparece como etiqueta ao lado do nome, no chat e na lista de online. Banir esconde a pessoa da sala.'));
+  const pess=UI.pessoas(),nomes=pess.map(p=>p.nome);
+  Object.keys(TIT).forEach(n=>{if(!nomes.includes(n))nomes.push(n)});
+  const eu=UI.eu();
+  const setTit=(n,v)=>{v=v.trim().slice(0,20);if(v)TIT[n]=v;else delete TIT[n];store.set('titulos',TIT);UI.online();say(v?'Título de '+n+': '+v+'.':'Título de '+n+' removido.')};
+  nomes.forEach(n=>{
+    const p=pess.find(x=>x.nome===n),r=mk('div','arow'),info=mk('div','ainfo');
+    info.append(mk('b',0,n+(banidos.has(n)?'  (banido)':'')),mk('span',0,p?(p.role==='helper'?'Helper · '+p.work:'Cliente')+(p.bot?' · bot':''):'não está na sala agora'));
+    const t=inp('text',20,'Título');t.setAttribute('list','admTit');t.value=TIT[n]||'';t.setAttribute('aria-label','Título de '+n);
+    const sv=mk('button','cp','Salvar');sv.type='button';sv.onclick=()=>setTit(n,t.value);
+    const ac=mk('div','aact');ac.append(t,sv);
+    const pf=mk('button','cp','Perfil');pf.type='button';pf.disabled=!p;pf.onclick=()=>UI.perfil(n);ac.append(pf);
+    if(!(eu&&eu.nome===n)){const bn=mk('button','cx',banidos.has(n)?'Desbanir':'Banir');bn.type='button';
+      bn.onclick=()=>{if(banidos.has(n)){banidos.delete(n);UI.desbanir(n)}else{banidos.add(n);UI.banir(n)}store.set('banidos',[...banidos]);say(n+(banidos.has(n)?' foi banido(a) da sala.':' voltou para a sala.'))};ac.append(bn)}
+    r.append(info,ac);b.append(r)});
+  b.append(mk('h4',0,'Dar título a alguém por nome'));
+  const f=mk('form'),nn=inp('text',30,'Nome como aparece no chat'),tt=inp('text',20,'Título');nn.required=tt.required=true;tt.setAttribute('list','admTit');
+  f.append(campo('Nome',nn),campo('Título',tt));const go=mk('button','go','Dar título');go.type='submit';f.append(go);
+  f.addEventListener('submit',e=>{e.preventDefault();setTit(nn.value.trim(),tt.value)});b.append(f);
+}
+
+// ---- aba Pix ----
+let qrBusy=false;
+async function aplicarQr(file){if(qrBusy)return;qrBusy=true;try{PIX.qr=await lerImg(file,600,'image/png');const ok=savePix();qrBusy=false;say(ok?'QR code salvo.':'QR code aplicado, mas não coube no armazenamento do navegador (some ao recarregar).')}catch(x){qrBusy=false;say(x.message)}}
+dlg.addEventListener('paste',e=>{if(aba!=='pix')return;const it=Array.from((e.clipboardData&&e.clipboardData.files)||[]).find(x=>/^image\//.test(x.type));if(it){e.preventDefault();aplicarQr(it)}});
+function tPix(b){
+  b.append(mk('h4',0,'Dados do Pix'));
+  const f=mk('form'),ch=inp('text',77),no=inp('text',25),ci=inp('text',15),co=inp('email',80);
+  ch.value=PIX.chave||'';no.value=PIX.nome||'';ci.value=PIX.cidade||'';co.value=PIX.contato||'';ch.required=no.required=ci.required=true;
+  f.append(campo('Chave Pix (e-mail, CPF/CNPJ, telefone com +55 ou chave aleatória)',ch),campo('Nome do recebedor (sem acento, até 25 letras)',no),campo('Cidade (sem acento, até 15 letras)',ci),campo('E-mail que recebe os comprovantes',co));
+  const sv=mk('button','go','Salvar Pix');sv.type='submit';f.append(sv);
+  f.addEventListener('submit',e=>{e.preventDefault();
+    const nm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z0-9 .\-]/g,'').trim();
+    PIX.chave=ch.value.trim();PIX.nome=nm(no.value).slice(0,25)||'MIHELP';PIX.cidade=nm(ci.value).slice(0,15)||'BARRA DO GARCAS';PIX.contato=co.value.trim()||PIX.contato;
+    say(savePix()?'Pix salvo. Use o botão de teste para conferir a tela de pagamento.':'Pix aplicado, mas não coube no armazenamento do navegador.')});
+  b.append(f);
+  b.append(mk('h4',0,'QR code'));
+  b.append(mk('p','note','O código "copia e cola" já sai com o valor certo. O QR colado aqui é a imagem do seu banco (sem valor) e aparece na tela de pagamento.'));
+  if(PIX.qr){const im=mk('img','aqr');im.src=PIX.qr;im.alt='QR code salvo';b.append(im)}
+  const zona=mk('div','apaste','Clique aqui e cole (Ctrl+V) a imagem do QR code');zona.tabIndex=0;b.append(zona);
+  const fl=inp('file');fl.accept='image/*';fl.onchange=()=>{if(fl.files[0])aplicarQr(fl.files[0])};b.append(campo('Ou escolha o arquivo da imagem',fl));
+  if(PIX.qr){const rq=mk('button','cx','Remover QR code');rq.type='button';rq.onclick=()=>{PIX.qr=null;savePix();say('QR code removido.')};b.append(rq)}
+  b.append(mk('h4',0,'Testar e levar para o código'));
+  const t=mk('button','cp','Testar tela de pagamento (R$ 1)');t.type='button';t.onclick=()=>{if(window.MH_abrirPix)window.MH_abrirPix({titulo:'Teste do Pix',valor:1,resumo:'TESTE DO PAINEL ADM',assunto:'Teste Pix MiHelp',extra:''})};b.append(t);
+  b.append(mk('p','note','Para os dados valerem para todo mundo hoje, cole este bloco no código da página, no lugar da linha const PIX.'));
+  const q=s=>String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const ta=mk('textarea');ta.readOnly=true;ta.rows=4;ta.value="const PIX={chave:'"+q(PIX.chave)+"',nome:'"+q(PIX.nome)+"',cidade:'"+q(PIX.cidade)+"',contato:'"+q(PIX.contato)+"'};";b.append(ta);
+  const cb=mk('button','cp','Copiar bloco');cb.type='button';cb.onclick=async()=>{try{await navigator.clipboard.writeText(ta.value)}catch(e){ta.select();try{document.execCommand('copy')}catch(x){}}cb.textContent='Copiado!';setTimeout(()=>{cb.textContent='Copiar bloco'},1600)};b.append(cb);
+}
+
+// ---- aba Ocorrências ----
+function tOc(b){
+  b.append(mk('h4',0,'Nova ocorrência'));
+  const f=mk('form'),qm=inp('text',40,'Quem ou o quê'),mo=inp('text',160,'O que aconteceu'),or=sel(['chat','SOS','anúncio','avaliação','pagamento','outro'].map(x=>[x,x]));qm.required=mo.required=true;
+  f.append(campo('Quem ou o quê',qm),campo('O que aconteceu',mo),campo('Origem',or));const go=mk('button','go','Registrar');go.type='submit';f.append(go);
+  f.addEventListener('submit',e=>{e.preventDefault();OC.unshift({id:Date.now(),quem:qm.value.trim(),motivo:mo.value.trim(),origem:or.value,quando:Date.now(),status:'aberta',nota:''});salvarOC();say('Ocorrência registrada.')});b.append(f);
+  b.append(mk('h4',0,'Lista ('+abertas()+' abertas)'));
+  if(!OC.length)b.append(mk('p','note','Nenhuma ocorrência. Denúncias feitas no chat aparecem aqui.'));
+  const pess=UI.pessoas(),ord=OC.slice().sort((a,c)=>(a.status===c.status?c.quando-a.quando:(a.status==='aberta'?-1:1)));
+  ord.forEach(o=>{
+    const r=mk('div','arow'+(o.status==='aberta'?'':' fechada')),info=mk('div','ainfo');
+    const t=mk('b',0,o.quem);t.append(mk('span','badge-st'+(o.status==='aberta'?'':' ok'),o.status==='aberta'?'ABERTA':'RESOLVIDA'));
+    info.append(t,mk('span',0,o.motivo+' · '+o.origem+' · '+quando(o.quando)));
+    const nt=inp('text',160,'Anotação');nt.value=o.nota||'';nt.setAttribute('aria-label','Anotação sobre '+o.quem);nt.onchange=()=>{o.nota=nt.value.trim();salvarOC()};
+    const ac=mk('div','aact');ac.append(nt);
+    if(pess.some(p=>p.nome===o.quem)){const vp=mk('button','cp','Ver perfil');vp.type='button';vp.onclick=()=>UI.perfil(o.quem);ac.append(vp)}
+    if(pess.some(p=>p.nome===o.quem)&&!(UI.eu()&&UI.eu().nome===o.quem)){const bn=mk('button','cx',banidos.has(o.quem)?'Desbanir':'Banir');bn.type='button';bn.onclick=()=>{if(banidos.has(o.quem)){banidos.delete(o.quem);UI.desbanir(o.quem)}else{banidos.add(o.quem);UI.banir(o.quem)}store.set('banidos',[...banidos]);say(o.quem+(banidos.has(o.quem)?' foi banido(a).':' voltou para a sala.'))};ac.append(bn)}
+    const rs=mk('button','cp',o.status==='aberta'?'Resolver':'Reabrir');rs.type='button';rs.onclick=()=>{o.status=o.status==='aberta'?'resolvida':'aberta';salvarOC();say(o.status==='resolvida'?'Ocorrência resolvida.':'Ocorrência reaberta.')};
+    const ap=mk('button','cx','Apagar');ap.type='button';ap.onclick=()=>{OC=OC.filter(x=>x!==o);salvarOC();say('Ocorrência apagada.')};
+    ac.append(rs,ap);r.append(info,ac);b.append(r)});
+}
+
+// ---- aba Ajustes ----
+function tCfg(b){
+  b.append(mk('h4',0,'Trocar PIN'));
+  const f=mk('form'),a=inp('password',32,'Novo PIN'),c=inp('password',32,'Repita');a.required=c.required=true;
+  f.append(campo('Novo PIN',a),campo('Repita o novo PIN',c));const go=mk('button','go','Trocar PIN');go.type='submit';f.append(go);
+  f.addEventListener('submit',async e=>{e.preventDefault();if(a.value.length<4)return say('Use pelo menos 4 caracteres.');if(a.value!==c.value)return say('Os dois PINs não são iguais.');store.set('pin',await hpin(a.value));say('PIN trocado.')});b.append(f);
+  b.append(mk('h4',0,'Sessão'));
+  const sa=mk('button','cx','Sair do ADM');sa.type='button';sa.onclick=()=>sairAdm();b.append(sa);
+  b.append(mk('h4',0,'Dados deste navegador'));
+  b.append(mk('p','note','Apaga anúncios, títulos, bans, ocorrências, PIN e dados do Pix guardados aqui. Não mexe no código da página.'));
+  const lp=mk('button','cx','Apagar tudo do painel');lp.type='button';lp.onclick=()=>{if(!confirm('Apagar todos os dados do painel neste navegador?'))return;try{Object.keys(localStorage).filter(k=>k.indexOf(K)===0).forEach(k=>localStorage.removeItem(k));sessionStorage.removeItem('mh_adm')}catch(e){}location.reload()};b.append(lp);
+}
+
+// ---- ADM: clicar no nome da pessoa (perfil) mostra banir, título e ocorrência ----
+{const dl=document.createElement('datalist');dl.id='admTit';['Fundador','Moderador','Verificado','Apoiador','Parceiro','Destaque'].forEach(t=>{const o=document.createElement('option');o.value=t;dl.append(o)});document.body.append(dl)}
+window.MH_perfilAdm=function(pes,d){
+  const n=pes.nome,eu=UI.eu(),souEu=!!(eu&&eu.nome===n);
+  const box=mk('div','admbox');box.append(mk('h4',0,'Ações do ADM'));
+  const msg=mk('p','note');msg.setAttribute('role','status');
+  const r1=mk('div','aact'),t=inp('text',20,'Título');t.setAttribute('list','admTit');t.value=TIT[n]||'';t.setAttribute('aria-label','Título de '+n);
+  const sv=mk('button','cp','Salvar título');sv.type='button';
+  sv.onclick=()=>{const v=t.value.trim().slice(0,20);if(v)TIT[n]=v;else delete TIT[n];store.set('titulos',TIT);UI.online();msg.textContent=v?'Título salvo: '+v+'.':'Título removido.'};
+  r1.append(t,sv);box.append(r1);
+  const r2=mk('div','aact');r2.style.marginTop='8px';
+  if(!souEu){
+    const bn=mk('button','go',banidos.has(n)?'Desbanir da sala':'Banir da sala');bn.type='button';bn.style.cssText='background:var(--red);color:#fff;flex:1';
+    bn.onclick=()=>{if(banidos.has(n)){banidos.delete(n);UI.desbanir(n)}else{banidos.add(n);UI.banir(n)}store.set('banidos',[...banidos]);d.close()};
+    r2.append(bn)}
+  const oc=mk('button','cx','Registrar ocorrência');oc.type='button';
+  oc.onclick=()=>{OC.unshift({id:Date.now(),quem:n,motivo:'Aberta pelo perfil.',origem:'chat',quando:Date.now(),status:'aberta',nota:''});salvarOC();chipUpd();msg.textContent='Ocorrência registrada. Veja na aba Ocorrências.'};
+  r2.append(oc);box.append(r2,msg);
+  box.append(mk('h4',0,'Avaliações que '+n+' fez'));
+  const feitas=[];Object.entries(UI.avs()).forEach(([alvo,arr])=>arr.forEach(x=>{if(x[0]===n)feitas.push([alvo,x])}));
+  if(!feitas.length)box.append(mk('p','note','Nenhuma até agora.'));
+  feitas.forEach(([alvo,x])=>{
+    const it=mk('div','dep');it.append(mk('b',0,'Sobre '+alvo+' · '+estr(x[1])));it.append(document.createElement('br'),document.createTextNode(x[2]||'(sem comentário)'));
+    const row=mk('div','aact');row.style.marginTop='6px';
+    const ver=mk('button','cp','Ver perfil de '+alvo);ver.type='button';ver.disabled=!UI.pessoas().some(q=>q.nome===alvo);ver.onclick=()=>UI.perfil(alvo);
+    const ed=mk('button','cx','Editar');ed.type='button';ed.onclick=()=>editarDep({nome:alvo},x,n);
+    const ap=mk('button','cx','Apagar');ap.type='button';ap.onclick=()=>apagarDep(alvo,x,n);
+    row.append(ver,ed,ap);it.append(row);box.append(it)});
+  d.insertBefore(box,d.lastElementChild)};
+
+// ---- ADM: clicar numa pub no ar mostra apagar ----
+function abrirAd(i){
+  const v=ADS.vs()[i];if(!v)return;
+  const d=mk('dialog');d.setAttribute('aria-label','Anúncio da vaga '+(i+1));
+  d.append(mk('h3',0,'Vaga '+(i+1)+' · '+v.name));
+  d.append(mk('p','note',v.text+' · '+(v.tag?v.tag+' · ':'')+'restam '+rest(v.end-Date.now())));
+  if(v.img){const im=mk('img','aqr');im.src=v.img;im.alt='Imagem do anúncio';d.append(im)}
+  const bt=mk('div','dbt');
+  const del=mk('button','go','Apagar anúncio');del.type='button';del.style.cssText='background:var(--red);color:#fff';
+  del.onclick=()=>{ADS.clear(i);salvarAds();d.close();if(dlg.open)desenhar()};
+  const cx=mk('button','cx','Fechar');cx.type='button';cx.onclick=()=>d.close();
+  bt.append(del,cx);d.append(bt);d.addEventListener('close',()=>d.remove());document.body.append(d);d.showModal()}
+document.addEventListener('click',e=>{
+  if(!document.body.classList.contains('adm'))return;
+  const vg=e.target.closest&&e.target.closest('.vg:not(.open)');if(!vg)return;
+  const tm=vg.querySelector('.tm');if(!tm)return;abrirAd(Number(tm.dataset.i))});
+
+// ---- ADM: editar/apagar avaliações e ver quem avaliou ----
+function apagarDep(alvo,x,voltar){const arr=UI.avs()[alvo]||[];const k=arr.indexOf(x);if(k>=0)arr.splice(k,1);salvarAvs();UI.perfil(voltar)}
+function editarDep(pes,x,voltar){
+  const d=mk('dialog');d.setAttribute('aria-label','Editar avaliação');
+  d.append(mk('h3',0,'Avaliação de '+x[0]+' sobre '+pes.nome));
+  const f=mk('form'),st=sel([['5','★★★★★ (5)'],['4','★★★★☆ (4)'],['3','★★★☆☆ (3)'],['2','★★☆☆☆ (2)'],['1','★☆☆☆☆ (1)']]);st.value=String(x[1]);
+  const tx=inp('text',80,'Comentário');tx.value=x[2]||'';
+  f.append(campo('Nota',st),campo('Comentário (até 80 letras; vazio tira o texto)',tx));
+  const bt=mk('div','dbt'),ok=mk('button','go','Salvar'),cx=mk('button','cx','Cancelar');ok.type='submit';cx.type='button';cx.onclick=()=>d.close();bt.append(ok,cx);f.append(bt);
+  f.addEventListener('submit',e=>{e.preventDefault();x[1]=Number(st.value);x[2]=tx.value.trim();salvarAvs();d.close();UI.perfil(voltar)});
+  d.append(f);d.addEventListener('close',()=>d.remove());document.body.append(d);d.showModal();tx.focus()}
+window.MH_depAdm=function(pes,x,box){
+  const de=x[0],existe=UI.pessoas().some(p=>p.nome===de);
+  const row=mk('div','aact');row.style.marginTop='6px';
+  const ver=mk('button','cp','Ver perfil de '+de);ver.type='button';ver.disabled=!existe;ver.onclick=()=>UI.perfil(de);
+  const ed=mk('button','cx','Editar');ed.type='button';ed.onclick=()=>editarDep(pes,x,pes.nome);
+  const ap=mk('button','cx','Apagar');ap.type='button';ap.onclick=()=>apagarDep(pes.nome,x,pes.nome);
+  row.append(ver,ed,ap);box.append(row)};
+
+// ---- aba Meu acesso: entrar na sala como ADM com o nome que quiser ----
+function tEu(b){
+  b.append(mk('h4',0,'Entrar na sala como ADM'));
+  b.append(mk('p','note','Escolha o nome que quiser. Você entra no chat com a etiqueta ADM, sem passar pelo cadastro, e continua com todos os poderes do painel.'));
+  const eu=UI.eu();
+  const f=mk('form'),nn=inp('text',24,'Ex.: Suporte MiHelp');nn.required=true;nn.value=(eu&&eu.adm)?eu.nome:store.get('admNome','');
+  f.append(campo('Nome na sala',nn));
+  const go=mk('button','go',eu?(eu.adm?'Trocar nome':'Usar este nome no meu cadastro'):'Entrar na sala como ADM');go.type='submit';f.append(go);
+  f.addEventListener('submit',e=>{e.preventDefault();
+    const old=eu&&eu.nome,r=UI.entrarAdm(nn.value);
+    if(r!==true)return say(r);
+    const nome=UI.eu().nome;
+    if(old&&old!==nome&&TIT[old]==='ADM')delete TIT[old];
+    TIT[nome]='ADM';store.set('titulos',TIT);store.set('admNome',nome);UI.online();
+    dlg.close();const cw=document.getElementById('cw');if(cw)cw.scrollIntoView({behavior:'smooth',block:'center'})});
+  b.append(f);
+  if(eu&&eu.adm)b.append(mk('p','note','Você está na sala como '+eu.nome+'. Para ver as suas informações, clique no seu nome.'));
+}
+
+// ---- apagar mensagem do chat (só no modo ADM) ----
+document.addEventListener('click',e=>{const x=e.target.closest&&e.target.closest('.adm-x');if(!x)return;const p=x.closest('p');if(p)p.remove()});
+
+// ---- como entrar: ?admin na URL, ou 5 toques no logo ----
+let taps=0,tt=null;const br=document.querySelector('.brand');
+if(br)br.addEventListener('click',()=>{taps++;clearTimeout(tt);tt=setTimeout(()=>{taps=0},2500);if(taps>=5){taps=0;abrirPainel()}});
+if(/[?&]admin(=|&|$)/.test(location.search))setTimeout(abrirPainel,300);
+if(logado()){document.body.classList.add('adm');bar.hidden=false;chipUpd()}
+})()}catch(e){console.error('MiHelp (painel adm):',e)}
+</script>
+<script>
+/* ===== Camada de dados (Wix Headless). Só liga se window.MH_CFG.clientId estiver preenchido. ===== */
+(function(){
+const CFG=window.MH_CFG||{};
+const SDK_URL='https://esm.sh/@wix/sdk',DATA_URL='https://esm.sh/@wix/data';
+const COL={pre:'PreCadastros',perf:'Perfis',msg:'Mensagens',av:'Avaliacoes',ped:'Pedidos',ad:'Anuncios',ap:'Apoiadores',den:'Denuncias'};
+const DIAG=/[?&]diag\b/.test(location.search);
+const DB=window.MH_DB={ok:false,meu:'',nomes:new Set(),
+  tem(n){n=String(n||'').toLowerCase();return !!n&&n!==this.meu.toLowerCase()&&this.nomes.has(n)}};
+let client=null;
+const dt=v=>v instanceof Date?v:(v&&v.$date?new Date(v.$date):new Date(v));
+const rid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const q=c=>client.items.query(c);
+const ins=(c,o)=>client.items.insert(c,o);
+let painelDiag=null;
+function diag(t,ruim){try{console[ruim?'error':'log']('MiHelp banco:',t)}catch(e){}
+ if(!DIAG)return;
+ if(!painelDiag){painelDiag=document.createElement('pre');painelDiag.style.cssText='position:fixed;left:8px;bottom:8px;z-index:9999;max-width:92vw;max-height:60vh;overflow:auto;margin:0;padding:10px 12px;background:#000;color:#9fe;border:1px solid #E8B93C;border-radius:8px;font:12px/1.5 monospace;white-space:pre-wrap';document.body.append(painelDiag)}
+ painelDiag.textContent+=(ruim?'✗ ':'• ')+t+'\n'}
+const msgErro=e=>{const t=String((e&&(e.message||e.details&&e.details.message))||e);
+ if(/not.?found|does not exist|doesn.t exist|WDE0025/i.test(t))return t+' → a coleção não existe ou o nome está diferente.';
+ if(/permission|not allowed|forbidden|403|unauthor|WDE0015/i.test(t))return t+' → falta liberar a permissão da coleção.';
+ return t};
+
+DB.cadastrar=async function(d){
+ try{localStorage.setItem('mh_eu',JSON.stringify({nome:d.nome,role:d.role,work:d.work,tel:d.tel,em:d.em}))}catch(e){}
+ DB.meu=d.nome;if(!DB.ok)return;
+ const ops=[
+  ins(COL.pre,{nome:d.nome,papel:d.role,oficio:d.work||'',telefone:d.tel,email:d.em}),
+  ins(COL.perf,{nome:d.nome,papel:d.role,oficio:d.work||''}),
+  ins(COL.msg,{_id:rid('e'),sala:'sala',autor:d.nome,papel:d.role,oficio:d.work||'',texto:'',tipo:'entrada'})];
+ const r=await Promise.allSettled(ops);
+ r.forEach((x,i)=>{if(x.status==='rejected')diag('cadastro, passo '+(i+1)+': '+msgErro(x.reason),true)});
+ DB.nomes.add(d.nome.toLowerCase())};
+
+DB.enviar=async function(c,eu,texto,resp,extra){
+ if(!DB.ok)return;
+ const pub=(c==='sala'||String(c).indexOf('r:')===0);
+ const sala=pub?c:'pv:'+[eu.nome,c].sort().join('|');
+ const id=rid('m');seen.add(id);
+ try{await ins(COL.msg,{_id:id,sala,autor:eu.nome,papel:eu.role,oficio:eu.work||'',texto:String(texto).slice(0,300),
+  tipo:(extra&&extra.tipo)||'msg',categoria:(extra&&extra.categoria)||'',respNome:resp?resp.nome:'',respTexto:resp?String(resp.texto||'').slice(0,80):''})}
+ catch(e){diag('envio: '+msgErro(e),true);if(window.MH_RX)MH_RX.aviso('*** Não consegui enviar essa mensagem. Tente de novo em instantes. ***')}};
+
+DB.avaliar=async function(alvo,de,estrelas,texto){
+ if(!DB.ok)return;
+ try{await ins(COL.av,{alvo,de,estrelas,texto:String(texto||'').slice(0,80)})}catch(e){diag('avaliação: '+msgErro(e),true)}};
+
+DB.pedido=function(p){
+ if(!DB.ok)return Promise.reject(new Error('sem banco'));
+ return ins(COL.ped,Object.assign({status:'novo'},p))};
+
+DB.denuncia=async function(alvo){
+ if(!DB.ok)return;
+ const eu=window.MH_UI&&MH_UI.eu&&MH_UI.eu();
+ try{await ins(COL.den,{de:eu?eu.nome:'',alvo:String(alvo),motivo:'Denúncia feita no chat'})}catch(e){diag('denúncia: '+msgErro(e),true)}};
+
+const seen=new Set();let ultimo=null,falhas=0,avisou=false;
+async function poll(){
+ let b=q(COL.msg);
+ b=ultimo?b.ge('_createdDate',ultimo).ascending('_createdDate').limit(100):b.descending('_createdDate').limit(60);
+ const r=await b.find();let it=(r&&r.items)||[];if(!ultimo)it=it.slice().reverse();
+ it.forEach(x=>{const d=dt(x._createdDate);if(!ultimo||d>ultimo)ultimo=d;
+  if(seen.has(x._id))return;seen.add(x._id);
+  const ms=d.getTime();
+  if(x.tipo==='sos'&&Date.now()-ms>600000)return;
+  if(window.MH_RX)MH_RX.msg(Object.assign({},x,{_quando:ms}))});
+ if(window.MH_RX)MH_RX.fim();return it.length}
+async function ciclo(){
+ try{let n;do{n=await poll()}while(n>=100);falhas=0;avisou=false}
+ catch(e){falhas++;diag('leitura das mensagens: '+msgErro(e),true);
+  if(falhas>=4&&!avisou&&window.MH_RX){avisou=true;MH_RX.aviso('*** Sem conexão com o banco no momento. O chat tenta voltar sozinho. ***')}}
+ setTimeout(ciclo,document.hidden?12000:3500)}
+
+let avN=-1,avUlt='';
+async function lerAv(){
+ try{const r=await q(COL.av).ascending('_createdDate').limit(1000).find(),it=(r&&r.items)||[];
+  const ult=it.length?it[it.length-1]._id:'';
+  if(it.length!==avN||ult!==avUlt){avN=it.length;avUlt=ult;if(window.MH_RX)MH_RX.avs(it)}}
+ catch(e){diag('avaliações: '+msgErro(e),true)}}
+async function lerAds(){
+ try{const r=await q(COL.ad).limit(100).find(),it=(r&&r.items)||[],ag=Date.now();
+  const l=[];it.forEach(x=>{const ini=x.inicio?dt(x.inicio).getTime():dt(x._createdDate).getTime(),fim=ini+(Number(x.minutos)||0)*60000;
+   if(fim>ag)l.push({vaga:x.vaga,nome:x.nome,texto:x.texto,minutos:Number(x.minutos)||0,imagem:x.imagem,fim})});
+  if(window.MH_RX)MH_RX.ads(l)}
+ catch(e){diag('anúncios: '+msgErro(e),true)}}
+async function lerAp(){
+ try{const r=await q(COL.ap).limit(100).find(),it=(r&&r.items)||[];
+  if(window.MH_RX)MH_RX.apoio(it.filter(x=>x.nome).map(x=>({nome:x.nome,valor:x.valor,mostrarValor:false})))}
+ catch(e){diag('apoiadores: '+msgErro(e),true)}}
+async function lerNomes(){
+ try{const r=await q(COL.perf).limit(1000).find();((r&&r.items)||[]).forEach(x=>{if(x.nome)DB.nomes.add(String(x.nome).toLowerCase())})}
+ catch(e){diag('perfis: '+msgErro(e),true)}}
+
+async function testeCompleto(){
+ for(const k in COL){try{await q(COL[k]).limit(1).find();diag('ler '+COL[k]+': ok')}catch(e){diag('ler '+COL[k]+': '+msgErro(e),true)}}
+ diag('Fim do teste. Linhas com ✗ mostram o que falta arrumar.')}
+
+async function iniciar(){
+ try{const sv=JSON.parse(localStorage.getItem('mh_eu')||'null');
+  if(sv&&sv.nome){DB.meu=sv.nome;
+   const set=(id,v)=>{const e=document.getElementById(id);if(e&&v)e.value=v};
+   set('n',sv.nome);set('t',sv.tel);set('e',sv.em);set('w',sv.work);
+   if(sv.role==='helper'){const r=document.querySelector('input[name=r][value=Helper]');if(r){r.checked=true;r.dispatchEvent(new Event('change',{bubbles:true}))}}}}catch(e){}
+ if(!CFG.clientId){console.log('MiHelp: modo demonstração (sem Client ID).');return}
+ try{
+  const [sdk,dat]=await Promise.all([import(SDK_URL),import(DATA_URL)]);
+  client=sdk.createClient({auth:sdk.OAuthStrategy({clientId:CFG.clientId}),modules:{items:dat.items}});
+  await q(COL.perf).limit(1).find();
+  DB.ok=true;diag('Conectado ao Wix. Banco ligado.');
+ }catch(e){
+  diag('NÃO conectou: '+msgErro(e),true);
+  const aviso=()=>window.MH_RX&&MH_RX.aviso('*** Sem conexão com o banco. Nada do que você fizer agora será salvo. ***');
+  setTimeout(aviso,1500);return}
+ if(DIAG)testeCompleto();
+ lerNomes();lerAv();lerAds();lerAp();ciclo();
+ setInterval(lerAv,25000);setInterval(lerAds,30000);setInterval(lerAp,60000);setInterval(lerNomes,60000);
+ const antiga=window.MH_denuncia;window.MH_denuncia=n=>{try{antiga&&antiga(n)}catch(e){}DB.denuncia(n)};
+}
+iniciar();
+})();
+</script>
+</body>
+</html>
