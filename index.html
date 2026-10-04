@@ -2560,8 +2560,63 @@ const fld=(l,el)=>{const d=mk('div','f');const lb=mk('label',0,l);if(el.id)lb.ht
 const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
 const S=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 const b64=u=>btoa(String.fromCharCode(...u)),ub=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-async function hash(pw,salt){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);
-  return b64(new Uint8Array(await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:120000,hash:'SHA-256'},k,256)))}
+/* PBKDF2-HMAC-SHA256 em JS puro (reserva quando crypto.subtle não existe, ex.: http://) */
+const mhPbkdf2=(function(){
+  const K=new Int32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+  const IV=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const W=new Int32Array(64);
+  function compress(h,w16){ /* h: Int32Array(8) estado; w16: Int32Array(16) bloco */
+    for(let i=0;i<16;i++)W[i]=w16[i];
+    for(let i=16;i<64;i++){
+      const a=W[i-15],b=W[i-2];
+      const s0=((a>>>7)|(a<<25))^((a>>>18)|(a<<14))^(a>>>3);
+      const s1=((b>>>17)|(b<<15))^((b>>>19)|(b<<13))^(b>>>10);
+      W[i]=(W[i-16]+s0+W[i-7]+s1)|0}
+    let a=h[0],b=h[1],c=h[2],d=h[3],e=h[4],f=h[5],g=h[6],hh=h[7];
+    for(let i=0;i<64;i++){
+      const S1=((e>>>6)|(e<<26))^((e>>>11)|(e<<21))^((e>>>25)|(e<<7));
+      const ch=(e&f)^(~e&g);
+      const t1=(hh+S1+ch+K[i]+W[i])|0;
+      const S0=((a>>>2)|(a<<30))^((a>>>13)|(a<<19))^((a>>>22)|(a<<10));
+      const mj=(a&b)^(a&c)^(b&c);
+      const t2=(S0+mj)|0;
+      hh=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0}
+    h[0]=(h[0]+a)|0;h[1]=(h[1]+b)|0;h[2]=(h[2]+c)|0;h[3]=(h[3]+d)|0;
+    h[4]=(h[4]+e)|0;h[5]=(h[5]+f)|0;h[6]=(h[6]+g)|0;h[7]=(h[7]+hh)|0}
+  function sha256(bytes){ /* bytes: Uint8Array -> Int32Array(8) */
+    const n=bytes.length,tot=((n+9+63)>>6)<<6,buf=new Uint8Array(tot);
+    buf.set(bytes);buf[n]=0x80;
+    const dv=new DataView(buf.buffer);dv.setUint32(tot-4,(n*8)>>>0);dv.setUint32(tot-8,Math.floor(n/0x20000000));
+    const h=Int32Array.from(IV),w=new Int32Array(16);
+    for(let o=0;o<tot;o+=64){for(let i=0;i<16;i++)w[i]=dv.getInt32(o+i*4);compress(h,w)}
+    return h}
+  const toBytes=h=>{const o=new Uint8Array(32),dv=new DataView(o.buffer);for(let i=0;i<8;i++)dv.setInt32(i*4,h[i]);return o};
+  return function(pw,salt,iter){
+    let key=pw;if(key.length>64)key=toBytes(sha256(key));
+    const ip=new Uint8Array(64),op=new Uint8Array(64);
+    for(let i=0;i<64;i++){const k=i<key.length?key[i]:0;ip[i]=k^0x36;op[i]=k^0x5c}
+    const st=p=>{const h=Int32Array.from(IV),w=new Int32Array(16),dv=new DataView(p.buffer);for(let i=0;i<16;i++)w[i]=dv.getInt32(i*4);compress(h,w);return h};
+    const si=st(ip),so=st(op);
+    /* HMAC(mensagem curta) a partir dos estados já calculados; len = 64 (pad) + 32 (mensagem) */
+    const w=new Int32Array(16),h=new Int32Array(8);
+    const hmac32=m=>{ /* m: Int32Array(8) -> Int32Array(8) */
+      h.set(si);for(let i=0;i<8;i++)w[i]=m[i];w[8]=0x80000000|0;for(let i=9;i<15;i++)w[i]=0;w[15]=(64+32)*8;compress(h,w);
+      const r=Int32Array.from(so);for(let i=0;i<8;i++)w[i]=h[i];w[8]=0x80000000|0;for(let i=9;i<15;i++)w[i]=0;w[15]=(64+32)*8;compress(r,w);return r};
+    /* U1 = HMAC(senha, salt || 0x00000001) */
+    const msg=new Uint8Array(salt.length+4);msg.set(salt);msg[salt.length+3]=1;
+    const full=new Uint8Array(64+msg.length);full.set(ip);full.set(msg,64);
+    const inner=sha256(full);
+    const o2=new Uint8Array(64+32);o2.set(op);o2.set(toBytes(inner),64);
+    let u=sha256(o2);const t=Int32Array.from(u);
+    for(let i=1;i<iter;i++){u=hmac32(u);for(let j=0;j<8;j++)t[j]^=u[j]}
+    return toBytes(t)}
+})();
+
+async function hash(pw,salt){const pb=new TextEncoder().encode(pw);
+  if(window.crypto&&crypto.subtle){try{const k=await crypto.subtle.importKey('raw',pb,'PBKDF2',false,['deriveBits']);
+    return b64(new Uint8Array(await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:120000,hash:'SHA-256'},k,256)))}catch(e){}}
+  await new Promise(r=>setTimeout(r,0));
+  return b64(mhPbkdf2(pb,salt,120000))}
 const sair=mk('button','exp','Sair');sair.id='sairBar';sair.type='button';sair.hidden=true;sair.setAttribute('aria-label','Sair da conta');
 {const cx=document.getElementById('cwExp');if(cx&&cx.parentNode)cx.parentNode.insertBefore(sair,cx);else document.body.append(sair)}
 function guarda(nome){try{localStorage.removeItem('mh_sess');sessionStorage.removeItem('mh_sess');const k=document.getElementById('mantem'),m=!k||k.checked;localStorage.setItem('mh_keep',m?'1':'0');(m?localStorage:sessionStorage).setItem('mh_sess',JSON.stringify(nome))}catch(e){}}
@@ -2569,7 +2624,6 @@ let sairT=null;
 sair.onclick=()=>{if(!sair.dataset.c){sair.dataset.c='1';sair.textContent='Toque para sair';clearTimeout(sairT);sairT=setTimeout(()=>{delete sair.dataset.c;sair.textContent='Sair'},4000);return}
 try{localStorage.removeItem('mh_sess');sessionStorage.removeItem('mh_sess');localStorage.removeItem('mh_eu');sessionStorage.removeItem('mh_adm')}catch(e){}location.reload()};
 window.MH_conta={async criar(d,pw){
-  if(!window.crypto||!crypto.subtle)return;
   const salt=crypto.getRandomValues(new Uint8Array(16)),a=J('mh_acc',{});
   a[d.nome.toLowerCase()]={nome:d.nome,role:d.role,work:d.work,salt:b64(salt),hash:await hash(pw,salt)};
   S('mh_acc',a);guarda(d.nome)}};
@@ -2590,7 +2644,6 @@ pwE.onclick=()=>{const v=$('pw').type==='password';$('pw').type=v?'text':'passwo
 $('pw').addEventListener('input',()=>{if(login)return;const n=$('pw').value.length;pwH.classList.toggle('ok',n>=6);pwH.textContent=n>=6?'Senha boa. Anote para não esquecer.':HT});
 const erro=m=>{const er=$('ferr');if(er){er.style.display='block';er.textContent=m}};
 async function entrar(){
-  if(!window.crypto||!crypto.subtle)return erro('Abra o site pelo endereço https para entrar.');
   const nome=$('n').value.trim().replace(/\s+/g,' '),pw=$('pw').value;
   if(!nome||!pw)return erro('Digite seu nome e sua senha.');
   const c=J('mh_acc',{})[nome.toLowerCase()];
