@@ -748,6 +748,7 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
    bots: true  = mantém os bonecos de demonstração na sala (com a etiqueta "bot")
    bots: false = só pessoas de verdade                                                */
 window.MH_CFG={clientId:'a633f724-c9b4-4ba8-a3f0-ef20c3c17279',bots:false};
+window.MH_FLOOR=(function(){try{return JSON.parse(localStorage.getItem('mh_floor')||'{}')||{}}catch(e){return {}}})();
 </script>
 </head>
 <body>
@@ -1263,7 +1264,7 @@ construirTicker()}
 try{
 const $=id=>document.getElementById(id);
 // Participantes simulados (bots) para o protótipo. Troque para false para desligar.
-const BOTS=(window.MH_CFG||{}).bots!==false;
+let BOTS=(function(){try{const v=localStorage.getItem('mh_bots');if(v==='0')return false;if(v==='1')return true}catch(e){}return (window.MH_CFG||{}).bots!==false})();
 document.addEventListener('click',function(e){
 const b=e.target.closest&&e.target.closest('button[type=submit]');if(!b||!b.form)return;
 const f=b.form;if(f.id==='f'||f.noValidate)return;
@@ -1581,7 +1582,7 @@ respA={nome:b.dataset.rp,texto:b.dataset.tx};mostrarResp();$('m').focus()});
 $('rpX').addEventListener('click',()=>{respA=null;mostrarResp();$('m').focus()});
 const SALAS=[['sala','Geral','conversa livre e SOS. Para vender ou procurar serviço, use as outras salas.'],['r:classificados','Classificados','compra, venda e troca. Não pague antes de ver o item. Nada ilegal.'],['r:amizade','Amizade','bate-papo e conhecer gente. Sem oferta de serviço ou venda.'],['r:construcao','Construção e reformas','pedreiro, pintura, elétrica e orçamento. Combine o preço por escrito.'],['r:vagas','Vagas e bicos','diárias e trabalho temporário. Diga o que é, o valor e o dia.']];
 const SEMENTE={'r:classificados':[['Marcos P.','vendo uma bicicleta aro 26, pouco uso. Quem quiser, chama no privado'],['Ana C.','alguém tem berço para vender ou doar?']],'r:amizade':[['Duda L.','bom dia, Vale! Quem vai na praça no fim de semana?'],['Ana C.','eu vou! Levo o tereré']],'r:construcao':[['Marcos P.','alguém indica pedreiro para fazer um muro?'],['Carla M.','Trabalho com elétrica. Se precisar de ponto novo, me chama']],'r:vagas':[['Ana C.','preciso de diarista na terça, meio período'],['Marcos P.','ajudante de pedreiro, 3 diárias, aqui em Barra']]};
-function abrirSala(c){if(painel[c])return;const d=document.createElement('div');d.className='log';d.hidden=true;d.setAttribute('aria-live','polite');$('log').after(d);painel[c]=d;nota(d,'*** sala de demonstração: quem tem a etiqueta bot é simulado ***');(SEMENTE[c]||[]).forEach(([n,t])=>linha(d,por(n),t))}
+function abrirSala(c){if(painel[c])return;const d=document.createElement('div');d.className='log';d.hidden=true;d.setAttribute('aria-live','polite');$('log').after(d);painel[c]=d;if(BOTS){nota(d,'*** sala de demonstração: quem tem a etiqueta bot é simulado ***');(SEMENTE[c]||[]).forEach(([n,t])=>linha(d,por(n),t))}}
 SALAS.filter(x=>x[0]!=='sala').forEach(([k,n])=>{const b=document.createElement('button');b.type='button';b.dataset.r=k;b.textContent=n;b.onclick=()=>{abrirSala(k);mostrar(k)};$('rooms').append(b)});
 {const sg=document.createElement('button');sg.type='button';sg.className='sug';sg.textContent='+ Sugerir sala';sg.onclick=()=>{$('sugf').hidden=!$('sugf').hidden;if(!$('sugf').hidden)$('sugi').focus()};$('rooms').append(sg)}
 $('sugf').addEventListener('submit',e=>{e.preventDefault();const v=$('sugi').value.trim();if(!v)return;$('sugi').value='';$('sugf').hidden=true;nota(painel[ativa]||painel.sala,'*** Sugestão "'+v+'" anotada (prévia). No app, a equipe analisa as sugestões. ***')});
@@ -1638,9 +1639,18 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-u]');if(b)
 $('ctabs').querySelector('.ctsala').addEventListener('click',()=>mostrar('sala'));
 $('pbloq').addEventListener('click',()=>{const n=ativa;if(n==='sala')return;bloqueados.add(n);Array.from(painel.sala.querySelectorAll('p')).filter(p=>p.dataset.de===n).forEach(p=>{p.hidden=true});fechar(n);desenharOnline();nota(painel.sala,'*** você bloqueou '+n+' ***')});
 $('pden').addEventListener('click',()=>{if(ativa==='sala')return;if(window.MH_denuncia)window.MH_denuncia(ativa);nota(painel[ativa],PREVIA?'*** Denúncia (prévia): no site de verdade, a conversa é enviada para a nossa equipe. ***':'*** Denúncia enviada para a nossa equipe. ***')});
-if(BOTS){nota(painel.sala,'*** sala de demonstração: quem tem a etiqueta bot é simulado. Clique num nome para falar no privado ***');depois(1500,conversa);setInterval(conversa,17000)}
+let botsIni=false;
+function iniciarBots(){if(botsIni)return;botsIni=true;nota(painel.sala,'*** sala de demonstração: quem tem a etiqueta bot é simulado. Clique num nome para falar no privado ***');depois(1500,conversa);setInterval(conversa,17000)}
+if(BOTS)iniciarBots();
+window.MH_FX={
+ bots(on){BOTS=!!on;if(BOTS)iniciarBots();else Object.keys(painel).forEach(k=>{if(k==='sala'||k.indexOf('r:')===0)Array.from(painel[k].querySelectorAll('p[data-de]')).forEach(x=>{if(por(x.dataset.de))x.remove()})});try{desenharOnline()}catch(x){}},
+ limpar(a,t){if(a==='sala'){painel.sala.textContent='';nota(painel.sala,'*** sala limpa pelo administrador ***')}
+  else if(a==='salas'){Object.keys(painel).filter(k=>k.indexOf('r:')===0).forEach(k=>{painel[k].textContent='';nota(painel[k],'*** sala limpa pelo administrador ***')})}
+  else if(a==='outdoor'){const A=window.MH_ADS;if(A)A.vs().forEach((v,i)=>{if(v)A.clear(i)})}
+  else if(a==='guilda'){if(window.MH_guildaLimpar)MH_guildaLimpar(t||Date.now())}}
+};
 desenharOnline();mostrar('sala');atualizarPapel();
-window.MH_UI={online:()=>desenharOnline(),eu:()=>eu,sos:()=>atualizarSosCount(),
+window.MH_UI={online:()=>desenharOnline(),botsOn:()=>BOTS,eu:()=>eu,sos:()=>atualizarSosCount(),
 perfil:n=>{if(pfDlg&&pfDlg.open)pfDlg.close();abrirPerfil(n)},
 avs:()=>AV,
 entrarConta:c=>{eu={nome:c.nome,role:c.role,work:c.work,status:'disponivel'};try{if(window.MH_DB)MH_DB.meu=c.nome}catch(x){}renderMeuPerfil();liberarChatForcado();desenharOnline();return true},
@@ -1662,7 +1672,7 @@ else{p.role=papel==='helper'?'helper':'cliente';if(oficio)p.work=oficio}
 if(quando&&(!p.visto||quando>p.visto)){p.visto=quando;rxMuda=true}return p}
 window.MH_RX={
  aviso:t=>nota(painel.sala,t),
- msg(m){const q=m._quando||Date.now();const sou=eu&&m.autor===eu.nome;
+ msg(m){const q=m._quando||Date.now();const sou=eu&&m.autor===eu.nome;const FL=window.MH_FLOOR||{};{const sl=String(m.sala||'sala');if(sl==='sala'&&q<=(FL.sala||0))return;if(sl.indexOf('r:')===0&&q<=(FL.salas||0))return}
   const p=sou?eu:realDe(m.autor,m.papel,m.oficio,q);
   if(m.tipo==='entrada'){if(!sou&&Date.now()-q<90000)nota(painel.sala,'*** '+m.autor+' entrou na sala ***');return}
   if(!p||bloqueados.has(m.autor))return;
@@ -1894,6 +1904,7 @@ try{
     {p:'Tiago R.',g:'ACHADOS E PERDIDOS',t:'Chave perdida perto da praça',d:'Chaveiro com chaveiro azul. Quem achar combina a devolução.',v:'recompensa'}
   ];
   window.MH_MISSOES=M;
+  if((window.MH_FLOOR||{}).guilda)M.length=0;
   const gl=document.getElementById('gdList'),gm=document.getElementById('gdMsg');
   if(gl){M.forEach(m=>{
     const c=document.createElement('div');c.className='gc';
@@ -2040,23 +2051,63 @@ const chip=mk('button','admchip','ADM');chip.type='button';chip.onclick=()=>abri
 const sair=mk('button','admexit','Sair do ADM');sair.type='button';sair.onclick=()=>sairAdm();
 bar.append(chip,sair);document.body.append(bar);
 function chipUpd(){const n=abertas();chip.textContent='ADM'+(n?' · '+n:'')}
-let aba='ads',aviso='',corpoEl=null;
-const ABAS=[['ads','Anúncios'],['pes','Pessoas'],['pix','Pix'],['oc','Ocorrências'],['site','Meta e cargos'],['eu','Meu acesso'],['cfg','Ajustes']];
+let aba='ctl',aviso='',corpoEl=null;
+const ABAS=[['ctl','Controle'],['ads','Anúncios'],['pes','Pessoas'],['pix','Pix'],['oc','Ocorrências'],['site','Meta e cargos'],['eu','Meu acesso'],['cfg','Ajustes']];
 function say(t){aviso=t;desenhar()}
 function abrirPainel(){if(!logado())return abrirLogin();desenhar();if(!dlg.open)dlg.showModal()}
 function desenhar(){
   dlg.textContent='';
   const h=mk('div','ahead');h.append(mk('h3',0,'Painel ADM'));const gx=mk('div','aact');const sx=mk('button','cx','Sair do ADM');sx.type='button';sx.onclick=sairAdm;const x=mk('button','cx','Fechar');x.type='button';x.onclick=()=>dlg.close();gx.append(sx,x);h.append(gx);
-  dlg.append(h,mk('p','note aproto','Protótipo: o que você muda aqui vale só neste navegador. Para valer para todo mundo, o painel precisa ser ligado ao Wix.'));
+  dlg.append(h);
   const tb=mk('div','atabs');tb.setAttribute('role','tablist');
   ABAS.forEach(([k,t])=>{const n=k==='oc'?abertas():0;const bt=mk('button',k===aba?'on':'',t+(n?' ('+n+')':''));bt.type='button';bt.setAttribute('role','tab');bt.setAttribute('aria-selected',String(k===aba));bt.onclick=()=>{aba=k;aviso='';desenhar()};tb.append(bt)});
   corpoEl=mk('div','abody');dlg.append(tb,corpoEl);
   if(aviso){const a=mk('p','aviso',aviso);a.setAttribute('role','status');corpoEl.append(a)}
-  ({ads:tAds,pes:tPes,pix:tPix,oc:tOc,site:tSite,eu:tEu,cfg:tCfg})[aba](corpoEl);
+  ({ctl:tCtl,ads:tAds,pes:tPes,pix:tPix,oc:tOc,site:tSite,eu:tEu,cfg:tCfg})[aba](corpoEl);
   dlg.scrollTop=0;chipUpd()}
 
 window.MH_chamadoAdm=(quem,motivo)=>{OC.unshift({id:Date.now(),quem,motivo,origem:'chamado',quando:Date.now(),status:'aberta',nota:''});salvarOC();chipUpd()};
 {const c=store.get('cargos',{});UI.pessoas().forEach(p=>{if(c[p.nome]&&p.role==='helper')p.work=c[p.nome]})}
+
+let ctlConf='';
+function tCtl(b){
+  const DB=window.MH_DB||{},pronto=!!(DB.ctlPronto&&DB.ctlPronto());
+  b.append(mk('h4',0,'Controle rápido'));
+  b.append(mk('p','note',pronto?'O que você fizer aqui vale para todo mundo, na hora, mesmo com gente na sala.':'Por enquanto isto vale só neste navegador. Para valer para todo mundo, termine a "Chave de admin" lá embaixo e confirme que o banco está conectado.'));
+  const run=async(cmd,ok)=>{ctlConf='';let r='local';try{r=DB.ctl?await DB.ctl(cmd):'local'}catch(e){r='erro'}
+    say(r==='todos'?ok+' Vale para todos.':r==='erro'?ok+' Mas não consegui avisar os outros. Tente de novo.':ok+' Só neste navegador.')};
+  const on=!!(UI.botsOn&&UI.botsOn());
+  const r=mk('div','arow'),info=mk('div','ainfo');
+  info.append(mk('b',0,'Bots da sala'),mk('span',0,on?'Ligados: conversam e respondem.':'Desligados: só pessoas de verdade.'));
+  const sw=mk('button',on?'cx':'go',on?'Desligar bots':'Ligar bots');sw.type='button';
+  sw.onclick=()=>run({a:'bots',v:!on},on?'Bots desligados.':'Bots ligados.');
+  r.append(info,sw);b.append(r);
+  b.append(mk('h4',0,'Limpar'));
+  [['sala','Chat Geral','Esvazia a sala Geral.'],['salas','Outras salas','Classificados, Amizade, Construção e as demais.'],['guilda','Guilda','Tira as missões e os chamados.'],['outdoor','Outdoors digitais','Tira todos os anúncios do ar.'],['tudo','Tudo isso de uma vez','Faz as quatro limpezas juntas.']].forEach(([k,t,d])=>{
+    const row=mk('div','arow'),inf=mk('div','ainfo');inf.append(mk('b',0,t),mk('span',0,d));
+    const sure=ctlConf===k;const bt=mk('button',sure?'go':'cx',sure?'Toque de novo para confirmar':'Limpar');bt.type='button';
+    bt.onclick=()=>{if(!sure){ctlConf=k;desenhar();return}run({a:'limpar',alvo:k},t+' limpo.')};
+    row.append(inf,bt);b.append(row)});
+  b.append(mk('p','note','Limpar esconde das telas. As mensagens e pedidos continuam guardados no Wix. Para apagar de vez, apague no CMS.'));
+  b.append(mk('h4',0,'Chave de admin'));
+  const K=DB.chave;
+  if(!K){b.append(mk('p','note','Esta parte do site não carregou. Atualize a página.'));return}
+  if(!K.existe()){
+    b.append(mk('p','note','Esta chave prova que o pedido de limpar veio de você. Sem ela, qualquer pessoa poderia limpar o chat de todo mundo. Crie uma vez, neste navegador.'));
+    const go=mk('button','go','Criar chave de admin');go.type='button';
+    go.onclick=async()=>{try{await K.gerar();say('Chave criada. Agora cole a linha que apareceu abaixo no index.html e publique de novo.')}catch(e){say('Não consegui criar a chave neste navegador.')}};
+    b.append(go);return}
+  if(K.ligada()){b.append(mk('p','note','Chave ligada ao site. '+(DB.ok?'Banco conectado.':'Mas o banco não está conectado agora.')))}
+  else{
+    b.append(mk('p','note','Falta um passo: abra o index.html, troque a linha que começa com window.MH_CFG por esta, salve e publique de novo.'));
+    const ta=mk('textarea');ta.readOnly=true;ta.rows=5;ta.value=K.linha();ta.setAttribute('aria-label','Linha para colar no index.html');ta.onfocus=()=>ta.select();b.append(ta);
+    const cp=mk('button','cx','Copiar linha');cp.type='button';cp.onclick=()=>{ta.select();try{navigator.clipboard.writeText(ta.value)}catch(e){}say('Linha copiada.')};b.append(cp)}
+  b.append(mk('h4',0,'Backup da chave'));
+  b.append(mk('p','note','A chave fica só neste navegador. Para usar o painel em outro aparelho, copie o backup e importe lá. Guarde em lugar seguro e não mostre a ninguém.'));
+  const bk=mk('button','cx','Copiar backup da chave');bk.type='button';bk.onclick=()=>{try{navigator.clipboard.writeText(K.exportar());say('Backup copiado.')}catch(e){say('Não consegui copiar.')}};b.append(bk);
+  const im=mk('textarea');im.rows=3;im.placeholder='Cole aqui um backup para importar';im.setAttribute('aria-label','Backup da chave para importar');b.append(im);
+  const ib=mk('button','cx','Importar backup');ib.type='button';ib.onclick=()=>{try{K.importar(im.value.trim());say('Chave importada.')}catch(e){say('Esse backup não é válido.')}};b.append(ib);
+}
 function tSite(b){
   const M=(window.MH_metaAtual&&MH_metaAtual())||{alvo:5000,arrecadado:0,usos:[]};
   b.append(mk('h4',0,'Meta de apoio'));
@@ -2108,7 +2159,7 @@ function tAds(b){
     const rm=mk('button','cx','Remover');rm.type='button';rm.onclick=()=>{ADS.clear(i);salvarAds();say('Anúncio da vaga '+(i+1)+' removido.')};
     r.append(info,rm);b.append(r)});
   if(!n)b.append(mk('p','note','Nenhum anúncio no ar.'));
-  else{const all=mk('button','cx','Remover todos');all.type='button';all.style.marginTop='10px';all.onclick=()=>{if(!confirm('Remover todos os '+n+' anúncios?'))return;ADS.vs().forEach((v,i)=>{if(v)ADS.clear(i)});salvarAds();say('Todos os anúncios foram removidos.')};b.append(all)}
+  else{const all=mk('button','cx','Remover todos');all.type='button';all.style.marginTop='10px';all.onclick=()=>{if(!all.dataset.c){all.dataset.c='1';all.textContent='Toque de novo para remover '+n;setTimeout(()=>{delete all.dataset.c;all.textContent='Remover todos'},4000);return}ADS.vs().forEach((v,i)=>{if(v)ADS.clear(i)});salvarAds();say('Todos os anúncios foram removidos.')};b.append(all)}
 }
 
 // ---- aba Pessoas ----
@@ -2197,7 +2248,7 @@ function tCfg(b){
   const sa=mk('button','cx','Sair do ADM');sa.type='button';sa.onclick=()=>sairAdm();b.append(sa);
   b.append(mk('h4',0,'Dados deste navegador'));
   b.append(mk('p','note','Apaga anúncios, títulos, bans, ocorrências, PIN e dados do Pix guardados aqui. Não mexe no código da página.'));
-  const lp=mk('button','cx','Apagar tudo do painel');lp.type='button';lp.onclick=()=>{if(!confirm('Apagar todos os dados do painel neste navegador?'))return;try{Object.keys(localStorage).filter(k=>k.indexOf(K)===0).forEach(k=>localStorage.removeItem(k));sessionStorage.removeItem('mh_adm')}catch(e){}location.reload()};b.append(lp);
+  const lp=mk('button','cx','Apagar tudo do painel');lp.type='button';lp.onclick=()=>{if(!lp.dataset.c){lp.dataset.c='1';lp.textContent='Toque de novo para apagar tudo';setTimeout(()=>{delete lp.dataset.c;lp.textContent='Apagar tudo do painel'},4000);return}try{Object.keys(localStorage).filter(k=>k.indexOf(K)===0).forEach(k=>localStorage.removeItem(k));sessionStorage.removeItem('mh_adm')}catch(e){}location.reload()};b.append(lp);
 }
 
 // ---- ADM: clicar no nome da pessoa (perfil) mostra banir, título e ocorrência ----
@@ -2353,15 +2404,54 @@ DB.denuncia=async function(alvo){
  try{await ins(COL.den,{de:eu?eu.nome:'',alvo:String(alvo),motivo:'Denúncia feita no chat'})}catch(e){diag('denúncia: '+msgErro(e),true)}};
 
 const seen=new Set();let ultimo=null,falhas=0,avisou=false;
+/* ---- controle do administrador (mensagens assinadas) ---- */
+const KEYK='mihelp_ctlkey_v1';
+const b64=u=>btoa(String.fromCharCode.apply(null,Array.from(new Uint8Array(u))));
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const enc=s=>new TextEncoder().encode(s);
+const ALG={name:'ECDSA',namedCurve:'P-256'},SIG={name:'ECDSA',hash:'SHA-256'};
+const sub=()=>window.crypto&&crypto.subtle;
+const priv=()=>{try{return JSON.parse(localStorage.getItem(KEYK)||'null')}catch(e){return null}};
+const pubCfg=()=>{try{let j=CFG.adminPub;if(typeof j==='string')j=JSON.parse(j);return j&&j.x&&j.y?j:null}catch(e){return null}};
+let pubKey=null;
+async function pubDoSite(){if(pubKey)return pubKey;const j=pubCfg();if(!j||!sub())return null;pubKey=await sub().importKey('jwk',{kty:'EC',crv:'P-256',x:j.x,y:j.y,ext:true},ALG,false,['verify']);return pubKey}
+async function verificar(txt,sig){try{const k=await pubDoSite();if(!k)return false;return await sub().verify(SIG,k,unb64(sig),enc(txt))}catch(e){return false}}
+async function assinar(txt){const k=await sub().importKey('jwk',priv(),ALG,false,['sign']);return b64(await sub().sign(SIG,k,enc(txt)))}
+DB.chave={
+ existe:()=>!!priv(),
+ async gerar(){if(!sub())throw new Error('sem criptografia');const kp=await sub().generateKey(ALG,true,['sign','verify']);const j=await sub().exportKey('jwk',kp.privateKey);localStorage.setItem(KEYK,JSON.stringify(j))},
+ publica(){const j=priv();return j?{x:j.x,y:j.y}:null},
+ linha(){const p=this.publica();if(!p)return '';return "window.MH_CFG={clientId:'"+(CFG.clientId||'')+"',bots:"+(CFG.bots!==false)+",adminPub:{x:'"+p.x+"',y:'"+p.y+"'}};"},
+ ligada(){const p=this.publica(),s=pubCfg();return !!(p&&s&&s.x===p.x&&s.y===p.y)},
+ exportar:()=>localStorage.getItem(KEYK)||'',
+ importar(t){const j=JSON.parse(t);if(!j.d||!j.x||!j.y)throw new Error('chave inválida');localStorage.setItem(KEYK,JSON.stringify(j))}};
+DB.ctlPronto=()=>!!(DB.ok&&DB.chave.ligada());
+let botsT=0;try{botsT=Number(localStorage.getItem('mh_botsT')||0)}catch(e){}
+function salvarFloor(){try{localStorage.setItem('mh_floor',JSON.stringify(window.MH_FLOOR))}catch(e){}}
+function aplicar(c,quando){const F=window.MH_FLOOR||(window.MH_FLOOR={}),FX=window.MH_FX||{};
+ if(c.a==='bots'){if(quando>botsT){botsT=quando;try{localStorage.setItem('mh_botsT',String(quando))}catch(e){}if(FX.bots)FX.bots(!!c.v)}return}
+ if(c.a==='limpar'){const T=['sala','salas','guilda','outdoor'],al=c.alvo==='tudo'?T:[c.alvo];
+  al.forEach(a=>{if(T.indexOf(a)<0)return;if(quando>(F[a]||0)){F[a]=quando;if(FX.limpar)FX.limpar(a,quando)}});salvarFloor()}}
+DB.ctl=async function(cmd){
+ const t=Date.now();aplicar(cmd,t);
+ if(!DB.ctlPronto())return 'local';
+ try{const payload=JSON.stringify(Object.assign({n:rid('')},cmd,{t})),sig=await assinar(payload),id=rid('c');seen.add(id);
+  await ins(COL.msg,{_id:id,sala:'sala',autor:'ADM',papel:'cliente',oficio:'',texto:payload,categoria:sig,tipo:'ctl'});return 'todos'}
+ catch(e){diag('controle: '+msgErro(e),true);return 'erro'}};
+async function tratarCtl(x){if(!(await verificar(x.texto,x.categoria)))return;let c;try{c=JSON.parse(x.texto)}catch(e){return}aplicar(c,dt(x._createdDate).getTime())}
+async function lerCtl(){try{const r=await q(COL.msg).eq('tipo','ctl').descending('_createdDate').limit(40).find();const it=((r&&r.items)||[]).slice().reverse();
+ for(const x of it){if(seen.has(x._id))continue;seen.add(x._id);await tratarCtl(x)}}catch(e){diag('controle: '+msgErro(e),true)}}
+
 async function poll(){
  let b=q(COL.msg);
  b=ultimo?b.ge('_createdDate',ultimo).ascending('_createdDate').limit(100):b.descending('_createdDate').limit(60);
  const r=await b.find();let it=(r&&r.items)||[];if(!ultimo)it=it.slice().reverse();
- it.forEach(x=>{const d=dt(x._createdDate);if(!ultimo||d>ultimo)ultimo=d;
-  if(seen.has(x._id))return;seen.add(x._id);
+ for(const x of it){const d=dt(x._createdDate);if(!ultimo||d>ultimo)ultimo=d;
+  if(seen.has(x._id))continue;seen.add(x._id);
   const ms=d.getTime();
-  if(x.tipo==='sos'&&Date.now()-ms>600000)return;
-  if(window.MH_RX)MH_RX.msg(Object.assign({},x,{_quando:ms}))});
+  if(x.tipo==='ctl'){await tratarCtl(x);continue}
+  if(x.tipo==='sos'&&Date.now()-ms>600000)continue;
+  if(window.MH_RX)MH_RX.msg(Object.assign({},x,{_quando:ms}))}
  if(window.MH_RX)MH_RX.fim();return it.length}
 async function ciclo(){
  try{let n;do{n=await poll()}while(n>=100);falhas=0;avisou=false}
@@ -2377,7 +2467,7 @@ async function lerAv(){
  catch(e){diag('avaliações: '+msgErro(e),true)}}
 async function lerAds(){
  try{const r=await q(COL.ad).limit(100).find(),it=(r&&r.items)||[],ag=Date.now();
-  const l=[];it.forEach(x=>{const ini=x.inicio?dt(x.inicio).getTime():dt(x._createdDate).getTime(),fim=ini+(Number(x.minutos)||0)*60000;
+  const l=[];it.forEach(x=>{const ini=x.inicio?dt(x.inicio).getTime():dt(x._createdDate).getTime(),fim=ini+(Number(x.minutos)||0)*60000;if(ini<=((window.MH_FLOOR||{}).outdoor||0))return;
    if(fim>ag)l.push({vaga:x.vaga,nome:x.nome,texto:x.texto,minutos:Number(x.minutos)||0,imagem:x.imagem,fim})});
   if(window.MH_RX)MH_RX.ads(l)}
  catch(e){diag('anúncios: '+msgErro(e),true)}}
@@ -2411,6 +2501,7 @@ async function iniciar(){
   const aviso=()=>window.MH_RX&&MH_RX.aviso('*** Sem conexão com o banco. Nada do que você fizer agora será salvo. ***');
   setTimeout(aviso,1500);return}
  if(DIAG)testeCompleto();
+ await lerCtl();
  lerNomes();lerAv();lerAds();lerAp();ciclo();
  setInterval(lerAv,25000);setInterval(lerAds,30000);setInterval(lerAp,60000);setInterval(lerNomes,60000);
  const antiga=window.MH_denuncia;window.MH_denuncia=n=>{try{antiga&&antiga(n)}catch(e){}DB.denuncia(n)};
@@ -2432,7 +2523,9 @@ async function hash(pw,salt){const k=await crypto.subtle.importKey('raw',new Tex
 const sair=mk('button','exp','Sair');sair.id='sairBar';sair.type='button';sair.hidden=true;sair.setAttribute('aria-label','Sair da conta');
 {const cx=document.getElementById('cwExp');if(cx&&cx.parentNode)cx.parentNode.insertBefore(sair,cx);else document.body.append(sair)}
 function guarda(nome){try{localStorage.removeItem('mh_sess');sessionStorage.removeItem('mh_sess');const k=document.getElementById('mantem'),m=!k||k.checked;localStorage.setItem('mh_keep',m?'1':'0');(m?localStorage:sessionStorage).setItem('mh_sess',JSON.stringify(nome))}catch(e){}}
-sair.onclick=()=>{if(!confirm('Sair da conta?'))return;try{localStorage.removeItem('mh_sess');sessionStorage.removeItem('mh_sess');localStorage.removeItem('mh_eu');sessionStorage.removeItem('mh_adm')}catch(e){}location.reload()};
+let sairT=null;
+sair.onclick=()=>{if(!sair.dataset.c){sair.dataset.c='1';sair.textContent='Toque para sair';clearTimeout(sairT);sairT=setTimeout(()=>{delete sair.dataset.c;sair.textContent='Sair'},4000);return}
+try{localStorage.removeItem('mh_sess');sessionStorage.removeItem('mh_sess');localStorage.removeItem('mh_eu');sessionStorage.removeItem('mh_adm')}catch(e){}location.reload()};
 window.MH_conta={async criar(d,pw){
   if(!window.crypto||!crypto.subtle)return;
   const salt=crypto.getRandomValues(new Uint8Array(16)),a=J('mh_acc',{});
@@ -2491,6 +2584,8 @@ if(gl){
     if(!eu){msg.textContent='Cadastre-se ou entre na sua conta para fazer um chamado.';return}
     const a=J('mh_guilda',[]);a.push({id:Date.now(),p:eu.nome,g:g.value,t:t.value.trim(),d:d.value.trim(),v:v.value.trim()});S('mh_guilda',a.slice(-30));
     t.value=d.value=v.value='';msg.textContent='Chamado publicado na Guilda.';pinta()});
+  {const f=(window.MH_FLOOR||{}).guilda;if(f)S('mh_guilda',J('mh_guilda',[]).filter(x=>x.id>f))}
+  window.MH_guildaLimpar=function(t){gl.querySelectorAll('.gc:not(.meu-g)').forEach(x=>x.remove());if(window.MH_MISSOES)window.MH_MISSOES.length=0;S('mh_guilda',J('mh_guilda',[]).filter(x=>x.id>t));pinta()};
   pinta();setInterval(pinta,4000);
 }
 
