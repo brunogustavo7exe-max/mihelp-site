@@ -677,7 +677,7 @@ a.wa{color:var(--gold2)}
 #dpq[hidden]{display:none}
 .adm-x{display:none;border:0;background:none;color:var(--red);font:600 11px var(--mono);cursor:pointer;margin-left:8px;padding:0}
 body.adm .adm-x{display:inline}
-.admbar{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:45;display:flex;gap:6px}
+.admbar{position:fixed;right:12px;bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:45;display:flex;gap:6px}
 .admbar[hidden]{display:none}
 .admexit{border:1px solid var(--line);background:var(--surf);color:var(--read);border-radius:8px;padding:8px 12px;font:700 12px var(--sans);cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.5)}
 .admexit:hover{border-color:var(--red);color:var(--text)}
@@ -692,9 +692,44 @@ body.adm .adm-x{display:inline}
 .ahead h3{margin:0}
 .ahead .cx{padding:8px 14px}
 .aproto{border:1px dashed var(--gold);border-radius:8px;padding:8px 10px;color:var(--gold2)!important}
-.atabs{display:flex;gap:4px;overflow-x:auto;margin:12px 0;border-bottom:1px solid var(--line);scrollbar-width:none}
-.atabs::-webkit-scrollbar{display:none}
-.atabs button{flex:none;border:1px solid var(--line);border-bottom:0;background:var(--surf);color:var(--mute);padding:9px 14px;border-radius:8px 8px 0 0;font:600 14px var(--sans);cursor:pointer}
+.atabs{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.atabs button{flex:0 0 auto;border:1px solid var(--line);background:var(--surf);color:var(--mute);padding:8px 13px;border-radius:8px;font:600 14px var(--sans);cursor:pointer}
+.atabs button:hover{border-color:var(--gold);color:var(--text)}
+#admDlg .abody>.note,#admDlg .abody form>.note{margin:0 0 14px;line-height:1.55}
+#admDlg .f{margin-bottom:14px}
+#admDlg .f label{margin-bottom:6px}
+#admDlg .go,#admDlg .cx,#admDlg .cp{font-family:var(--sans)}
+#admDlg .go{margin-top:6px}
+#admDlg{padding:22px}
+/* janelas fecháveis */
+.fechada,.sec-vazia{display:none!important}
+.two:not(:has(.win:not(.fechada))),.perfil-demo:not(:has(.win:not(.fechada))){display:none}
+.grid:has(>.fechada){grid-template-columns:1fr}
+.bar i.xw{cursor:pointer}
+.bar i.xw:hover{filter:brightness(1.2)}
+.bar i.xw:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.xtoast{position:fixed;left:50%;bottom:calc(70px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:70;background:var(--surf);color:var(--text);border:1px solid var(--gold);border-radius:10px;padding:10px 14px;font:600 13px var(--sans);box-shadow:0 8px 22px rgba(0,0,0,.5);max-width:90vw;text-align:center}
+.xtoast[hidden]{display:none}
+@media(max-width:640px){.bar i.xw{width:24px;height:24px}}
+.cfgjan{display:flex;gap:6px}
+.cfgjan button{flex:1;white-space:nowrap;border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:8px;padding:8px 10px;font:600 12px var(--sans);cursor:pointer}
+.cfgjan button:hover{border-color:var(--gold)}
+.cfgjan button:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.avg{display:flex;align-items:center;gap:10px;background:var(--gold);color:#201804;padding:8px 12px;font:700 13px var(--sans);line-height:1.35}
+.avg[hidden]{display:none}
+.avg .avt{flex:1;min-width:0;overflow-wrap:anywhere}
+.avg button{flex:none;border:0;background:none;color:#201804;font-size:20px;line-height:1;cursor:pointer;padding:0 4px}
+.avg button:focus-visible{outline:2px solid #201804;outline-offset:2px}
+.tb.cmp td:nth-child(2){font:inherit;color:var(--text)}
+.tb.cmp td:first-child{font-weight:700;color:var(--gold2)}
+.tb.cmp{min-width:480px}
+#hoje{margin-top:56px;scroll-margin-top:16px}
+#hoje h2{font-size:clamp(24px,4vw,34px);margin:0 0 6px;letter-spacing:-.01em}
+#hoje .lead{color:var(--read);font-size:17px;line-height:1.65;max-width:62ch;margin:0 0 20px}
+#hoje .rules h3{margin:14px 0 6px}
+#hoje .rules h3:first-child{margin-top:0}
+@media(max-width:640px){#hoje{margin-top:36px}#hoje .lead{font-size:14px;line-height:1.5}}
+@media(max-width:640px){#admDlg{padding:16px}.atabs button{padding:7px 10px;font-size:13px}}
 .atabs button.on{background:var(--gold);color:#201804;border-color:var(--gold)}
 .atabs button:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}
 .aviso{background:rgba(110,200,170,.12);border-left:3px solid #6EC8AA;padding:8px 10px;margin:0 0 10px;border-radius:0 6px 6px 0;color:var(--text);font-size:14px}
@@ -807,6 +842,7 @@ window.MH_FLOOR=(function(){try{return JSON.parse(localStorage.getItem('mh_floor
 </head>
 <body>
 <div id="topLetreiros" class="top-letreiros">
+<div class="avg" id="avg" role="status" hidden><span class="avt" id="avgT"></span><button type="button" id="avgX" aria-label="Fechar aviso">×</button></div>
 <div class="mq" aria-hidden="true"><div class="mqi"><span>★ MIHELP: CONECTANDO QUEM PRECISA A QUEM SABE FAZER ★ PRÉ-CADASTRO GRÁTIS ★ LANÇAMENTO NO INÍCIO DE 2027 ★ BARRA DO GARÇAS · PONTAL DO ARAGUAIA · ARAGARÇAS ★ &nbsp;</span><span>★ MIHELP: CONECTANDO QUEM PRECISA A QUEM SABE FAZER ★ PRÉ-CADASTRO GRÁTIS ★ LANÇAMENTO NO INÍCIO DE 2027 ★ BARRA DO GARÇAS · PONTAL DO ARAGUAIA · ARAGARÇAS ★ &nbsp;</span></div></div>
 <div class="tk tka" id="tka" role="region" aria-label="Letreiro dos anunciantes do outdoor digital" data-go="vagas"><div class="tkw"><div class="tki" id="tkai"></div></div></div>
 <div class="tk" role="region" aria-label="Letreiro de apoiadores do MiHelp"><div class="tkw"><div class="tki" id="tki"></div></div></div>
@@ -814,10 +850,10 @@ window.MH_FLOOR=(function(){try{return JSON.parse(localStorage.getItem('mh_floor
 <div class="shell">
 <aside class="side" aria-label="Publicidade"><div class="win"><div class="bar"><span class="t">publicidade</span><i></i><i></i><i></i></div><div class="vcol" id="vleft"><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button></div></div></aside>
 <div class="wrap">
-  <header class="top"><div class="brand"><div class="mark">M</div><div>Mi<b>Help</b></div></div><nav class="nv"><a class="more" href="#saiba">Saiba mais</a><a class="more" href="#meta">Meta</a><a class="more" href="#guia-chat">Guia do chat</a><a class="more" href="#aovivo">Ao vivo</a><a class="more" href="#guilda">Guilda</a><a class="more" href="#fliperama">Fliperama</a><a class="more" href="#reputacao">Reputação</a><a class="more" href="#seguranca">Segurança</a><a class="more" href="#duvidas">Dúvidas</a><a class="more" href="#apoie">Empresas e apoio</a><a class="more" href="#patrocinio">Patrocinadores</a><button class="more" id="navSup" type="button">Suporte</button></nav></header>
+  <header class="top"><div class="brand"><div class="mark">M</div><div>Mi<b>Help</b></div></div><nav class="nv"><a class="more" href="#cw">Chat</a><a class="more" href="#hoje">Como funciona hoje</a><a class="more" href="#saiba">Saiba mais</a><a class="more" href="#meta">Meta</a><a class="more" href="#guia-chat">Guia do chat</a><a class="more" href="#aovivo">Ao vivo</a><a class="more" href="#guilda">Guilda</a><a class="more" href="#fliperama">Fliperama</a><a class="more" href="#reputacao">Reputação</a><a class="more" href="#seguranca">Segurança</a><a class="more" href="#duvidas">Dúvidas</a><a class="more" href="#apoie">Empresas e apoio</a><a class="more" href="#patrocinio">Patrocinadores</a><a class="more" href="#taxas">Quanto custa</a><a class="more" href="#quem">Contato</a><a class="more" href="#privacidade">Privacidade</a><button class="more" id="navSup" type="button">Suporte</button></nav></header>
   <h1 class="glitch" id="h">Quem precisa de ajuda encontra.<span>Quem sabe fazer, trabalha.</span></h1>
   <p class="sub">Lançamento no início de 2027 em Barra do Garças, Pontal do Araguaia e Aragarças. Entre na lista e converse com o pessoal enquanto isso.</p>
-  <p class="feira-note"><b>Feira digital do Vale.</b> Por enquanto o site é ponto de encontro: cliente e profissional se conhecem, conversam e acompanham a ideia do MiHelp. <b>Não há cobrança por serviço nem mediação de trabalho aqui</b> — isso começa com o app. Agora a receita do projeto vem dos <b>outdoors digitais</b> (anúncios por minuto).</p>
+  <p class="feira-note"><b>Feira digital do Vale.</b> Por enquanto o site é ponto de encontro: cliente e profissional se conhecem, conversam e acompanham a ideia do MiHelp. <b>Não há cobrança por serviço nem mediação de trabalho aqui</b> — isso começa com o app. Agora a receita do projeto vem dos <b>outdoors digitais</b> (anúncios por minuto), dos <b>apoios</b> e dos <b>patrocinadores</b>. <a href="#hoje">Entenda em um minuto</a>.</p>
 
   <section id="meta" aria-labelledby="mt">
   <h2 id="mt">Meta de apoio</h2>
@@ -871,7 +907,7 @@ window.MH_FLOOR=(function(){try{return JSON.parse(localStorage.getItem('mh_floor
           <form class="sugf" id="sugf" hidden><input type="text" id="sugi" maxlength="30" placeholder="Que sala você quer?" aria-label="Sugerir uma sala"><button type="submit">Sugerir</button></form>
           <p class="rrule" id="rrule" hidden></p>
           <div class="ctabs" id="ctabs"><button type="button" class="ct ctsala on" data-c="sala">Geral</button></div>
-          <div class="ptools" id="ptools" hidden><button type="button" id="pbloq">Bloquear</button><button type="button" id="pden">Denunciar</button></div>
+          <div class="ptools" id="ptools" hidden><button type="button" id="pbloq">Bloquear</button><button type="button" id="pfav">☆ Favoritar</button><button type="button" id="pden">Denunciar</button></div>
           <div class="log" id="log" aria-live="polite">
             <p class="s">*** sala aberta: seja o primeiro a falar ***</p>
           </div>
@@ -896,7 +932,54 @@ window.MH_FLOOR=(function(){try{return JSON.parse(localStorage.getItem('mh_floor
       </div>
     </section>
   </div>
-  <section id="aovivo" aria-labelledby="av">
+  <section id="hoje" aria-labelledby="hj">
+  <h2 id="hj">Hoje o MiHelp é um classificado</h2>
+  <p class="lead">Pense no quadro de avisos da padaria: quem precisa pendura um papel dizendo o que quer, quem sabe fazer pendura outro dizendo o que faz, e os dois se falam. O quadro não cobra, não mexe no dinheiro de ninguém e não escolhe quem trabalha. É isso que o site é hoje.</p>
+  <div class="two">
+    <div class="win"><div class="bar"><span class="t">hoje-no-site.txt</span><i></i><i></i><i></i></div>
+      <div class="body rules">
+        <h3>O que você faz aqui hoje</h3>
+        <ul>
+          <li>Cria sua conta de graça.</li>
+          <li>Procura gente ou serviço nas salas e na Guilda.</li>
+          <li>Chama a pessoa no privado e combina tudo com ela: o que será feito, o dia e o preço.</li>
+          <li>Favorita quem você achou bom e dá nota depois de conversar.</li>
+        </ul>
+        <h3>O que o site não faz hoje</h3>
+        <ul>
+          <li>Não cobra taxa de ninguém.</li>
+          <li>Não recebe nem guarda o pagamento. Quem contrata paga direto a quem trabalhou.</li>
+          <li>Não garante o serviço e não manda ninguém na casa de ninguém.</li>
+        </ul>
+        <p><b>Exemplo:</b> a Dona Maria precisa de um pintor. Ela entra no site, vê o Seu Zé na lista, chama no privado, e os dois combinam valor e dia. A Dona Maria paga o Seu Zé direto. O MiHelp não participa do pagamento.</p>
+        <p><b>Cuidado de quem usa classificado:</b> combine o preço antes, não pague tudo adiantado e confira o serviço antes de pagar o resto.</p>
+      </div></div>
+    <div class="win"><div class="bar"><span class="t">quando-lancar-o-app.txt</span><i></i><i></i><i></i></div>
+      <div class="body rules">
+        <h3>Quando o app lançar</h3>
+        <ul>
+          <li>O pagamento passa a ser feito pelo app, com valor e status à vista.</li>
+          <li>A taxa (15%, ou 10% para perfil verificado) só existe quando o trabalho é fechado.</li>
+          <li>Cada serviço fica registrado, com o botão "Tive um problema".</li>
+          <li>Só avalia quem fez um serviço de verdade.</li>
+        </ul>
+        <h3>Por que só no app?</h3>
+        <p>Receber e repassar dinheiro com segurança precisa de um sistema pronto e testado. Por isso o site fica no que consegue fazer bem hoje, que é aproximar as pessoas, e não promete o que ainda não existe.</p>
+        <h3>E o dinheiro do projeto?</h3>
+        <p>Enquanto o app não sai, quem sustenta o MiHelp são os <b>outdoors digitais</b>, os <b>apoios</b> e os <b>patrocinadores</b>. Ninguém paga para conversar nem para combinar serviço.</p>
+      </div></div>
+  </div>
+  <div class="win" style="margin-top:18px"><div class="bar"><span class="t">hoje-x-app.txt</span><i></i><i></i><i></i></div>
+    <div class="body"><div class="tw"><table class="tb cmp"><thead><tr><th></th><th>Hoje (site)</th><th>Depois (app)</th></tr></thead>
+      <tbody>
+        <tr><td>Cadastro</td><td>Grátis</td><td>Grátis</td></tr>
+        <tr><td>Taxa por serviço</td><td>Nenhuma</td><td>15% (10% se verificado)</td></tr>
+        <tr><td>Quem recebe o pagamento</td><td>Direto entre as duas pessoas</td><td>Pelo app</td></tr>
+        <tr><td>Se der problema</td><td>Denunciar no chat</td><td>Botão "Tive um problema" com histórico</td></tr>
+        <tr><td>Avaliação</td><td>Depois de conversar</td><td>Só depois de um serviço real</td></tr>
+      </tbody></table></div></div></div>
+</section>
+<section id="aovivo" aria-labelledby="av">
   <h2 id="av">Ao vivo na feira</h2>
   <p class="lead">O que acontece na rede, em tempo real. Toque num item para ir até ele.</p>
   <div class="win"><div class="bar"><span class="t">ao-vivo.log — EXEMPLO ILUSTRATIVO</span><i></i><i></i><i></i></div>
@@ -1079,7 +1162,7 @@ window.MH_FLOOR=(function(){try{return JSON.parse(localStorage.getItem('mh_floor
 <section id="guia-chat" aria-labelledby="gc">
   <h2 id="gc">Guia do chat</h2>
   <p class="lead">Tudo o que o chat tem, o que faz e o que não faz. Sem letra miúda.</p>
-  <div class="two"><div class="win"><div class="bar"><span class="t">salas.txt</span><i></i><i></i><i></i></div><div class="body rules"><p><b>O que é:</b> salas por assunto: Geral, Classificados, Amizade, Construção e reformas, Vagas e bicos.</p><p><b>Como usa:</b> clique no nome da sala. A regra dela fica fixa no topo.</p><p><b>Não é:</b> sala criada por qualquer um. Por enquanto você só <b>sugere</b> uma sala. Criar salas livremente fica para o app, com moderação.</p></div></div><div class="win"><div class="bar"><span class="t">quem-esta-online.txt</span><i></i><i></i><i></i></div><div class="body rules"><p><b>O que é:</b> a lista de quem está na sala, em duas abas: Helpers e Clientes, com o total de cada uma.</p><p><b>Como usa:</b> entre em Helpers e escolha o ofício (pintura, elétrica...). Com mais de 15 pessoas, aparece uma busca. Clique no nome para ver o perfil e conversar no privado.</p><p><b>Não é:</b> garantia de que a pessoa responde agora. Na prévia, os nomes com etiqueta bot são simulados.</p></div></div></div>
+  <div class="two"><div class="win"><div class="bar"><span class="t">salas.txt</span><i></i><i></i><i></i></div><div class="body rules"><p><b>O que é:</b> salas por assunto e por cidade: Geral, Classificados, Amizade, Construção e reformas, Vagas e bicos, Barra do Garças, Pontal do Araguaia e Aragarças.</p><p><b>Como usa:</b> clique no nome da sala. A regra dela fica fixa no topo.</p><p><b>Não é:</b> sala criada por qualquer um. Por enquanto você só <b>sugere</b> uma sala. Criar salas livremente fica para o app, com moderação.</p></div></div><div class="win"><div class="bar"><span class="t">quem-esta-online.txt</span><i></i><i></i><i></i></div><div class="body rules"><p><b>O que é:</b> a lista de quem está na sala, em duas abas: Helpers e Clientes, com o total de cada uma.</p><p><b>Como usa:</b> entre em Helpers e escolha o ofício (pintura, elétrica...). Com mais de 15 pessoas, aparece uma busca. Clique no nome para ver o perfil e conversar no privado.</p><p><b>Não é:</b> garantia de que a pessoa responde agora. Na prévia, os nomes com etiqueta bot são simulados.</p></div></div></div>
   <div class="two"><div class="win"><div class="bar"><span class="t">responder-e-avisos.txt</span><i></i><i></i><i></i></div><div class="body rules"><p><b>O que é:</b> o botão <b>Responder</b> em cada mensagem e o destaque verde "para você".</p><p><b>Como usa:</b> clique em Responder, escreva e envie. Sua mensagem leva a citação. Quando alguém citar você ou responder a você, a mensagem fica verde, e a aba Geral ganha um ●.</p><p><b>Não é:</b> notificação no celular. Isso só vem com o app.</p></div></div><div class="win"><div class="bar"><span class="t">ao-vivo-guilda-comandos.txt</span><i></i><i></i><i></i></div><div class="body rules"><p><b>Ao vivo:</b> painel de acontecimentos da rede. <b>Guilda:</b> missões de trabalho, recompensa, serviço e achados e perdidos; "Falar com..." abre o privado com quem publicou.</p><p><b>Comandos:</b> digite /help no chat.</p><p><b>Não é:</b> real ainda. Ao vivo, missões, nomes e valores são <b>exemplos inventados</b>. O site não intermedeia trabalho.</p></div></div></div>
 </section>
 <section id="seguranca" aria-labelledby="sg">
@@ -1156,7 +1239,7 @@ window.MH_FLOOR=(function(){try{return JSON.parse(localStorage.getItem('mh_floor
   <div class="win"><div class="bar"><span class="t">privacidade.txt</span><i></i><i></i><i></i></div>
     <div class="body rules">
       <p><b>O que pedimos:</b> nome, telefone, e-mail e, para Helpers, o ofício. <b>Para quê:</b> avisar você do lançamento e mostrar seu nome na sala.</p>
-      <p><b>Seus direitos (LGPD):</b> pedir para ver, corrigir ou apagar seus dados, quando quiser, pelo contato em "Quem faz o MiHelp".</p>
+      <p><b>Seus direitos (LGPD):</b> pedir para ver, corrigir ou apagar seus dados, quando quiser, pelo botão "Chamar o administrador", na seção "Fale com a gente".</p>
       <p><b>Hoje, nesta prévia,</b> nada do que você digita é guardado. A política completa será publicada antes do lançamento.</p>
     </div></div>
 </section>
@@ -1201,10 +1284,9 @@ window.MH_FLOOR=(function(){try{return JSON.parse(localStorage.getItem('mh_floor
 </section>
 
 <section id="quem" aria-labelledby="qm">
-  <h2 id="qm">Quem faz o MiHelp</h2>
-  <div class="win"><div class="bar"><span class="t">quem-faz.txt</span><i></i><i></i><i></i></div>
-    <div class="body rules"><p><b>D'Castro Labs</b> · Barra do Garças, MT. Projeto feito aqui no Vale, para o Vale.</p>
-    <p>Contato: <b>[EDITE: seu WhatsApp ou Instagram]</b>. Foto e história curta de quem criou também ficam aqui.</p></div></div>
+  <h2 id="qm">Fale com a gente</h2>
+  <div class="win"><div class="bar"><span class="t">contato.txt</span><i></i><i></i><i></i></div>
+    <div class="body rules"></div></div>
 </section>
 <section id="apoie" aria-labelledby="ap">
   <h2 id="ap">Empresas e apoio</h2>
@@ -1348,6 +1430,14 @@ f.dispatchEvent(new Event('submit',{cancelable:true,bubbles:true}))},true);
 (function(){const t=document.getElementById('topLetreiros');if(!t)return;const set=()=>document.documentElement.style.setProperty('--sticky-h',t.offsetHeight+'px');set();window.addEventListener('resize',set);if(window.ResizeObserver)new ResizeObserver(set).observe(t)})();
 let eu=null,ativa='sala',respA=null;const bloqueados=new Set();
 const painel={sala:$('log')};
+/* favoritos: lista de cada conta, guardada só neste aparelho */
+const favK=()=>'mh_fav:'+(eu?eu.nome.toLowerCase():'');
+const favs=()=>{try{return JSON.parse(localStorage.getItem(favK())||'[]')||[]}catch(e){return []}};
+const ehFav=n=>!!eu&&favs().indexOf(n)>=0;
+function togFav(n){if(!eu||n===eu.nome)return false;const l=favs(),i=l.indexOf(n);if(i>=0)l.splice(i,1);else l.push(n);
+ try{localStorage.setItem(favK(),JSON.stringify(l.slice(-100)))}catch(e){}
+ try{desenharOnline();renderMeuPerfil()}catch(e){}
+ return i<0}
 const PESSOAS=[
 {nome:'Ana C.',role:'cliente',bot:true},
 {nome:'Marcos P.',role:'cliente',bot:true},
@@ -1396,24 +1486,27 @@ function desenharOnline(foco){const w=$('wholist');w.textContent='';
 const todos=visiveis().slice();if(eu)todos.push(eu);
 const H=todos.filter(p=>p.role==='helper'),C=todos.filter(p=>p.role!=='helper');
 const tb=document.createElement('div');tb.className='wtabs';
-[['helper','Helpers',H.length],['cliente','Clientes',C.length]].forEach(([k,t,n])=>{const b=document.createElement('button');b.type='button';b.textContent=t+' ('+n+')';b.className=lf.aba===k?'on':'';b.onclick=()=>{lf.aba=k;lf.of='Todos';lf.q='';desenharOnline()};tb.append(b)});w.append(tb);
-let lista=lf.aba==='helper'?H:C;const ofs=[...new Set(H.map(p=>p.work))];
+[['helper','Helpers',H.length],['cliente','Clientes',C.length]].concat(eu?[['fav','★',favs().length]]:[]).forEach(([k,t,n])=>{const b=document.createElement('button');b.type='button';b.textContent=t+' ('+n+')';if(k==='fav')b.setAttribute('aria-label','Favoritos, '+n);b.className=lf.aba===k?'on':'';b.onclick=()=>{lf.aba=k;lf.of='Todos';lf.q='';desenharOnline()};tb.append(b)});w.append(tb);
+let lista=lf.aba==='helper'?H:lf.aba==='fav'?todos.filter(p=>p!==eu&&ehFav(p.nome)):C;const ofs=[...new Set(H.map(p=>p.work))];
 if(lf.aba==='helper'&&ofs.length>=2){const se=document.createElement('select');se.setAttribute('aria-label','Filtrar por ofício');['Todos'].concat(ofs).forEach(o=>{const op=document.createElement('option');op.textContent=o;op.selected=o===lf.of;se.append(op)});se.onchange=()=>{lf.of=se.value;desenharOnline()};w.append(se);if(lf.of!=='Todos')lista=lista.filter(p=>p.work===lf.of)}
 if(todos.length>15){const q=document.createElement('input');q.type='text';q.placeholder='Buscar nome ou ofício';q.setAttribute('aria-label','Buscar pessoa');q.value=lf.q;q.oninput=()=>{lf.q=q.value;desenharOnline(true)};w.append(q);
 if(lf.q){const t=lf.q.toLowerCase();lista=lista.filter(p=>(p.nome+' '+(p.work||'')).toLowerCase().includes(t))}if(foco)setTimeout(()=>{q.focus();q.setSelectionRange(q.value.length,q.value.length)})}
 const wl=document.createElement('div');wl.className='wl';
 const item=(pes)=>{const voce=eu&&pes===eu,d=document.createElement('div'),dot=document.createElement('span'),col=document.createElement('span'),sm=document.createElement('small');
 const stt=pes.status||'disponivel';dot.className='dot d-st-'+stt;col.className='wh';
-const nm=document.createElement('button');nm.type='button';nm.className='nm'+(pes.role==='helper'?' hp':'');nm.dataset.u=pes.nome;nm.textContent=pes.nome+(voce?' (você)':'');nm.title='Ver perfil de '+pes.nome;
+const nm=document.createElement('button');nm.type='button';nm.className='nm'+(pes.role==='helper'?' hp':'');nm.dataset.u=pes.nome;nm.textContent=(!voce&&ehFav(pes.nome)?'★ ':'')+pes.nome+(voce?' (você)':'');nm.title='Ver perfil de '+pes.nome;
 sm.textContent=papelTxt(pes)+(pes.bot?' · bot':'')+(stt==='ocupado'?' · ocupado':'')+(((window.MH_TITULOS||{})[pes.nome])?' · '+window.MH_TITULOS[pes.nome]:'');
 col.append(nm,sm);d.append(dot,col);wl.append(d)};
 lista.forEach(item);
-if(!lista.length){const m=document.createElement('small');m.textContent='Ninguém por enquanto';wl.append(m)}
+if(lf.aba==='fav')favs().filter(n=>!todos.some(p=>p.nome===n)).forEach(n=>{const d=document.createElement('div'),c=document.createElement('span'),s1=document.createElement('span'),s2=document.createElement('small'),x=document.createElement('button');
+ c.className='wh';s1.textContent='★ '+n;s2.textContent='fora da sala agora';c.append(s1,s2);
+ x.type='button';x.className='nm';x.textContent='×';x.setAttribute('aria-label','Tirar '+n+' dos favoritos');x.onclick=()=>togFav(n);d.append(c,x);wl.append(d)});
+if(!lista.length&&!(lf.aba==='fav'&&favs().length)){const m=document.createElement('small');m.textContent=lf.aba==='fav'?'Nenhum favorito ainda':'Ninguém por enquanto';wl.append(m)}
 w.append(wl);const tg=$('whoTg');if(tg)tg.textContent='Online ('+todos.length+') '+(tg.getAttribute('aria-expanded')==='true'?'▴':'▾')}
 function mostrarResp(){const b=$('rpBar');if(!b)return;if(!respA){b.hidden=true;return}$('rpTxt').textContent='Respondendo a '+respA.nome+': “'+respA.texto+'”';b.hidden=false}
 function mostrar(c){ativa=c;respA=null;mostrarResp();if(c==='sala'){const t=document.querySelector('#ctabs .ctsala');if(t)t.textContent='Geral'}for(const k in painel)painel[k].hidden=(k!==c);
 document.querySelectorAll('#ctabs .ctw,#ctabs .ctsala').forEach(e=>e.classList.toggle('on',(e.dataset.c||'sala')===c));
-$('ptools').hidden=(c==='sala'||c.startsWith('r:'));
+$('ptools').hidden=(c==='sala'||c.startsWith('r:'));{const pf=$('pfav');if(pf)pf.textContent=ehFav(c)?'★ Nos favoritos':'☆ Favoritar'}
 document.querySelectorAll('#rooms button[data-r]').forEach(b=>b.classList.toggle('on',b.dataset.r===c));
 const sr=SALAS.find(x=>x[0]===c),rr2=$('rrule');rr2.hidden=!sr;if(sr)rr2.textContent='Regra desta sala: '+sr[2];
 $('m').placeholder=eu?(c==='sala'||c.startsWith('r:')?'Digite aqui':'Mensagem privada'):'Cadastre-se para falar'}
@@ -1481,6 +1574,43 @@ const AV={'Ana C.':[['Rui T.',5,'Cliente pontual e educada.']],'Marcos P.':[['Se
 'Rui T.':[['Marcos P.',4,'Ar gelando de novo.']]};
 const conversou=new Set(),msgsPriv={};
 const estr=n=>'★'.repeat(n)+'☆'.repeat(5-n);
+/* selinhos: vão dentro do texto da avaliação, entre ¦ ¦, então não precisam de campo novo no banco */
+const SELOS=['Pontual','Caprichoso','Educado','Preço justo','Rápido','Confiável'];
+function av2(t){t=String(t||'');const m=t.match(/^¦([^¦]*)¦\s*/);if(!m)return{tags:[],txt:t};return{tags:m[1].split(',').map(s=>s.trim()).filter(s=>SELOS.indexOf(s)>=0),txt:t.slice(m[0].length)}}
+window.MH_av2=av2;
+function selosEl(nome){const c={};(AV[nome]||[]).forEach(x=>av2(x[2]).tags.forEach(s=>{c[s]=(c[s]||0)+1}));const k=Object.keys(c);if(!k.length)return null;
+  const d=document.createElement('p');d.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin:6px 0';
+  k.sort((a,b)=>c[b]-c[a]).forEach(s=>{const e=document.createElement('span');e.className='tag h';e.style.margin='0';e.textContent=s+' × '+c[s];d.append(e)});return d}
+/* frase do perfil e mural de recados */
+const REC={},FRASE={};
+function recAdd(alvo,de,texto,quando){const l=REC[alvo]||(REC[alvo]=[]);if(l.some(x=>x[0]===de&&x[1]===texto&&Math.abs(x[2]-quando)<120000))return;l.push([de,texto,quando]);l.sort((a,b)=>a[2]-b[2]);while(l.length>40)l.shift()}
+function postarRec(alvo,texto){
+  if(!eu||alvo===eu.nome)return 'Você não pode deixar recado no seu próprio mural.';
+  texto=String(texto||'').trim().slice(0,100);if(!texto)return 'Escreva o recado.';
+  const ag=Date.now();if(ag-(postarRec.t||0)<30000)return 'Espere alguns segundos para mandar outro recado.';
+  postarRec.t=ag;recAdd(alvo,eu.nome,texto,ag);
+  try{if(window.MH_DB&&MH_DB.ok&&!por(alvo))MH_DB.recado(alvo,eu.nome,texto)}catch(x){}
+  return true}
+function renderMural(d,pes,meu){
+  const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+  d.append(mk('h4',0,'Mural de recados'));
+  const box=mk('div');d.append(box);
+  const pinta=()=>{box.textContent='';
+    const l=(REC[pes.nome]||[]).filter(x=>!bloqueados.has(x[0])).slice(-5).reverse();
+    if(!l.length)box.append(mk('p','note',meu?'Ninguém deixou recado ainda.':'Ainda sem recados. Seja o primeiro.'));
+    l.forEach(x=>{const b=mk('div','dep');b.append(mk('b',0,x[0]+' · '+new Date(x[2]).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})));
+      b.append(document.createElement('br'),document.createTextNode(x[1]));
+      if(eu&&x[0]!==eu.nome){const dn=mk('button','more','denunciar');dn.type='button';dn.style.cssText='padding:2px 8px;font-size:11px;margin-left:8px';
+        dn.onclick=()=>{try{window.MH_denuncia&&MH_denuncia(x[0])}catch(e){}dn.textContent='denunciado';dn.disabled=true};b.append(dn)}
+      box.append(b)})};
+  pinta();
+  if(eu&&!meu){const f=document.createElement('form');f.style.cssText='display:flex;gap:6px;margin-top:6px';
+    const i=document.createElement('input');i.type='text';i.maxLength=100;i.placeholder='Deixe um recado (até 100 letras)';i.setAttribute('aria-label','Recado para '+pes.nome);
+    const bt=mk('button','more','Enviar');bt.type='submit';const er=mk('p','note');er.setAttribute('role','status');
+    f.append(i,bt);f.addEventListener('submit',e=>{e.preventDefault();const r=postarRec(pes.nome,i.value);if(r===true){i.value='';er.textContent='Recado enviado.';pinta()}else er.textContent=r});
+    d.append(f,er)}
+  else if(!eu)d.append(mk('p','note','Cadastre-se para deixar recado.'));
+  if(pes.bot)d.append(mk('p','note','Perfil de demonstração: recados aqui ficam só nesta tela.'))}
 function resumo(nome){const l=AV[nome]||[];if(!l.length)return null;return {m:l.reduce((a,x)=>a+x[1],0)/l.length,n:l.length}}
 function pessoa(nome){return (eu&&eu.nome===nome)?eu:(por(nome)||REAIS[nome])}
 function avaliar(alvo,nota_,txt){const l=AV[alvo.nome]=AV[alvo.nome]||[];const i=l.findIndex(x=>x[0]===eu.nome);const r=[eu.nome,nota_,txt];if(i>=0)l[i]=r;else l.push(r);try{if(window.MH_DB&&MH_DB.ok)MH_DB.avaliar(alvo.nome,eu.nome,nota_,txt)}catch(x){}}
@@ -1493,18 +1623,23 @@ const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=nu
 d.append(mk('h3',0,pes.nome+(meu?' (você)':'')));
 d.append(mk('p','note',papelTxt(pes)+(pes.bot?' · bot de demonstração':'')));
 d.append(mk('p','status-line','● '+stLabel(pes)));
+if(FRASE[pes.nome]){const fq=mk('p','note','“'+FRASE[pes.nome]+'”');fq.style.fontStyle='italic';d.append(fq)}
 const r=resumo(pes.nome);
 if(r){d.append(mk('p','stars',estr(Math.round(r.m))+'  '+r.m.toFixed(1).replace('.',',')+' · '+r.n+(r.n>1?' avaliações':' avaliação')))}
 else{const q=mk('p','stars','☆☆☆☆☆ · ainda sem avaliação');d.append(q);d.append(mk('span','badge-novo','Novo na feira'))}
 if(pes.bot)d.append(mk('p','note','Avaliações de exemplo, com notas inventadas para mostrar como vai funcionar.'));
+{const se=selosEl(pes.nome);if(se)d.append(se)}
 d.append(mk('h4',0,pes.role==='helper'?'Comentários sobre o trabalho':'Comentários sobre o cliente'));
 const l=AV[pes.nome]||[];
 if(!l.length)d.append(mk('p','note','Ainda não tem comentários.'));
-l.slice().reverse().forEach(x=>{const [de,n,t]=x;const b=mk('div','dep');b.append(mk('b',0,de+' · '+estr(n)));b.append(document.createElement('br'),document.createTextNode(t||'(sem comentário)'));if(window.MH_depAdm&&document.body.classList.contains('adm'))window.MH_depAdm(pes,x,b);d.append(b)});
+l.slice().reverse().forEach(x=>{const [de,n,t0]=x,a2=av2(t0),t=a2.txt;const b=mk('div','dep');b.append(mk('b',0,de+' · '+estr(n)+(a2.tags.length?' · '+a2.tags.join(', '):'')));b.append(document.createElement('br'),document.createTextNode(t||'(sem comentário)'));if(window.MH_depAdm&&document.body.classList.contains('adm'))window.MH_depAdm(pes,x,b);d.append(b)});
+renderMural(d,pes,meu);
 const ac=mk('div','perfil-acoes');ac.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:14px';
 if(!meu){
  const pv=mk('button','cta2','Falar no privado');pv.type='button';pv.onclick=()=>{d.close();abrirPrivado(pes.nome)};ac.append(pv);
- if(eu){const can=conversou.has(pes.nome);
+ if(eu){const fv=mk('button','more',ehFav(pes.nome)?'★ Nos favoritos':'☆ Favoritar');fv.type='button';fv.setAttribute('aria-pressed',String(ehFav(pes.nome)));
+  fv.onclick=()=>{const on=togFav(pes.nome);fv.textContent=on?'★ Nos favoritos':'☆ Favoritar';fv.setAttribute('aria-pressed',String(on))};ac.append(fv);
+  const can=conversou.has(pes.nome);
   const av=mk('button','more','Avaliar');av.type='button';av.disabled=!can;av.onclick=()=>formAval(pes);ac.append(av);
   if(!can)d.append(mk('p','note','Para avaliar, converse com a pessoa no privado primeiro. Assim só avalia quem falou com ela.'))}
  else d.append(mk('p','note','Cadastre-se para conversar e avaliar.'))
@@ -1518,9 +1653,14 @@ d.append(mk('h3',0,'Avaliar '+pes.nome));
 let nt=5;const row=mk('div');row.style.cssText='display:flex;gap:6px;margin:8px 0';
 const bs=[];for(let i=1;i<=5;i++){const b=mk('button','more','★ '+i);b.type='button';b.setAttribute('aria-pressed',i===nt);b.onclick=()=>{nt=i;bs.forEach((x,k)=>{x.setAttribute('aria-pressed',k+1===nt);x.style.background=k+1===nt?'var(--gold)':'';x.style.color=k+1===nt?'#111':''})};bs.push(b);row.append(b)}
 bs[4].style.background='var(--gold)';bs[4].style.color='#111';d.append(row);
-const lb=mk('label',0,'Comentário (opcional, até 80 letras)');lb.htmlFor='avt';const ti=document.createElement('input');ti.id='avt';ti.type='text';ti.maxLength=80;d.append(lb,ti);
+const lb=mk('label',0,'Comentário (opcional, até 80 letras)');lb.htmlFor='avt';const ti=document.createElement('input');ti.id='avt';ti.type='text';ti.maxLength=80;
+const sl=mk('p','note','Selinhos (opcional):');sl.style.margin='8px 0 4px';
+const sw=mk('div');sw.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px';const esc=new Set();
+SELOS.forEach(s=>{const b=mk('button','more',s);b.type='button';b.setAttribute('aria-pressed','false');
+  b.onclick=()=>{if(esc.has(s)){esc.delete(s);b.setAttribute('aria-pressed','false');b.style.background='';b.style.color=''}else{esc.add(s);b.setAttribute('aria-pressed','true');b.style.background='var(--gold)';b.style.color='#111'}};sw.append(b)});
+d.append(sl,sw,lb,ti);
 const ac=mk('div');ac.style.cssText='display:flex;gap:8px;margin-top:14px';
-const ok=mk('button','cta2','Enviar avaliação');ok.type='button';ok.onclick=()=>{avaliar(pes,nt,ti.value.trim());abrirPerfil(pes.nome)};
+const ok=mk('button','cta2','Enviar avaliação');ok.type='button';ok.onclick=()=>{avaliar(pes,nt,(esc.size?'¦'+[...esc].join(',')+'¦ ':'')+ti.value.trim());abrirPerfil(pes.nome)};
 const ca=mk('button','more','Voltar');ca.type='button';ca.onclick=()=>abrirPerfil(pes.nome);ac.append(ok,ca);d.append(ac);ti.focus()}
 // cartãozinho ao passar o mouse
 let hc=null,ht=null;
@@ -1578,6 +1718,7 @@ function abrirPerfilJanela(){
 {const q=$('perfSq');if(q)q.addEventListener('click',abrirPerfilJanela)}
 function renderMeuPerfil(novo){
   const reg=$('reg'); if(!reg||!eu) return;
+  if(FRASE[eu.nome]==null){try{const fv=localStorage.getItem('mh_frase:'+eu.nome.toLowerCase());if(fv)FRASE[eu.nome]=fv}catch(e){}}
   const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
   const bar=reg.parentElement&&reg.parentElement.querySelector('.bar .t'); if(bar) bar.textContent='meu perfil';
   const bi=reg.parentElement.querySelectorAll('.bar i'),red=bi[bi.length-1];
@@ -1592,13 +1733,23 @@ function renderMeuPerfil(novo){
   Object.keys(ST).forEach(k=>{const b=mk('button','st-btn',ST[k]);b.type='button';b.dataset.s=k;b.setAttribute('aria-pressed',(eu.status||'disponivel')===k?'true':'false');
     b.onclick=()=>{eu.status=k;renderMeuPerfil();atualizarQuadrado();desenharOnline()};sr.append(b)});
   reg.append(sr);
+  {reg.append(mk('p','note','Minha frase (aparece no seu perfil):'));
+   const fi=document.createElement('input');fi.type='text';fi.maxLength=60;fi.placeholder='Ex.: Pintor há 10 anos, orçamento sem compromisso';fi.value=FRASE[eu.nome]||'';fi.setAttribute('aria-label','Minha frase do perfil');
+   const fs=mk('button','more','Salvar frase');fs.type='button';fs.style.marginTop='6px';
+   fs.onclick=()=>{const v=fi.value.trim().slice(0,60);FRASE[eu.nome]=v;try{localStorage.setItem('mh_frase:'+eu.nome.toLowerCase(),v)}catch(e){}try{if(window.MH_DB&&MH_DB.ok)MH_DB.frase(v)}catch(e){}fs.textContent='Salvo!';setTimeout(()=>{fs.textContent='Salvar frase'},1500)};
+   reg.append(fi,fs)}
   const r=resumo(eu.nome);
   if(r){reg.append(mk('p','stars',estr(Math.round(r.m))+'  '+r.m.toFixed(1).replace('.',',')+' · '+r.n+(r.n>1?' avaliações':' avaliação')))}
   else{reg.append(mk('p','stars','☆☆☆☆☆ · ainda sem avaliação'));reg.append(mk('span','badge-novo','Novo na feira'))}
+  {const se=selosEl(eu.nome);if(se)reg.append(se)}
   reg.append(mk('h4',0,eu.role==='helper'?'Comentários sobre o seu trabalho':'Comentários sobre você'));
   const l=AV[eu.nome]||[];
   if(!l.length) reg.append(mk('p','note','Ainda não tem comentários. Converse com alguém no privado para começar.'));
-  l.slice().reverse().forEach(([de,n,t])=>{const b=mk('div','dep');b.append(mk('b',0,de+' · '+estr(n)));b.append(document.createElement('br'),document.createTextNode(t||'(sem comentário)'));reg.append(b)});
+  l.slice().reverse().forEach(([de,n,t0])=>{const a2=av2(t0),t=a2.txt;const b=mk('div','dep');b.append(mk('b',0,de+' · '+estr(n)+(a2.tags.length?' · '+a2.tags.join(', '):'')));b.append(document.createElement('br'),document.createTextNode(t||'(sem comentário)'));reg.append(b)});
+  {const fl=favs();reg.append(mk('h4',0,'Meus favoritos ('+fl.length+')'));
+   if(!fl.length)reg.append(mk('p','note','Ainda não tem ninguém. Abra o perfil de uma pessoa e toque em "Favoritar".'));
+   else{const w=mk('div');w.style.cssText='display:flex;flex-wrap:wrap;gap:6px 12px';fl.forEach(n=>{const b=mk('button','nm','★ '+n);b.type='button';b.dataset.u=n;w.append(b)});reg.append(w)}
+   reg.append(mk('p','note','Os favoritos ficam salvos só neste aparelho e só você vê.'))}
   reg.append(mk('p','note','Assim as outras pessoas veem o seu perfil. Nesta prévia, as avaliações vêm de bots de demonstração, com notas inventadas.'));
 }
 function fazerCadastro(e){
@@ -1654,7 +1805,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 if(!eu){nota(painel[ativa]||painel.sala,'*** cadastre-se para responder ***');return}
 respA={nome:b.dataset.rp,texto:b.dataset.tx};mostrarResp();$('m').focus()});
 $('rpX').addEventListener('click',()=>{respA=null;mostrarResp();$('m').focus()});
-const SALAS=[['sala','Geral','conversa livre e SOS. Para vender ou procurar serviço, use as outras salas.'],['r:classificados','Classificados','compra, venda e troca. Não pague antes de ver o item. Nada ilegal.'],['r:amizade','Amizade','bate-papo e conhecer gente. Sem oferta de serviço ou venda.'],['r:construcao','Construção e reformas','pedreiro, pintura, elétrica e orçamento. Combine o preço por escrito.'],['r:vagas','Vagas e bicos','diárias e trabalho temporário. Diga o que é, o valor e o dia.']];
+const SALAS=[['sala','Geral','conversa livre e SOS. Para vender ou procurar serviço, use as outras salas.'],['r:classificados','Classificados','compra, venda e troca. Não pague antes de ver o item. Nada ilegal.'],['r:amizade','Amizade','bate-papo e conhecer gente. Sem oferta de serviço ou venda.'],['r:construcao','Construção e reformas','pedreiro, pintura, elétrica e orçamento. Combine o preço por escrito.'],['r:vagas','Vagas e bicos','diárias e trabalho temporário. Diga o que é, o valor e o dia.'],['r:barra','Barra do Garças','conversa e avisos de Barra do Garças. Respeite os vizinhos e não repita a mesma mensagem.'],['r:pontal','Pontal do Araguaia','conversa e avisos de Pontal do Araguaia. Respeite os vizinhos.'],['r:aragarcas','Aragarças','conversa e avisos de Aragarças. Respeite os vizinhos.']];
 const SEMENTE={'r:classificados':[['Marcos P.','vendo uma bicicleta aro 26, pouco uso. Quem quiser, chama no privado'],['Ana C.','alguém tem berço para vender ou doar?']],'r:amizade':[['Duda L.','bom dia, Vale! Quem vai na praça no fim de semana?'],['Ana C.','eu vou! Levo o tereré']],'r:construcao':[['Marcos P.','alguém indica pedreiro para fazer um muro?'],['Carla M.','Trabalho com elétrica. Se precisar de ponto novo, me chama']],'r:vagas':[['Ana C.','preciso de diarista na terça, meio período'],['Marcos P.','ajudante de pedreiro, 3 diárias, aqui em Barra']]};
 function abrirSala(c){if(painel[c])return;const d=document.createElement('div');d.className='log';d.hidden=true;d.setAttribute('aria-live','polite');$('log').after(d);painel[c]=d;if(BOTS){nota(d,'*** sala de demonstração: quem tem a etiqueta bot é simulado ***');(SEMENTE[c]||[]).forEach(([n,t])=>linha(d,por(n),t))}}
 SALAS.filter(x=>x[0]!=='sala').forEach(([k,n])=>{const b=document.createElement('button');b.type='button';b.dataset.r=k;b.textContent=n;b.onclick=()=>{abrirSala(k);mostrar(k)};$('rooms').append(b)});
@@ -1711,6 +1862,7 @@ $('nudge').addEventListener('click',()=>{
 atualizarSosCount();
 document.addEventListener('click',e=>{const b=e.target.closest('[data-u]');if(b)abrirPerfil(b.dataset.u)});
 $('ctabs').querySelector('.ctsala').addEventListener('click',()=>mostrar('sala'));
+$('pfav').addEventListener('click',()=>{if(ativa==='sala'||ativa.startsWith('r:'))return;const on=togFav(ativa);$('pfav').textContent=on?'★ Nos favoritos':'☆ Favoritar'});
 $('pbloq').addEventListener('click',()=>{const n=ativa;if(n==='sala')return;bloqueados.add(n);Array.from(painel.sala.querySelectorAll('p')).filter(p=>p.dataset.de===n).forEach(p=>{p.hidden=true});fechar(n);desenharOnline();nota(painel.sala,'*** você bloqueou '+n+' ***')});
 $('pden').addEventListener('click',()=>{if(ativa==='sala')return;if(window.MH_denuncia)window.MH_denuncia(ativa);nota(painel[ativa],PREVIA?'*** Denúncia (prévia): no site de verdade, a conversa é enviada para a nossa equipe. ***':'*** Denúncia enviada para a nossa equipe. ***')});
 let botsIni=false;
@@ -1746,7 +1898,8 @@ else{p.role=papel==='helper'?'helper':'cliente';if(oficio)p.work=oficio}
 if(quando&&(!p.visto||quando>p.visto)){p.visto=quando;rxMuda=true}return p}
 window.MH_RX={
  aviso:t=>nota(painel.sala,t),
- msg(m){const q=m._quando||Date.now();const sou=eu&&m.autor===eu.nome;const FL=window.MH_FLOOR||{};{const sl=String(m.sala||'sala');if(sl==='sala'&&q<=(FL.sala||0))return;if(sl.indexOf('r:')===0&&q<=(FL.salas||0))return}
+ msg(m){if(m.tipo==='frase'){if(m.autor&&!por(m.autor)&&!(eu&&eu.nome===m.autor))FRASE[m.autor]=String(m.texto||'').slice(0,60);return}
+  const q=m._quando||Date.now();const sou=eu&&m.autor===eu.nome;const FL=window.MH_FLOOR||{};{const sl=String(m.sala||'sala');if(sl==='sala'&&q<=(FL.sala||0))return;if(sl.indexOf('r:')===0&&q<=(FL.salas||0))return}
   const p=sou?eu:realDe(m.autor,m.papel,m.oficio,q);
   if(m.tipo==='entrada'){if(!sou&&Date.now()-q<90000)nota(painel.sala,'*** '+m.autor+' entrou na sala ***');return}
   if(!p||bloqueados.has(m.autor))return;
@@ -1770,6 +1923,8 @@ window.MH_RX={
  ads(list){const A=window.MH_ADS;if(!A)return;const novos=new Set();
   list.forEach(a=>{const i=(a.vaga|0)-1;if(i<0||i>=A.total)return;novos.add(i);A.put(i,{name:a.nome,text:a.texto||'',end:a.fim,total:a.minutos*60000,tag:'',img:a.imagem||null,_db:1})});
   (window._mhAdsDb||new Set()).forEach(i=>{if(!novos.has(i)){const v=A.vs()[i];if(v&&v._db)A.clear(i)}});window._mhAdsDb=novos},
+ rec(rows){rows.forEach(r=>{if(r.alvo&&r.de&&r.texto)recAdd(r.alvo,r.de,String(r.texto),r._quando||Date.now())})},
+ frase(n,t){if(n&&!por(n)&&!(eu&&eu.nome===n))FRASE[n]=String(t||'').slice(0,60)},
  apoio:l=>{if(window.MH_APOIO)window.MH_APOIO.set(l)}
 };
 const h=$('h');setTimeout(()=>{h.classList.add('on');setTimeout(()=>h.classList.remove('on'),700)},600);
@@ -2156,6 +2311,14 @@ function tCtl(b){
   const sw=mk('button',on?'cx':'go',on?'Desligar bots':'Ligar bots');sw.type='button';
   sw.onclick=()=>run({a:'bots',v:!on},on?'Bots desligados.':'Bots ligados.');
   r.append(info,sw);b.append(r);
+  b.append(mk('h4',0,'Aviso geral'));
+  b.append(mk('p','note','Aparece numa faixa no topo do site para todo mundo, assinado como Equipe MiHelp.'));
+  const avT=inp('text',120,'Ex.: Manutenção hoje às 22h'),avD=sel([['60','1 hora'],['360','6 horas'],['1440','24 horas'],['0','Até eu tirar']]);
+  const avP=mk('button','go','Publicar aviso');avP.type='button';
+  avP.onclick=()=>{const t=avT.value.trim();if(!t)return say('Escreva o aviso.');const m=Number(avD.value);run({a:'aviso',v:t.slice(0,120),ate:m?Date.now()+m*60000:0},'Aviso publicado.')};
+  const avR=mk('button','cx','Tirar aviso');avR.type='button';avR.onclick=()=>run({a:'aviso',v:'',ate:0},'Aviso removido.');
+  const avA=mk('div','aact');avA.append(avP,avR);
+  b.append(campo('Texto do aviso',avT),campo('Por quanto tempo',avD),avA);
   b.append(mk('h4',0,'Limpar'));
   [['sala','Chat Geral','Esvazia a sala Geral.'],['salas','Outras salas','Classificados, Amizade, Construção e as demais.'],['guilda','Guilda','Tira as missões e os chamados.'],['outdoor','Outdoors digitais','Tira todos os anúncios do ar.'],['tudo','Tudo isso de uma vez','Faz as quatro limpezas juntas.'],...(window.MH_PLACAR?[['placar','Placar do Fliperama (todos)','Zera os recordes de todos os jogos neste aparelho.']].concat(MH_PLACAR.lista().map(([id,n])=>['p:'+id,'Placar: '+n,'Zera só este jogo.'])):[])].forEach(([k,t,d])=>{
     const row=mk('div','arow'),inf=mk('div','ainfo');inf.append(mk('b',0,t),mk('span',0,d));
@@ -2362,7 +2525,7 @@ window.MH_perfilAdm=function(pes,d){
   const feitas=[];Object.entries(UI.avs()).forEach(([alvo,arr])=>arr.forEach(x=>{if(x[0]===n)feitas.push([alvo,x])}));
   if(!feitas.length)box.append(mk('p','note','Nenhuma até agora.'));
   feitas.forEach(([alvo,x])=>{
-    const it=mk('div','dep');it.append(mk('b',0,'Sobre '+alvo+' · '+estr(x[1])));it.append(document.createElement('br'),document.createTextNode(x[2]||'(sem comentário)'));
+    const it=mk('div','dep');it.append(mk('b',0,'Sobre '+alvo+' · '+estr(x[1])));it.append(document.createElement('br'),document.createTextNode((window.MH_av2?MH_av2(x[2]).txt:x[2])||'(sem comentário)'));
     const row=mk('div','aact');row.style.marginTop='6px';
     const ver=mk('button','cp','Ver perfil de '+alvo);ver.type='button';ver.disabled=!UI.pessoas().some(q=>q.nome===alvo);ver.onclick=()=>UI.perfil(alvo);
     const ed=mk('button','cx','Editar');ed.type='button';ed.onclick=()=>editarDep({nome:alvo},x,n);
@@ -2440,7 +2603,7 @@ if(logado()){document.body.classList.add('adm');bar.hidden=false;chipUpd()}
 (function(){
 const CFG=window.MH_CFG||{};
 const CDNS=[['https://esm.sh/@wix/sdk','https://esm.sh/@wix/data'],['https://esm.run/@wix/sdk','https://esm.run/@wix/data'],['https://cdn.jsdelivr.net/npm/@wix/sdk/+esm','https://cdn.jsdelivr.net/npm/@wix/data/+esm'],['https://cdn.skypack.dev/@wix/sdk','https://cdn.skypack.dev/@wix/data']];
-const COL={pre:'PreCadastros',perf:'Perfis',msg:'Mensagens',av:'Avaliacoes',ped:'Pedidos',ad:'Anuncios',ap:'Apoiadores',den:'Denuncias',sup:'Suporte'};
+const COL={pre:'PreCadastros',perf:'Perfis',msg:'Mensagens',av:'Avaliacoes',ped:'Pedidos',ad:'Anuncios',ap:'Apoiadores',den:'Denuncias',sup:'Suporte',rec:'Recados'};
 const DIAG=/[?&]diag\b/.test(location.search);
 const DB=window.MH_DB={ok:false,meu:'',nomes:new Set(),
   tem(n){n=String(n||'').toLowerCase();return !!n&&n!==this.meu.toLowerCase()&&this.nomes.has(n)}};
@@ -2481,7 +2644,7 @@ DB.enviar=async function(c,eu,texto,resp,extra){
 
 DB.avaliar=async function(alvo,de,estrelas,texto){
  if(!DB.ok)return;
- try{await ins(COL.av,{alvo,de,estrelas,texto:String(texto||'').slice(0,80)})}catch(e){diag('avaliação: '+msgErro(e),true)}};
+ try{await ins(COL.av,{alvo,de,estrelas,texto:String(texto||'').slice(0,140)})}catch(e){diag('avaliação: '+msgErro(e),true)}};
 
 DB.pedido=function(p){
  if(!DB.ok)return Promise.reject(new Error('sem banco'));
@@ -2525,6 +2688,7 @@ DB.ctlPronto=()=>!!(DB.ok&&DB.chave.ligada());
 let botsT=0;try{botsT=Number(localStorage.getItem('mh_botsT')||0)}catch(e){}
 function salvarFloor(){try{localStorage.setItem('mh_floor',JSON.stringify(window.MH_FLOOR))}catch(e){}}
 function aplicar(c,quando){const F=window.MH_FLOOR||(window.MH_FLOOR={}),FX=window.MH_FX||{};
+ if(c.a==='aviso'){if(window.MH_AVISO)MH_AVISO.set(c.v||'',Number(c.ate)||0,quando);return}
  if(c.a==='bots'){if(quando>botsT){botsT=quando;try{localStorage.setItem('mh_botsT',String(quando))}catch(e){}if(FX.bots)FX.bots(!!c.v)}return}
  if(c.a==='limpar'){const T=['sala','salas','guilda','outdoor'],al=c.alvo==='tudo'?T:[c.alvo];
   al.forEach(a=>{if(T.indexOf(a)<0)return;if(quando>(F[a]||0)){F[a]=quando;if(FX.limpar)FX.limpar(a,quando)}});salvarFloor()}}
@@ -2575,6 +2739,26 @@ async function lerNomes(){
  try{const r=await q(COL.perf).limit(1000).find();((r&&r.items)||[]).forEach(x=>{if(x.nome)DB.nomes.add(String(x.nome).toLowerCase())})}
  catch(e){diag('perfis: '+msgErro(e),true)}}
 
+/* mural de recados (coleção Recados: alvo, de, texto) e frase do perfil (guardada em Mensagens, tipo "frase") */
+DB.recado=async function(alvo,de,texto){
+ if(!DB.ok)return;
+ try{await ins(COL.rec,{alvo:String(alvo),de:String(de),texto:String(texto).slice(0,100)})}
+ catch(e){diag('recado: '+msgErro(e),true);if(window.MH_RX)MH_RX.aviso('*** Não consegui enviar o recado. ***')}};
+DB.frase=async function(texto){
+ if(!DB.ok)return;const eu=window.MH_UI&&MH_UI.eu&&MH_UI.eu();if(!eu)return;
+ const id=rid('f');seen.add(id);
+ try{await ins(COL.msg,{_id:id,sala:'perfil',autor:eu.nome,papel:eu.role,oficio:eu.work||'',texto:String(texto||'').slice(0,60),tipo:'frase',categoria:'',respNome:'',respTexto:''})}
+ catch(e){diag('frase: '+msgErro(e),true)}};
+let recOff=false;
+async function lerRec(){
+ if(recOff)return;
+ try{const r=await q(COL.rec).ascending('_createdDate').limit(500).find(),it=(r&&r.items)||[];
+  if(window.MH_RX&&MH_RX.rec)MH_RX.rec(it.map(x=>({alvo:x.alvo,de:x.de,texto:x.texto,_quando:dt(x._createdDate).getTime()})))}
+ catch(e){recOff=true;diag('recados (crie a coleção Recados no CMS): '+msgErro(e),true)}}
+async function lerFrases(){
+ try{const r=await q(COL.msg).eq('tipo','frase').descending('_createdDate').limit(300).find(),it=((r&&r.items)||[]).slice().reverse();
+  it.forEach(x=>{if(window.MH_RX&&MH_RX.frase)MH_RX.frase(x.autor,x.texto)})}
+ catch(e){diag('frases: '+msgErro(e),true)}}
 async function testeCompleto(){
  for(const k in COL){try{await q(COL[k]).limit(1).find();diag('ler '+COL[k]+': ok')}catch(e){diag('ler '+COL[k]+': '+msgErro(e),true)}}
  diag('Fim do teste. Linhas com ✗ mostram o que falta arrumar.')}
@@ -2598,8 +2782,8 @@ async function iniciar(){
   setTimeout(aviso,1500);return}
  if(DIAG)testeCompleto();
  await lerCtl();
- lerNomes();lerAv();lerAds();lerAp();ciclo();
- setInterval(lerAv,25000);setInterval(lerAds,30000);setInterval(lerAp,60000);setInterval(lerNomes,60000);
+ lerNomes();lerAv();lerAds();lerAp();lerRec();lerFrases();ciclo();
+ setInterval(lerAv,25000);setInterval(lerAds,30000);setInterval(lerAp,60000);setInterval(lerNomes,60000);setInterval(lerRec,30000);setInterval(lerFrases,60000);
  const antiga=window.MH_denuncia;window.MH_denuncia=n=>{try{antiga&&antiga(n)}catch(e){}DB.denuncia(n)};
 }
 iniciar();
@@ -3067,7 +3251,13 @@ vol.append('🔉',rg);
 const fx=mk('label'),sel=mk('select','musFx');fx.className='cfgvol';fx.title='Estilo da música';sel.setAttribute('aria-label','Estilo da música');
 if(window.MH_MUS){MH_MUS.lista().forEach(([k,n])=>sel.append(new Option(n,k)));sel.value=MH_MUS.faixa()}
 sel.onchange=()=>{if(window.MH_MUS)MH_MUS.faixa(sel.value)};fx.append('🎼',sel);
-pan.append(fx,vol,row);box.append(btn,pan);document.body.append(box);
+const jn=mk('div');jn.className='cfgjan';
+const bf=mk('button');bf.type='button';bf.textContent='Fechar janelas';bf.title='Fecha todas as janelas, menos outdoors, letreiros, fliperama e suporte';
+const ba=mk('button');ba.type='button';ba.textContent='Abrir tudo';ba.title='Abre de novo todas as janelas';
+bf.onclick=()=>{if(window.MH_JAN)MH_JAN.fecharTodas();abre(false)};
+ba.onclick=()=>{if(window.MH_JAN)MH_JAN.abrirTodas();abre(false)};
+jn.append(bf,ba);
+pan.append(fx,vol,row,jn);box.append(btn,pan);document.body.append(box);
 function abre(v){pan.hidden=!v;btn.textContent=v?'✕':'⚙️';btn.setAttribute('aria-expanded',String(v));btn.setAttribute('aria-label',v?'Fechar ajustes':'Abrir ajustes: tema, som e música')}
 btn.onclick=()=>abre(pan.hidden);
 document.addEventListener('pointerdown',e=>{if(!pan.hidden&&!box.contains(e.target))abre(false)});
@@ -3185,6 +3375,76 @@ function des(){g.textAlign='left';g.strokeStyle='#332D20';g.lineWidth=1;g.stroke
   PC[nx].m.forEach((r,j)=>r.forEach((v,i)=>{if(v){g.fillStyle=PC[nx].c;g.fillRect(222+i*13,40+j*13,12,12)}}))}
 F.reg('tetris',{nome:'TETRIS',dica:'◀ ▶ mover, ▲ girar, ▼ descer rápido, espaço ou ⤓ derruba a peça. Complete linhas.',pad:'LRUDF',lbl:{U:'⟳',F:'⤓'},ini,up,des,hud:()=>' · Nível '+lv});
 })()}catch(e){console.error('MiHelp (tetris):',e)}
+</script>
+<script>
+/* Janelas: todas fecham (botão vermelho da barra), menos os outdoors digitais e os letreiros do topo. O menu do cabeçalho traz de volta. */
+try{(function(){
+const $=id=>document.getElementById(id);
+const ok=w=>!w.closest('aside.side')&&!w.closest('dialog')&&!w.closest('#fliperama')&&w.id!=='vagas'&&w.id!=='cw';
+const wins=[...document.querySelectorAll('.win')].filter(ok);
+const toast=document.createElement('div');toast.className='xtoast';toast.setAttribute('role','status');toast.hidden=true;document.body.append(toast);
+let tt=0;
+function aviso(t){toast.textContent=t;toast.hidden=false;clearTimeout(tt);tt=setTimeout(()=>{toast.hidden=true},4000)}
+const KJ='mh_janelas';
+const chave=w=>{const t=w.querySelector(':scope>.bar .t');return t?t.textContent.trim():''};
+const lembra=w=>w.id!=='cadWin'&&w.id!=='cw'; /* cadastro e chat sempre voltam abertos */
+function salva(){try{localStorage.setItem(KJ,JSON.stringify(wins.filter(w=>lembra(w)&&w.classList.contains('fechada')).map(chave)))}catch(e){}}
+function atualiza(){document.querySelectorAll('section').forEach(s=>{const ws=[...s.querySelectorAll('.win')];s.classList.toggle('sec-vazia',ws.length>0&&ws.every(w=>w.classList.contains('fechada')))});salva()}
+function fechar(w){
+  if(w.id==='cadWin'&&$('reg')&&$('reg').classList.contains('meu-perfil'))return; /* logado: o perfil já tem o próprio fechar */
+  if(w.id==='cw'&&w.classList.contains('full')){const x=$('cwExp');if(x)x.click()}
+  w.classList.add('fechada');atualiza();
+  aviso('Janela fechada. Para abrir de novo, use o menu lá no topo do site.')}
+function abrir(id){
+  const el=$(id);if(!el)return;
+  let ws;
+  if(el.matches('.win'))ws=[el];else if(el.closest('.win'))ws=[el.closest('.win')];else ws=[...el.querySelectorAll('.win')];
+  ws.forEach(w=>w.classList.remove('fechada'));atualiza()}
+wins.forEach(w=>{
+  const is=w.querySelectorAll(':scope>.bar i');if(!is.length)return;
+  const x=is[is.length-1];x.classList.add('xw');x.setAttribute('role','button');x.tabIndex=0;x.setAttribute('aria-label','Fechar janela');x.title='Fechar (reabre pelo menu do topo)';
+  x.addEventListener('click',e=>{e.stopPropagation();fechar(w)});
+  x.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fechar(w)}})});
+/* menu do cabeçalho e links internos reabrem a janela de destino */
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-go]');if(a)abrir(a.dataset.go)},true);
+const fab=$('chatFab');if(fab)fab.addEventListener('click',()=>abrir('cw'),true);
+/* qualquer rolagem até algo dentro de uma janela fechada (ex.: Guilda, Ao vivo) abre a janela */
+const si=Element.prototype.scrollIntoView;
+Element.prototype.scrollIntoView=function(){
+  try{const w=this.closest&&this.closest('.win.fechada');if(w){w.classList.remove('fechada');atualiza()}
+  const s=this.closest&&this.closest('section.sec-vazia');if(s){s.querySelectorAll('.win').forEach(x=>x.classList.remove('fechada'));atualiza()}}catch(e){}
+  return si.apply(this,arguments)};
+window.MH_JAN={
+  fecharTodas(){
+    wins.forEach(w=>{
+      if(w.classList.contains('fechada'))return;
+      if(w.id==='cadWin'&&$('reg')&&$('reg').classList.contains('meu-perfil')){const r=w.querySelector(':scope>.bar i.fechavel');if(r)r.click();return}
+      if(w.id==='cw'&&w.classList.contains('full')){const x=$('cwExp');if(x)x.click()}
+      w.classList.add('fechada')});
+    atualiza();aviso('Janelas fechadas. Para abrir de novo: menu do topo ou "Abrir tudo" na engrenagem.')},
+  abrirTodas(){
+    wins.forEach(w=>w.classList.remove('fechada'));atualiza();
+    const q=$('perfSq');if(q&&!q.hidden)q.click();
+    aviso('Janelas abertas de novo.')}};
+try{const sv=JSON.parse(localStorage.getItem(KJ)||'[]')||[];
+  if(sv.length){wins.forEach(w=>{if(lembra(w)&&sv.indexOf(chave(w))>=0)w.classList.add('fechada')});atualiza();
+    setTimeout(()=>aviso('Você deixou janelas fechadas. Use "Abrir tudo" na engrenagem ou o menu do topo.'),800)}}catch(e){}
+const mm=window.MH_missao;if(mm)window.MH_missao=function(){abrir('cw');return mm.apply(this,arguments)};
+})()}catch(e){console.error('MiHelp (janelas fecháveis):',e)}
+</script>
+<script>
+/* Aviso geral: faixa no topo publicada pelo painel ADM (mensagem assinada) */
+try{(function(){
+const $=id=>document.getElementById(id),K='mh_aviso',KX='mh_avisoX';
+let cur={txt:'',ate:0,t:0};try{cur=JSON.parse(localStorage.getItem(K)||'null')||cur}catch(e){}
+function mostra(){const b=$('avg');if(!b)return;
+  let x=0;try{x=Number(localStorage.getItem(KX)||0)}catch(e){}
+  const vivo=!!cur.txt&&(!cur.ate||Date.now()<cur.ate)&&x!==cur.t;
+  b.hidden=!vivo;if(vivo)$('avgT').textContent='📢 Equipe MiHelp: '+cur.txt}
+window.MH_AVISO={set(txt,ate,t){if(t&&t<cur.t)return;cur={txt:String(txt||'').slice(0,120),ate:Number(ate)||0,t:t||Date.now()};try{localStorage.setItem(K,JSON.stringify(cur))}catch(e){}mostra()}};
+const bx=$('avgX');if(bx)bx.onclick=()=>{try{localStorage.setItem(KX,String(cur.t))}catch(e){}mostra()};
+mostra();setInterval(mostra,60000);
+})()}catch(e){console.error('MiHelp (aviso):',e)}
 </script>
 </body>
 </html>
