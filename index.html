@@ -740,6 +740,9 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 :root[data-tema=claro] button.vg.open:hover,:root[data-tema=claro] button.vg.open:focus-visible{background:var(--hov)}
 #temaBtn{position:fixed;left:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:44;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surf);color:var(--gold2);font-size:19px;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.35)}
 #temaBtn:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+#somBtn{position:fixed;left:62px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:44;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surf);color:var(--gold2);font-size:19px;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.35)}
+#somBtn[data-som=off]{opacity:.65}
+#somBtn:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
 /* pré-cadastro: abas e senha */
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:4px;margin:0 0 16px}
 .seg button{border:0;background:transparent;color:var(--mute);font:700 14px var(--sans);padding:11px 8px;border-radius:7px;cursor:pointer}
@@ -2744,6 +2747,73 @@ function abrir(){
   d.append(f);d.showModal();tx.focus()}
 btn.addEventListener('click',abrir);
 })()}catch(e){console.error('MiHelp (suporte):',e)}
+</script>
+<script>
+/* Efeitos sonoros do MiHelp (sintetizados no navegador, sem arquivos). Botão 🔊/🔇 liga e muta; a escolha fica salva. */
+try{(function(){
+const KEY='mh_som',AC=window.AudioContext||window.webkitAudioContext,t0=Date.now();
+let on=true;try{on=localStorage.getItem(KEY)!=='0'}catch(e){}
+let ctx=null,master=null;
+function pronto(){
+  if(!AC)return false;
+  if(!ctx){try{ctx=new AC();master=ctx.createGain();master.gain.value=.5;master.connect(ctx.destination)}catch(e){ctx=null;return false}}
+  if(ctx.state==='suspended')ctx.resume().catch(()=>{});
+  return ctx.state==='running'}
+function nota(f,ini,dur,tipo,vol,fim){
+  const o=ctx.createOscillator(),g=ctx.createGain(),t=ctx.currentTime+ini;
+  o.type=tipo||'sine';o.frequency.setValueAtTime(f,t);if(fim)o.frequency.exponentialRampToValueAtTime(fim,t+dur);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g);g.connect(master);o.start(t);o.stop(t+dur+.02)}
+const SONS={
+  tick:()=>nota(900,0,.05,'sine',.12,600),
+  lig:()=>{nota(700,0,.08,'sine',.2);nota(1050,.07,.14,'sine',.2)},
+  ok:()=>{nota(660,0,.14,'triangle',.22);nota(880,.1,.14,'triangle',.22);nota(1320,.2,.28,'triangle',.2)},
+  erro:()=>{nota(220,0,.16,'square',.09,160);nota(165,.14,.22,'square',.09,120)},
+  msg:()=>nota(520,0,.09,'sine',.16,780),
+  env:()=>nota(780,0,.08,'sine',.16,1000),
+  sos:()=>{for(let i=0;i<3;i++){nota(980,i*.2,.12,'square',.11);nota(740,i*.2+.1,.08,'square',.11)}}};
+const ult={};
+function som(n,gap){
+  if(!on||!SONS[n])return;
+  const a=Date.now();if(a-(ult[n]||0)<(gap||60))return;
+  if(!pronto())return;
+  ult[n]=a;try{SONS[n]()}catch(e){}}
+window.MH_SOM={tocar:som,ligado:()=>on};
+/* o navegador só libera áudio depois de um toque ou tecla */
+['pointerdown','keydown','touchstart'].forEach(ev=>addEventListener(ev,pronto,{capture:true,passive:true}));
+
+/* botão liga/muta */
+const b=document.createElement('button');b.id='somBtn';b.type='button';b.setAttribute('aria-label','Sons do site');
+function mostra(){b.textContent=on?'🔊':'🔇';b.setAttribute('aria-pressed',String(on));b.title=on?'Sons ligados. Toque para mutar':'Sons mutados. Toque para ligar';b.dataset.som=on?'on':'off'}
+b.onclick=()=>{on=!on;try{localStorage.setItem(KEY,on?'1':'0')}catch(e){}mostra();if(on)som('lig',0)};
+mostra();document.body.append(b);
+
+/* toque em botões, links e opções */
+document.addEventListener('click',e=>{
+  const t=e.target.closest&&e.target.closest('button,a,[role=button],summary,select,input[type=radio],input[type=checkbox]');
+  if(!t||t.id==='somBtn'||t.disabled)return;
+  if(t.id==='nudge'){som('sos',300);return}
+  som('tick',50)},true);
+
+/* erro de login/cadastro */
+const fe=document.getElementById('ferr');
+if(fe)new MutationObserver(()=>{if(fe.style.display!=='none'&&fe.textContent.trim())som('erro',250)})
+  .observe(fe,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['style']});
+
+/* entrou na conta */
+const sb=document.getElementById('sairBar');
+if(sb){let vis=!sb.hidden;new MutationObserver(()=>{const v=!sb.hidden;if(v&&!vis)som('ok',500);vis=v}).observe(sb,{attributes:true,attributeFilter:['hidden']})}
+
+/* mensagens novas no chat (as suas e as dos outros) */
+const lg=document.getElementById('log');
+if(lg&&lg.parentNode)new MutationObserver(rs=>{
+  if(Date.now()-t0<2500||document.hidden)return;
+  for(const r of rs)for(const n of r.addedNodes){
+    if(n.nodeType!==1||!n.matches||!n.matches('p[data-de]'))continue;
+    const eu=window.MH_UI&&MH_UI.eu&&MH_UI.eu();
+    som(eu&&n.dataset.de===eu.nome?'env':'msg',700);return}
+}).observe(lg.parentNode,{childList:true,subtree:true});
+})()}catch(e){console.error('MiHelp (sons):',e)}
 </script>
 </body>
 </html>
