@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
+<script>try{document.documentElement.dataset.tema=localStorage.getItem("mh_tema")==="claro"?"claro":"escuro"}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MiHelp — pré-cadastro</title>
@@ -14,7 +15,6 @@
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0;background:var(--deep);background-image:radial-gradient(800px 400px at 15% 0,#2a2210 0,transparent 70%);color:var(--text);font-family:var(--sans);min-height:100vh}
-body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
 .wrap{max-width:1040px;margin:0 auto;padding:28px 18px 60px}
 .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}
 .mark{width:34px;height:34px;border-radius:9px;background:var(--gold);color:#201804;display:grid;place-items:center;font-weight:800}
@@ -725,9 +725,21 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 #sairConta[hidden]{display:none}#sairConta:hover{border-color:var(--red);color:var(--text)}
 
 .live button.ev{width:100%;background:none;border:0;border-bottom:1px dashed var(--line);color:inherit;font:inherit;text-align:left;cursor:pointer;border-radius:6px;padding:9px 6px}
-.live button.ev:hover,.live button.ev:focus-visible{background:#2a2310}
+.live button.ev:hover,.live button.ev:focus-visible{background:var(--hov)}
 .live .ev::after{content:'›';margin-left:auto;color:var(--gold);font-size:20px;align-self:center}
 .gc.flash{outline:2px solid var(--gold2);outline-offset:2px}
+
+:root{--hov:#2a2310}
+:root[data-tema=claro]{--bg:#FBF6E6;--deep:#F5EDD3;--surf:#FFFDF6;--line:#E0D2A0;--gold:#B98500;--gold2:#7A5600;--text:#2A2310;--mute:#6B5E3C;--faint:#8C7E58;--read:#3A3220;--red:#B3452A;--hov:#F1E4B4;color-scheme:light}
+:root[data-tema=claro] body{background-image:radial-gradient(900px 480px at 15% 0,#F3E2A6 0,transparent 70%)}
+:root[data-tema=claro] .bar{background:linear-gradient(#EAD58A,#DCC26A)}
+:root[data-tema=claro] .tel .scr{background:linear-gradient(120deg,#F3E7BE,#FBF6E6)}
+:root[data-tema=claro] .mq{background:#F0E3B5}
+:root[data-tema=claro] .tk{background:#F0E6C4}
+:root[data-tema=claro] .tka{background:#F3EACB}
+:root[data-tema=claro] button.vg.open:hover,:root[data-tema=claro] button.vg.open:focus-visible{background:var(--hov)}
+#temaBtn{position:fixed;left:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:44;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surf);color:var(--gold2);font-size:19px;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.35)}
+#temaBtn:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
 </style>
 <script>
 /* ===== LIGAÇÃO COM O WIX ===== 
@@ -1579,7 +1591,7 @@ function comando(v,pane){
   if(c==='help'){['/help — lista os comandos','/status — quem está na sala','/guilda — missões de exemplo','/sos — quantos SOS ainda restam hoje','/emergencia — telefones de emergência','/limpar — limpa esta conversa'].forEach(t=>nota(pane,t))}
   else if(c==='status'){const n=$('wholist').querySelectorAll('div').length;nota(pane,'*** '+(n?n+(n===1?' pessoa':' pessoas')+' na sala agora':'ninguém na sala por enquanto')+' ***')}
   else if(c==='guilda'){nota(pane,'*** missões de exemplo (prévia do app) ***');(window.MH_MISSOES||[]).forEach(m=>nota(pane,'• '+m.t+' — '+m.v))}
-  else if(c==='sos'){nota(pane,'*** SOS usados hoje: '+urgenciasHoje+'/'+MAX_URG+' ***')}
+  else if(c==='sos'){urgenciasHoje=lerSos();nota(pane,'*** SOS usados hoje: '+urgenciasHoje+'/'+MAX_URG+' ***')}
   else if(c==='emergencia'){['Bombeiros: 193 (fogo, cheiro forte de gás, resgate)','SAMU: 192 (saúde)','Polícia: 190','O SOS do MiHelp chama profissionais, não substitui esses números.'].forEach(t=>nota(pane,t))}
   else if(c==='limpar'){pane.querySelectorAll('p').forEach(x=>x.remove());nota(pane,'*** conversa limpa ***')}
   else nota(pane,'*** comando não existe. Digite /help ***');
@@ -1601,6 +1613,7 @@ document.querySelectorAll('#catRow button').forEach(b=>b.addEventListener('click
 }));
 $('nudge').addEventListener('click',()=>{
   if(!eu||!(ativa==='sala'||ativa.startsWith('r:')))return;
+  urgenciasHoje=lerSos();
   if(urgenciasHoje>=MAX_URG){nota(painel.sala,'*** limite de 3 urgências por dia atingido — use o chat normal ***');return;}
   urgenciasHoje++; gravarSos(); atualizarSosCount();
   try{if(window.MH_DB&&MH_DB.ok)MH_DB.enviar('sala',eu,'SOS '+catUrg,null,{tipo:'sos',categoria:catUrg})}catch(x){}
@@ -1627,7 +1640,7 @@ $('pbloq').addEventListener('click',()=>{const n=ativa;if(n==='sala')return;bloq
 $('pden').addEventListener('click',()=>{if(ativa==='sala')return;if(window.MH_denuncia)window.MH_denuncia(ativa);nota(painel[ativa],PREVIA?'*** Denúncia (prévia): no site de verdade, a conversa é enviada para a nossa equipe. ***':'*** Denúncia enviada para a nossa equipe. ***')});
 if(BOTS){nota(painel.sala,'*** sala de demonstração: quem tem a etiqueta bot é simulado. Clique num nome para falar no privado ***');depois(1500,conversa);setInterval(conversa,17000)}
 desenharOnline();mostrar('sala');atualizarPapel();
-window.MH_UI={online:()=>desenharOnline(),eu:()=>eu,
+window.MH_UI={online:()=>desenharOnline(),eu:()=>eu,sos:()=>atualizarSosCount(),
 perfil:n=>{if(pfDlg&&pfDlg.open)pfDlg.close();abrirPerfil(n)},
 avs:()=>AV,
 entrarConta:c=>{eu={nome:c.nome,role:c.role,work:c.work,status:'disponivel'};try{if(window.MH_DB)MH_DB.meu=c.nome}catch(x){}renderMeuPerfil();liberarChatForcado();desenharOnline();return true},
@@ -2416,13 +2429,16 @@ const S=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 const b64=u=>btoa(String.fromCharCode(...u)),ub=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 async function hash(pw,salt){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);
   return b64(new Uint8Array(await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:120000,hash:'SHA-256'},k,256)))}
-const sair=mk('button',0,'Sair da conta');sair.id='sairConta';sair.type='button';sair.hidden=true;document.body.append(sair);
-sair.onclick=()=>{try{localStorage.removeItem('mh_sess');localStorage.removeItem('mh_eu')}catch(e){}location.reload()};
+const sair=mk('button','exp','Sair');sair.id='sairBar';sair.type='button';sair.hidden=true;sair.setAttribute('aria-label','Sair da conta');
+{const cx=document.getElementById('cwExp');if(cx&&cx.parentNode)cx.parentNode.insertBefore(sair,cx);else document.body.append(sair)}
+function guarda(nome){try{localStorage.removeItem('mh_sess');sessionStorage.removeItem('mh_sess');const k=document.getElementById('mantem'),m=!k||k.checked;localStorage.setItem('mh_keep',m?'1':'0');(m?localStorage:sessionStorage).setItem('mh_sess',JSON.stringify(nome))}catch(e){}}
+sair.onclick=()=>{if(!confirm('Sair da conta?'))return;try{localStorage.removeItem('mh_sess');sessionStorage.removeItem('mh_sess');localStorage.removeItem('mh_eu');sessionStorage.removeItem('mh_adm')}catch(e){}location.reload()};
 window.MH_conta={async criar(d,pw){
   if(!window.crypto||!crypto.subtle)return;
   const salt=crypto.getRandomValues(new Uint8Array(16)),a=J('mh_acc',{});
   a[d.nome.toLowerCase()]={nome:d.nome,role:d.role,work:d.work,salt:b64(salt),hash:await hash(pw,salt)};
-  S('mh_acc',a);S('mh_sess',d.nome);sair.hidden=false}};
+  S('mh_acc',a);guarda(d.nome)}};
+{const kb=mk('label');kb.style.cssText='display:flex;gap:8px;align-items:center;margin-top:8px;cursor:pointer';const kc=mk('input');kc.type='checkbox';kc.id='mantem';kc.checked=localStorage.getItem('mh_keep')!=='0';kb.append(kc,document.createTextNode('Manter conectado neste aparelho'));$('pwf').append(kb)}
 let login=false;const f=$('f'),jt=$('jaTenho');
 const esconde=()=>[document.querySelector('#f .role'),$('trab'),$('t').closest('.f'),$('e').closest('.f'),document.querySelector('#f label.chk')];
 function modo(on){login=on;esconde().forEach(e=>{if(e)e.style.display=on?'none':''});if(on)$('trab').hidden=true;else if(typeof 0==='number'){const h=document.querySelector('input[name=r]:checked');$('trab').hidden=!(h&&h.value==='Helper')}
@@ -2438,11 +2454,20 @@ async function entrar(){
   const c=J('mh_acc',{})[nome.toLowerCase()];
   await new Promise(r=>setTimeout(r,500));
   if(!c||(await hash(pw,ub(c.salt)))!==c.hash)return erro('Nome ou senha incorretos. A conta fica salva só no aparelho onde foi criada.');
-  S('mh_sess',c.nome);sair.hidden=false;MH_UI.entrarConta(c)}
+  guarda(c.nome);MH_UI.entrarConta(c)}
 const barra=ev=>{if(!login)return;ev.preventDefault();ev.stopImmediatePropagation();entrar()};
 f.addEventListener('click',ev=>{if(ev.target.closest('#btnCad'))barra(ev)},true);
 document.addEventListener('submit',ev=>{if(ev.target===f)barra(ev)},true);
-setTimeout(()=>{const n=J('mh_sess',null),c=n&&J('mh_acc',{})[String(n).toLowerCase()];if(c&&window.MH_UI){MH_UI.entrarConta(c);sair.hidden=false}},300);
+setTimeout(()=>{let n=null;try{n=JSON.parse(sessionStorage.getItem('mh_sess')||localStorage.getItem('mh_sess')||'null')}catch(e){}
+const acc=J('mh_acc',{});let c=n&&acc[String(n).toLowerCase()];
+if(!c&&!n&&localStorage.getItem('mh_keep')!=='0'){try{const o=JSON.parse(localStorage.getItem('mh_eu')||'null');if(o&&o.nome)c={nome:o.nome,role:o.role,work:o.work}}catch(e){}}
+if(c&&window.MH_UI)MH_UI.entrarConta(c)},400);
+let ultN=null;setInterval(()=>{const e=window.MH_UI&&MH_UI.eu&&MH_UI.eu();sair.hidden=!e;const nn=e?e.nome:null;if(nn!==ultN){ultN=nn;try{MH_UI.sos()}catch(x){}}},700);
+// tema claro/escuro
+{const b=mk('button',0);b.id='temaBtn';b.type='button';document.body.append(b);
+const ap=t=>{document.documentElement.dataset.tema=t;b.textContent=t==='claro'?'🌙':'☀️';b.setAttribute('aria-label',t==='claro'?'Mudar para o tema escuro':'Mudar para o tema claro');const m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='claro'?'#F5EDD3':'#15130F'};
+ap(document.documentElement.dataset.tema==='claro'?'claro':'escuro');
+b.onclick=()=>{const t=document.documentElement.dataset.tema==='claro'?'escuro':'claro';ap(t);try{localStorage.setItem('mh_tema',t)}catch(e){}}}
 
 // Guilda: fazer chamado
 const gl=$('gdList');
