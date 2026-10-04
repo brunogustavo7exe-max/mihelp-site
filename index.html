@@ -717,6 +717,17 @@ body.adm .adm-x{display:inline}
 .admbox h4{margin:10px 0 8px;font-size:15px;color:var(--gold2)}
 body.adm .vg:not(.open){cursor:pointer}
 body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color:var(--red);outline:none}
+
+.urg .nm{color:var(--gold2);text-decoration:underline;font-weight:700;background:none;border:0;cursor:pointer;padding:0;font:inherit;font-weight:700}
+.gnewb{margin-top:12px}.gnew{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}.gnew[hidden]{display:none}
+.gnew select,.gnew textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--text);font:inherit}
+#sairConta{position:fixed;left:12px;bottom:calc(60px + env(safe-area-inset-bottom,0px));z-index:44;border:1px solid var(--line);background:var(--surf);color:var(--mute);border-radius:8px;padding:7px 12px;font:700 12px var(--sans);cursor:pointer}
+#sairConta[hidden]{display:none}#sairConta:hover{border-color:var(--red);color:var(--text)}
+
+.live button.ev{width:100%;background:none;border:0;border-bottom:1px dashed var(--line);color:inherit;font:inherit;text-align:left;cursor:pointer;border-radius:6px;padding:9px 6px}
+.live button.ev:hover,.live button.ev:focus-visible{background:#2a2310}
+.live .ev::after{content:'›';margin-left:auto;color:var(--gold);font-size:20px;align-self:center}
+.gc.flash{outline:2px solid var(--gold2);outline-offset:2px}
 </style>
 <script>
 /* ===== LIGAÇÃO COM O WIX ===== 
@@ -760,6 +771,7 @@ window.MH_CFG={clientId:'a633f724-c9b4-4ba8-a3f0-ef20c3c17279',bots:false};
       <div class="bar"><span class="t">pré-cadastro</span><i></i><i></i><i></i></div>
       <div class="body" id="reg">
         <form id="f" novalidate>
+          <p class="note" style="margin:0 0 10px"><a href="#" id="jaTenho">Já tenho conta: entrar</a></p>
           <div class="role">
             <label><input type="radio" name="r" value="Cliente" checked><span>Sou Cliente</span></label>
             <label><input type="radio" name="r" value="Helper"><span>Sou Helper</span></label>
@@ -768,6 +780,7 @@ window.MH_CFG={clientId:'a633f724-c9b4-4ba8-a3f0-ef20c3c17279',bots:false};
           <div class="f"><label for="n">Nome</label><input id="n" type="text" required autocomplete="name"></div>
           <div class="f"><label for="t">Telefone</label><input id="t" type="tel" required inputmode="numeric" placeholder="(66) 90000-0000" autocomplete="tel"></div>
           <div class="f"><label for="e">E-mail</label><input id="e" type="email" required autocomplete="email"></div>
+          <div class="f" id="pwf"><label for="pw">Senha (mínimo 6 caracteres)</label><input id="pw" type="password" maxlength="64" autocomplete="new-password"><small class="note" style="display:block;margin-top:4px">A conta fica salva neste aparelho. Não use a senha de outros sites.</small></div>
           <label class="chk"><input type="checkbox" id="aceite" required> Concordo em receber avisos do MiHelp e com o uso dos meus dados para o pré-cadastro. <a href="#privacidade">Ler a política de privacidade</a>.</label>
           <p class="note" id="ferr" role="alert" style="color:var(--red);display:none;margin:0 0 10px"></p>
           <button class="go" type="submit" id="btnCad">Garantir meu lugar</button>
@@ -817,7 +830,7 @@ window.MH_CFG={clientId:'a633f724-c9b4-4ba8-a3f0-ef20c3c17279',bots:false};
   </div>
   <section id="aovivo" aria-labelledby="av">
   <h2 id="av">Ao vivo na feira</h2>
-  <p class="lead">O que acontece na rede, em tempo real. No app, esse painel mostra a cidade se mexendo.</p>
+  <p class="lead">O que acontece na rede, em tempo real. Toque num item para ir até ele.</p>
   <div class="win"><div class="bar"><span class="t">ao-vivo.log — EXEMPLO ILUSTRATIVO</span><i></i><i></i><i></i></div>
     <div class="body live" id="lvList" role="log" aria-live="off"></div></div>
   </section>
@@ -1272,7 +1285,9 @@ function nomeCurto(t){const p=t.replace(/[^A-Za-zÀ-ÿ ]/g,' ').trim().split(/\s
 function trabCurto(t){const x=t.replace(/[^A-Za-zÀ-ÿ \-]/g,' ').replace(/\s+/g,' ').trim().slice(0,30);return x?x.charAt(0).toUpperCase()+x.slice(1):''}
 function rolar(el){el.scrollTop=el.scrollHeight}
 function nota(pane,t){const p=document.createElement('p');p.className='s';p.textContent=t;pane.append(p);rolar(pane)}
+function papelTxt(p){return p.adm?(p.role==='helper'?'Administrador · Helper · '+p.work:'Administrador'):(p.role==='helper'?'Helper · '+p.work:'Cliente')}
 function etiqueta(pes){const f=document.createDocumentFragment();
+if(pes.adm){const s=document.createElement('span');s.className='tag t';s.textContent='ADM';f.append(s)}
 if(pes.role==='helper'){const s=document.createElement('span');s.className='tag h';s.textContent=pes.work;f.append(s)}
 if(pes.bot){const s=document.createElement('span');s.className='tag b';s.textContent='bot';f.append(s)}
 const tt=(window.MH_TITULOS||{})[pes.nome];if(tt){const s=document.createElement('span');s.className='tag t';s.textContent=tt;f.append(s)}
@@ -1303,7 +1318,7 @@ const wl=document.createElement('div');wl.className='wl';
 const item=(pes)=>{const voce=eu&&pes===eu,d=document.createElement('div'),dot=document.createElement('span'),col=document.createElement('span'),sm=document.createElement('small');
 const stt=pes.status||'disponivel';dot.className='dot d-st-'+stt;col.className='wh';
 const nm=document.createElement('button');nm.type='button';nm.className='nm'+(pes.role==='helper'?' hp':'');nm.dataset.u=pes.nome;nm.textContent=pes.nome+(voce?' (você)':'');nm.title='Ver perfil de '+pes.nome;
-sm.textContent=(pes.adm?'Administrador':pes.role==='helper'?'Helper · '+pes.work:'Cliente')+(pes.bot?' · bot':'')+(stt==='ocupado'?' · ocupado':'')+(((window.MH_TITULOS||{})[pes.nome])?' · '+window.MH_TITULOS[pes.nome]:'');
+sm.textContent=papelTxt(pes)+(pes.bot?' · bot':'')+(stt==='ocupado'?' · ocupado':'')+(((window.MH_TITULOS||{})[pes.nome])?' · '+window.MH_TITULOS[pes.nome]:'');
 col.append(nm,sm);d.append(dot,col);wl.append(d)};
 lista.forEach(item);
 if(!lista.length){const m=document.createElement('small');m.textContent='Ninguém por enquanto';wl.append(m)}
@@ -1389,7 +1404,7 @@ if(!pfDlg){pfDlg=document.createElement('dialog');pfDlg.setAttribute('aria-label
 const d=pfDlg;d.textContent='';const meu=eu&&pes===eu;
 const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 d.append(mk('h3',0,pes.nome+(meu?' (você)':'')));
-d.append(mk('p','note',(pes.adm?'Administrador':pes.role==='helper'?'Helper · '+pes.work:'Cliente')+(pes.bot?' · bot de demonstração':'')));
+d.append(mk('p','note',papelTxt(pes)+(pes.bot?' · bot de demonstração':'')));
 d.append(mk('p','status-line','● '+stLabel(pes)));
 const r=resumo(pes.nome);
 if(r){d.append(mk('p','stars',estr(Math.round(r.m))+'  '+r.m.toFixed(1).replace('.',',')+' · '+r.n+(r.n>1?' avaliações':' avaliação')))}
@@ -1483,7 +1498,7 @@ function renderMeuPerfil(novo){
   reg.textContent=''; reg.classList.add('meu-perfil');
   reg.append(mk('div','term','> acesso liberado.\nBem-vindo(a), '+eu.nome+'!\nJá pode conversar na sala ao lado.'));
   reg.append(mk('h3',0,eu.nome));
-  reg.append(mk('p','note',(eu.adm?'Administrador':eu.role==='helper'?'Helper · '+eu.work:'Cliente')));
+  reg.append(mk('p','note',papelTxt(eu)));
   reg.append(mk('p','note','Meu status (aparece na lista de online e no quadradinho do chat):'));
   const sr=mk('div','st-row');sr.setAttribute('role','group');sr.setAttribute('aria-label','Meu status');
   Object.keys(ST).forEach(k=>{const b=mk('button','st-btn',ST[k]);b.type='button';b.dataset.s=k;b.setAttribute('aria-pressed',(eu.status||'disponivel')===k?'true':'false');
@@ -1513,11 +1528,13 @@ function fazerCadastro(e){
     if(!em || em.indexOf('@')<1){mostrarErroCad('Digite um e-mail válido.');if($('e'))$('e').focus();return false;}
     const ace=$('aceite');
     if(ace && !ace.checked){mostrarErroCad('Marque a caixinha de aceite para continuar.');ace.focus();return false;}
+    const pw=($('pw')&&$('pw').value)||'';if(pw.length<6){mostrarErroCad('Crie uma senha com pelo menos 6 caracteres.');if($('pw'))$('pw').focus();return false;}
     const role=r.value==='Helper'?'helper':'cliente';
     const work=role==='helper'?trabCurto(($('w')&&$('w').value)||''):'';
     if(role==='helper'&&!work){mostrarErroCad('Diga com o que você trabalha.');if($('w'))$('w').focus();return false;}
     let nome=n;for(let k=2;(PESSOAS.some(p=>p.nome===nome)||(window.MH_DB&&MH_DB.tem(nome)))&&k<50;k++)nome=n+' ('+k+')';
     eu={nome,role,work,status:'disponivel'};
+    try{window.MH_conta&&MH_conta.criar({nome,role,work,tel,em},pw)}catch(x){}
     try{if(window.MH_DB)MH_DB.cadastrar({nome,role,work,tel,em})}catch(x){console.error(x)}
     renderMeuPerfil();
     liberarChatForcado();
@@ -1587,7 +1604,7 @@ $('nudge').addEventListener('click',()=>{
   // mensagem: quem é da categoria "vê" alerta (simulado no texto)
   const p=document.createElement('p'); p.className='urg';
   const al=document.createElement('span'); al.className='al'; al.textContent='⚠';
-  p.append(al, document.createTextNode(' SOS '+catUrg+' — '+eu.nome+' precisa agora'));
+  p.append(al);sosNome(p,catUrg,eu.nome);
   painel.sala.append(p); while(painel.sala.children.length>80)painel.sala.firstChild.remove(); painel.sala.scrollTop=painel.sala.scrollHeight;
   nota(painel.sala,'*** Risco de vida, fogo, cheiro forte de gás ou violência: ligue 193 (Bombeiros), 192 (SAMU) ou 190 (Polícia). O SOS do MiHelp não substitui. ***');
   if(ativa!=='sala')nota(painel[ativa],'*** SOS enviado na sala Geral, onde os helpers recebem o alerta ***');
@@ -1609,6 +1626,7 @@ desenharOnline();mostrar('sala');atualizarPapel();
 window.MH_UI={online:()=>desenharOnline(),eu:()=>eu,
 perfil:n=>{if(pfDlg&&pfDlg.open)pfDlg.close();abrirPerfil(n)},
 avs:()=>AV,
+entrarConta:c=>{eu={nome:c.nome,role:c.role,work:c.work,status:'disponivel'};try{if(window.MH_DB)MH_DB.meu=c.nome}catch(x){}renderMeuPerfil();liberarChatForcado();desenharOnline();return true},
 entrarAdm:n=>{n=String(n||'').trim().replace(/\s+/g,' ').slice(0,24);if(!n)return 'Digite um nome.';
  if(PESSOAS.some(p=>p.nome===n))return 'Esse nome já é de outra pessoa na sala. Escolha outro.';
  if(eu){const old=eu.nome;if(old!==n){if(AV[old]){AV[n]=AV[old];delete AV[old]}eu.nome=n}}
@@ -1618,7 +1636,8 @@ banir:n=>{bloqueados.add(n);Object.values(painel).forEach(pn=>Array.from(pn.quer
 desbanir:n=>{bloqueados.delete(n);Object.values(painel).forEach(pn=>Array.from(pn.querySelectorAll('p')).filter(x=>x.dataset.de===n).forEach(x=>{x.hidden=false}));desenharOnline()}};
 
 // ---- recepção de dados reais (vindos do banco) ----
-function sosLinha(pane,nome,cat){const p=document.createElement('p');p.className='urg';const al=document.createElement('span');al.className='al';al.textContent='⚠';p.append(al,document.createTextNode(' SOS '+cat+' — '+nome+' precisa agora'));pane.append(p);while(pane.children.length>80)pane.firstChild.remove();rolar(pane)}
+function sosNome(p,cat,nome){p.append(document.createTextNode(' SOS '+cat+' — '));const b=document.createElement('button');b.type='button';b.className='nm';b.dataset.u=nome;b.title='Ver perfil de '+nome;b.textContent=nome;p.append(b,document.createTextNode(' precisa agora'))}
+function sosLinha(pane,nome,cat){const p=document.createElement('p');p.className='urg';const al=document.createElement('span');al.className='al';al.textContent='⚠';p.append(al);sosNome(p,cat,nome);pane.append(p);while(pane.children.length>80)pane.firstChild.remove();rolar(pane)}
 let rxMuda=false;
 function realDe(nome,papel,oficio,quando){if(!nome||por(nome))return null;let p=REAIS[nome];
 if(!p)p=REAIS[nome]={nome,role:papel==='helper'?'helper':'cliente',work:oficio||'',real:true};
@@ -1872,14 +1891,22 @@ try{
       else{if(gm)gm.textContent='Cadastre-se no formulário para falar com '+m.p+', quem publicou esta missão.';const r=document.getElementById('reg');if(r)r.scrollIntoView({behavior:'smooth',block:'center'})}});
     r.append(v,b);c.append(a,h,p,r);gl.append(c)})}
 
-  const E=[['Helper de jardinagem ficou disponível','Barra do Garças'],['Nova missão publicada','Repositor · diária a combinar'],['Alguém entrou na Sala do Vale','conversa aberta'],['Nova avaliação','Pintura · ★★★★★'],['Vaga aberta no outdoor digital','a partir de R$ 5'],['Nova missão','Gato desaparecido · recompensa'],['Helper de elétrica ficou disponível','Pontal do Araguaia'],['Pedido de ajuda','Montagem de móveis · Aragarças']];
   const L=document.getElementById('lvList');let k=0;
   const hh=d=>d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const pess=()=>{try{return MH_UI.pessoas().filter(p=>p.bot)}catch(e){return []}};
+  const rola=(id,fn)=>()=>{const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});if(fn)fn()};
+  function evento(){
+    const n=k++,H=pess().filter(p=>p.role==='helper'),A=pess(),t=n%4;
+    if(t===0&&H.length){const h=H[Math.floor(n/4)%H.length];return {t:h.nome+' ficou disponível',s:h.work+' · toque para ver o perfil',u:h.nome}}
+    if(t===1||t===3){const m=M[Math.floor(n/2)%M.length];return {t:'Nova missão: '+m.t,s:m.v+' · toque para ver na Guilda',go:()=>{const c=[...document.querySelectorAll('#gdList .gc')].find(c=>{const h=c.querySelector('h3');return h&&h.textContent===m.t});if(c){c.scrollIntoView({behavior:'smooth',block:'center'});c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),2500)}else rola('guilda')()}}}
+    if(t===2&&A.length&&n%8===2){const a=A[n%A.length];return {t:a.nome+' entrou na Sala do Vale',s:'toque para abrir o chat',go:rola('cw')}}
+    return {t:'Vaga aberta no outdoor digital',s:'a partir de R$ 5 · toque para ver',go:rola('apoie')}}
   function add(d,novo){
-    const e=E[k++%E.length],row=document.createElement('div');row.className='ev'+(novo?' novo':'');
+    const e=evento(),row=document.createElement('button');row.type='button';row.className='ev'+(novo?' novo':'');
+    if(e.u)row.dataset.u=e.u;else row.addEventListener('click',e.go);
     const t=document.createElement('time');t.textContent=hh(d);
     const w=document.createElement('div'),b=document.createElement('b'),s=document.createElement('span');
-    b.textContent=e[0];s.textContent=e[1];w.append(b,s);row.append(t,w);L.prepend(row);
+    b.textContent=e.t;s.textContent=e.s;w.append(b,s);row.append(t,w);L.prepend(row);
     while(L.children.length>6)L.lastChild.remove();
     if(novo)setTimeout(()=>row.classList.remove('novo'),4000);
   }
@@ -1895,16 +1922,19 @@ try{
 <script>
 try{
 (function(){
-  const META={alvo:5000,arrecadado:0,usos:[['Desenvolvimento do app',50],['Servidor, domínio e segurança',20],['Divulgação em Barra, Pontal e Aragarças',20],['Custos de pagamento e legais',10]]};
-  const f=n=>'R$ '+n.toLocaleString('pt-BR');
+  let META={alvo:5000,arrecadado:0,usos:[['Desenvolvimento do app',50],['Servidor, domínio e segurança',20],['Divulgação em Barra, Pontal e Aragarças',20],['Custos de pagamento e legais',10]]};
+  try{const o=JSON.parse(localStorage.getItem('mihelp_adm_v1:meta'));if(o&&o.alvo>0)META=o}catch(e){}
+  const f=n=>'R$ '+Number(n).toLocaleString('pt-BR');
+  function desenhaMeta(){
   const pct=Math.min(100,Math.round(META.arrecadado/META.alvo*100));
   document.getElementById('mArr').textContent=f(META.arrecadado);
   document.getElementById('mAlvo').textContent=f(META.alvo);
   document.querySelector('#mBar i').style.width=pct+'%';
   document.getElementById('mBar').setAttribute('aria-valuenow',pct);
   document.getElementById('mPct').textContent=pct+'% da meta.';
-  const u=document.getElementById('mUsos');
-  META.usos.forEach(x=>{const li=document.createElement('li');const b=document.createElement('b');b.textContent=x[1]+'% ';li.append(b,document.createTextNode(x[0]+' · '+f(Math.round(META.alvo*x[1]/100))));u.append(li)});
+  const u=document.getElementById('mUsos');u.textContent='';
+  META.usos.forEach(x=>{const li=document.createElement('li');const b=document.createElement('b');b.textContent=x[1]+'% ';li.append(b,document.createTextNode(x[0]+' · '+f(Math.round(META.alvo*x[1]/100))));u.append(li)});}
+  window.MH_aplicarMeta=o=>{if(o&&o.alvo>0)META=o;desenhaMeta()};window.MH_metaAtual=()=>META;desenhaMeta();
   const t='Vem para o MiHelp! Quem precisa de ajuda encontra, quem sabe fazer trabalha. Pré-cadastro grátis: '+location.href.split('#')[0];
   document.querySelectorAll('a.wa').forEach(a=>{a.href='https://wa.me/?text='+encodeURIComponent(t)});
 })();
@@ -1994,7 +2024,7 @@ const sair=mk('button','admexit','Sair do ADM');sair.type='button';sair.onclick=
 bar.append(chip,sair);document.body.append(bar);
 function chipUpd(){const n=abertas();chip.textContent='ADM'+(n?' · '+n:'')}
 let aba='ads',aviso='',corpoEl=null;
-const ABAS=[['ads','Anúncios'],['pes','Pessoas'],['pix','Pix'],['oc','Ocorrências'],['eu','Meu acesso'],['cfg','Ajustes']];
+const ABAS=[['ads','Anúncios'],['pes','Pessoas'],['pix','Pix'],['oc','Ocorrências'],['site','Meta e cargos'],['eu','Meu acesso'],['cfg','Ajustes']];
 function say(t){aviso=t;desenhar()}
 function abrirPainel(){if(!logado())return abrirLogin();desenhar();if(!dlg.open)dlg.showModal()}
 function desenhar(){
@@ -2005,8 +2035,31 @@ function desenhar(){
   ABAS.forEach(([k,t])=>{const n=k==='oc'?abertas():0;const bt=mk('button',k===aba?'on':'',t+(n?' ('+n+')':''));bt.type='button';bt.setAttribute('role','tab');bt.setAttribute('aria-selected',String(k===aba));bt.onclick=()=>{aba=k;aviso='';desenhar()};tb.append(bt)});
   corpoEl=mk('div','abody');dlg.append(tb,corpoEl);
   if(aviso){const a=mk('p','aviso',aviso);a.setAttribute('role','status');corpoEl.append(a)}
-  ({ads:tAds,pes:tPes,pix:tPix,oc:tOc,eu:tEu,cfg:tCfg})[aba](corpoEl);
+  ({ads:tAds,pes:tPes,pix:tPix,oc:tOc,site:tSite,eu:tEu,cfg:tCfg})[aba](corpoEl);
   dlg.scrollTop=0;chipUpd()}
+
+window.MH_chamadoAdm=(quem,motivo)=>{OC.unshift({id:Date.now(),quem,motivo,origem:'chamado',quando:Date.now(),status:'aberta',nota:''});salvarOC();chipUpd()};
+{const c=store.get('cargos',{});UI.pessoas().forEach(p=>{if(c[p.nome]&&p.role==='helper')p.work=c[p.nome]})}
+function tSite(b){
+  const M=(window.MH_metaAtual&&MH_metaAtual())||{alvo:5000,arrecadado:0,usos:[]};
+  b.append(mk('h4',0,'Meta de apoio'));
+  const f=mk('form'),al=inp('number',0),ar=inp('number',0);al.min=ar.min='0';al.value=M.alvo;ar.value=M.arrecadado;
+  f.append(campo('Meta (R$)',al),campo('Arrecadado (R$)',ar));
+  const us=M.usos.map((x,i)=>{const n=inp('text',40),p=inp('number',0);n.value=x[0];p.value=x[1];p.min='0';p.max='100';f.append(campo('Uso '+(i+1)+': nome',n),campo('Uso '+(i+1)+': %',p));return [n,p]});
+  const go=mk('button','go','Salvar meta');go.type='submit';f.append(go);
+  f.addEventListener('submit',e=>{e.preventDefault();const alvo=Number(al.value);if(!(alvo>0))return say('A meta precisa ser maior que zero.');
+    const o={alvo,arrecadado:Math.max(0,Number(ar.value)||0),usos:us.map(([n,p])=>[n.value.trim()||'Outro',Math.max(0,Number(p.value)||0)])};
+    store.set('meta',o);window.MH_aplicarMeta&&MH_aplicarMeta(o);say('Meta atualizada.')});
+  b.append(f);
+  b.append(mk('h4',0,'Cargo dos Helpers'));
+  b.append(mk('p','note','Muda o ofício que aparece ao lado do nome. Você pode ser ADM e Helper ao mesmo tempo: o ADM aparece como etiqueta extra.'));
+  UI.pessoas().filter(p=>p.role==='helper').forEach(p=>{
+    const r=mk('div','arow'),info=mk('div','ainfo');info.append(mk('b',0,p.nome+(p.adm?' (ADM)':'')),mk('span',0,'Hoje: '+p.work));
+    const w=inp('text',30,'Novo cargo');w.setAttribute('aria-label','Novo cargo de '+p.nome);
+    const ok=mk('button','cp','Salvar');ok.type='button';
+    ok.onclick=()=>{const v=w.value.trim();if(!v)return say('Digite o cargo.');p.work=v;const c=store.get('cargos',{});c[p.nome]=v;store.set('cargos',c);UI.online();say('Cargo de '+p.nome+' agora é '+v+'.')};
+    const ac=mk('div','aact');ac.append(w,ok);r.append(info,ac);b.append(r)});
+}
 
 // ---- aba Anúncios ----
 function tAds(b){
@@ -2098,7 +2151,7 @@ function tPix(b){
 // ---- aba Ocorrências ----
 function tOc(b){
   b.append(mk('h4',0,'Nova ocorrência'));
-  const f=mk('form'),qm=inp('text',40,'Quem ou o quê'),mo=inp('text',160,'O que aconteceu'),or=sel(['chat','SOS','anúncio','avaliação','pagamento','outro'].map(x=>[x,x]));qm.required=mo.required=true;
+  const f=mk('form'),qm=inp('text',40,'Quem ou o quê'),mo=inp('text',160,'O que aconteceu'),or=sel(['chat','SOS','chamado','anúncio','avaliação','pagamento','outro'].map(x=>[x,x]));qm.required=mo.required=true;
   f.append(campo('Quem ou o quê',qm),campo('O que aconteceu',mo),campo('Origem',or));const go=mk('button','go','Registrar');go.type='submit';f.append(go);
   f.addEventListener('submit',e=>{e.preventDefault();OC.unshift({id:Date.now(),quem:qm.value.trim(),motivo:mo.value.trim(),origem:or.value,quando:Date.now(),status:'aberta',nota:''});salvarOC();say('Ocorrência registrada.')});b.append(f);
   b.append(mk('h4',0,'Lista ('+abertas()+' abertas)'));
@@ -2229,7 +2282,7 @@ if(logado()){document.body.classList.add('adm');bar.hidden=false;chipUpd()}
 /* ===== Camada de dados (Wix Headless). Só liga se window.MH_CFG.clientId estiver preenchido. ===== */
 (function(){
 const CFG=window.MH_CFG||{};
-const SDK_URL='https://esm.sh/@wix/sdk',DATA_URL='https://esm.sh/@wix/data';
+const CDNS=[['https://esm.sh/@wix/sdk','https://esm.sh/@wix/data'],['https://esm.run/@wix/sdk','https://esm.run/@wix/data'],['https://cdn.jsdelivr.net/npm/@wix/sdk/+esm','https://cdn.jsdelivr.net/npm/@wix/data/+esm'],['https://cdn.skypack.dev/@wix/sdk','https://cdn.skypack.dev/@wix/data']];
 const COL={pre:'PreCadastros',perf:'Perfis',msg:'Mensagens',av:'Avaliacoes',ped:'Pedidos',ad:'Anuncios',ap:'Apoiadores',den:'Denuncias'};
 const DIAG=/[?&]diag\b/.test(location.search);
 const DB=window.MH_DB={ok:false,meu:'',nomes:new Set(),
@@ -2331,7 +2384,8 @@ async function iniciar(){
    if(sv.role==='helper'){const r=document.querySelector('input[name=r][value=Helper]');if(r){r.checked=true;r.dispatchEvent(new Event('change',{bubbles:true}))}}}}catch(e){}
  if(!CFG.clientId){console.log('MiHelp: modo demonstração (sem Client ID).');return}
  try{
-  const [sdk,dat]=await Promise.all([import(SDK_URL),import(DATA_URL)]);
+  let sdk,dat,ult;for(const [a,b] of CDNS){try{[sdk,dat]=await Promise.all([import(a),import(b)]);diag('Módulos carregados de '+new URL(a).host);ult=null;break}catch(e){ult=e;diag('Falhou em '+new URL(a).host+': '+msgErro(e))}}
+  if(ult)throw ult;
   client=sdk.createClient({auth:sdk.OAuthStrategy({clientId:CFG.clientId}),modules:{items:dat.items}});
   await q(COL.perf).limit(1).find();
   DB.ok=true;diag('Conectado ao Wix. Banco ligado.');
@@ -2346,6 +2400,87 @@ async function iniciar(){
 }
 iniciar();
 })();
+</script>
+<script>
+try{
+(function(){
+const $=id=>document.getElementById(id);
+const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const fld=(l,el)=>{const d=mk('div','f');const lb=mk('label',0,l);if(el.id)lb.htmlFor=el.id;d.append(lb,el);return d};
+const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
+const S=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const b64=u=>btoa(String.fromCharCode(...u)),ub=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function hash(pw,salt){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);
+  return b64(new Uint8Array(await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:120000,hash:'SHA-256'},k,256)))}
+const sair=mk('button',0,'Sair da conta');sair.id='sairConta';sair.type='button';sair.hidden=true;document.body.append(sair);
+sair.onclick=()=>{try{localStorage.removeItem('mh_sess');localStorage.removeItem('mh_eu')}catch(e){}location.reload()};
+window.MH_conta={async criar(d,pw){
+  if(!window.crypto||!crypto.subtle)return;
+  const salt=crypto.getRandomValues(new Uint8Array(16)),a=J('mh_acc',{});
+  a[d.nome.toLowerCase()]={nome:d.nome,role:d.role,work:d.work,salt:b64(salt),hash:await hash(pw,salt)};
+  S('mh_acc',a);S('mh_sess',d.nome);sair.hidden=false}};
+let login=false;const f=$('f'),jt=$('jaTenho');
+const esconde=()=>[document.querySelector('#f .role'),$('trab'),$('t').closest('.f'),$('e').closest('.f'),document.querySelector('#f label.chk')];
+function modo(on){login=on;esconde().forEach(e=>{if(e)e.style.display=on?'none':''});if(on)$('trab').hidden=true;else if(typeof 0==='number'){const h=document.querySelector('input[name=r]:checked');$('trab').hidden=!(h&&h.value==='Helper')}
+  $('pw').autocomplete=on?'current-password':'new-password';$('pwf').querySelector('small').style.display=on?'none':'block';
+  $('btnCad').textContent=on?'Entrar':'Garantir meu lugar';jt.textContent=on?'Quero criar uma conta':'Já tenho conta: entrar';
+  const er=$('ferr');if(er){er.style.display='none'}}
+jt.addEventListener('click',e=>{e.preventDefault();modo(!login)});
+const erro=m=>{const er=$('ferr');if(er){er.style.display='block';er.textContent=m}};
+async function entrar(){
+  if(!window.crypto||!crypto.subtle)return erro('Abra o site pelo endereço https para entrar.');
+  const nome=$('n').value.trim().replace(/\s+/g,' '),pw=$('pw').value;
+  if(!nome||!pw)return erro('Digite seu nome e sua senha.');
+  const c=J('mh_acc',{})[nome.toLowerCase()];
+  await new Promise(r=>setTimeout(r,500));
+  if(!c||(await hash(pw,ub(c.salt)))!==c.hash)return erro('Nome ou senha incorretos. A conta fica salva só no aparelho onde foi criada.');
+  S('mh_sess',c.nome);sair.hidden=false;MH_UI.entrarConta(c)}
+const barra=ev=>{if(!login)return;ev.preventDefault();ev.stopImmediatePropagation();entrar()};
+f.addEventListener('click',ev=>{if(ev.target.closest('#btnCad'))barra(ev)},true);
+document.addEventListener('submit',ev=>{if(ev.target===f)barra(ev)},true);
+setTimeout(()=>{const n=J('mh_sess',null),c=n&&J('mh_acc',{})[String(n).toLowerCase()];if(c&&window.MH_UI){MH_UI.entrarConta(c);sair.hidden=false}},300);
+
+// Guilda: fazer chamado
+const gl=$('gdList');
+if(gl){
+  const box=mk('div','gnewb'),bt=mk('button','go','+ Fazer chamado na Guilda');bt.type='button';bt.setAttribute('aria-expanded','false');
+  const fm=mk('form','gnew');fm.hidden=true;
+  const g=mk('select');['TRABALHO','SERVIÇO','RECOMPENSA','ACHADOS E PERDIDOS'].forEach(x=>g.append(new Option(x,x)));
+  const t=mk('input');t.maxLength=60;t.required=true;const d=mk('textarea');d.rows=2;d.maxLength=160;d.required=true;const v=mk('input');v.maxLength=30;v.placeholder='Ex.: R$ 120 ou a combinar';
+  const ok=mk('button','go','Publicar chamado');ok.type='submit';
+  const msg=mk('p','note','Por enquanto o chamado aparece só neste aparelho. Para todos verem, ele precisa ser ligado ao banco de dados.');msg.setAttribute('role','status');
+  fm.append(fld('Tipo',g),fld('Título',t),fld('O que você precisa ou oferece',d),fld('Valor',v),ok,msg);box.append(bt,fm);gl.after(box);
+  bt.onclick=()=>{fm.hidden=!fm.hidden;bt.setAttribute('aria-expanded',String(!fm.hidden))};
+  const card=(m,meu)=>{const c=mk('div','gc meu-g');c.append(mk('div','gt',m.g),mk('h3',0,m.t),mk('p',0,m.d));
+    const r=mk('div','gm');r.append(mk('span','gv',m.v||'a combinar'));
+    const b=mk('button',0,meu?'Apagar':'Ver perfil de '+m.p);b.type='button';
+    if(meu)b.onclick=()=>{S('mh_guilda',J('mh_guilda',[]).filter(x=>x.id!==m.id));pinta()};else b.dataset.u=m.p;
+    r.append(b);c.append(r);return c};
+  function pinta(){gl.querySelectorAll('.meu-g').forEach(x=>x.remove());const eu=MH_UI.eu&&MH_UI.eu();
+    J('mh_guilda',[]).reverse().forEach(m=>gl.prepend(card(m,eu&&eu.nome===m.p)))}
+  fm.addEventListener('submit',e=>{e.preventDefault();const eu=MH_UI.eu&&MH_UI.eu();
+    if(!eu){msg.textContent='Cadastre-se ou entre na sua conta para fazer um chamado.';return}
+    const a=J('mh_guilda',[]);a.push({id:Date.now(),p:eu.nome,g:g.value,t:t.value.trim(),d:d.value.trim(),v:v.value.trim()});S('mh_guilda',a.slice(-30));
+    t.value=d.value=v.value='';msg.textContent='Chamado publicado na Guilda.';pinta()});
+  pinta();setInterval(pinta,4000);
+}
+
+// Chamar o ADM
+const q=document.querySelector('#quem .body');
+if(q){const b=mk('button','go','Chamar o administrador');b.type='button';b.style.marginTop='10px';q.append(b);
+  const dl=mk('dialog');dl.setAttribute('aria-label','Chamar o administrador');document.body.append(dl);
+  b.onclick=()=>{dl.textContent='';const eu=MH_UI.eu&&MH_UI.eu(),fm=mk('form');fm.append(mk('h3',0,'Chamar o administrador'));
+    const as=mk('input');as.maxLength=60;as.required=true;as.placeholder='Assunto';const ms=mk('textarea');ms.rows=4;ms.maxLength=400;ms.required=true;
+    ms.style.cssText='width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--text);font:inherit';
+    const dt=mk('div','dbt'),go=mk('button','go','Enviar');go.type='submit';const cx=mk('button','cx','Cancelar');cx.type='button';cx.onclick=()=>dl.close();dt.append(go,cx);
+    fm.append(fld('Assunto',as),fld('Mensagem',ms),mk('p','note','O chamado chega à administração por e-mail (seu aplicativo de e-mail vai abrir). Quem estiver no painel ADM neste navegador também o vê em Ocorrências.'),dt);
+    fm.onsubmit=e=>{e.preventDefault();const quem=eu?eu.nome:'Visitante';
+      try{window.MH_chamadoAdm&&MH_chamadoAdm(quem,as.value.trim()+': '+ms.value.trim())}catch(x){}
+      const mail=(window.MH_PIX&&MH_PIX.contato)||'';dl.close();
+      if(mail)location.href='mailto:'+mail+'?subject='+encodeURIComponent('Chamado MiHelp: '+as.value.trim())+'&body='+encodeURIComponent(ms.value.trim()+'\n\nDe: '+quem)};
+    dl.append(fm);dl.showModal()}}
+})();
+}catch(e){console.error('MiHelp (conta, guilda, chamado):',e)}
 </script>
 </body>
 </html>
