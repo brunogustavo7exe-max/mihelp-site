@@ -740,6 +740,25 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 :root[data-tema=claro] button.vg.open:hover,:root[data-tema=claro] button.vg.open:focus-visible{background:var(--hov)}
 #temaBtn{position:fixed;left:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:44;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surf);color:var(--gold2);font-size:19px;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.35)}
 #temaBtn:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+/* pré-cadastro: abas e senha */
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:4px;margin:0 0 16px}
+.seg button{border:0;background:transparent;color:var(--mute);font:700 14px var(--sans);padding:11px 8px;border-radius:7px;cursor:pointer}
+.seg button:hover{color:var(--text)}
+.seg button[aria-pressed=true]{background:var(--gold);color:#201804}
+.seg button:focus-visible,.pwrap button:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.pwrap{position:relative}
+#f input[type=password]{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:11px 92px 11px 12px;color:var(--text);font:inherit;font-size:16px}
+#f input[type=password]:focus{outline:2px solid var(--gold);outline-offset:1px}
+#mantem{accent-color:var(--gold)}
+.pwrap input{padding-right:92px}
+.pwrap button{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:1px solid var(--line);background:var(--surf);color:var(--gold2);border-radius:6px;padding:6px 10px;font:700 12px var(--sans);cursor:pointer}
+.pwrap button:hover{border-color:var(--gold)}
+.pwh{display:block;margin-top:6px;line-height:1.45}.pwh.ok{color:var(--gold2)}
+#supDlg{width:min(94vw,520px)}
+#supDlg select,#supDlg textarea,#supDlg input[type=text]{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--text);font:inherit;font-size:16px}
+#supDlg .f{margin-bottom:12px}
+#supDlg .dbt{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+
 </style>
 <script>
 /* ===== LIGAÇÃO COM O WIX ===== 
@@ -760,7 +779,7 @@ window.MH_FLOOR=(function(){try{return JSON.parse(localStorage.getItem('mh_floor
 <div class="shell">
 <aside class="side" aria-label="Publicidade"><div class="win"><div class="bar"><span class="t">publicidade</span><i></i><i></i><i></i></div><div class="vcol" id="vleft"><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button></div></div></aside>
 <div class="wrap">
-  <header class="top"><div class="brand"><div class="mark">M</div><div>Mi<b>Help</b></div></div><nav class="nv"><a class="more" href="#saiba">Saiba mais</a><a class="more" href="#meta">Meta</a><a class="more" href="#guia-chat">Guia do chat</a><a class="more" href="#aovivo">Ao vivo</a><a class="more" href="#guilda">Guilda</a><a class="more" href="#reputacao">Reputação</a><a class="more" href="#seguranca">Segurança</a><a class="more" href="#duvidas">Dúvidas</a><a class="more" href="#apoie">Empresas e apoio</a><a class="more" href="#patrocinio">Patrocinadores</a></nav></header>
+  <header class="top"><div class="brand"><div class="mark">M</div><div>Mi<b>Help</b></div></div><nav class="nv"><a class="more" href="#saiba">Saiba mais</a><a class="more" href="#meta">Meta</a><a class="more" href="#guia-chat">Guia do chat</a><a class="more" href="#aovivo">Ao vivo</a><a class="more" href="#guilda">Guilda</a><a class="more" href="#reputacao">Reputação</a><a class="more" href="#seguranca">Segurança</a><a class="more" href="#duvidas">Dúvidas</a><a class="more" href="#apoie">Empresas e apoio</a><a class="more" href="#patrocinio">Patrocinadores</a><button class="more" id="navSup" type="button">Suporte</button></nav></header>
   <h1 class="glitch" id="h">Quem precisa de ajuda encontra.<span>Quem sabe fazer, trabalha.</span></h1>
   <p class="sub">Lançamento no início de 2027 em Barra do Garças, Pontal do Araguaia e Aragarças. Entre na lista e converse com o pessoal enquanto isso.</p>
   <p class="feira-note"><b>Feira digital do Vale.</b> Por enquanto o site é ponto de encontro: cliente e profissional se conhecem, conversam e acompanham a ideia do MiHelp. <b>Não há cobrança por serviço nem mediação de trabalho aqui</b> — isso começa com o app. Agora a receita do projeto vem dos <b>outdoors digitais</b> (anúncios por minuto).</p>
@@ -784,7 +803,8 @@ window.MH_FLOOR=(function(){try{return JSON.parse(localStorage.getItem('mh_floor
       <div class="bar"><span class="t">pré-cadastro</span><i></i><i></i><i></i></div>
       <div class="body" id="reg">
         <form id="f" novalidate>
-          <p class="note" style="margin:0 0 10px"><a href="#" id="jaTenho">Já tenho conta: entrar</a></p>
+          <div class="seg" role="group" aria-label="Criar conta ou entrar"><button type="button" id="segCriar" aria-pressed="true">Criar conta</button><button type="button" id="segEntrar" aria-pressed="false">Já tenho conta</button></div>
+          <a href="#" id="jaTenho" hidden>Já tenho conta: entrar</a>
           <div class="role">
             <label><input type="radio" name="r" value="Cliente" checked><span>Sou Cliente</span></label>
             <label><input type="radio" name="r" value="Helper"><span>Sou Helper</span></label>
@@ -793,11 +813,11 @@ window.MH_FLOOR=(function(){try{return JSON.parse(localStorage.getItem('mh_floor
           <div class="f"><label for="n">Nome</label><input id="n" type="text" required autocomplete="name"></div>
           <div class="f"><label for="t">Telefone</label><input id="t" type="tel" required inputmode="numeric" placeholder="(66) 90000-0000" autocomplete="tel"></div>
           <div class="f"><label for="e">E-mail</label><input id="e" type="email" required autocomplete="email"></div>
-          <div class="f" id="pwf"><label for="pw">Senha (mínimo 6 caracteres)</label><input id="pw" type="password" maxlength="64" autocomplete="new-password"><small class="note" style="display:block;margin-top:4px">A conta fica salva neste aparelho. Não use a senha de outros sites.</small></div>
-          <label class="chk"><input type="checkbox" id="aceite" required> Concordo em receber avisos do MiHelp e com o uso dos meus dados para o pré-cadastro. <a href="#privacidade">Ler a política de privacidade</a>.</label>
+          <div class="f" id="pwf"><label for="pw">Senha</label><div class="pwrap"><input id="pw" type="password" maxlength="64" autocomplete="new-password" placeholder="Mínimo 6 caracteres"><button type="button" id="pwEye" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button></div><small class="note pwh" id="pwHint">Mínimo 6 caracteres. A conta fica salva neste aparelho. Não use a senha de outros sites.</small></div>
+          <label class="chk"><input type="checkbox" id="aceite" required><span>Concordo em receber avisos do MiHelp e com o uso dos meus dados para o pré-cadastro. <a href="#privacidade">Ler a política de privacidade</a>.</span></label>
           <p class="note" id="ferr" role="alert" style="color:var(--red);display:none;margin:0 0 10px"></p>
           <button class="go" type="submit" id="btnCad">Garantir meu lugar</button>
-          <p class="note">Cadastro gratuito. Marque o aceite acima para entrar. <a class="wa" href="#" target="_blank" rel="noopener">Convidar amigos pelo WhatsApp</a></p>
+          <p class="note"><span id="cadNota">Cadastro gratuito. Marque o aceite acima para entrar. </span><a class="wa" href="#" target="_blank" rel="noopener">Convidar amigos pelo WhatsApp</a></p>
           <p class="note previa"><b>Protótipo:</b> por enquanto seus dados não são guardados em lugar nenhum e só você vê o seu cadastro.</p>
         </form>
       </div>
@@ -2052,18 +2072,18 @@ const sair=mk('button','admexit','Sair do ADM');sair.type='button';sair.onclick=
 bar.append(chip,sair);document.body.append(bar);
 function chipUpd(){const n=abertas();chip.textContent='ADM'+(n?' · '+n:'')}
 let aba='ctl',aviso='',corpoEl=null;
-const ABAS=[['ctl','Controle'],['ads','Anúncios'],['pes','Pessoas'],['pix','Pix'],['oc','Ocorrências'],['site','Meta e cargos'],['eu','Meu acesso'],['cfg','Ajustes']];
+const ABAS=[['ctl','Controle'],['sup','Suporte'],['ads','Anúncios'],['pes','Pessoas'],['pix','Pix'],['oc','Ocorrências'],['site','Meta e cargos'],['eu','Meu acesso'],['cfg','Ajustes']];
 function say(t){aviso=t;desenhar()}
 function abrirPainel(){if(!logado())return abrirLogin();desenhar();if(!dlg.open)dlg.showModal()}
 function desenhar(){
   dlg.textContent='';
-  const h=mk('div','ahead');h.append(mk('h3',0,'Painel ADM'));const gx=mk('div','aact');const sx=mk('button','cx','Sair do ADM');sx.type='button';sx.onclick=sairAdm;const x=mk('button','cx','Fechar');x.type='button';x.onclick=()=>dlg.close();gx.append(sx,x);h.append(gx);
+  const h=mk('div','ahead');h.append(mk('h3',0,'Painel ADM · v6'));const gx=mk('div','aact');const sx=mk('button','cx','Sair do ADM');sx.type='button';sx.onclick=sairAdm;const x=mk('button','cx','Fechar');x.type='button';x.onclick=()=>dlg.close();gx.append(sx,x);h.append(gx);
   dlg.append(h);
   const tb=mk('div','atabs');tb.setAttribute('role','tablist');
   ABAS.forEach(([k,t])=>{const n=k==='oc'?abertas():0;const bt=mk('button',k===aba?'on':'',t+(n?' ('+n+')':''));bt.type='button';bt.setAttribute('role','tab');bt.setAttribute('aria-selected',String(k===aba));bt.onclick=()=>{aba=k;aviso='';desenhar()};tb.append(bt)});
   corpoEl=mk('div','abody');dlg.append(tb,corpoEl);
   if(aviso){const a=mk('p','aviso',aviso);a.setAttribute('role','status');corpoEl.append(a)}
-  ({ctl:tCtl,ads:tAds,pes:tPes,pix:tPix,oc:tOc,site:tSite,eu:tEu,cfg:tCfg})[aba](corpoEl);
+  ({ctl:tCtl,sup:tSup,ads:tAds,pes:tPes,pix:tPix,oc:tOc,site:tSite,eu:tEu,cfg:tCfg})[aba](corpoEl);
   dlg.scrollTop=0;chipUpd()}
 
 window.MH_chamadoAdm=(quem,motivo)=>{OC.unshift({id:Date.now(),quem,motivo,origem:'chamado',quando:Date.now(),status:'aberta',nota:''});salvarOC();chipUpd()};
@@ -2088,7 +2108,7 @@ function tCtl(b){
     const sure=ctlConf===k;const bt=mk('button',sure?'go':'cx',sure?'Toque de novo para confirmar':'Limpar');bt.type='button';
     bt.onclick=()=>{if(!sure){ctlConf=k;desenhar();return}run({a:'limpar',alvo:k},t+' limpo.')};
     row.append(inf,bt);b.append(row)});
-  b.append(mk('p','note','Limpar esconde das telas. As mensagens e pedidos continuam guardados no Wix. Para apagar de vez, apague no CMS.'));
+  b.append(mk('p','note','Limpar esconde das telas. As mensagens e pedidos continuam guardados no banco de dados. Para apagar de vez, apague no CMS.'));
   b.append(mk('h4',0,'Chave de admin'));
   const K=DB.chave;
   if(!K){b.append(mk('p','note','Esta parte do site não carregou. Atualize a página.'));return}
@@ -2107,6 +2127,21 @@ function tCtl(b){
   const bk=mk('button','cx','Copiar backup da chave');bk.type='button';bk.onclick=()=>{try{navigator.clipboard.writeText(K.exportar());say('Backup copiado.')}catch(e){say('Não consegui copiar.')}};b.append(bk);
   const im=mk('textarea');im.rows=3;im.placeholder='Cole aqui um backup para importar';im.setAttribute('aria-label','Backup da chave para importar');b.append(im);
   const ib=mk('button','cx','Importar backup');ib.type='button';ib.onclick=()=>{try{K.importar(im.value.trim());say('Chave importada.')}catch(e){say('Esse backup não é válido.')}};b.append(ib);
+}
+
+function tSup(b){
+  b.append(mk('h4',0,'Mensagens do suporte'));
+  const box=mk('div');b.append(box);
+  const loc=()=>{try{return JSON.parse(localStorage.getItem('mh_sup_local')||'[]')||[]}catch(e){return []}};
+  const lista=(arr,vazio)=>{if(!arr.length){box.append(mk('p','note',vazio));return}
+    arr.forEach(m=>{const r=mk('div','arow'),inf=mk('div','ainfo');
+      inf.append(mk('b',0,(m.tipo||'Mensagem')+(m.autor?' · '+m.autor:'')),mk('span',0,new Date(m.quando).toLocaleString('pt-BR')),mk('span',0,m.texto||''));
+      if(m.contato)inf.append(mk('span',0,'Contato: '+m.contato));r.append(inf);box.append(r)})};
+  const DB=window.MH_DB||{};
+  if(DB.ok&&DB.lerSuporte){box.append(mk('p','note','Buscando...'));
+    DB.lerSuporte().then(l=>{box.textContent='';lista(l,'Ninguém mandou mensagem ainda.')})
+     .catch(()=>{box.textContent='';box.append(mk('p','note','As mensagens de todo mundo ficam na coleção Suporte, no CMS, onde só você pode abrir. Abaixo estão as enviadas deste aparelho.'));lista(loc(),'Nada enviado deste aparelho.')})}
+  else{box.append(mk('p','note','Sem conexão com o banco agora. Abaixo estão as mensagens enviadas deste aparelho.'));lista(loc(),'Nada enviado deste aparelho.')}
 }
 function tSite(b){
   const M=(window.MH_metaAtual&&MH_metaAtual())||{alvo:5000,arrecadado:0,usos:[]};
@@ -2351,7 +2386,7 @@ if(logado()){document.body.classList.add('adm');bar.hidden=false;chipUpd()}
 (function(){
 const CFG=window.MH_CFG||{};
 const CDNS=[['https://esm.sh/@wix/sdk','https://esm.sh/@wix/data'],['https://esm.run/@wix/sdk','https://esm.run/@wix/data'],['https://cdn.jsdelivr.net/npm/@wix/sdk/+esm','https://cdn.jsdelivr.net/npm/@wix/data/+esm'],['https://cdn.skypack.dev/@wix/sdk','https://cdn.skypack.dev/@wix/data']];
-const COL={pre:'PreCadastros',perf:'Perfis',msg:'Mensagens',av:'Avaliacoes',ped:'Pedidos',ad:'Anuncios',ap:'Apoiadores',den:'Denuncias'};
+const COL={pre:'PreCadastros',perf:'Perfis',msg:'Mensagens',av:'Avaliacoes',ped:'Pedidos',ad:'Anuncios',ap:'Apoiadores',den:'Denuncias',sup:'Suporte'};
 const DIAG=/[?&]diag\b/.test(location.search);
 const DB=window.MH_DB={ok:false,meu:'',nomes:new Set(),
   tem(n){n=String(n||'').toLowerCase();return !!n&&n!==this.meu.toLowerCase()&&this.nomes.has(n)}};
@@ -2398,6 +2433,13 @@ DB.pedido=function(p){
  if(!DB.ok)return Promise.reject(new Error('sem banco'));
  return ins(COL.ped,Object.assign({status:'novo'},p))};
 
+DB.suporte=async function(r){
+ if(!DB.ok)throw new Error('sem banco');
+ await ins(COL.sup,{tipo:String(r.tipo||'').slice(0,30),texto:String(r.texto||'').slice(0,500),contato:String(r.contato||'').slice(0,80),autor:String(r.autor||'').slice(0,40),pagina:String(r.pagina||'').slice(0,80),aparelho:String(r.aparelho||'').slice(0,140)})};
+DB.lerSuporte=async function(){
+ if(!DB.ok)throw new Error('sem banco');
+ const r=await q(COL.sup).descending('_createdDate').limit(50).find();
+ return ((r&&r.items)||[]).map(x=>({quando:dt(x._createdDate).getTime(),tipo:x.tipo,texto:x.texto,contato:x.contato,autor:x.autor}))};
 DB.denuncia=async function(alvo){
  if(!DB.ok)return;
  const eu=window.MH_UI&&MH_UI.eu&&MH_UI.eu();
@@ -2534,11 +2576,18 @@ window.MH_conta={async criar(d,pw){
 {const kb=mk('label');kb.style.cssText='display:flex;gap:8px;align-items:center;margin-top:8px;cursor:pointer';const kc=mk('input');kc.type='checkbox';kc.id='mantem';kc.checked=localStorage.getItem('mh_keep')!=='0';kb.append(kc,document.createTextNode('Manter conectado neste aparelho'));$('pwf').append(kb)}
 let login=false;const f=$('f'),jt=$('jaTenho');
 const esconde=()=>[document.querySelector('#f .role'),$('trab'),$('t').closest('.f'),$('e').closest('.f'),document.querySelector('#f label.chk')];
-function modo(on){login=on;esconde().forEach(e=>{if(e)e.style.display=on?'none':''});if(on)$('trab').hidden=true;else if(typeof 0==='number'){const h=document.querySelector('input[name=r]:checked');$('trab').hidden=!(h&&h.value==='Helper')}
+function modo(on){login=on;esconde().forEach(e=>{if(e){if(on)e.style.setProperty('display','none','important');else e.style.removeProperty('display')}});if(on)$('trab').hidden=true;else if(typeof 0==='number'){const h=document.querySelector('input[name=r]:checked');$('trab').hidden=!(h&&h.value==='Helper')}
   $('pw').autocomplete=on?'current-password':'new-password';$('pwf').querySelector('small').style.display=on?'none':'block';
   $('btnCad').textContent=on?'Entrar':'Garantir meu lugar';jt.textContent=on?'Quero criar uma conta':'Já tenho conta: entrar';
-  const er=$('ferr');if(er){er.style.display='none'}}
+  const er=$('ferr');if(er){er.style.display='none'}try{marca()}catch(x){}}
 jt.addEventListener('click',e=>{e.preventDefault();modo(!login)});
+const sgC=$('segCriar'),sgE=$('segEntrar'),pwH=$('pwHint'),pwE=$('pwEye'),HT='Mínimo 6 caracteres. A conta fica salva neste aparelho. Não use a senha de outros sites.';
+function marca(){sgC.setAttribute('aria-pressed',String(!login));sgE.setAttribute('aria-pressed',String(login));
+ $('pwf').querySelector('label').textContent='Senha';pwH.style.display='block';pwH.classList.remove('ok');
+ pwH.textContent=login?'A conta só abre no aparelho onde foi criada.':HT;{const cn=$('cadNota');if(cn)cn.style.display=login?'none':''}$('pw').placeholder=login?'Sua senha':'Mínimo 6 caracteres'}
+sgC.onclick=()=>{if(login)modo(false)};sgE.onclick=()=>{if(!login)modo(true)};
+pwE.onclick=()=>{const v=$('pw').type==='password';$('pw').type=v?'text':'password';pwE.textContent=v?'Ocultar':'Mostrar';pwE.setAttribute('aria-pressed',String(v));pwE.setAttribute('aria-label',v?'Ocultar senha':'Mostrar senha')};
+$('pw').addEventListener('input',()=>{if(login)return;const n=$('pw').value.length;pwH.classList.toggle('ok',n>=6);pwH.textContent=n>=6?'Senha boa. Anote para não esquecer.':HT});
 const erro=m=>{const er=$('ferr');if(er){er.style.display='block';er.textContent=m}};
 async function entrar(){
   if(!window.crypto||!crypto.subtle)return erro('Abra o site pelo endereço https para entrar.');
@@ -2605,6 +2654,43 @@ if(q){const b=mk('button','go','Chamar o administrador');b.type='button';b.style
     dl.append(fm);dl.showModal()}}
 })();
 }catch(e){console.error('MiHelp (conta, guilda, chamado):',e)}
+</script>
+<script>
+try{(function(){
+const $=id=>document.getElementById(id);
+const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const btn=$('navSup');if(!btn)return;
+const d=document.createElement('dialog');d.id='supDlg';d.setAttribute('aria-label','Falar com o suporte');document.body.append(d);
+const lerLoc=()=>{try{return JSON.parse(localStorage.getItem('mh_sup_local')||'[]')||[]}catch(e){return []}};
+function abrir(){
+  d.textContent='';
+  const f=mk('form');
+  f.append(mk('h3',0,'Falar com o suporte'),mk('p','note','Conte o erro, a dúvida ou a sugestão. Quanto mais detalhe, mais rápido a gente resolve. Não envie senha.'));
+  const fld=(l,el,id)=>{const w=mk('div','f');el.id=id;const lb=mk('label',0,l);lb.htmlFor=id;w.append(lb,el);return w};
+  const tipo=mk('select');['Erro no site','Dúvida','Sugestão','Reclamação'].forEach(x=>tipo.append(new Option(x,x)));
+  const tx=mk('textarea');tx.rows=5;tx.maxLength=500;tx.required=true;tx.placeholder='O que aconteceu? Em que parte do site?';
+  const ct=mk('input');ct.type='text';ct.maxLength=80;ct.placeholder='E-mail ou telefone (opcional, só o suporte vê)';
+  const cnt=mk('small','note','0/500');tx.addEventListener('input',()=>{cnt.textContent=tx.value.length+'/500'});
+  const st=mk('p','note','');st.setAttribute('role','status');
+  const bar=mk('div','dbt');const ok=mk('button','go','Enviar');ok.type='submit';const cx=mk('button','cx','Fechar');cx.type='button';cx.onclick=()=>d.close();bar.append(ok,cx);
+  f.append(fld('Assunto',tipo,'supTipo'),fld('Mensagem',tx,'supTexto'),cnt,fld('Contato',ct,'supContato'),st,bar);
+  f.addEventListener('submit',async e=>{e.preventDefault();
+    const agora=Date.now(),ult=Number(sessionStorage.getItem('mh_sup_t')||0);
+    if(agora-ult<20000){st.textContent='Espere alguns segundos para mandar outra mensagem.';return}
+    const eu=window.MH_UI&&MH_UI.eu&&MH_UI.eu();
+    const rec={tipo:tipo.value,texto:tx.value.trim(),contato:ct.value.trim(),autor:eu?eu.nome:'',pagina:location.pathname+location.hash,aparelho:navigator.userAgent.slice(0,140)};
+    if(!rec.texto){st.textContent='Escreva a mensagem.';return}
+    ok.disabled=true;st.textContent='Enviando...';
+    const loc=lerLoc();loc.unshift(Object.assign({quando:agora},rec));try{localStorage.setItem('mh_sup_local',JSON.stringify(loc.slice(0,30)));sessionStorage.setItem('mh_sup_t',String(agora))}catch(x){}
+    try{
+      if(window.MH_DB&&MH_DB.ok){await MH_DB.suporte(rec);st.textContent='Enviado. Obrigado! O suporte vai ler a sua mensagem.'}
+      else st.textContent='Sem conexão com o banco agora. Sua mensagem ficou guardada só neste aparelho.';
+      tx.value='';cnt.textContent='0/500'}
+    catch(x){st.textContent='Não consegui enviar. Tente de novo em instantes.'}
+    ok.disabled=false});
+  d.append(f);d.showModal();tx.focus()}
+btn.addEventListener('click',abrir);
+})()}catch(e){console.error('MiHelp (suporte):',e)}
 </script>
 </body>
 </html>
