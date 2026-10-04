@@ -1458,6 +1458,7 @@ function mostrarErroCad(msg){
   else alert(msg);
 }
 function liberarChatForcado(){
+  try{atualizarSosCount()}catch(e){}
   ['m','nudge','sbtn'].forEach(id=>{
     const el=$(id);
     if(el){ el.disabled=false; el.removeAttribute('disabled'); }
@@ -1584,8 +1585,11 @@ function comando(v,pane){
   else nota(pane,'*** comando não existe. Digite /help ***');
 }
 $('sf').addEventListener('submit',e=>{e.preventDefault();const v=$('m').value.trim();if(!v||!eu)return;const pane=painel[ativa],c=ativa;if(v[0]==='/'){$('m').value='';comando(v,pane);return}const rr=respA;linha(pane,eu,v,rr);try{if(window.MH_DB&&MH_DB.ok&&!(c!=='sala'&&!c.startsWith('r:')&&por(c)))MH_DB.enviar(c,eu,v,rr)}catch(x){}respA=null;mostrarResp();if(c!=='sala')aoFalarPrivado(c);$('m').value='';if(c==='sala'){if(rr&&por(rr.nome))respBot(rr.nome,v);else responder(v)}else respPriv(pane,c,v)});
-let urgenciasHoje=(function(){try{const o=JSON.parse(localStorage.getItem('mh_sos')||'null'),h=new Date().toDateString();return o&&o.d===h?o.n:0}catch(e){return 0}})(); const MAX_URG=3; let catUrg='Elétrica';
+let urgenciasHoje=0; const MAX_URG=3;
+function lerSos(){try{const o=JSON.parse(localStorage.getItem('mh_sos2')||'null'),h=new Date().toDateString();return(o&&o.d===h&&eu&&o.u[eu.nome.toLowerCase()])||0}catch(e){return 0}}
+function gravarSos(){try{if(!eu)return;const h=new Date().toDateString();let o=JSON.parse(localStorage.getItem('mh_sos2')||'null');if(!o||o.d!==h)o={d:h,u:{}};o.u[eu.nome.toLowerCase()]=urgenciasHoje;localStorage.setItem('mh_sos2',JSON.stringify(o))}catch(x){}} let catUrg='Elétrica';
 function atualizarSosCount(){
+  urgenciasHoje=lerSos();
   const el=$('sosCount'); if(!el)return;
   el.textContent=urgenciasHoje+'/'+MAX_URG;
   const bt=$('nudge'); if(bt) bt.setAttribute('aria-label','SOS, chamados urgentes usados hoje: '+urgenciasHoje+' de '+MAX_URG);
@@ -1598,7 +1602,7 @@ document.querySelectorAll('#catRow button').forEach(b=>b.addEventListener('click
 $('nudge').addEventListener('click',()=>{
   if(!eu||!(ativa==='sala'||ativa.startsWith('r:')))return;
   if(urgenciasHoje>=MAX_URG){nota(painel.sala,'*** limite de 3 urgências por dia atingido — use o chat normal ***');return;}
-  urgenciasHoje++; atualizarSosCount();try{localStorage.setItem('mh_sos',JSON.stringify({d:new Date().toDateString(),n:urgenciasHoje}))}catch(x){}
+  urgenciasHoje++; gravarSos(); atualizarSosCount();
   try{if(window.MH_DB&&MH_DB.ok)MH_DB.enviar('sala',eu,'SOS '+catUrg,null,{tipo:'sos',categoria:catUrg})}catch(x){}
   const w=$('cw');w.classList.remove('shake');void w.offsetWidth;w.classList.add('shake');
   // mensagem: quem é da categoria "vê" alerta (simulado no texto)
