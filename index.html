@@ -829,6 +829,39 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 #supDlg .f{margin-bottom:12px}
 #supDlg .dbt{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 
+
+/* ===== ADM: pegada terminal de filme (isolado: só #admDlg, login e barra do ADM) ===== */
+#admDlg,dialog[aria-label="Entrar no painel"]{background:repeating-linear-gradient(0deg,rgba(232,185,60,.045) 0 1px,transparent 1px 3px),#0A0906;border:1px solid var(--gold);border-radius:0;box-shadow:0 0 0 1px #000,0 0 30px rgba(232,185,60,.2),inset 0 0 70px rgba(232,185,60,.05);scrollbar-color:var(--gold) #0A0906}
+#admDlg::backdrop,dialog[aria-label="Entrar no painel"]::backdrop{background:rgba(0,0,0,.9)}
+#admDlg,#admDlg *,dialog[aria-label="Entrar no painel"] *,.admchip,.admexit{border-radius:0!important;font-family:var(--mono)!important}
+#admDlg ::selection{background:var(--gold);color:#201804}
+#admDlg h3,dialog[aria-label="Entrar no painel"] h3{font-size:17px;text-transform:uppercase;letter-spacing:.1em;color:var(--gold2);text-shadow:0 0 9px rgba(232,185,60,.5)}
+#admDlg h3::before,dialog[aria-label="Entrar no painel"] h3::before{content:"> ";color:var(--gold)}
+#admDlg h3::after,dialog[aria-label="Entrar no painel"] h3::after{content:"\2588";margin-left:6px;color:var(--gold);animation:admBlink 1s steps(2) infinite}
+@keyframes admBlink{50%{opacity:0}}
+#admDlg h4{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--gold2);margin:20px 0 8px;padding-bottom:5px;border-bottom:1px dashed var(--line)}
+#admDlg h4::before{content:"# ";color:var(--gold)}
+#admDlg .atabs{gap:4px;border-bottom:1px solid var(--gold)}
+#admDlg .atabs button{background:transparent;text-transform:uppercase;font-size:11.5px;letter-spacing:.06em;padding:7px 9px}
+#admDlg .atabs button::before{content:"[";color:var(--faint)}#admDlg .atabs button::after{content:"]";color:var(--faint)}
+#admDlg .atabs button.on{background:var(--gold);color:#201804;box-shadow:0 0 12px rgba(232,185,60,.45)}
+#admDlg .atabs button.on::before,#admDlg .atabs button.on::after{color:#201804}
+#admDlg .cx,#admDlg .cp,#admDlg .go,.admexit,.admchip{text-transform:uppercase;letter-spacing:.05em;font-size:12px;font-weight:700}
+#admDlg .go,.admchip{box-shadow:0 0 10px rgba(232,185,60,.35)}
+#admDlg .cx:hover,#admDlg .cp:hover,.admexit:hover{border-color:var(--gold);color:var(--gold2);box-shadow:0 0 8px rgba(232,185,60,.3)}
+#admDlg input,#admDlg select,#admDlg textarea,dialog[aria-label="Entrar no painel"] input{background:#050403;border-color:var(--line);color:var(--gold2);caret-color:var(--gold)}
+#admDlg input:focus,#admDlg select:focus,#admDlg textarea:focus,dialog[aria-label="Entrar no painel"] input:focus{outline:1px solid var(--gold);box-shadow:0 0 10px rgba(232,185,60,.35)}
+#admDlg .arow{border-bottom:1px dashed var(--line)}#admDlg .arow:hover{background:rgba(232,185,60,.05)}
+#admDlg .arow .ainfo b::before{content:"> ";color:var(--gold)}
+#admDlg .aviso{background:rgba(110,200,170,.08);border-left:2px solid #6EC8AA;color:#6EC8AA}
+#admDlg .aviso::before{content:"[ok] "}
+#admDlg .admbox{border-top:1px dashed var(--gold)}
+.trm{background:#050403;border:1px solid var(--line);padding:12px;font:13px/1.65 var(--mono);color:var(--gold2);min-height:190px;max-height:44vh;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.trm .ok{color:#6EC8AA}.trm .er{color:var(--red)}.trm .mu{color:var(--mute)}
+.trmin{display:flex;align-items:center;gap:8px;background:#050403;border:1px solid var(--line);border-top:0;padding:9px 12px}
+.trmin b{color:var(--gold);font-size:13px;white-space:nowrap}
+#admDlg .trmin input{flex:1;min-width:0;width:auto;margin:0;padding:0;border:0;background:transparent;color:var(--text);font-size:14px;box-shadow:none;outline:none}
+@media(prefers-reduced-motion:reduce){#admDlg h3::after,dialog[aria-label="Entrar no painel"] h3::after{animation:none}}
 </style>
 <script>
 /* ===== LIGAÇÃO COM O WIX ===== 
@@ -2283,7 +2316,8 @@ const sair=mk('button','admexit','Sair do ADM');sair.type='button';sair.onclick=
 bar.append(chip,sair);document.body.append(bar);
 function chipUpd(){const n=abertas();chip.textContent='ADM'+(n?' · '+n:'')}
 let aba='ctl',aviso='',corpoEl=null;
-const ABAS=[['ctl','Controle'],['sup','Suporte'],['ads','Anúncios'],['pes','Pessoas'],['pix','Pix'],['oc','Ocorrências'],['site','Meta e cargos'],['eu','Meu acesso'],['cfg','Ajustes']];
+const ADM_T0=Date.now();
+const ABAS=[['ctl','Controle'],['sts','Status'],['sup','Suporte'],['ads','Anúncios'],['pes','Pessoas'],['pix','Pix'],['oc','Ocorrências'],['site','Meta e cargos'],['eu','Meu acesso'],['cfg','Ajustes']];
 function say(t){aviso=t;desenhar()}
 function abrirPainel(){if(!logado())return abrirLogin();desenhar();if(!dlg.open)dlg.showModal()}
 function desenhar(){
@@ -2294,13 +2328,36 @@ function desenhar(){
   ABAS.forEach(([k,t])=>{const n=k==='oc'?abertas():0;const bt=mk('button',k===aba?'on':'',t+(n?' ('+n+')':''));bt.type='button';bt.setAttribute('role','tab');bt.setAttribute('aria-selected',String(k===aba));bt.onclick=()=>{aba=k;aviso='';desenhar()};tb.append(bt)});
   corpoEl=mk('div','abody');dlg.append(tb,corpoEl);
   if(aviso){const a=mk('p','aviso',aviso);a.setAttribute('role','status');corpoEl.append(a)}
-  ({ctl:tCtl,sup:tSup,ads:tAds,pes:tPes,pix:tPix,oc:tOc,site:tSite,eu:tEu,cfg:tCfg})[aba](corpoEl);
+  ({sts:tSts,ctl:tCtl,sup:tSup,ads:tAds,pes:tPes,pix:tPix,oc:tOc,site:tSite,eu:tEu,cfg:tCfg})[aba](corpoEl);
   dlg.scrollTop=0;chipUpd()}
 
 window.MH_chamadoAdm=(quem,motivo)=>{OC.unshift({id:Date.now(),quem,motivo,origem:'chamado',quando:Date.now(),status:'aberta',nota:''});salvarOC();chipUpd()};
 {const c=store.get('cargos',{});UI.pessoas().forEach(p=>{if(c[p.nome]&&p.role==='helper')p.work=c[p.nome]})}
 
 let ctlConf='';
+function tSts(b){
+  const out=mk('div','trm');out.setAttribute('role','log');out.setAttribute('aria-live','polite');
+  const linha=(x,c)=>{out.append(mk('div',c||'',x));out.scrollTop=out.scrollHeight};
+  const pad=n=>String(n).padStart(2,'0'),dots=(k,v)=>k+' '+'.'.repeat(Math.max(2,16-k.length))+' '+v;
+  const hora=()=>{const d=new Date();return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())};
+  const sessao=()=>{const s=Math.floor((Date.now()-ADM_T0)/1000);return pad(Math.floor(s/60))+':'+pad(s%60)};
+  const on=!!(window.MH_DB&&MH_DB.ok);
+  const status=()=>{linha(dots('BANCO',on?'ONLINE (compartilhado)':'LOCAL (so neste aparelho)'),on?'ok':'er');
+    linha(dots('OCORRENCIAS',abertas()+' abertas'));
+    try{linha(dots('PESSOAS',UI.pessoas().length+' na lista'))}catch(e){}
+    linha(dots('TELA',innerWidth+'x'+innerHeight));linha(dots('SESSAO',sessao()));linha(dots('HORA',hora()))};
+  const IR={ctl:'ctl',controle:'ctl',sts:'sts',status:'sts',sup:'sup',suporte:'sup',ads:'ads',anuncios:'ads',pes:'pes',pessoas:'pes',pix:'pix',oc:'oc',ocorrencias:'oc',site:'site',eu:'eu',cfg:'cfg',ajustes:'cfg'};
+  const cmd=v=>{const c=v.trim().toLowerCase();if(!c)return;linha('> '+v.trim(),'mu');
+    if(c==='ajuda'||c==='help')linha('comandos: status | hora | limpar | ir <aba> (ctl sts sup ads pes pix oc site eu cfg) | sair','mu');
+    else if(c==='status')status();else if(c==='hora')linha(hora());
+    else if(c==='limpar'||c==='clear')out.textContent='';
+    else if(c==='sair'||c==='exit')sairAdm();
+    else if(c.startsWith('ir ')&&IR[c.slice(3).trim()]){aba=IR[c.slice(3).trim()];aviso='';desenhar()}
+    else linha('comando nao reconhecido: '+c+' (digite ajuda)','er')};
+  const f=mk('form','trmin');f.append(mk('b',0,'adm@mihelp:~$'));
+  const i=document.createElement('input');i.type='text';i.autocomplete='off';i.spellcheck=false;i.setAttribute('aria-label','Comando do terminal');f.append(i);
+  f.addEventListener('submit',e=>{e.preventDefault();cmd(i.value);i.value=''});
+  b.append(out,f);linha('MiHelp ADM v6 | digite "ajuda" para ver os comandos','mu');status()}
 function tCtl(b){
   const DB=window.MH_DB||{},pronto=!!(DB.ctlPronto&&DB.ctlPronto());
   b.append(mk('h4',0,'Controle rápido'));
