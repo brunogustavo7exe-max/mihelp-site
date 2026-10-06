@@ -924,7 +924,7 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
    bots: false = só pessoas de verdade                                                */
 window.MH_CFG={clientId:'a633f724-c9b4-4ba8-a3f0-ef20c3c17279',bots:false};
 window.MH_DISCORD='https://discord.gg/eEe4nw7ss';
-window.MH_FLOOR=(function(){try{return JSON.parse(localStorage.getItem('mh_floor')||'{}')||{}}catch(e){return {}}})();
+window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){localStorage.setItem('mh_floor_v','2');localStorage.removeItem('mh_floor');localStorage.removeItem('mh_botsT');return {}}return JSON.parse(localStorage.getItem('mh_floor')||'{}')||{}}catch(e){return {}}})();
 </script>
 </head>
 <body>
@@ -2813,26 +2813,29 @@ function aplicar(c,quando){const F=window.MH_FLOOR||(window.MH_FLOOR={}),FX=wind
  if(c.a==='limpar'){const T=['sala','salas','guilda','outdoor'],al=c.alvo==='tudo'?T:[c.alvo];
   al.forEach(a=>{if(T.indexOf(a)<0)return;if(quando>(F[a]||0)){F[a]=quando;if(FX.limpar)FX.limpar(a,quando)}});salvarFloor()}}
 DB.ctl=async function(cmd){
- const t=Date.now();aplicar(cmd,t);
- if(!DB.ctlPronto())return 'local';
+ const t=Date.now();
+ if(!DB.ctlPronto()){aplicar(cmd,t);return 'local'}
  try{const payload=JSON.stringify(Object.assign({n:rid('')},cmd,{t})),sig=await assinar(payload),id=rid('c');seen.add(id);
-  await ins(COL.msg,{_id:id,sala:'sala',autor:'ADM',papel:'cliente',oficio:'',texto:payload,categoria:sig,tipo:'ctl'});return 'todos'}
- catch(e){diag('controle: '+msgErro(e),true);return 'erro'}};
+  const r=await ins(COL.msg,{_id:id,sala:'sala',autor:'ADM',papel:'cliente',oficio:'',texto:payload,categoria:sig,tipo:'ctl'});
+  /* usa a hora do SERVIDOR (não a do relógio deste aparelho), senão o relógio errado esconde mensagens dos outros */
+  let ts=t;try{if(r&&r._createdDate){const z=dt(r._createdDate).getTime();if(z>0)ts=z}}catch(e){}
+  aplicar(cmd,ts);return 'todos'}
+ catch(e){aplicar(cmd,t);diag('controle: '+msgErro(e),true);return 'erro'}};
 async function tratarCtl(x){if(!(await verificar(x.texto,x.categoria)))return;let c;try{c=JSON.parse(x.texto)}catch(e){return}aplicar(c,dt(x._createdDate).getTime())}
 async function lerCtl(){try{const r=await q(COL.msg).eq('tipo','ctl').descending('_createdDate').limit(40).find();const it=((r&&r.items)||[]).slice().reverse();
  for(const x of it){if(seen.has(x._id))continue;seen.add(x._id);await tratarCtl(x)}}catch(e){diag('controle: '+msgErro(e),true)}}
 
 async function poll(){
  let b=q(COL.msg);
- b=ultimo?b.ge('_createdDate',ultimo).ascending('_createdDate').limit(100):b.descending('_createdDate').limit(60);
- const r=await b.find();let it=(r&&r.items)||[];if(!ultimo)it=it.slice().reverse();
+ b=ultimo?b.ge('_createdDate',new Date(ultimo.getTime()-60000)).ascending('_createdDate').limit(100):b.descending('_createdDate').limit(60);
+ const r=await b.find();let it=(r&&r.items)||[];if(!ultimo)it=it.slice().reverse();let nov=0;
  for(const x of it){const d=dt(x._createdDate);if(!ultimo||d>ultimo)ultimo=d;
-  if(seen.has(x._id))continue;seen.add(x._id);
+  if(seen.has(x._id))continue;seen.add(x._id);nov++;
   const ms=d.getTime();
   if(x.tipo==='ctl'){await tratarCtl(x);continue}
   if(x.tipo==='sos'&&Date.now()-ms>600000)continue;
   if(window.MH_RX)MH_RX.msg(Object.assign({},x,{_quando:ms}))}
- if(window.MH_RX)MH_RX.fim();return it.length}
+ if(window.MH_RX)MH_RX.fim();return nov>=100?100:0}
 async function ciclo(){
  try{let n;do{n=await poll()}while(n>=100);falhas=0;avisou=false}
  catch(e){falhas++;diag('leitura das mensagens: '+msgErro(e),true);
