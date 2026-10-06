@@ -1988,6 +1988,11 @@ function sosNome(p,cat,nome){p.append(document.createTextNode(' SOS '+cat+' — 
 function sosLinha(pane,nome,cat){const p=document.createElement('p');p.className='urg';const al=document.createElement('span');al.className='al';al.textContent='⚠';p.append(al);sosNome(p,cat,nome);pane.append(p);while(pane.children.length>80)pane.firstChild.remove();rolar(pane)}
 let rxMuda=false;
 const bipe=n=>{try{window.MH_SOM&&MH_SOM.tocar(n,800)}catch(e){}};
+const norm=t=>String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const SOS_RX={'encanador':/encan|hidraul/,'gas de cozinha':/\bgas\b|botij/,'eletrica':/eletric/,'chaveiro':/chave/,'borracheiro':/borrach|pneu/};
+/* só recebe o alerta quem é Helper da categoria (ou ADM) */
+function sosParaMim(cat){if(!eu)return false;if(eu.adm)return true;if(eu.role!=='helper')return false;
+ const rx=SOS_RX[norm(cat)];return !!rx&&rx.test(norm(eu.work))}
 const TIT0=document.title;let tflash=0;
 function alertaSos(cat){
  try{navigator.vibrate&&navigator.vibrate([300,150,300,150,300])}catch(e){}
@@ -2016,7 +2021,8 @@ window.MH_RX={
    return}
   let key=sala;if(key!=='sala'){if(!SALAS.some(x=>x[0]===key))return;abrirSala(key)}
   const pane=painel[key];if(!pane)return;
-  if(m.tipo==='sos'){if(!sou){sosLinha(pane,m.autor,m.categoria||'');if(m._aoVivo||Date.now()-q<10000){bipe('sos');alertaSos(m.categoria||'')}}return}
+  if(m.tipo==='sos'){if(!sou){if(sosParaMim(m.categoria)){sosLinha(pane,m.autor,m.categoria||'');if(m._aoVivo||Date.now()-q<10000){bipe('sos');alertaSos(m.categoria||'')}}
+   else linha(pane,p,'preciso de '+String(m.categoria||'ajuda').toLowerCase(),null,q)}return}
   if(sou&&m._local)return;
   linha(pane,p,m.texto,resp,q);if(!sou&&Date.now()-q<10000)bipe('msg')},
  fim(){if(rxMuda){rxMuda=false;try{desenharOnline()}catch(x){}}},
