@@ -1988,6 +1988,11 @@ function sosNome(p,cat,nome){p.append(document.createTextNode(' SOS '+cat+' — 
 function sosLinha(pane,nome,cat){const p=document.createElement('p');p.className='urg';const al=document.createElement('span');al.className='al';al.textContent='⚠';p.append(al);sosNome(p,cat,nome);pane.append(p);while(pane.children.length>80)pane.firstChild.remove();rolar(pane)}
 let rxMuda=false;
 const bipe=n=>{try{window.MH_SOM&&MH_SOM.tocar(n,800)}catch(e){}};
+const TIT0=document.title;let tflash=0;
+function alertaSos(cat){
+ try{navigator.vibrate&&navigator.vibrate([300,150,300,150,300])}catch(e){}
+ clearInterval(tflash);let n=0;
+ tflash=setInterval(()=>{document.title=(n++%2)?TIT0:'⚠ SOS '+cat;if(n>24||(!document.hidden&&n>8)){clearInterval(tflash);document.title=TIT0}},800)}
 function realDe(nome,papel,oficio,quando,adm){if(!nome||por(nome))return null;let p=REAIS[nome];
 if(!p)p=REAIS[nome]={nome,role:papel==='helper'?'helper':'cliente',work:oficio||'',real:true,adm:!!adm};
 else{p.role=papel==='helper'?'helper':'cliente';if(oficio)p.work=oficio;p.adm=!!adm}
@@ -2011,7 +2016,7 @@ window.MH_RX={
    return}
   let key=sala;if(key!=='sala'){if(!SALAS.some(x=>x[0]===key))return;abrirSala(key)}
   const pane=painel[key];if(!pane)return;
-  if(m.tipo==='sos'){if(!sou){sosLinha(pane,m.autor,m.categoria||'');if(m._aoVivo||Date.now()-q<10000)bipe('sos')}return}
+  if(m.tipo==='sos'){if(!sou){sosLinha(pane,m.autor,m.categoria||'');if(m._aoVivo||Date.now()-q<10000){bipe('sos');alertaSos(m.categoria||'')}}return}
   if(sou&&m._local)return;
   linha(pane,p,m.texto,resp,q);if(!sou&&Date.now()-q<10000)bipe('msg')},
  fim(){if(rxMuda){rxMuda=false;try{desenharOnline()}catch(x){}}},
@@ -3155,12 +3160,15 @@ const SONS={
   tiro:()=>nota(1200,0,.09,'square',.06,300),
   boom:()=>nota(170,0,.3,'sawtooth',.16,40),
   over:()=>{nota(440,0,.2,'triangle',.2,330);nota(330,.2,.2,'triangle',.2,220);nota(220,.4,.4,'triangle',.2,110)},
-  sos:()=>{for(let i=0;i<3;i++){nota(980,i*.2,.12,'square',.11);nota(740,i*.2+.1,.08,'square',.11)}}};
+  sos:()=>{for(let i=0;i<5;i++){nota(980,i*.3,.14,'square',.3);nota(740,i*.3+.15,.14,'square',.3)}}};
 const ult={};
 function som(n,gap){
   if(!on||!SONS[n])return;
   const a=Date.now();if(a-(ult[n]||0)<(gap||60))return;
-  if(!pronto())return;
+  if(!pronto()){
+    /* celular: o áudio pode estar suspenso (tela apagada, aba em segundo plano). Acorda e toca assim que liberar. */
+    if(ctx&&ctx.state!=='running'){ctx.resume().then(()=>{if(ctx.state==='running'){ult[n]=Date.now();try{SONS[n]()}catch(e){}}}).catch(()=>{})}
+    return}
   ult[n]=a;try{SONS[n]()}catch(e){}}
 window.MH_SOM={tocar:som,ligado:()=>on,ctx:()=>{pronto();return ctx}};
 /* o navegador só libera áudio depois de um toque ou tecla */
