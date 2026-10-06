@@ -983,6 +983,11 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 #cw .tabrow .sos-wrap #nudge{flex-direction:row;gap:7px;min-height:30px;padding:4px 6px 4px 12px;border-radius:999px}
 #cw .tabrow .sos-wrap #nudge .sos-t{font-size:12px}
 #cw .tabrow .sos-wrap #nudge .sos-count{background:rgba(0,0,0,.28);border-radius:999px;padding:3px 7px;font-size:11px;line-height:1}
+
+/* lista de salas por cima do chat (no celular a faixa tinha rolagem e cortava o painel) */
+#cw .rooms{overflow:visible;position:relative;z-index:30;flex-wrap:nowrap}
+#cw .main{overflow:visible}
+#cw .rdd-m{z-index:50}
 </style>
 <script>
 /* ===== LIGAÇÃO COM O WIX ===== 
@@ -1627,7 +1632,7 @@ window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){loc
       <button type="button" class="cta2" data-apoio="patrocinio">Quero patrocinar</button>
     </div></div>
 </section>
-<footer>MiHelp — mais do que serviços, é solução. <small id="ver" style="opacity:.6">versão 2026-10-06 sala-pilula</small></footer>
+<footer>MiHelp — mais do que serviços, é solução. <small id="ver" style="opacity:.6">versão 2026-10-06 sala-pilula2</small></footer>
 </div>
 <aside class="side" aria-label="Publicidade"><div class="win"><div class="bar"><span class="t">publicidade</span><i></i><i></i><i></i></div><div class="vcol" id="vright"><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button></div></div></aside>
 </div>
