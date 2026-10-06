@@ -2011,7 +2011,7 @@ window.MH_RX={
    return}
   let key=sala;if(key!=='sala'){if(!SALAS.some(x=>x[0]===key))return;abrirSala(key)}
   const pane=painel[key];if(!pane)return;
-  if(m.tipo==='sos'){if(!sou){sosLinha(pane,m.autor,m.categoria||'');if(Date.now()-q<10000)bipe('sos')}return}
+  if(m.tipo==='sos'){if(!sou){sosLinha(pane,m.autor,m.categoria||'');if(m._aoVivo||Date.now()-q<10000)bipe('sos')}return}
   if(sou&&m._local)return;
   linha(pane,p,m.texto,resp,q);if(!sou&&Date.now()-q<10000)bipe('msg')},
  fim(){if(rxMuda){rxMuda=false;try{desenharOnline()}catch(x){}}},
@@ -2828,13 +2828,13 @@ async function lerCtl(){try{const r=await q(COL.msg).eq('tipo','ctl').descending
 async function poll(){
  let b=q(COL.msg);
  b=ultimo?b.ge('_createdDate',new Date(ultimo.getTime()-60000)).ascending('_createdDate').limit(100):b.descending('_createdDate').limit(60);
- const r=await b.find();let it=(r&&r.items)||[];if(!ultimo)it=it.slice().reverse();let nov=0;
+ const r=await b.find();let it=(r&&r.items)||[];if(!ultimo)it=it.slice().reverse();let nov=0;const inicial=!ultimo;let ref=0;it.forEach(x=>{const z=dt(x._createdDate).getTime();if(z>ref)ref=z});
  for(const x of it){const d=dt(x._createdDate);if(!ultimo||d>ultimo)ultimo=d;
   if(seen.has(x._id))continue;seen.add(x._id);nov++;
   const ms=d.getTime();
   if(x.tipo==='ctl'){await tratarCtl(x);continue}
-  if(x.tipo==='sos'&&Date.now()-ms>600000)continue;
-  if(window.MH_RX)MH_RX.msg(Object.assign({},x,{_quando:ms}))}
+  if(x.tipo==='sos'&&inicial&&ref-ms>600000)continue;
+  if(window.MH_RX)MH_RX.msg(Object.assign({},x,{_quando:ms,_aoVivo:!inicial}))}
  if(window.MH_RX)MH_RX.fim();return nov>=100?100:0}
 async function ciclo(){
  try{let n;do{n=await poll()}while(n>=100);falhas=0;avisou=false}
