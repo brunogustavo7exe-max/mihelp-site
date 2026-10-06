@@ -988,6 +988,10 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 #cw .rooms{overflow:visible;position:relative;z-index:30;flex-wrap:nowrap}
 #cw .main{overflow:visible}
 #cw .rdd-m{z-index:50}
+
+/* Pix automático: esconde o passo a passo manual (Discord, e-mail, resumo) */
+#dpix.pix-auto #dpkn,#dpix.pix-auto #dcopk,#dpix.pix-auto h4,#dpix.pix-auto .pixs,#dpix.pix-auto label[for=dpr],#dpix.pix-auto #dpr,#dpix.pix-auto #dcopr,#dpix.pix-auto #dpd,#dpix.pix-auto #dpm{display:none}
+#dps{font-weight:700;color:var(--gold2)}
 </style>
 <script>
 /* ===== LIGAÇÃO COM O WIX ===== 
@@ -995,7 +999,23 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
    Deixe vazio ('') para o site rodar só em modo demonstração, sem salvar nada.
    bots: true  = mantém os bonecos de demonstração na sala (com a etiqueta "bot")
    bots: false = só pessoas de verdade                                                */
-window.MH_CFG={clientId:'a633f724-c9b4-4ba8-a3f0-ef20c3c17279',bots:false};
+/* api: endereço do worker (Cloudflare), ex.: 'https://mihelp-api.SEUNOME.workers.dev'. Vazio = o site funciona como antes
+   (contas só no aparelho, painel por PIN, Pix manual). Preenchido = contas em qualquer aparelho, painel por senha,
+   limpar/apagar para todos e Pix automático. */
+window.MH_CFG={clientId:'a633f724-c9b4-4ba8-a3f0-ef20c3c17279',bots:false,api:'https://mihelp-api.mihelpmarketing.workers.dev'};
+window.MH_API=(function(){
+ const base=String((window.MH_CFG||{}).api||'').replace(/\/+$/,'');
+ const ls=(f)=>{try{return f()}catch(e){return ''}};
+ async function req(path,o){o=o||{};const hd={'content-type':'application/json'};if(o.token)hd.authorization='Bearer '+o.token;
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),o.ms||12000);
+  try{const r=await fetch(base+path,{method:o.method||(o.body?'POST':'GET'),headers:hd,body:o.body?JSON.stringify(o.body):undefined,signal:ctl.signal});
+   let j={};try{j=await r.json()}catch(e){}return {ok:r.ok,status:r.status,j}}
+  catch(e){return {ok:false,status:0,j:{erro:'sem conexão'}}}finally{clearTimeout(to)}}
+ return {on:()=>!!base,req,
+  admTk:()=>ls(()=>sessionStorage.getItem('mh_admtk')||''),
+  setAdmTk:v=>ls(()=>{v?sessionStorage.setItem('mh_admtk',v):sessionStorage.removeItem('mh_admtk')}),
+  usrTk:()=>ls(()=>localStorage.getItem('mh_tk')||sessionStorage.getItem('mh_tk')||''),
+  setUsrTk:v=>ls(()=>{localStorage.removeItem('mh_tk');sessionStorage.removeItem('mh_tk');if(v)(localStorage.getItem('mh_keep')==='0'?sessionStorage:localStorage).setItem('mh_tk',v)})}})();
 window.MH_DISCORD='https://discord.gg/eEe4nw7ss';
 window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){localStorage.setItem('mh_floor_v','2');localStorage.removeItem('mh_floor');localStorage.removeItem('mh_botsT');return {}}return JSON.parse(localStorage.getItem('mh_floor')||'{}')||{}}catch(e){return {}}})();
 </script>
@@ -1148,7 +1168,7 @@ window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){loc
       <details><summary>Criar conta, entrar e sair</summary>
         <p><b>Criar conta:</b> na janela "Pré-cadastro", deixe marcado "Criar conta". Escolha <b>Sou Cliente</b> (quem precisa de um serviço) ou <b>Sou Helper</b> (quem faz o serviço). O Helper também escreve com o que trabalha, por exemplo "Pintura" ou "Encanador". Depois preencha nome, telefone, e-mail e uma senha de pelo menos 6 letras ou números, marque a caixinha de aceite e toque em <b>Garantir meu lugar</b>.</p>
         <p><b>Seu nome no chat:</b> aparece só o primeiro nome e a inicial do segundo, por exemplo "Maria S.". O telefone e o e-mail não aparecem para ninguém.</p>
-        <p><b>Entrar de novo:</b> toque em "Já tenho conta", digite o nome e a senha e toque em Entrar. A conta fica salva só no aparelho onde você a criou. Em outro aparelho, é preciso criar uma conta nova.</p>
+        <p id="faqEntrar"><b>Entrar de novo:</b> toque em "Já tenho conta", digite o nome e a senha e toque em Entrar. A conta fica salva só no aparelho onde você a criou. Em outro aparelho, é preciso criar uma conta nova.</p>
         <p><b>Manter conectado:</b> com essa caixinha marcada, você entra sozinho da próxima vez.</p>
         <p><b>Sair:</b> toque em "Sair" na barra da janela do chat. Toque duas vezes, a segunda confirma.</p>
         <p><b>Esqueci a senha:</b> hoje não existe recuperação de senha. Chame o suporte ou crie uma conta nova.</p>
@@ -1363,11 +1383,12 @@ window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){loc
     <h3 id="dpt">Pagar por Pix</h3>
     <p class="pixv" id="dpv"></p>
     <img id="dpq" hidden alt="QR code do Pix">
+    <p class="note" id="dps" role="status" aria-live="polite" hidden></p>
     <p class="note" style="margin-top:0">Abra o app do seu banco, escolha Pix, Pix copia e cola, e cole o código abaixo. O valor já vem preenchido.</p>
     <label for="dpc">Pix copia e cola</label>
     <textarea id="dpc" readonly rows="3"></textarea>
     <button type="button" class="cp" id="dcopc">Copiar código</button>
-    <p class="note" style="margin:0 0 6px">Ou use a chave Pix (e-mail): <b id="dpk"></b></p>
+    <p class="note" id="dpkn" style="margin:0 0 6px">Ou use a chave Pix (e-mail): <b id="dpk"></b></p>
     <button type="button" class="cp" id="dcopk">Copiar chave</button>
     <h4>Depois de pagar</h4>
     <ol class="pixs">
@@ -1632,7 +1653,7 @@ window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){loc
       <button type="button" class="cta2" data-apoio="patrocinio">Quero patrocinar</button>
     </div></div>
 </section>
-<footer>MiHelp — mais do que serviços, é solução. <small id="ver" style="opacity:.6">versão 2026-10-06 apagar-todos</small></footer>
+<footer>MiHelp — mais do que serviços, é solução. <small id="ver" style="opacity:.6">versão 2026-10-06 api-ligada</small></footer>
 </div>
 <aside class="side" aria-label="Publicidade"><div class="win"><div class="bar"><span class="t">publicidade</span><i></i><i></i><i></i></div><div class="vcol" id="vright"><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button></div></div></aside>
 </div>
@@ -1673,7 +1694,26 @@ g('dpr').value=o.resumo;
 g('dpe').textContent=o.extra||'';g('dpe').hidden=!o.extra;
 const mail='mailto:'+PIX.contato+'?subject='+encodeURIComponent(o.assunto)+'&body='+encodeURIComponent(o.resumo+'\n\n(anexe o comprovante do Pix)');g('dpm').onclick=()=>{window.location.href=mail};
 const pp=g('dpp');pp.hidden=!o.previa||!PREVIA;pp.onclick=()=>{o.previa();d.close()};
-d.showModal()}
+d.classList.remove('pix-auto');g('dps').hidden=true;pararPoll();
+d.showModal();
+if(o.api&&window.MH_API&&MH_API.on())pixAuto(o,d,g)}
+let pixPoll=null;
+function pararPoll(){if(pixPoll){clearInterval(pixPoll);pixPoll=null}}
+/* Pix pelo worker: gera o código/QR do Mercado Pago e confere o pagamento sozinho; se falhar, cai no jeito manual */
+async function pixAuto(o,d,g){
+const A=window.MH_API,s=g('dps');
+s.hidden=false;s.textContent='Gerando o Pix...';d.classList.add('pix-auto');
+const r=await A.req('/pix',{body:o.api,ms:20000});
+if(!(r.ok&&r.j&&r.j.copiaecola)){d.classList.remove('pix-auto');s.textContent='Não consegui gerar o Pix automático. Use o código ou a chave abaixo e envie o comprovante.';return}
+g('dpc').value=r.j.copiaecola;
+{const q=g('dpq');if(r.j.qrBase64){q.src='data:image/png;base64,'+r.j.qrBase64;q.hidden=false}}
+g('dpv').textContent='R$ '+Number(r.j.valor).toFixed(2).replace('.',',');
+s.textContent='Aguardando o pagamento. Quando o Pix cair, esta tela confirma sozinha.';
+const id=r.j.id,t0=Date.now();pararPoll();
+pixPoll=setInterval(async()=>{if(!d.open||Date.now()-t0>30*60000){pararPoll();return}
+const x=await A.req('/pix/status?id='+encodeURIComponent(id));
+if(x.ok&&x.j&&x.j.status==='approved'){pararPoll();s.textContent='Pagamento confirmado! Obrigado. Em instantes aparece no site.'}
+else if(x.ok&&x.j&&/^(rejected|cancelled|expired)$/.test(x.j.status)){pararPoll();s.textContent='O Pix não foi concluído. Feche e tente de novo.'}},4000)}
 let modoAp='apoio';
 function abrirApoio(modo){
 modoAp=modo;const pat=modo==='patrocinio',g=id=>document.getElementById(id);
@@ -1698,6 +1738,7 @@ g('dcopc').onclick=e=>copiar(g('dpc').value,e.currentTarget);
 g('dcopk').onclick=e=>copiar(PIX.chave,e.currentTarget);
 g('dcopr').onclick=e=>copiar(g('dpr').value,e.currentTarget);
 g('dpx').onclick=()=>g('dpix').close();
+g('dpix').addEventListener('close',pararPoll);
 g('dapx').onclick=()=>g('dap').close();
 document.querySelectorAll('[data-apoio]').forEach(b=>b.addEventListener('click',()=>abrirApoio(b.dataset.apoio)));
 g('dapf').addEventListener('submit',e=>{e.preventDefault();
@@ -1709,6 +1750,7 @@ abrirPix({titulo:pat?'Patrocínio':'Apoio ao MiHelp',valor,
 resumo:(pat?'PATROCÍNIO':'APOIO')+' MIHELP\nNome: '+nome+'\nValor: R$ '+valor.toFixed(2).replace('.',',')+'\nAparecer no letreiro: '+(noLet?'sim':'não')+'\nMostrar o valor: '+(mostra?'sim':'não'),
 assunto:(pat?'Patrocínio':'Apoio')+' MiHelp — '+nome,
 extra:pat?'Anexe o logo da empresa no e-mail.':'',
+api:pat?null:{tipo:'apoio',nome,valor,mostrarValor:mostra,noLetreiro:noLet},
 previa:noLet?()=>{APOIADORES.push({nome,valor,mostrarValor:mostra});construirTicker()}:null})});
 construirTicker()}
 
@@ -2413,6 +2455,7 @@ abrirPix({titulo:'Outdoor digital — vaga '+(vaga+1),valor:p.final,
 resumo:'OUTDOOR DIGITAL MIHELP\nVaga: '+(vaga+1)+'\nTempo: '+fmtTempo(m)+'\nValor: R$ '+p.final+',00'+(p.pct?(' (de R$ '+p.cheio+' com '+(Math.round(p.pct*100))+'% off)'):'')+'\nNegócio: '+nome+'\nTexto: '+texto+'\nLink ou WhatsApp: '+(link||'-')+'\nImagem: '+(foto?'sim (anexar no e-mail)':'não'),
 assunto:'Outdoor digital MiHelp — '+nome,
 extra:'O tempo só começa a contar quando o anúncio entrar no ar.'+(foto?' Anexe a imagem no e-mail.':''),
+api:foto?null:{tipo:'anuncio',nome,texto,link,vaga:vaga+1,minutos:m},
 previa:()=>{item.end=Date.now()+m*60000;vs[vaga]=item;build();tick();msg.textContent='Prévia só na sua tela: o outdoor de verdade entra depois da confirmação do Pix.'}})});
 
 const di=document.getElementById('di'),dprev=document.getElementById('dprev'),dier=document.getElementById('dierr');
@@ -2601,8 +2644,17 @@ if(!ADS||!UI||!PIX||!TIT){console.error('MiHelp admin: ganchos não encontrados'
 const K='mihelp_adm_v1:';
 const store={
   get(k,d){try{const v=localStorage.getItem(K+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
-  set(k,v){try{localStorage.setItem(K+k,JSON.stringify(v));return true}catch(e){return false}}
+  set(k,v){let ok=false;try{localStorage.setItem(K+k,JSON.stringify(v));ok=true}catch(e){}
+    if((k==='meta'||k==='titulos')&&window.MH_API&&MH_API.on()&&MH_API.admTk())pushCfg(k,v);return ok}
 };
+/* meta e títulos também vão para o servidor, para todo mundo ver (não só este navegador) */
+const cfgPend={};let cfgT=null;
+function pushCfg(k,v){cfgPend[k]=JSON.stringify(v);clearTimeout(cfgT);cfgT=setTimeout(async()=>{const A=window.MH_API,itens=Object.assign({},cfgPend);for(const x in cfgPend)delete cfgPend[x];
+  const r=await A.req('/admin/config',{token:A.admTk(),body:{itens}});
+  if(!(r.ok&&r.j&&r.j.ok)){if(r.status===401)A.setAdmTk('');try{say('Salvei só neste navegador: não consegui salvar no servidor.')}catch(e){}}},500)}
+if(window.MH_API&&MH_API.on())MH_API.req('/config').then(r=>{if(!r.ok||!r.j)return;
+  try{if(r.j.meta){const o=JSON.parse(r.j.meta);if(o&&o.alvo>0&&window.MH_aplicarMeta)MH_aplicarMeta(o)}}catch(e){}
+  try{if(r.j.titulos){const o=JSON.parse(r.j.titulos);if(o&&typeof o==='object'){Object.keys(TIT).forEach(k=>delete TIT[k]);Object.assign(TIT,o);UI.online()}}}catch(e){}});
 
 // ---- aplicar o que foi salvo ----
 Object.assign(PIX,store.get('pix',{}));
@@ -2637,10 +2689,26 @@ function lerImg(file,max,tipo,q){return new Promise((ok,err)=>{
 
 // ---- login por PIN (guardado só como hash, neste navegador) ----
 async function hpin(p){try{if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('mihelp:'+p));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}}catch(e){}return 'x'+btoa(unescape(encodeURIComponent('mihelp:'+p)))}
-const logado=()=>{try{return sessionStorage.getItem('mh_adm')==='1'}catch(e){return false}};
+const logado=()=>{try{return sessionStorage.getItem('mh_adm')==='1'&&(!(window.MH_API&&MH_API.on())||!!MH_API.admTk())}catch(e){return false}};
 function entrar(){try{sessionStorage.setItem('mh_adm','1')}catch(e){}document.body.classList.add('adm');bar.hidden=false;chipUpd();abrirPainel()}
-function sairAdm(){try{sessionStorage.removeItem('mh_adm')}catch(e){}document.body.classList.remove('adm');bar.hidden=true;document.querySelectorAll('dialog[open]').forEach(x=>{try{x.close()}catch(e){}})}
+function sairAdm(){try{sessionStorage.removeItem('mh_adm')}catch(e){}try{window.MH_API&&MH_API.setAdmTk('')}catch(e){}document.body.classList.remove('adm');bar.hidden=true;document.querySelectorAll('dialog[open]').forEach(x=>{try{x.close()}catch(e){}})}
+function abrirLoginSenha(){
+  const A=window.MH_API;
+  const d=mk('dialog');d.setAttribute('aria-label','Entrar no painel');
+  const f=mk('form');f.append(mk('h3',0,'Entrar no painel'));
+  const a=inp('password',80,'Senha do administrador');a.required=true;a.autocomplete='current-password';
+  f.append(campo('Senha do administrador',a));
+  const er=mk('p','note');er.style.color='var(--red)';er.setAttribute('role','alert');f.append(er);
+  const bt=mk('div','dbt');const ok=mk('button','go','Entrar');ok.type='submit';const cx=mk('button','cx','Cancelar');cx.type='button';cx.onclick=()=>d.close();bt.append(ok,cx);f.append(bt);
+  f.addEventListener('submit',async e=>{e.preventDefault();er.textContent='';ok.disabled=true;ok.textContent='Entrando...';
+    const r=await A.req('/admin/login',{body:{senha:a.value}});
+    ok.disabled=false;ok.textContent='Entrar';
+    if(r.ok&&r.j&&r.j.token){A.setAdmTk(r.j.token);d.close();entrar();return}
+    er.textContent=r.status===429?'Muitas tentativas. Espere 15 minutos.':r.status===401?'Senha incorreta.':r.status===503?'O servidor ainda não tem a senha do administrador configurada.':'Sem conexão com o servidor. Tente de novo.';
+    a.value='';a.focus()});
+  d.append(f);d.addEventListener('close',()=>d.remove());document.body.append(d);d.showModal();a.focus()}
 function abrirLogin(){
+  if(window.MH_API&&MH_API.on())return abrirLoginSenha();
   const tem=!!store.get('pin',null);
   const d=mk('dialog');d.setAttribute('aria-label','Entrar no painel');
   const f=mk('form');f.append(mk('h3',0,tem?'Entrar no painel':'Crie o PIN do painel'));
@@ -2707,6 +2775,30 @@ function tSts(b){
   const i=document.createElement('input');i.type='text';i.autocomplete='off';i.spellcheck=false;i.setAttribute('aria-label','Comando do terminal');f.append(i);
   f.addEventListener('submit',e=>{e.preventDefault();cmd(i.value);i.value=''});
   b.append(out,f);linha('MiHelp ADM v6 | digite "ajuda" para ver os comandos','mu');status()}
+function tChaveSrv(b){
+  const A=window.MH_API;
+  b.append(mk('h4',0,'Chave de controle (servidor)'));
+  const box=mk('div');b.append(box);
+  const pubSite=(()=>{try{let j=(window.MH_CFG||{}).adminPub;if(typeof j==='string')j=JSON.parse(j);return j&&j.x&&j.y?j:null}catch(e){return null}})();
+  const area=(rot,val)=>{const l=mk('p','note',rot);const t=mk('textarea');t.readOnly=true;t.rows=3;t.value=val;t.setAttribute('aria-label',rot);t.onfocus=()=>t.select();
+    const c=mk('button','cx','Copiar');c.type='button';c.onclick=()=>{t.select();try{navigator.clipboard.writeText(t.value)}catch(e){}say('Copiado.')};box.append(l,t,c)};
+  box.append(mk('p','note','Conferindo com o servidor...'));
+  A.req('/admin/chave',{token:A.admTk()}).then(r=>{box.textContent='';
+    if(!r.ok){box.append(mk('p','note','Não consegui falar com o servidor. Saia e entre de novo no painel.'));return}
+    const j=r.j||{};
+    if(!j.configurada){
+      box.append(mk('p','note','Sem esta chave, limpar e apagar só valem neste aparelho. O servidor cria a chave uma vez; você copia dois textos (um para o Cloudflare e um para o index.html).'));
+      const go=mk('button','go','Gerar chave no servidor');go.type='button';
+      go.onclick=async()=>{go.disabled=true;const g=await A.req('/admin/chave',{token:A.admTk(),method:'POST',body:{}});
+        if(!(g.ok&&g.j&&g.j.CTL_PRIV)){say(g.status===409?'Já existe uma chave no servidor. Atualize esta tela.':'Não consegui gerar a chave.');return}
+        box.textContent='';box.append(mk('p','note','Guarde só agora e não mostre a ninguém. Depois de colar nos dois lugares, esta tela não mostra mais o segredo.'));
+        area('1) Cloudflare: Worker > Settings > Variables and Secrets > crie o segredo CTL_PRIV com este valor (tipo Secret).',g.j.CTL_PRIV);
+        area('2) index.html: dentro de window.MH_CFG={ ... } acrescente isto e publique de novo.',g.j.linha)};
+      box.append(go);return}
+    const ok=pubSite&&j.pub&&pubSite.x===j.pub.x&&pubSite.y===j.pub.y;
+    if(ok)box.append(mk('p','note','Chave ligada: limpar, apagar, aviso e bots valem para todos, em qualquer aparelho.'));
+    else{box.append(mk('p','note','O servidor já tem a chave, mas o index.html ainda não tem a parte pública (ou é de outra chave). Sem isso o site ignora os comandos. Acrescente isto dentro de window.MH_CFG={ ... } e publique de novo.'));
+      area('Parte pública',"adminPub:{x:'"+j.pub.x+"',y:'"+j.pub.y+"'}")}})}
 function tCtl(b){
   const DB=window.MH_DB||{},pronto=!!(DB.ctlPronto&&DB.ctlPronto());
   b.append(mk('h4',0,'Controle rápido'));
@@ -2734,6 +2826,7 @@ function tCtl(b){
     bt.onclick=()=>{if(!sure){ctlConf=k;desenhar();return}if(k==='placar'||k.indexOf('p:')===0){ctlConf='';try{MH_PLACAR.limpar(k==='placar'?undefined:k.slice(2))}catch(x){}say(t+' limpo.');return}run({a:'limpar',alvo:k},t+' limpo.')};
     row.append(inf,bt);b.append(row)});
   b.append(mk('p','note','Limpar esconde das telas. As mensagens e pedidos continuam guardados no banco de dados. Para apagar de vez, apague no CMS.'));
+  if(window.MH_API&&MH_API.on()){tChaveSrv(b);return}
   b.append(mk('h4',0,'Chave de admin'));
   const K=DB.chave;
   if(!K){b.append(mk('p','note','Esta parte do site não carregou. Atualize a página.'));return}
@@ -3093,7 +3186,9 @@ DB.chave={
  ligada(){const p=this.publica(),s=pubCfg();return !!(p&&s&&s.x===p.x&&s.y===p.y)},
  exportar:()=>localStorage.getItem(KEYK)||'',
  importar(t){const j=JSON.parse(t);if(!j.d||!j.x||!j.y)throw new Error('chave inválida');localStorage.setItem(KEYK,JSON.stringify(j))}};
-DB.ctlPronto=()=>!!(DB.ok&&DB.chave.ligada());
+DB.ctlPronto=()=>!!(DB.ok&&(DB.chave.ligada()||(window.MH_API&&MH_API.on()&&MH_API.admTk())));
+/* hora de referência quando o comando só vale neste aparelho: a da última mensagem do SERVIDOR, nunca o relógio do celular */
+const tsLocal=()=>window.MH_SRVT||1;
 let botsT=0;try{botsT=Number(localStorage.getItem('mh_botsT')||0)}catch(e){}
 function salvarFloor(){try{localStorage.setItem('mh_floor',JSON.stringify(window.MH_FLOOR))}catch(e){}}
 function aplicar(c,quando){const F=window.MH_FLOOR||(window.MH_FLOOR={}),FX=window.MH_FX||{};
@@ -3103,14 +3198,19 @@ if(c.a==='apagar'){if(FX.apagarMsg)FX.apagarMsg(String(c.id||''));return}
  if(c.a==='limpar'){const T=['sala','salas','guilda','outdoor'],al=c.alvo==='tudo'?T:[c.alvo];
   al.forEach(a=>{if(T.indexOf(a)<0)return;if(quando>(F[a]||0)){F[a]=quando;if(FX.limpar)FX.limpar(a,quando)}});salvarFloor()}}
 DB.ctl=async function(cmd){
- const t=Date.now();
- if(!DB.ctlPronto()){aplicar(cmd,t);return 'local'}
+ const t=Date.now(),A=window.MH_API;
+ if(A&&A.on()&&A.admTk()){
+  const r=await A.req('/admin/ctl',{token:A.admTk(),body:{cmd}});
+  if(r.ok&&r.j&&r.j.ok){seen.add(r.j.id);aplicar(cmd,Number(r.j.ts)||tsLocal());return 'todos'}
+  if(r.status===401)A.setAdmTk('');
+  aplicar(cmd,tsLocal());diag('controle: '+((r.j&&r.j.erro)||r.status),true);return 'erro'}
+ if(!DB.ctlPronto()){aplicar(cmd,tsLocal());return 'local'}
  try{const payload=JSON.stringify(Object.assign({n:rid('')},cmd,{t})),sig=await assinar(payload),id=rid('c');seen.add(id);
   const r=await ins(COL.msg,{_id:id,sala:'sala',autor:'ADM',papel:'cliente',oficio:'',texto:payload,categoria:sig,tipo:'ctl'});
   /* usa a hora do SERVIDOR (não a do relógio deste aparelho), senão o relógio errado esconde mensagens dos outros */
-  let ts=t;try{if(r&&r._createdDate){const z=dt(r._createdDate).getTime();if(z>0)ts=z}}catch(e){}
+  let ts=tsLocal();try{if(r&&r._createdDate){const z=dt(r._createdDate).getTime();if(z>0)ts=z}}catch(e){}
   aplicar(cmd,ts);return 'todos'}
- catch(e){aplicar(cmd,t);diag('controle: '+msgErro(e),true);return 'erro'}};
+ catch(e){aplicar(cmd,tsLocal());diag('controle: '+msgErro(e),true);return 'erro'}};
 async function tratarCtl(x){if(!(await verificar(x.texto,x.categoria)))return;let c;try{c=JSON.parse(x.texto)}catch(e){return}aplicar(c,dt(x._createdDate).getTime())}
 async function lerCtl(){try{const r=await q(COL.msg).eq('tipo','ctl').descending('_createdDate').limit(40).find();const it=((r&&r.items)||[]).slice().reverse();
  for(const x of it){if(seen.has(x._id))continue;seen.add(x._id);await tratarCtl(x)}}catch(e){diag('controle: '+msgErro(e),true)}}
@@ -3119,6 +3219,9 @@ async function poll(){
  let b=q(COL.msg);
  b=ultimo?b.ge('_createdDate',new Date(ultimo.getTime()-60000)).ascending('_createdDate').limit(100):b.descending('_createdDate').limit(60);
  const r=await b.find();let it=(r&&r.items)||[];if(!ultimo)it=it.slice().reverse();let nov=0;const inicial=!ultimo;let ref=0;it.forEach(x=>{const z=dt(x._createdDate).getTime();if(z>ref)ref=z});
+ if(ref>0){if(ref>(window.MH_SRVT||0))window.MH_SRVT=ref;
+  /* conserta piso gravado com o relógio errado de um aparelho (maior que a última mensagem do servidor); os pisos de verdade voltam pelos comandos abaixo */
+  if(inicial){const F=window.MH_FLOOR;if(F){let m=0;for(const a in F)if(F[a]>ref+60000){F[a]=0;m=1}if(m)salvarFloor()}}}
  for(const x of it){const d=dt(x._createdDate);if(!ultimo||d>ultimo)ultimo=d;
   if(seen.has(x._id))continue;seen.add(x._id);nov++;
   const ms=d.getTime();
@@ -3291,11 +3394,17 @@ const sair=mk('button','exp','Sair');sair.id='sairBar';sair.type='button';sair.h
 function guarda(nome){try{localStorage.removeItem('mh_sess');sessionStorage.removeItem('mh_sess');const k=document.getElementById('mantem'),m=!k||k.checked;localStorage.setItem('mh_keep',m?'1':'0');(m?localStorage:sessionStorage).setItem('mh_sess',JSON.stringify(nome))}catch(e){}}
 let sairT=null;
 sair.onclick=()=>{if(!sair.dataset.c){sair.dataset.c='1';sair.textContent='Toque para sair';clearTimeout(sairT);sairT=setTimeout(()=>{delete sair.dataset.c;sair.textContent='Sair'},4000);return}
-try{localStorage.removeItem('mh_sess');sessionStorage.removeItem('mh_sess');localStorage.removeItem('mh_eu');sessionStorage.removeItem('mh_adm')}catch(e){}location.reload()};
+try{localStorage.removeItem('mh_sess');sessionStorage.removeItem('mh_sess');localStorage.removeItem('mh_eu');sessionStorage.removeItem('mh_adm');localStorage.removeItem('mh_tk');sessionStorage.removeItem('mh_tk');sessionStorage.removeItem('mh_admtk')}catch(e){}location.reload()};
+/* a "chave" que vai ao servidor é derivada no navegador (PBKDF2); a senha em si nunca sai daqui */
+const chaveDe=(nome,pw)=>hash(pw,new TextEncoder().encode('mihelp:'+String(nome).trim().replace(/\s+/g,' ').toLowerCase()));
 window.MH_conta={async criar(d,pw){
   const salt=crypto.getRandomValues(new Uint8Array(16)),a=J('mh_acc',{});
   a[d.nome.toLowerCase()]={nome:d.nome,role:d.role,work:d.work,salt:b64(salt),hash:await hash(pw,salt)};
-  S('mh_acc',a);guarda(d.nome)}};
+  S('mh_acc',a);guarda(d.nome);
+  const A=window.MH_API;
+  if(A&&A.on()){try{const r=await A.req('/conta/criar',{body:{nome:d.nome,chave:await chaveDe(d.nome,pw),papel:d.role,oficio:d.work,tel:d.tel,email:d.em}});
+    if(r.ok&&r.j&&r.j.token)A.setUsrTk(r.j.token);
+    else if(r.status===409&&window.MH_UI&&MH_UI.nota)MH_UI.nota('*** Esse nome já tem conta em outro aparelho. Para entrar nela, toque em "Já tenho conta". ***')}catch(e){}}}};
 {const kb=mk('label');kb.style.cssText='display:flex;gap:8px;align-items:center;margin-top:8px;cursor:pointer';const kc=mk('input');kc.type='checkbox';kc.id='mantem';kc.checked=localStorage.getItem('mh_keep')!=='0';kb.append(kc,document.createTextNode('Manter conectado neste aparelho'));$('pwf').append(kb)}
 let login=false;const f=$('f'),jt=$('jaTenho');
 const esconde=()=>[document.querySelector('#f .role'),$('trab'),$('t').closest('.f'),$('e').closest('.f'),document.querySelector('#f label.chk')];
@@ -3304,28 +3413,40 @@ function modo(on){login=on;esconde().forEach(e=>{if(e){if(on)e.style.setProperty
   $('btnCad').textContent=on?'Entrar':'Garantir meu lugar';jt.textContent=on?'Quero criar uma conta':'Já tenho conta: entrar';
   const er=$('ferr');if(er){er.style.display='none'}try{marca()}catch(x){}}
 jt.addEventListener('click',e=>{e.preventDefault();modo(!login)});
-const sgC=$('segCriar'),sgE=$('segEntrar'),pwH=$('pwHint'),pwE=$('pwEye'),HT='Mínimo 6 caracteres. A conta fica salva neste aparelho. Não use a senha de outros sites.';
+const sgC=$('segCriar'),sgE=$('segEntrar'),pwH=$('pwHint'),pwE=$('pwEye'),API_ON=!!(window.MH_API&&MH_API.on()),HT=API_ON?'Mínimo 6 caracteres. Sua conta funciona em qualquer aparelho. Não use a senha de outros sites.':'Mínimo 6 caracteres. A conta fica salva neste aparelho. Não use a senha de outros sites.';
 function marca(){sgC.setAttribute('aria-pressed',String(!login));sgE.setAttribute('aria-pressed',String(login));
  $('pwf').querySelector('label').textContent='Senha';pwH.style.display='block';pwH.classList.remove('ok');
- pwH.textContent=login?'A conta só abre no aparelho onde foi criada.':HT;{const cn=$('cadNota');if(cn)cn.style.display=login?'none':''}$('pw').placeholder=login?'Sua senha':'Mínimo 6 caracteres'}
+ pwH.textContent=login?(API_ON?'Use o mesmo nome e a mesma senha de quando criou a conta.':'A conta só abre no aparelho onde foi criada.'):HT;{const cn=$('cadNota');if(cn)cn.style.display=login?'none':''}$('pw').placeholder=login?'Sua senha':'Mínimo 6 caracteres'}
 sgC.onclick=()=>{if(login)modo(false)};sgE.onclick=()=>{if(!login)modo(true)};
 pwE.onclick=()=>{const v=$('pw').type==='password';$('pw').type=v?'text':'password';pwE.textContent=v?'Ocultar':'Mostrar';pwE.setAttribute('aria-pressed',String(v));pwE.setAttribute('aria-label',v?'Ocultar senha':'Mostrar senha')};
 $('pw').addEventListener('input',()=>{if(login)return;const n=$('pw').value.length;pwH.classList.toggle('ok',n>=6);pwH.textContent=n>=6?'Senha boa. Anote para não esquecer.':HT});
+{const fe=document.getElementById('faqEntrar');if(fe&&API_ON){fe.textContent='';const b=document.createElement('b');b.textContent='Entrar de novo:';fe.append(b,document.createTextNode(' toque em "Já tenho conta", digite o nome e a senha e toque em Entrar. Sua conta funciona em qualquer aparelho, com o mesmo nome e a mesma senha.'))}}
 const erro=m=>{const er=$('ferr');if(er){er.style.display='block';er.textContent=m}};
 async function entrar(){
   const nome=$('n').value.trim().replace(/\s+/g,' '),pw=$('pw').value;
   if(!nome||!pw)return erro('Digite seu nome e sua senha.');
+  const A=window.MH_API,on=!!(A&&A.on());let st=-1;
+  if(on){const r=await A.req('/conta/entrar',{body:{nome,chave:await chaveDe(nome,pw)}});st=r.status;
+    if(r.ok&&r.j&&r.j.token){A.setUsrTk(r.j.token);const c={nome:r.j.nome,role:r.j.papel==='helper'?'helper':'cliente',work:r.j.oficio||''};guarda(c.nome);MH_UI.entrarConta(c);return}
+    if(st===401)return erro('Nome ou senha incorretos.');
+    if(st===429)return erro('Muitas tentativas. Espere 15 minutos e tente de novo.')}
   const c=J('mh_acc',{})[nome.toLowerCase()];
   await new Promise(r=>setTimeout(r,500));
-  if(!c||(await hash(pw,ub(c.salt)))!==c.hash)return erro('Nome ou senha incorretos. A conta fica salva só no aparelho onde foi criada.');
-  guarda(c.nome);MH_UI.entrarConta(c)}
+  if(!c||(await hash(pw,ub(c.salt)))!==c.hash)return erro(on?(st===0?'Sem conexão com o servidor. Tente de novo.':'Nome ou senha incorretos.'):'Nome ou senha incorretos. A conta fica salva só no aparelho onde foi criada.');
+  guarda(c.nome);
+  /* conta antiga (só neste aparelho): passa para o servidor no primeiro login, sem o usuário fazer nada */
+  if(on&&st===404){try{const r=await A.req('/conta/criar',{body:{nome:c.nome,chave:await chaveDe(c.nome,pw),papel:c.role,oficio:c.work}});if(r.ok&&r.j&&r.j.token)A.setUsrTk(r.j.token)}catch(e){}}
+  MH_UI.entrarConta(c)}
 const barra=ev=>{if(!login)return;ev.preventDefault();ev.stopImmediatePropagation();entrar()};
 f.addEventListener('click',ev=>{if(ev.target.closest('#btnCad'))barra(ev)},true);
 document.addEventListener('submit',ev=>{if(ev.target===f)barra(ev)},true);
 setTimeout(()=>{let n=null;try{n=JSON.parse(sessionStorage.getItem('mh_sess')||localStorage.getItem('mh_sess')||'null')}catch(e){}
 const acc=J('mh_acc',{});let c=n&&acc[String(n).toLowerCase()];
 if(!c&&!n&&localStorage.getItem('mh_keep')!=='0'){try{const o=JSON.parse(localStorage.getItem('mh_eu')||'null');if(o&&o.nome)c={nome:o.nome,role:o.role,work:o.work}}catch(e){}}
-if(c&&window.MH_UI)MH_UI.entrarConta(c)},400);
+if(c&&window.MH_UI)MH_UI.entrarConta(c);
+else if(!n&&window.MH_API&&MH_API.on()&&MH_API.usrTk()&&window.MH_UI){const A=MH_API;A.req('/conta/eu',{token:A.usrTk()}).then(r=>{
+  if(r.ok&&r.j&&r.j.ok){guarda(r.j.nome);MH_UI.entrarConta({nome:r.j.nome,role:r.j.papel==='helper'?'helper':'cliente',work:r.j.oficio||''})}
+  else if(r.status===401)A.setUsrTk('')})}},400);
 let ultN=null;setInterval(()=>{const e=window.MH_UI&&MH_UI.eu&&MH_UI.eu();sair.hidden=!e;const nn=e?e.nome:null;if(nn!==ultN){ultN=nn;try{MH_UI.sos()}catch(x){}}},700);
 // temas (engrenagem): dourado, claro, miami, brasil, pôr do sol, terminal
 {const TM=[['escuro','🌙','Dourado','#15130F'],['claro','☀️','Claro','#F5EDD3'],['miami','🌴','Miami Neon','#120A1F'],['brasil','🇧🇷','Brasil','#07140D'],['araguaia','🌅','Pôr do sol','#1A0F1E'],['terminal','💻','Terminal','#050805'],['eclipse','🔮','Eclipse','#0E0716'],['cristal','💧','Cristal','#D9EEFB'],['voltagem','⚡','Voltagem','#0D0F12'],['sombra','🕶️','Sombra','#08080A']];
