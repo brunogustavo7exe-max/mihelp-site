@@ -481,12 +481,12 @@ button.nm.hp{color:var(--gold)}
 html.cw-open,html.cw-open body{overflow:hidden}
 
 /* SOS compacto e vermelho */
-.send .sos-wrap{gap:3px;justify-content:center}
-.send #nudge{background:var(--red);border-color:var(--red);color:#fff;font:800 12px var(--sans);letter-spacing:.04em;padding:6px 12px;border-radius:7px;line-height:1}
-.send #nudge:hover:not(:disabled){filter:brightness(1.12)}
-.send #nudge:disabled{opacity:.45;cursor:not-allowed}
-.send #nudge:focus-visible{outline:2px solid #fff;outline-offset:2px}
-.send .sos-count{font-size:10px;letter-spacing:0}
+.sos-wrap{gap:3px;justify-content:center}
+#nudge{background:var(--red);border-color:var(--red);color:#fff;font:800 12px var(--sans);letter-spacing:.04em;padding:6px 12px;border-radius:7px;line-height:1}
+#nudge:hover:not(:disabled){filter:brightness(1.12)}
+#nudge:disabled{opacity:.45;cursor:not-allowed}
+#nudge:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.sos-count{font-size:10px;letter-spacing:0}
 
 /* ao vivo, guilda e chat flutuante */
 .live .ev{display:flex;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px;line-height:1.45}
@@ -642,7 +642,7 @@ a.wa{color:var(--gold2)}
 
   /* barra de envio */
   #cw .send{flex:none;align-items:center;gap:6px;padding:8px 10px}
-  #cw .send .sos-wrap{flex:none}
+  #cw .sos-wrap{flex:none}
   #cw .send button.p{flex:none}
 
   /* texto longo da prévia mais discreto */
@@ -651,10 +651,10 @@ a.wa{color:var(--gold2)}
 }
 
 /* SOS: contador dentro do botão */
-.send #nudge{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;line-height:1}
-.send #nudge .sos-t{font:800 12px var(--sans);letter-spacing:.04em}
-.send #nudge .sos-count{font:700 11px var(--mono);color:#fff;opacity:.92;letter-spacing:0}
-.send #nudge .sos-count.limite{opacity:1;text-decoration:underline}
+#nudge{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;line-height:1}
+#nudge .sos-t{font:800 12px var(--sans);letter-spacing:.04em}
+#nudge .sos-count{font:700 11px var(--mono);color:#fff;opacity:.92;letter-spacing:0}
+#nudge .sos-count.limite{opacity:1;text-decoration:underline}
 
 /* perfil no lugar do cadastro */
 .meu-perfil h3{margin:14px 0 2px;font-size:20px;color:var(--gold2)}
@@ -915,6 +915,21 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 :root[data-tema=sombra] body{font-family:var(--mono);background-image:none}
 :root[data-tema=sombra] h1{text-shadow:2px 0 rgba(255,59,59,.65),-2px 0 rgba(255,255,255,.25)}
 
+
+/* SOS no topo do chat + lupa de ofícios */
+.sosbar{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--line);background:var(--bg)}
+.sosbar .cat-row{flex:1;min-width:0;margin:0}
+.sosbar .sos-wrap{flex:none}
+#cw .sosbar .cat-row{border-top:0;padding:0;margin:0}
+.cat-row .lupa{border-style:dashed;color:var(--gold2)}
+.cat-row .extra{border-color:var(--gold)}
+#lupaDlg{width:min(94vw,460px)}
+#lupaDlg h3{margin:0 0 6px}
+#lupaDlg input[type=text]{width:100%;margin:8px 0}
+.lupa-res{display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow:auto;margin:0 0 10px}
+.lupa-it{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:8px;padding:10px 12px;font:inherit;cursor:pointer}
+.lupa-it:hover,.lupa-it:focus-visible{border-color:var(--gold);outline:none}
+.lupa-it small{color:var(--mute);font-size:12px}
 </style>
 <script>
 /* ===== LIGAÇÃO COM O WIX ===== 
@@ -997,9 +1012,7 @@ window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){loc
           <p class="rrule" id="rrule" hidden></p>
           <div class="ctabs" id="ctabs"><button type="button" class="ct ctsala on" data-c="sala">Geral</button></div>
           <div class="ptools" id="ptools" hidden><button type="button" id="pbloq">Bloquear</button><button type="button" id="pfav">☆ Favoritar</button><button type="button" id="pden">Denunciar</button></div>
-          <div class="log" id="log" aria-live="polite">
-            <p class="s">*** sala aberta: seja o primeiro a falar ***</p>
-          </div>
+                    <div class="sosbar" id="sosBar">
           <div class="cat-row" id="catRow" hidden>
             <span style="font:600 12px var(--mono);color:var(--faint);align-self:center">Emergência:</span>
             <button type="button" data-cat="Encanador" title="Cano estourado, vazamento grande">Encanador</button>
@@ -1007,16 +1020,21 @@ window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){loc
             <button type="button" data-cat="Elétrica" title="Sem energia, curto, fio exposto">Elétrica</button>
             <button type="button" data-cat="Chaveiro" title="Trancado para fora de casa ou do carro">Chaveiro</button>
             <button type="button" data-cat="Borracheiro" title="Pneu furado na estrada">Borracheiro</button>
+            <button type="button" id="catLupa" class="lupa" title="Buscar outro tipo de profissional (ex.: advogado)" aria-label="Buscar outro ofício para o SOS">🔍 Buscar</button>
+          </div>
+            <div class="sos-wrap">
+              <button type="button" id="nudge" title="Chamado urgente por categoria. O número mostra os usados hoje." aria-label="SOS, chamados urgentes usados hoje: 0 de 3" disabled><span class="sos-t">SOS</span><span class="sos-count" id="sosCount">0/3</span></button>
+            </div>
+          </div>
+          <div class="log" id="log" aria-live="polite">
+            <p class="s">*** sala aberta: seja o primeiro a falar ***</p>
           </div>
           <div class="rpbar" id="rpBar" hidden><span id="rpTxt"></span><button type="button" id="rpX" aria-label="Cancelar resposta">×</button></div>
           <form class="send" id="sf">
             <input type="text" id="m" placeholder="Cadastre-se para falar" aria-label="Mensagem" autocomplete="off" disabled>
-            <div class="sos-wrap">
-              <button type="button" id="nudge" title="Chamado urgente por categoria. O número mostra os usados hoje." aria-label="SOS, chamados urgentes usados hoje: 0 de 3" disabled><span class="sos-t">SOS</span><span class="sos-count" id="sosCount">0/3</span></button>
-            </div>
             <button class="p" type="submit" id="sbtn" disabled>Enviar</button>
           </form>
-          <p class="note previa" style="margin:0;padding:0 12px 12px">Visitantes só leem. Quem se cadastra fala na sala e no privado. <b>SOS</b>: só para emergência de verdade (cano estourado, gás acabou, sem energia, trancado para fora, pneu furado), limite 3/dia. Risco de vida: ligue 193, 192 ou 190. Digite <b>/help</b> para ver os comandos. Prévia: bots são simulados.</p>
+          <p class="note previa" style="margin:0;padding:0 12px 12px">Visitantes só leem. Quem se cadastra fala na sala e no privado. <b>SOS</b>: só para emergência de verdade (cano estourado, gás acabou, sem energia, trancado para fora, pneu furado), limite 3/dia. A lupa 🔍 busca outros ofícios, e o alerta vai só para quem trabalha com aquilo. Risco de vida: ligue 193, 192 ou 190. Digite <b>/help</b> para ver os comandos. Prévia: bots são simulados.</p>
         </div>
       </div>
     </section>
@@ -1133,7 +1151,7 @@ window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){loc
       <details><summary>SOS: emergência de verdade</summary>
         <p>O SOS é para quando <b>não dá para esperar</b>: cano estourado, botijão de gás acabou, sem energia, trancado para fora de casa ou pneu furado na estrada.</p>
         <ol class="steps">
-          <li><b>1. Escolha a categoria</b>Toque em Encanador, Gás de cozinha, Elétrica, Chaveiro ou Borracheiro. Se não escolher, o SOS não dispara.</li>
+          <li><b>1. Escolha a categoria</b>Toque em Encanador, Gás de cozinha, Elétrica, Chaveiro ou Borracheiro. Para outro ofício, toque na lupa 🔍, busque e escolha. O SOS fica no topo do chat. Se não escolher, o SOS não dispara.</li>
           <li><b>2. Toque em SOS</b>O alerta vai para os Helpers daquela categoria, com som, vibração e o título da aba piscando.</li>
           <li><b>3. Aguarde</b>O site não garante que alguém responda nem em quanto tempo. Quem vê o alerta chama você no privado.</li>
         </ol>
@@ -1449,6 +1467,7 @@ window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){loc
           <li><b>Borracheiro:</b> pneu furado na estrada.</li>
         </ul>
         <p><b>Não é SOS:</b> pintura, ar-condicionado, DJ, aula particular, reforma e qualquer serviço que pode ser agendado. Para esses, use o chat normal ou a Guilda.</p>
+        <p><b>Outros ofícios:</b> a lupa 🔍 na linha de Emergência busca qualquer ofício cadastrado no site (por exemplo, advogado). O alerta vai só para os Helpers daquele ofício, e vale a mesma regra: só para o que não pode esperar.</p>
       </div></div>
     <div class="win"><div class="bar"><span class="t">sos-leia-antes.txt</span><i></i><i></i><i></i></div>
       <div class="body rules">
@@ -1567,7 +1586,7 @@ window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){loc
       <button type="button" class="cta2" data-apoio="patrocinio">Quero patrocinar</button>
     </div></div>
 </section>
-<footer>MiHelp — mais do que serviços, é solução. <small id="ver" style="opacity:.6">versão 2026-10-05 tutorial</small></footer>
+<footer>MiHelp — mais do que serviços, é solução. <small id="ver" style="opacity:.6">versão 2026-10-05 sos-topo</small></footer>
 </div>
 <aside class="side" aria-label="Publicidade"><div class="win"><div class="bar"><span class="t">publicidade</span><i></i><i></i><i></i></div><div class="vcol" id="vright"><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button></div></div></aside>
 </div>
@@ -2068,8 +2087,8 @@ function atualizarSosCount(){
   const bt=$('nudge'); if(bt) bt.setAttribute('aria-label','SOS, chamados urgentes usados hoje: '+urgenciasHoje+' de '+MAX_URG);
   el.classList.toggle('limite', urgenciasHoje>=MAX_URG);
 }
-document.querySelectorAll('#catRow button').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('#catRow button').forEach(x=>x.classList.remove('on'));
+document.querySelectorAll('#catRow button[data-cat]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#catRow button[data-cat]').forEach(x=>x.classList.remove('on'));
   if(catUrg===b.dataset.cat){catUrg='';return}
   b.classList.add('on'); catUrg=b.dataset.cat;
 }));
@@ -2079,7 +2098,7 @@ $('nudge').addEventListener('click',()=>{
   urgenciasHoje=lerSos();
   if(urgenciasHoje>=MAX_URG){nota(painel.sala,'*** limite de 3 urgências por dia atingido — use o chat normal ***');return;}
   urgenciasHoje++; gravarSos(); atualizarSosCount();
-  setTimeout(()=>{catUrg='';document.querySelectorAll('#catRow button').forEach(x=>x.classList.remove('on'))},1500);
+  setTimeout(()=>{catUrg='';document.querySelectorAll('#catRow button[data-cat]').forEach(x=>x.classList.remove('on'))},1500);
   try{if(window.MH_DB&&MH_DB.ok)MH_DB.enviar('sala',eu,'SOS '+catUrg,null,{tipo:'sos',categoria:catUrg})}catch(x){}
   const w=$('cw');w.classList.remove('shake');void w.offsetWidth;w.classList.add('shake');
   // mensagem: quem é da categoria "vê" alerta (simulado no texto)
@@ -2093,11 +2112,48 @@ $('nudge').addEventListener('click',()=>{
   const soft=document.createElement('p'); soft.className='urg-soft'; soft.textContent='(quem não é de '+catUrg+' vê só: '+eu.nome+': preciso de '+catUrg.toLowerCase()+')';
   painel.sala.append(soft);
   // bot helper da categoria responde
-  const mapa={Elétrica:'Carla M.',Encanador:'Toninho','Gás de cozinha':'Nando G.',Chaveiro:'Beto C.',Borracheiro:'Jota B.'};
-  const quem=mapa[catUrg]||'Carla M.';
-  setTimeout(()=>{const b=por(quem);if(BOTS&&b&&!bloqueados.has(quem))linha(painel.sala,b,eu.nome+', vi seu SOS de '+catUrg+'. Me chama no privado.',{nome:eu.nome,texto:'SOS '+catUrg})},1200);
+  const cat0=catUrg;const bh=PESSOAS.find(p=>p.bot&&p.role==='helper'&&casaOficio(cat0,p.work));const quem=bh?bh.nome:'';
+  setTimeout(()=>{const b=por(quem);if(BOTS&&b&&!bloqueados.has(quem))linha(painel.sala,b,eu.nome+', vi seu SOS de '+cat0+'. Me chama no privado.',{nome:eu.nome,texto:'SOS '+cat0})},1200);
 });
 atualizarSosCount();
+/* lupa do SOS: busca qualquer ofício cadastrado e escolhe como categoria do chamado */
+(function(){
+const lb=$('catLupa'),row=$('catRow'),nb=$('nudge');if(!lb||!row)return;
+let dlg=null;
+const mk2=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const limpaExtra=()=>row.querySelectorAll('button.extra').forEach(x=>x.remove());
+function listaOficios(){
+ const m=new Map(),add=(w,n)=>{w=String(w||'').trim();const k=norm(w);if(!k||!n)return;const o=m.get(k)||{nome:w,n:0};o.n+=n;m.set(k,o)};
+ if(BOTS)PESSOAS.forEach(p=>{if(p.role==='helper'&&p.work)add(p.work,1)});
+ Object.values(window.MH_OFICIOS||{}).forEach(o=>add(o.nome,o.n));
+ return Array.from(m.values())}
+function escolhe(nome){
+ limpaExtra();catUrg='';
+ document.querySelectorAll('#catRow button[data-cat]').forEach(x=>x.classList.remove('on'));
+ const fx=Array.from(row.querySelectorAll('button[data-cat]')).find(b=>casaOficio(b.dataset.cat,nome));
+ if(fx){fx.click();return}
+ const b=document.createElement('button');b.type='button';b.className='extra on';b.dataset.cat=nome;b.title='Chamado urgente para '+nome+'. Toque para tirar.';b.textContent=nome;
+ b.addEventListener('click',()=>{if(catUrg===nome)catUrg='';b.remove()});
+ row.insertBefore(b,lb);catUrg=nome;
+ try{b.scrollIntoView({block:'nearest',inline:'nearest'})}catch(e){}}
+function abrir(){
+ if(!eu){nota(painel[ativa]||painel.sala,'*** cadastre-se para usar o SOS ***');return}
+ if(!dlg){dlg=document.createElement('dialog');dlg.id='lupaDlg';dlg.setAttribute('aria-label','Buscar profissional para o SOS');document.body.append(dlg);dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()})}
+ dlg.textContent='';
+ dlg.append(mk2('h3',0,'Buscar profissional'),mk2('p','note','Digite o serviço (ex.: advogado). Só aparecem ofícios que têm Helper cadastrado no site. O alerta vai só para os Helpers daquele ofício. Use só para o que não pode esperar.'));
+ const inp=document.createElement('input');inp.type='text';inp.maxLength=30;inp.autocomplete='off';inp.placeholder='Ex.: advogado, eletricista';inp.setAttribute('aria-label','Buscar ofício');
+ const res=mk2('div','lupa-res');
+ const pinta=()=>{res.textContent='';const q=norm(inp.value).trim();
+  const l=listaOficios().filter(o=>!q||norm(o.nome).includes(q)).sort((a,b)=>b.n-a.n||a.nome.localeCompare(b.nome,'pt-BR'));
+  if(!l.length){res.append(mk2('p','note',q?'Ninguém cadastrado como "'+inp.value.trim()+'" ainda. Escreva na sala ou use a Guilda.':'Ainda não há ofícios cadastrados.'));return}
+  l.slice(0,30).forEach(o=>{const b=mk2('button','lupa-it');b.type='button';b.append(mk2('b',0,o.nome),mk2('small',0,o.n+(o.n===1?' Helper cadastrado':' Helpers cadastrados')));b.onclick=()=>{escolhe(o.nome);dlg.close()};res.append(b)})};
+ inp.addEventListener('input',pinta);
+ const cx=mk2('button','cx','Cancelar');cx.type='button';cx.onclick=()=>dlg.close();
+ dlg.append(inp,res,cx);pinta();dlg.showModal();inp.focus()}
+lb.addEventListener('click',abrir);
+row.addEventListener('click',e=>{const b=e.target.closest('button[data-cat]');if(b&&!b.classList.contains('extra'))limpaExtra()});
+if(nb)nb.addEventListener('click',()=>{setTimeout(()=>{if(!catUrg)limpaExtra()},1600)});
+})();
 document.addEventListener('click',e=>{const b=e.target.closest('[data-u]');if(b)abrirPerfil(b.dataset.u)});
 $('ctabs').querySelector('.ctsala').addEventListener('click',()=>mostrar('sala'));
 $('pfav').addEventListener('click',()=>{if(ativa==='sala'||ativa.startsWith('r:'))return;const on=togFav(ativa);$('pfav').textContent=on?'★ Nos favoritos':'☆ Favoritar'});
@@ -2134,8 +2190,10 @@ const bipe=n=>{try{window.MH_SOM&&MH_SOM.tocar(n,800)}catch(e){}};
 const norm=t=>String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const SOS_RX={'encanador':/encan|hidraul/,'gas de cozinha':/\bgas\b|botij/,'eletrica':/eletric/,'chaveiro':/chave/,'borracheiro':/borrach|pneu/};
 /* só recebe o alerta quem é Helper da categoria (ou ADM) */
-function sosParaMim(cat){if(!eu)return false;if(eu.adm)return true;if(eu.role!=='helper')return false;
- const rx=SOS_RX[norm(cat)];return !!rx&&rx.test(norm(eu.work))}
+function casaOficio(cat,work){const c=norm(cat).trim(),w=norm(work).trim();if(!c||!w)return false;
+ for(const k in SOS_RX){if(SOS_RX[k].test(c))return SOS_RX[k].test(w)}
+ return c===w}
+function sosParaMim(cat){if(!eu)return false;if(eu.adm)return true;if(eu.role!=='helper')return false;return casaOficio(cat,eu.work)}
 const TIT0=document.title;let tflash=0;
 function alertaSos(cat){
  try{navigator.vibrate&&navigator.vibrate([300,150,300,150,300])}catch(e){}
@@ -3016,6 +3074,7 @@ async function lerNomes(){
  try{const r=await q(COL.perf).ascending('_createdDate').limit(1000).find(),it=(r&&r.items)||[],hs=[],fund=new Set();
   it.forEach(x=>{if(!x.nome)return;const n=String(x.nome);DB.nomes.add(n.toLowerCase());if(x.papel==='helper'){hs.push(x);if(fund.size<100)fund.add(n)}});
   window.MH_FUND=fund;
+  {const of={};it.forEach(x=>{if(x.papel==='helper'&&x.oficio){const w=String(x.oficio).trim(),k=w.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(!k)return;(of[k]=of[k]||{nome:w,n:0}).n++}});window.MH_OFICIOS=of}
   const ce=document.getElementById('contaPre'),k=DB.nomes.size;if(ce&&k>0){ce.hidden=false;ce.textContent='● '+k+(k===1?' pessoa já está':' pessoas já estão')+' na lista do Vale do Araguaia'}
   const he=document.getElementById('helperSemana');if(he&&hs.length){const h=hs[Math.floor(Date.now()/604800000)%hs.length];he.hidden=false;he.textContent='⭐ Helper da semana: '+h.nome+(h.oficio?' · '+h.oficio:'')}}
  catch(e){diag('perfis: '+msgErro(e),true)}}
