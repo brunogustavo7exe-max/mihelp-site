@@ -1653,7 +1653,7 @@ window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){loc
       <button type="button" class="cta2" data-apoio="patrocinio">Quero patrocinar</button>
     </div></div>
 </section>
-<footer>MiHelp — mais do que serviços, é solução. <small id="ver" style="opacity:.6">versão 2026-10-06 api-ligada</small></footer>
+<footer>MiHelp — mais do que serviços, é solução. <small id="ver" style="opacity:.6">versão 2026-10-06 api-erro</small></footer>
 </div>
 <aside class="side" aria-label="Publicidade"><div class="win"><div class="bar"><span class="t">publicidade</span><i></i><i></i><i></i></div><div class="vcol" id="vright"><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button></div></div></aside>
 </div>
@@ -2704,7 +2704,7 @@ function abrirLoginSenha(){
     const r=await A.req('/admin/login',{body:{senha:a.value}});
     ok.disabled=false;ok.textContent='Entrar';
     if(r.ok&&r.j&&r.j.token){A.setAdmTk(r.j.token);d.close();entrar();return}
-    er.textContent=r.status===429?'Muitas tentativas. Espere 15 minutos.':r.status===401?'Senha incorreta.':r.status===503?'O servidor ainda não tem a senha do administrador configurada.':'Sem conexão com o servidor. Tente de novo.';
+    er.textContent=r.status===429?'Muitas tentativas. Espere 15 minutos.':r.status===401?'Senha incorreta.':r.status===503?'O servidor ainda não tem a senha do administrador configurada.':r.status>=500?'O servidor respondeu com erro'+((r.j&&r.j.detalhe)?': '+r.j.detalhe:'.'):'Sem conexão com o servidor. Tente de novo.';
     a.value='';a.focus()});
   d.append(f);d.addEventListener('close',()=>d.remove());document.body.append(d);d.showModal();a.focus()}
 function abrirLogin(){
