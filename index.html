@@ -1035,6 +1035,238 @@ window.MH_PUBP=(window.MH_API&&MH_API.on())?MH_API.req('/config').then(r=>{try{i
 window.MH_DISCORD='https://discord.gg/eEe4nw7ss';
 window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){localStorage.setItem('mh_floor_v','2');localStorage.removeItem('mh_floor');localStorage.removeItem('mh_botsT');return {}}return JSON.parse(localStorage.getItem('mh_floor')||'{}')||{}}catch(e){return {}}})();
 </script>
+
+<style id="mobile-polish">
+/* =========================================================
+   MIHELP — MOBILE POLISH
+   O desktop permanece intacto. Estas regras entram só no celular.
+   ========================================================= */
+@media (max-width: 640px){
+  :root{
+    --mobile-gutter:16px;
+    --mobile-card:#191711;
+  }
+
+  html{overflow-x:hidden;}
+  body{
+    overflow-x:hidden;
+    background-image:
+      radial-gradient(520px 260px at 50% 0,#2a2210 0,transparent 72%),
+      linear-gradient(180deg,#0d0c09 0%,#11100d 38%,#0d0c09 100%);
+  }
+
+  /* Barras do topo: menos altura, mais cara de aplicativo */
+  .top-letreiros{
+    box-shadow:0 6px 20px rgba(0,0,0,.42);
+  }
+  .top-letreiros .tk{
+    min-height:34px;
+  }
+  .top-letreiros .tkw{padding:7px 0;}
+  .top-letreiros .tkl{padding:7px 9px;}
+
+  .shell{width:100%;}
+  .wrap{
+    width:100%;
+    max-width:none;
+    padding:18px var(--mobile-gutter) 48px;
+  }
+
+  /* Cabeçalho vira uma área própria, sem brigar com o conteúdo */
+  .top{
+    display:block;
+    margin-bottom:18px;
+  }
+  .brand{
+    width:100%;
+    min-height:34px;
+    margin-bottom:13px;
+  }
+  .brand .logo{height:32px;max-width:180px;object-fit:contain;}
+  .brand div:last-child{font-size:17px;}
+
+  /* Menu com apenas as ações principais à vista.
+     O JS cria o botão "Mais" para o restante. */
+  .nv{
+    width:100%;
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:7px;
+    margin:0;
+    padding:0;
+    overflow:visible;
+  }
+  .nv a.more,.nv button.more{
+    width:100%;
+    min-height:38px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:8px 7px;
+    border-radius:10px;
+    font-size:12px;
+    line-height:1.1;
+    white-space:normal;
+    text-align:center;
+    background:rgba(29,26,20,.88);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+  }
+  .nv.mobile-collapsed a:nth-of-type(n+5),
+  .nv.mobile-collapsed #navSup{display:none;}
+  #mobileNavMore{
+    display:flex;
+    width:100%;
+    min-height:38px;
+    align-items:center;
+    justify-content:center;
+    border:1px solid var(--line);
+    border-radius:10px;
+    background:linear-gradient(180deg,#272113,#1a160e);
+    color:var(--gold2);
+    font:700 12px var(--sans);
+    cursor:pointer;
+  }
+  #mobileNavMore[aria-expanded="true"]{grid-column:1 / -1;}
+  .nv.mobile-expanded #mobileNavMore{display:flex;}
+  .nv.mobile-expanded a.more,.nv.mobile-expanded button.more{display:flex;}
+
+  /* Hero: mais respiro e hierarquia */
+  h1.glitch{
+    font-size:clamp(29px,8.5vw,38px);
+    line-height:1.04;
+    letter-spacing:-.035em;
+    margin:26px 0 14px;
+    max-width:15ch;
+  }
+  h1 span{margin-top:4px;}
+  .sub{
+    font-size:14px;
+    line-height:1.65;
+    margin:0 0 20px;
+    max-width:40ch;
+  }
+  .sub::after{margin-left:2px;}
+
+  /* A "Feira digital" deixa de parecer texto colado na página */
+  .feira-note{
+    position:relative;
+    margin:0 0 26px;
+    padding:17px 16px 17px 18px;
+    border:1px solid rgba(232,185,60,.20);
+    border-left:3px solid var(--gold);
+    border-radius:14px;
+    background:
+      linear-gradient(135deg,rgba(232,185,60,.075),rgba(255,255,255,.018) 55%,rgba(0,0,0,.10));
+    box-shadow:0 12px 28px rgba(0,0,0,.24);
+    font-size:14px;
+    line-height:1.65;
+  }
+  .feira-note b:first-child{
+    display:block;
+    font-size:16px;
+    margin-bottom:5px;
+    color:var(--gold2);
+  }
+  .feira-note a{
+    display:inline-flex;
+    margin-top:10px;
+    padding:6px 9px;
+    border:1px solid var(--line);
+    border-radius:7px;
+    background:rgba(0,0,0,.16);
+    font-weight:700;
+    text-decoration:none;
+  }
+
+  /* Seções: ritmo vertical consistente */
+  section,#saiba,#seguranca,#taxas,#duvidas,#apoie,#patrocinio{
+    margin-top:42px;
+    scroll-margin-top:calc(var(--sticky-h,0px) + 18px);
+  }
+  section h2,#saiba h2,#taxas h2,#seguranca h2,#duvidas h2,#apoie h2,#patrocinio h2,#reputacao h2{
+    font-size:24px;
+    line-height:1.12;
+    margin:0 0 9px;
+    letter-spacing:-.02em;
+  }
+  .lead,#saiba .lead,#taxas .lead,#seguranca .lead,#duvidas .lead,#apoie .lead,#patrocinio .lead,#reputacao .lead{
+    font-size:14px;
+    line-height:1.65;
+    margin:0 0 16px;
+  }
+
+  /* Janelas viram cards mais sofisticados */
+  .win{
+    border-radius:14px 14px 10px 10px;
+    border-color:#3a3222;
+    box-shadow:0 14px 34px rgba(0,0,0,.34);
+  }
+  .bar{
+    min-height:34px;
+    padding:7px 10px;
+    font-size:11px;
+  }
+  .bar i{width:10px;height:10px;}
+  .body{padding:16px;}
+
+  /* Formulário: menos sensação de planilha */
+  .seg{margin-bottom:17px;padding:4px;border-radius:11px;}
+  .seg button{min-height:42px;padding:9px 7px;font-size:13px;}
+  .role{gap:8px;margin-bottom:17px;}
+  .role span{min-height:42px;display:flex;align-items:center;justify-content:center;border-radius:9px;}
+  .f{margin-bottom:15px;}
+  label{font-size:13px;margin-bottom:6px;}
+  input[type=text],input[type=tel],input[type=email],input[type=number]{
+    min-height:44px;
+    padding:11px 12px;
+    border-radius:9px;
+    background:#100e0a;
+  }
+  .go,.cta2{
+    min-height:44px;
+    border-radius:10px;
+    font-size:14px;
+  }
+  .note{line-height:1.55;}
+
+  /* Meta/tabelas: largura confortável */
+  .two{gap:14px;}
+  .tb{min-width:0;width:100%;font-size:13px;}
+  .tb th,.tb td{padding:10px 7px;}
+  .tb td:nth-child(2){font-size:17px;}
+
+  /* Grade de vagas/patrocinadores sem elementos apertados */
+  .vgrid,.slots{gap:10px;}
+  .vg{border-radius:11px;min-height:124px;padding:12px;}
+  .vg b{font-size:14px;line-height:1.3;}
+  .vg span.tx{font-size:13px;line-height:1.45;}
+  .slots .slot{padding:22px 8px;min-height:90px;}
+
+  /* Chat continua compacto, mas com área de toque decente */
+  .chat{min-height:330px;}
+  #cw:not(.full) .log{height:clamp(170px,32vh,280px);font-size:13px;line-height:1.6;}
+  #cw:not(.full) .who.open{max-height:200px;}
+  .send{padding:10px;gap:6px;}
+  .send input{min-height:42px;}
+  .send button,.sos-wrap button{min-height:38px;padding:8px 10px;}
+
+  /* Evita componentes horizontais escapando da tela */
+  img,video,iframe,table{max-width:100%;}
+  .tw{max-width:100%;}
+  dialog{width:calc(100vw - 28px);border-radius:14px;}
+
+  footer{padding-top:10px;}
+}
+
+@media (max-width:380px){
+  .wrap{padding-left:13px;padding-right:13px;}
+  h1.glitch{font-size:27px;}
+  .nv{grid-template-columns:1fr 1fr;}
+  .feira-note{padding:15px 14px 15px 16px;}
+}
+
+@media (min-width:641px){#mobileNavMore{display:none!important;}}
+</style>
 </head>
 <body>
 <div id="topLetreiros" class="top-letreiros">
@@ -1355,7 +1587,7 @@ window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){loc
     <div class="bar"><span class="t">outdoors digitais — ao vivo</span><i></i><i></i><i></i></div>
     <div class="body">
       <p class="vgi"><span class="nw">NOVO!</span> Outdoors digitais: cada R$ 1 vale 1 minuto no ar. Clique numa vaga aberta. São 30 slots: cada área troca de página sozinha a cada 10 segundos, e as bolinhas levam direto a uma página. No computador, tem vagas aqui em cima e nas laterais. Todo anúncio aparece como <b>Publicidade</b>.</p>
-      <div class="vgrid" id="vgrid"><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button></div>
+      <div class="vgrid" id="vgrid"><div class="mobile-ad-cta" aria-label="Publicidade no celular"><span>Quer anunciar aqui? As vagas ficam no topo para todo mundo ver.</span><button type="button" class="cta2" onclick="document.querySelector('#vgrid .vg.open')?.click()">Anunciar</button></div><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button></div>
       <p class="note" id="vgmsg" role="status"></p>
     </div>
   </div>
@@ -4039,5 +4271,240 @@ const bx=$('avgX');if(bx)bx.onclick=()=>{try{localStorage.setItem(KX,String(cur.
 mostra();setInterval(mostra,60000);
 })()}catch(e){console.error('MiHelp (aviso):',e)}
 </script>
+
+<script id="mobile-nav-polish">
+(function(){
+  function setup(){
+    const nav=document.querySelector('.nv');
+    if(!nav || nav.dataset.mobilePolished)return;
+    nav.dataset.mobilePolished='1';
+    const more=document.createElement('button');
+    more.type='button';
+    more.id='mobileNavMore';
+    more.textContent='Mais opções +';
+    more.setAttribute('aria-expanded','false');
+    nav.appendChild(more);
+    function sync(){
+      const mobile=window.matchMedia('(max-width:640px)').matches;
+      if(!mobile){nav.classList.remove('mobile-collapsed','mobile-expanded');more.setAttribute('aria-expanded','false');return;}
+      if(!nav.classList.contains('mobile-expanded'))nav.classList.add('mobile-collapsed');
+    }
+    more.addEventListener('click',function(){
+      const open=nav.classList.toggle('mobile-expanded');
+      nav.classList.toggle('mobile-collapsed',!open);
+      more.setAttribute('aria-expanded',String(open));
+      more.textContent=open?'Fechar menu −':'Mais opções +';
+    });
+    sync();
+    window.addEventListener('resize',sync,{passive:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
+})();
+</script>
 </body>
 </html>
+
+<style id="mobile-ads-final">
+/* =========================================================
+   PUBLICIDADE MOBILE — as vagas laterais sobem para o topo
+   ========================================================= */
+@media (max-width: 1199px){
+  #adtop{
+    display:block!important;
+    position:relative;
+    z-index:45;
+    padding:8px 10px 10px;
+    background:var(--deep);
+    border-bottom:1px solid var(--line);
+  }
+  #adtop[hidden]{display:block!important}
+  #adtop .adw{
+    display:flex;
+    gap:9px;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  #adtop .adw::-webkit-scrollbar{display:none}
+  #adtop .adc{
+    flex:0 0 min(88vw,360px);
+    min-height:74px;
+    box-sizing:border-box;
+    scroll-snap-align:start;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 11px;
+    border:1px solid var(--line);
+    border-radius:11px;
+    background:var(--bg);
+    color:var(--text);
+    text-align:left;
+    font:inherit;
+    cursor:pointer;
+    box-shadow:0 5px 16px rgba(0,0,0,.18);
+  }
+  #adtop .adc.open-ad{
+    border-color:rgba(220,177,53,.48);
+    background:linear-gradient(180deg,rgba(220,177,53,.08),var(--bg));
+  }
+  #adtop .ad-icon{
+    flex:none;
+    width:48px;
+    height:48px;
+    border-radius:9px;
+    display:grid;
+    place-items:center;
+    background:rgba(220,177,53,.12);
+    border:1px dashed var(--gold);
+    color:var(--gold2);
+    font:800 18px var(--mono);
+  }
+  #adtop .adt{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+  #adtop .adt small{font:700 9px var(--mono);color:var(--gold2);letter-spacing:.06em;text-transform:uppercase}
+  #adtop .adt b{font-size:14px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #adtop .adt span{font-size:12px;color:var(--read);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  #adtop .ad-arrow{flex:none;color:var(--gold2);font-size:20px;line-height:1}
+  #adtop .add{display:flex;justify-content:center;gap:5px;padding:6px 0 0}
+  #adtop .add i{width:5px;height:5px;border-radius:50%;background:var(--line)}
+  #adtop .add i.on{background:var(--gold)}
+}
+
+@media (max-width:640px){
+  /* A publicidade fica perto da primeira dobra, não escondida no rodapé. */
+  #adtop{margin:0}
+  #adtop .adc{flex-basis:calc(100vw - 42px);min-height:70px}
+
+  /* A grade enorme de vagas continua disponível no desktop/tablet,
+     mas no celular não ocupa uma página inteira. O carrossel do topo é a vitrine. */
+  #vagas .vgrid{display:none}
+  #vagas .vgi{margin-bottom:8px}
+  #vagas .mobile-ad-cta{
+    display:flex!important;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:10px;
+    padding:11px 12px;
+    border:1px dashed var(--line);
+    border-radius:9px;
+    background:var(--bg);
+  }
+  #vagas .mobile-ad-cta span{font-size:12px;color:var(--mute);line-height:1.35}
+  #vagas .mobile-ad-cta button{flex:none}
+}
+
+@media (min-width:641px){
+  #vagas .mobile-ad-cta{display:none!important}
+}
+</style>
+<script>
+/* Publicidade mobile: transforma as vagas laterais + slots do outdoor
+   em uma vitrine no topo. Não depende de anúncios pagos existirem. */
+(function(){
+  function instalarPublicidadeMobile(){
+    const box=document.getElementById('adtop');
+    if(!box)return;
+    const vs=window.MH_ADS&&typeof window.MH_ADS.vs==='function'?window.MH_ADS.vs():null;
+    const now=Date.now();
+    const cards=[];
+    const usados=new Set();
+
+    if(Array.isArray(vs)){
+      vs.forEach((v,i)=>{
+        if(v && v.end>now){cards.push({v,i,open:false});usados.add(i)}
+      });
+      /* Sempre deixa algumas vagas livres visíveis para vender publicidade. */
+      for(let i=0;i<vs.length && cards.length<6;i++){
+        if(!vs[i]){cards.push({v:null,i,open:true});usados.add(i)}
+      }
+    }
+
+    /* Fallback para a primeira carga, caso MH_ADS ainda não exista. */
+    if(!cards.length){
+      for(let i=0;i<4;i++)cards.push({v:null,i,open:true});
+    }
+
+    box.hidden=false;
+    box.innerHTML='';
+    const w=document.createElement('div');w.className='adw';
+    const dots=document.createElement('div');dots.className='add';
+
+    cards.forEach((item,k)=>{
+      const v=item.v;
+      const c=document.createElement('button');
+      c.type='button';
+      c.className='adc'+(item.open?' open-ad':'');
+      c.setAttribute('aria-label',item.open?'Vaga aberta para anunciar':'Publicidade: '+v.name);
+
+      if(v && v.img){
+        const im=document.createElement('img');
+        im.src=v.img;im.alt='';im.loading='lazy';
+        c.appendChild(im);
+      }else{
+        const ic=document.createElement('span');ic.className='ad-icon';ic.textContent=item.open?'$':'•';c.appendChild(ic);
+      }
+
+      const t=document.createElement('div');t.className='adt';
+      const small=document.createElement('small');small.textContent='Publicidade';
+      const b=document.createElement('b');b.textContent=item.open?'Vaga aberta':v.name;
+      const s=document.createElement('span');s.textContent=item.open?'A partir de R$ 5 · coloque sua marca aqui':v.text;
+      t.append(small,b,s);c.appendChild(t);
+      const ar=document.createElement('span');ar.className='ad-arrow';ar.textContent='›';c.appendChild(ar);
+
+      c.addEventListener('click',function(){
+        if(item.open){
+          const alvo=document.getElementById('vagas');
+          if(alvo)alvo.scrollIntoView({behavior:'smooth',block:'start'});
+          setTimeout(function(){
+            const btn=document.querySelector('#vgrid .vg.open');
+            if(btn)btn.click();
+          },350);
+        }else if(v.link && /^https?:\/\//i.test(v.link)){
+          window.open(v.link,'_blank','noopener');
+        }else{
+          const alvo=document.getElementById('vagas');
+          if(alvo)alvo.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+      });
+      w.appendChild(c);
+      const d=document.createElement('i');if(k===0)d.className='on';dots.appendChild(d);
+    });
+
+    box.appendChild(w);
+    if(cards.length>1)box.appendChild(dots);
+
+    let idx=0;
+    function pintar(){
+      const largura=w.clientWidth+9;
+      w.scrollTo({left:idx*largura,behavior:'smooth'});
+      Array.from(dots.children).forEach((d,i)=>d.className=i===idx?'on':'');
+    }
+    w.addEventListener('scroll',function(){
+      idx=Math.round(w.scrollLeft/Math.max(1,w.clientWidth+9));
+      idx=Math.max(0,Math.min(idx,cards.length-1));
+      Array.from(dots.children).forEach((d,i)=>d.className=i===idx?'on':'');
+    },{passive:true});
+
+    if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches && cards.length>1){
+      clearInterval(box._mobileAdTimer);
+      box._mobileAdTimer=setInterval(function(){
+        if(document.hidden)return;
+        idx=(idx+1)%cards.length;
+        pintar();
+      },5000);
+    }
+  }
+
+  /* O código original também atualiza anúncios; damos prioridade à nossa vitrine. */
+  window.MH_mobileAds=instalarPublicidadeMobile;
+  function tentar(){
+    try{instalarPublicidadeMobile()}catch(e){console.error('MiHelp mobile ads:',e)}
+  }
+  setTimeout(tentar,500);
+  setTimeout(tentar,1600);
+  setTimeout(tentar,3200);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(tentar,150)});
+})();
+</script>
