@@ -1417,7 +1417,7 @@ window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){loc
       <details><summary>Criar conta, entrar e sair</summary>
         <p><b>Criar conta:</b> na janela "Pré-cadastro", deixe marcado "Criar conta". Escolha <b>Sou Cliente</b> (quem precisa de um serviço) ou <b>Sou Helper</b> (quem faz o serviço). O Helper também escreve com o que trabalha, por exemplo "Pintura" ou "Encanador". Depois preencha nome, telefone, e-mail e uma senha de pelo menos 6 letras ou números, marque a caixinha de aceite e toque em <b>Garantir meu lugar</b>.</p>
         <p><b>Seu nome no chat:</b> aparece só o primeiro nome e a inicial do segundo, por exemplo "Maria S.". O telefone e o e-mail não aparecem para ninguém.</p>
-        <p id="faqEntrar"><b>Entrar de novo:</b> toque em "Já tenho conta", digite o nome e a senha e toque em Entrar. A conta fica salva só no aparelho onde você a criou. Em outro aparelho, é preciso criar uma conta nova.</p>
+        <p id="faqEntrar"><b>Entrar de novo:</b> toque em "Já tenho conta", digite o telefone cadastrado e a senha e toque em Entrar. O telefone identifica sua conta.</p>
         <p><b>Manter conectado:</b> com essa caixinha marcada, você entra sozinho da próxima vez.</p>
         <p><b>Sair:</b> toque em "Sair" na barra da janela do chat. Toque duas vezes, a segunda confirma.</p>
         <p><b>Esqueci a senha:</b> hoje não existe recuperação de senha. Chame o suporte ou crie uma conta nova.</p>
@@ -2743,8 +2743,36 @@ document.querySelectorAll('.previa').forEach(e=>{e.hidden=!PREVIA});
 }catch(e){console.error('MiHelp (vagas):',e)}
 try{iniciarPix()}catch(e){console.error('MiHelp (pix e letreiro):',e)}
 
+async function sincronizarAnunciosPagosMobile(){
+  try{
+    const api=String((window.MH_CFG||{}).api||'').replace(/\/+$/,'');
+    const A=window.MH_ADS;
+    if(!api || !A || typeof A.put!=='function') return;
+    const r=await fetch(api+'/anuncios',{method:'GET',cache:'no-store'});
+    if(!r.ok) return;
+    const j=await r.json();
+    if(!j || !Array.isArray(j.anuncios)) return;
+    const ativos=new Set();
+    const agora=Date.now();
+    j.anuncios.forEach(a=>{
+      const ini=a.inicio?new Date(a.inicio.$date||a.inicio).getTime():agora;
+      const fim=a.validade?new Date(a.validade.$date||a.validade).getTime():ini+Number(a.minutos||0)*60000;
+      if(!Number.isFinite(fim)||fim<=agora)return;
+      const i=Math.max(0,Number(a.vaga||1)-1);
+      if(i>=A.total)return;
+      ativos.add(i);
+      A.put(i,{name:String(a.nome||'Publicidade'),text:String(a.texto||''),end:fim,total:Math.max(1000,fim-ini),tag:'PATROCINADO',img:a.imagem||null,link:a.link||'',_db:true,_paid:true});
+    });
+    // Remove apenas anúncios vindos do banco que já não estão ativos.
+    const old=window._mhPaidMobileAds||new Set();
+    old.forEach(i=>{if(!ativos.has(i)){const v=A.vs()[i];if(v&&v._paid)A.clear(i)}});
+    window._mhPaidMobileAds=ativos;
+    if(typeof window.MH_MOBILE_ADS_REFRESH==='function')window.MH_MOBILE_ADS_REFRESH();
+  }catch(e){console.warn('MiHelp anúncios mobile:',e)}
+}
+
 function iniciarStickyAds(){
-  return; // pubs no header removidas — só letreiros sticky
+  // anúncios pagos reais são carregados pelo endpoint público e entram no mesmo carrossel mobile
   const name=document.getElementById('stickyAdName');
   const text=document.getElementById('stickyAdText');
   const cta=document.getElementById('stickyAdCta');
@@ -2782,6 +2810,7 @@ function iniciarStickyAds(){
   }
 }
 try{iniciarStickyAds();}catch(e){console.error('MiHelp sticky ads:',e)}
+try{sincronizarAnunciosPagosMobile();setInterval(sincronizarAnunciosPagosMobile,15000)}catch(e){console.error('MiHelp sync anúncios:',e)}
 
 try{
 document.querySelectorAll('a[href^="#"]').forEach(a=>{const h=a.getAttribute('href');if(h.length>1){a.dataset.go=h.slice(1);a.removeAttribute('href');a.setAttribute('role','link');a.tabIndex=0}});
@@ -3661,13 +3690,14 @@ let sairT=null;
 sair.onclick=()=>{if(!sair.dataset.c){sair.dataset.c='1';sair.textContent='Toque para sair';clearTimeout(sairT);sairT=setTimeout(()=>{delete sair.dataset.c;sair.textContent='Sair'},4000);return}
 try{localStorage.removeItem('mh_sess');sessionStorage.removeItem('mh_sess');localStorage.removeItem('mh_eu');sessionStorage.removeItem('mh_adm');localStorage.removeItem('mh_tk');sessionStorage.removeItem('mh_tk');sessionStorage.removeItem('mh_admtk')}catch(e){}location.reload()};
 /* a "chave" que vai ao servidor é derivada no navegador (PBKDF2); a senha em si nunca sai daqui */
-const chaveDe=(nome,pw)=>hash(pw,new TextEncoder().encode('mihelp:'+String(nome).trim().replace(/\s+/g,' ').toLowerCase()));
+const normalizaTel=v=>String(v||'').replace(/\D/g,'');
+const chaveDe=(ident,pw)=>hash(pw,new TextEncoder().encode('mihelp:'+String(ident).trim().replace(/\s+/g,' ').toLowerCase()));
 window.MH_conta={async criar(d,pw){
   const salt=crypto.getRandomValues(new Uint8Array(16)),a=J('mh_acc',{});
-  a[d.nome.toLowerCase()]={nome:d.nome,role:d.role,work:d.work,salt:b64(salt),hash:await hash(pw,salt)};
+  a[d.nome.toLowerCase()]={nome:d.nome,role:d.role,work:d.work,tel:normalizaTel(d.tel),salt:b64(salt),hash:await hash(pw,salt)};
   S('mh_acc',a);guarda(d.nome);
   const A=window.MH_API;
-  if(A&&A.on()){try{const r=await A.req('/conta/criar',{body:{nome:d.nome,chave:await chaveDe(d.nome,pw),papel:d.role,oficio:d.work,tel:d.tel,email:d.em}});
+  if(A&&A.on()){try{const r=await A.req('/conta/criar',{body:{nome:d.nome,chave:await chaveDe(normalizaTel(d.tel),pw),papel:d.role,oficio:d.work,tel:normalizaTel(d.tel),email:d.em}});
     if(r.ok&&r.j&&r.j.token)A.setUsrTk(r.j.token);
     else if(r.status===409&&window.MH_UI&&MH_UI.nota)MH_UI.nota('*** Esse nome já tem conta em outro aparelho. Para entrar nela, toque em "Já tenho conta". ***')}catch(e){}}}};
 {const kb=mk('label');kb.style.cssText='display:flex;gap:8px;align-items:center;margin-top:8px;cursor:pointer';const kc=mk('input');kc.type='checkbox';kc.id='mantem';kc.checked=localStorage.getItem('mh_keep')!=='0';kb.append(kc,document.createTextNode('Manter conectado neste aparelho'));$('pwf').append(kb)}
@@ -3675,33 +3705,46 @@ let login=false;const f=$('f'),jt=$('jaTenho');
 const esconde=()=>[document.querySelector('#f .role'),$('trab'),$('t').closest('.f'),$('e').closest('.f'),document.querySelector('#f label.chk')];
 function modo(on){login=on;esconde().forEach(e=>{if(e){if(on)e.style.setProperty('display','none','important');else e.style.removeProperty('display')}});if(on)$('trab').hidden=true;else if(typeof 0==='number'){const h=document.querySelector('input[name=r]:checked');$('trab').hidden=!(h&&h.value==='Helper')}
   $('pw').autocomplete=on?'current-password':'new-password';$('pwf').querySelector('small').style.display=on?'none':'block';
+  const idLabel=$('n').closest('.f')?.querySelector('label');
+  if(idLabel)idLabel.textContent=on?'Telefone':'Nome';
+  $('n').type=on?'tel':'text';$('n').inputMode=on?'numeric':'';$('n').autocomplete=on?'tel':'name';$('n').placeholder=on?'(66) 90000-0000':'';
   $('btnCad').textContent=on?'Entrar':'Garantir meu lugar';jt.textContent=on?'Quero criar uma conta':'Já tenho conta: entrar';
   const er=$('ferr');if(er){er.style.display='none'}try{marca()}catch(x){}}
 jt.addEventListener('click',e=>{e.preventDefault();modo(!login)});
 const sgC=$('segCriar'),sgE=$('segEntrar'),pwH=$('pwHint'),pwE=$('pwEye'),API_ON=!!(window.MH_API&&MH_API.on()),HT=API_ON?'Mínimo 6 caracteres. Sua conta funciona em qualquer aparelho. Não use a senha de outros sites.':'Mínimo 6 caracteres. A conta fica salva neste aparelho. Não use a senha de outros sites.';
 function marca(){sgC.setAttribute('aria-pressed',String(!login));sgE.setAttribute('aria-pressed',String(login));
  $('pwf').querySelector('label').textContent='Senha';pwH.style.display='block';pwH.classList.remove('ok');
- pwH.textContent=login?(API_ON?'Use o mesmo nome e a mesma senha de quando criou a conta.':'A conta só abre no aparelho onde foi criada.'):HT;{const cn=$('cadNota');if(cn)cn.style.display=login?'none':''}$('pw').placeholder=login?'Sua senha':'Mínimo 6 caracteres'}
+ pwH.textContent=login?(API_ON?'Use o telefone cadastrado e a mesma senha da sua conta.':'Use o telefone cadastrado neste aparelho.'):HT;{const cn=$('cadNota');if(cn)cn.style.display=login?'none':''}$('pw').placeholder=login?'Sua senha':'Mínimo 6 caracteres'}
 sgC.onclick=()=>{if(login)modo(false)};sgE.onclick=()=>{if(!login)modo(true)};
 pwE.onclick=()=>{const v=$('pw').type==='password';$('pw').type=v?'text':'password';pwE.textContent=v?'Ocultar':'Mostrar';pwE.setAttribute('aria-pressed',String(v));pwE.setAttribute('aria-label',v?'Ocultar senha':'Mostrar senha')};
 $('pw').addEventListener('input',()=>{if(login)return;const n=$('pw').value.length;pwH.classList.toggle('ok',n>=6);pwH.textContent=n>=6?'Senha boa. Anote para não esquecer.':HT});
-{const fe=document.getElementById('faqEntrar');if(fe&&API_ON){fe.textContent='';const b=document.createElement('b');b.textContent='Entrar de novo:';fe.append(b,document.createTextNode(' toque em "Já tenho conta", digite o nome e a senha e toque em Entrar. Sua conta funciona em qualquer aparelho, com o mesmo nome e a mesma senha.'))}}
+{const fe=document.getElementById('faqEntrar');if(fe&&API_ON){fe.textContent='';const b=document.createElement('b');b.textContent='Entrar de novo:';fe.append(b,document.createTextNode(' toque em "Já tenho conta", digite o telefone cadastrado e a senha e toque em Entrar. O telefone é o seu identificador de acesso.'))}}
 const erro=m=>{const er=$('ferr');if(er){er.style.display='block';er.textContent=m}};
 async function entrar(){
-  const nome=$('n').value.trim().replace(/\s+/g,' '),pw=$('pw').value;
-  if(!nome||!pw)return erro('Digite seu nome e sua senha.');
+  const ident=$('n').value.trim(),tel=normalizaTel(ident),pw=$('pw').value;
+  if(!tel||tel.length<10||!pw)return erro('Digite seu telefone cadastrado e sua senha.');
   const A=window.MH_API,on=!!(A&&A.on());let st=-1;
-  if(on){const r=await A.req('/conta/entrar',{body:{nome,chave:await chaveDe(nome,pw)}});st=r.status;
+  if(on){
+    /* Login principal por telefone. Se houver uma conta antiga salva neste aparelho,
+       enviamos também a chave legada derivada do nome para permitir a migração. */
+    const contasLeg=J('mh_acc',{});
+    const contaLeg=Object.values(contasLeg).find(x=>normalizaTel(x&&x.tel)===tel);
+    const r=await A.req('/conta/entrar',{body:{tel,chave:await chaveDe(tel,pw),chaveLegada:contaLeg?await chaveDe(contaLeg.nome,pw):'',identificador:tel}});st=r.status;
     if(r.ok&&r.j&&r.j.token){A.setUsrTk(r.j.token);const c={nome:r.j.nome,role:r.j.papel==='helper'?'helper':'cliente',work:r.j.oficio||''};guarda(c.nome);MH_UI.entrarConta(c);return}
-    if(st===401)return erro('Nome ou senha incorretos.');
-    if(st===429)return erro('Muitas tentativas. Espere 15 minutos e tente de novo.')}
-  const c=J('mh_acc',{})[nome.toLowerCase()];
-  await new Promise(r=>setTimeout(r,500));
-  if(!c||(await hash(pw,ub(c.salt)))!==c.hash)return erro(on?(st===0?'Sem conexão com o servidor. Tente de novo.':'Nome ou senha incorretos.'):'Nome ou senha incorretos. A conta fica salva só no aparelho onde foi criada.');
+    if(st===401)return erro('Telefone ou senha incorretos.');
+    if(st===429)return erro('Muitas tentativas. Espere 15 minutos e tente de novo.')
+  }
+  /* Fallback local: procura a conta pelo telefone cadastrado. */
+  const contas=J('mh_acc',{});
+  const c=Object.values(contas).find(x=>normalizaTel(x&&x.tel)===tel);
+  await new Promise(r=>setTimeout(r,350));
+  if(!c||(await hash(pw,ub(c.salt)))!==c.hash)return erro(on?(st===0?'Sem conexão com o servidor. Tente de novo.':'Telefone ou senha incorretos.'):'Telefone ou senha incorretos.');
   guarda(c.nome);
-  /* conta antiga (só neste aparelho): passa para o servidor no primeiro login, sem o usuário fazer nada */
-  if(on&&st===404){try{const r=await A.req('/conta/criar',{body:{nome:c.nome,chave:await chaveDe(c.nome,pw),papel:c.role,oficio:c.work}});if(r.ok&&r.j&&r.j.token)A.setUsrTk(r.j.token)}catch(e){}}
-  MH_UI.entrarConta(c)}
+  /* Conta antiga criada antes do login por telefone: se ainda não tiver tel, não dá para
+     migrar automaticamente sem conhecer o número. */
+  if(on&&st===404){try{const r=await A.req('/conta/criar',{body:{nome:c.nome,tel:tel,chave:await chaveDe(tel,pw),papel:c.role,oficio:c.work}});if(r.ok&&r.j&&r.j.token)A.setUsrTk(r.j.token)}catch(e){}}
+  MH_UI.entrarConta(c)
+}
 const barra=ev=>{if(!login)return;ev.preventDefault();ev.stopImmediatePropagation();entrar()};
 f.addEventListener('click',ev=>{if(ev.target.closest('#btnCad'))barra(ev)},true);
 document.addEventListener('submit',ev=>{if(ev.target===f)barra(ev)},true);
@@ -4499,6 +4542,7 @@ mostra();setInterval(mostra,60000);
 
   /* O código original também atualiza anúncios; damos prioridade à nossa vitrine. */
   window.MH_mobileAds=instalarPublicidadeMobile;
+  window.MH_MOBILE_ADS_REFRESH=instalarPublicidadeMobile;
   function tentar(){
     try{instalarPublicidadeMobile()}catch(e){console.error('MiHelp mobile ads:',e)}
   }
