@@ -190,7 +190,7 @@ footer{font-size:13px;color:var(--mute)}
 .slot{border:1px dashed var(--line);border-radius:10px;padding:28px 8px;text-align:center;font:600 14px var(--mono);color:var(--mute)}
 
 .vgi{margin:0 0 14px;color:var(--read);font-size:16px;line-height:1.6}
-.vgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.vgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 @media(max-width:760px){.vgrid{grid-template-columns:repeat(2,1fr)}}
 .vg{min-height:136px;border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:12px;text-align:left;color:var(--text);font:inherit;display:flex;flex-direction:column;justify-content:space-between;gap:6px}
 .vg b{font-size:16px;line-height:1.25}
@@ -1273,6 +1273,18 @@ window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){loc
 
 @media (min-width:641px){#mobileNavMore{display:none!important;}}
 </style>
+<style id="mh-menu-simples">
+/* Menu simples: só "Suporte" e "Mais informações" (abre o resto) */
+nav.nv.nv-s{display:flex!important;flex-wrap:wrap;gap:8px;overflow:visible!important;width:100%;margin:10px 0 12px;padding:0;align-items:center}
+nav.nv.nv-s>.more{display:none!important}
+nav.nv.nv-s>#navSup,nav.nv.nv-s>#navMais{display:inline-flex!important;align-items:center;justify-content:center;gap:6px;width:auto;min-height:42px;padding:8px 16px;border-radius:999px;font:700 15px var(--sans);line-height:1.1;white-space:nowrap;cursor:pointer;background:var(--surf);border:1px solid var(--line);color:var(--gold2)}
+nav.nv.nv-s>#navSup{border-color:var(--gold)}
+nav.nv.nv-s>#navSup:hover,nav.nv.nv-s>#navMais:hover{border-color:var(--gold)}
+nav.nv.nv-s.nv-aberto{padding:0}
+nav.nv.nv-s.nv-aberto>.more:not(#navSup):not(#navMais){display:inline-flex!important;align-items:center;min-height:38px;padding:6px 12px;border-radius:999px;font:600 14px var(--sans);width:auto;white-space:nowrap}
+@media(max-width:640px){nav.nv.nv-s>#navSup,nav.nv.nv-s>#navMais{flex:1 1 0;min-width:0;font-size:14px;padding:8px 10px}nav.nv.nv-s.nv-aberto>.more:not(#navSup):not(#navMais){flex:1 1 44%}}
+</style>
+<style id="mh-sem-centro">/* vagas só nas laterais: a grade do centro fica oculta (continua no código para os botões de anunciar) */#vgrid,#vgrid+.pgd{display:none!important}</style>
 <style id="mh-perfil-adm-css">
 /* ===== Perfil: botões de ação + bloco "Ações do ADM" ===== */
 dialog[aria-label="Perfil"]{padding:20px;width:min(94vw,460px)}
@@ -2676,12 +2688,12 @@ document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('show',p.id===b
 }catch(e){console.error('MiHelp (chat e cadastro):',e)}
 try{(function(){
 const dlg=document.getElementById('dlg'),msg=document.getElementById('vgmsg');
-const PG=3,PER=10;let pag=0,seguro=false;
-const cont=[[0,4,document.getElementById('vgrid')],[4,7,document.getElementById('vleft')],[7,10,document.getElementById('vright')]];
+const PG=3,PER=8;let pag=0,seguro=false;
+const cont=[[0,8,document.getElementById('vgrid')],[0,4,document.getElementById('vleft')],[4,8,document.getElementById('vright')]];
 const mobMQ=matchMedia('(max-width:640px)');let pausaAte=0;
 const T0=Date.now(),ex=(n,t,min)=>({name:n,text:t,end:T0+min*60000,total:min*60000,tag:'exemplo'});
 let vs=new Array(PG*PER).fill(null),cur=0,imgData=null;
-if(EXEMPLOS){vs[0]=ex('Seu anúncio aqui','Exemplo de anúncio com o tempo contando.',45);vs[1]=ex('Sua marca no Vale','Anuncie por R$ 1 o minuto.',120);vs[4]=ex('Anúncio de exemplo','Texto de até 60 letras.',30);vs[6]=ex('Sua empresa aqui','Clique numa vaga aberta para anunciar.',90);vs[8]=ex('Vaga de exemplo','O anúncio entra depois do Pix.',60);vs[12]=ex('Padaria Exemplo','Pão quente toda hora.',25);vs[25]=ex('Oficina Exemplo','Revisão e troca de óleo.',70);vs[18]=ex('Mercado Exemplo','Ofertas da semana.',50)}
+if(EXEMPLOS){vs[0]=ex('Seu anúncio aqui','Exemplo de anúncio com o tempo contando.',45);vs[1]=ex('Sua marca no Vale','Anuncie por R$ 1 o minuto.',120);vs[4]=ex('Anúncio de exemplo','Texto de até 60 letras.',30);vs[6]=ex('Sua empresa aqui','Clique numa vaga aberta para anunciar.',90);vs[8]=ex('Vaga de exemplo','O anúncio entra depois do Pix.',60);vs[12]=ex('Padaria Exemplo','Pão quente toda hora.',25);vs[17]=ex('Oficina Exemplo','Revisão e troca de óleo.',70);vs[16]=ex('Mercado Exemplo','Ofertas da semana.',50)}
 const fmt=ms=>{const t=Math.max(0,Math.ceil(ms/1000)),h=Math.floor(t/3600),m=Math.floor(t%3600/60),x=t%60,p=v=>String(v).padStart(2,'0');return (h?h+':'+p(m):m)+':'+p(x)};
 function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 function slot(v,i){
@@ -2804,7 +2816,7 @@ im.onload=()=>{const s=Math.min(1,480/Math.max(im.width,im.height)),c=document.c
 im.onerror=()=>{dier.textContent='Não consegui abrir essa imagem.';di.value='';URL.revokeObjectURL(url)};
 im.src=url});
 build();tick();setInterval(tick,1000);
-window.MH_ADS={vs:()=>vs,total:PG*PER,put:(i,v)=>{vs[i]=v;build();tick()},clear:i=>{vs[i]=null;build();tick()}};
+window.MH_ADS={vs:()=>vs,total:PG*PER,put:(i,v)=>{vs[i]=v;build();tick();try{window.MH_MOBILE_ADS_REFRESH&&window.MH_MOBILE_ADS_REFRESH()}catch(e){}},clear:i=>{vs[i]=null;build();tick();try{window.MH_MOBILE_ADS_REFRESH&&window.MH_MOBILE_ADS_REFRESH()}catch(e){}}};
 document.getElementById('nojs')?.remove();
 if(PREVIA)msg.textContent='Prévia: os anúncios ainda não são salvos online.';
 document.querySelectorAll('.previa').forEach(e=>{e.hidden=!PREVIA});
@@ -2825,8 +2837,11 @@ async function sincronizarAnunciosPagosMobile(){
     const ativos=new Set();
     const agora=Date.now();
     j.anuncios.forEach(a=>{
-      const ini=a.inicio?new Date(a.inicio.$date||a.inicio).getTime():agora;
-      const fim=a.validade?new Date(a.validade.$date||a.validade).getTime():ini+Number(a.minutos||0)*60000;
+      const T=x=>{if(x==null||x==='')return NaN;if(typeof x==='object'&&x.$date)x=x.$date;if(typeof x==='number')return x<1e12?x*1000:x;const n=Number(x);return Number.isFinite(n)&&String(x).trim()!==''?(n<1e12?n*1000:n):new Date(x).getTime()};
+      const ini0=T(a.inicio!=null?a.inicio:(a.criado!=null?a.criado:a.criadoEm));
+      const ini=Number.isFinite(ini0)?ini0:agora;
+      let fim=T(a.validade!=null?a.validade:(a.fim!=null?a.fim:(a.end!=null?a.end:a.expira)));
+      if(!Number.isFinite(fim))fim=ini+Number(a.minutos||a.min||0)*60000;
       if(!Number.isFinite(fim)||fim<=agora)return;
       const i=Math.max(0,Number(a.vaga||1)-1);
       if(i>=A.total)return;
@@ -3251,7 +3266,8 @@ function tAds(b){
   b.append(mk('h4',0,'Publicar anúncio'));
   b.append(mk('p','note','Use depois que o Pix cair (tipo Pago) ou para dar cortesia (tipo Grátis). Entra no ar na hora.'));
   const f=mk('form');
-  const vaga=sel([['auto','Primeira vaga livre']].concat(ADS.vs().map((v,i)=>[String(i),'Vaga '+(i+1)+(v?' — ocupada por '+v.name+' (será substituída)':' — livre')])));
+  const lugar=i=>{const c=i%8;return 'Vaga '+(i+1)+' · Página '+(Math.floor(i/8)+1)+' · '+(c<4?'Esquerda':'Direita')+' '+(c%4+1)};
+  const vaga=sel([['auto','Primeira vaga livre']].concat(ADS.vs().map((v,i)=>[String(i),lugar(i)+(v?' — ocupada por '+v.name+' (será substituída)':' — livre')])));
   const nome=inp('text',40),texto=inp('text',60);nome.required=texto.required=true;
   const tempo=sel([['5','5 minutos'],['10','10 minutos'],['30','30 minutos'],['60','1 hora'],['120','2 horas'],['360','6 horas'],['720','12 horas'],['1440','24 horas'],['custom','Outro tempo (em minutos)']]);
   const cust=inp('number',0,'Minutos');cust.min='1';cust.max='10080';cust.hidden=true;
@@ -3266,14 +3282,14 @@ function tAds(b){
     let i;if(vaga.value==='auto'){i=ADS.vs().findIndex(v=>!v);if(i<0)return say('Todas as vagas estão ocupadas. Escolha uma para substituir.')}else i=Number(vaga.value);
     let img=null;if(file.files[0]){try{img=await lerImg(file.files[0],480,'image/jpeg',.8)}catch(x){return say(x.message)}}
     ADS.put(i,{name:nome.value.trim(),text:texto.value.trim(),end:Date.now()+m*60000,total:m*60000,tag:tipo.value==='gratis'?'cortesia':'',img});
-    const ok=salvarAds();say('Anúncio publicado na vaga '+(i+1)+'.'+(ok?'':' Atenção: não coube no armazenamento do navegador, então ele some ao recarregar.'))});
+    const ok=salvarAds();say('Anúncio publicado: '+lugar(i)+'.'+(ok?'':' Atenção: não coube no armazenamento do navegador, então ele some ao recarregar.'))});
   b.append(f);
   b.append(mk('h4',0,'No ar agora'));
   let n=0;
   ADS.vs().forEach((v,i)=>{if(!v)return;n++;
     const r=mk('div','arow'),info=mk('div','ainfo');
-    info.append(mk('b',0,'Vaga '+(i+1)+' · '+v.name),mk('span',0,v.text+' · '+(v.tag?v.tag+' · ':'')+'restam '+rest(v.end-Date.now())));
-    const rm=mk('button','cx','Remover');rm.type='button';rm.onclick=()=>{ADS.clear(i);salvarAds();say('Anúncio da vaga '+(i+1)+' removido.')};
+    info.append(mk('b',0,lugar(i)+' · '+v.name),mk('span',0,v.text+' · '+(v.tag?v.tag+' · ':'')+'restam '+rest(v.end-Date.now())));
+    const rm=mk('button','cx','Remover');rm.type='button';rm.onclick=()=>{ADS.clear(i);salvarAds();say('Anúncio removido: '+lugar(i)+'.')};
     r.append(info,rm);b.append(r)});
   if(!n)b.append(mk('p','note','Nenhum anúncio no ar.'));
   else{const all=mk('button','cx','Remover todos');all.type='button';all.style.marginTop='10px';all.onclick=()=>{if(!all.dataset.c){all.dataset.c='1';all.textContent='Toque de novo para remover '+n;setTimeout(()=>{delete all.dataset.c;all.textContent='Remover todos'},4000);return}ADS.vs().forEach((v,i)=>{if(v)ADS.clear(i)});salvarAds();say('Todos os anúncios foram removidos.')};b.append(all)}
@@ -4223,7 +4239,7 @@ vl.append('🔉',rg);
 const tb=mk('button');tb.type='button';tb.className='cfg-test';tb.textContent='▶ Ouvir efeitos';
 tb.onclick=()=>{if(!S0)return;if(!S0.ligado()){const b=document.getElementById('somBtn');if(b)b.click()}[['ok',0],['msg',300],['pop',550],['cash',800],['tema',1100]].forEach(([n,t])=>setTimeout(()=>S0.tocar(n,0),t))};
 const jn=mk('div');jn.className='cfgjan';
-const bf=mk('button');bf.type='button';bf.textContent='Fechar janelas';bf.title='Fecha todas as janelas, menos letreiros, fliperama e suporte';
+const bf=mk('button');bf.type='button';bf.textContent='Fechar janelas';bf.title='Fecha todas as janelas, menos chat, anúncios e letreiros';
 const ba=mk('button');ba.type='button';ba.textContent='Abrir tudo';ba.title='Abre de novo todas as janelas';
 bf.onclick=()=>{if(window.MH_JAN)MH_JAN.fecharTodas();abre(false)};
 ba.onclick=()=>{if(window.MH_JAN)MH_JAN.abrirTodas();abre(false)};
@@ -4351,7 +4367,7 @@ F.reg('tetris',{nome:'TETRIS',dica:'◀ ▶ mover, ▲ girar, ▼ descer rápido
 /* Janelas: todas fecham (botão vermelho da barra), menos os letreiros do topo. O menu do cabeçalho traz de volta. */
 try{(function(){
 const $=id=>document.getElementById(id);
-const ok=w=>!w.closest('aside.side')&&!w.closest('dialog')&&!w.closest('#fliperama')&&w.id!=='cw';
+const ok=w=>!w.closest('aside.side')&&!w.closest('dialog')&&w.id!=='cw';
 const wins=[...document.querySelectorAll('.win')].filter(ok);
 const toast=document.createElement('div');toast.className='xtoast';toast.setAttribute('role','status');toast.hidden=true;document.body.append(toast);
 let tt=0;
@@ -4418,34 +4434,14 @@ mostra();setInterval(mostra,60000);
 })()}catch(e){console.error('MiHelp (aviso):',e)}
 </script>
 
-<script id="mobile-nav-polish">
-(function(){
-  function setup(){
-    const nav=document.querySelector('.nv');
-    if(!nav || nav.dataset.mobilePolished)return;
-    nav.dataset.mobilePolished='1';
-    const more=document.createElement('button');
-    more.type='button';
-    more.id='mobileNavMore';
-    more.textContent='Mais opções +';
-    more.setAttribute('aria-expanded','false');
-    nav.appendChild(more);
-    function sync(){
-      const mobile=window.matchMedia('(max-width:640px)').matches;
-      if(!mobile){nav.classList.remove('mobile-collapsed','mobile-expanded');more.setAttribute('aria-expanded','false');return;}
-      if(!nav.classList.contains('mobile-expanded'))nav.classList.add('mobile-collapsed');
-    }
-    more.addEventListener('click',function(){
-      const open=nav.classList.toggle('mobile-expanded');
-      nav.classList.toggle('mobile-collapsed',!open);
-      more.setAttribute('aria-expanded',String(open));
-      more.textContent=open?'Fechar menu −':'Mais opções +';
-    });
-    sync();
-    window.addEventListener('resize',sync,{passive:true});
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
-})();
+
+<script id="mh-menu-simples-js">
+(function(){function ini(){const nv=document.querySelector('nav.nv');if(!nv||nv.dataset.simples)return;nv.dataset.simples='1';nv.classList.add('nv-s');
+const su=document.getElementById('navSup');if(su){su.textContent='🆘 Suporte';nv.prepend(su)}
+const m=document.createElement('button');m.type='button';m.id='navMais';m.className='more';m.setAttribute('aria-expanded','false');m.textContent='ℹ️ Mais informações';
+m.onclick=()=>{const o=nv.classList.toggle('nv-aberto');m.setAttribute('aria-expanded',String(o));m.textContent=o?'✕ Fechar':'ℹ️ Mais informações'};
+if(su)su.after(m);else nv.prepend(m)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ini);else ini()})();
 </script>
 </body>
 </html>
