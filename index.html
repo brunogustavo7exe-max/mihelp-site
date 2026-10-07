@@ -1273,6 +1273,45 @@ window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){loc
 
 @media (min-width:641px){#mobileNavMore{display:none!important;}}
 </style>
+<style id="mh-perfil-adm-css">
+/* ===== Perfil: botões de ação + bloco "Ações do ADM" ===== */
+dialog[aria-label="Perfil"]{padding:20px;width:min(94vw,460px)}
+dialog[aria-label="Perfil"] .perfil-acoes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+dialog[aria-label="Perfil"] .perfil-acoes button{margin:0;min-height:44px;border-radius:10px;font:700 14px var(--sans);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;text-align:center;transition:transform .08s,filter .15s,border-color .15s,background .15s}
+dialog[aria-label="Perfil"] .perfil-acoes button:active{transform:scale(.97)}
+dialog[aria-label="Perfil"] .perfil-acoes .pa-main{grid-column:1/-1;min-height:50px;font-size:16px;background:linear-gradient(180deg,var(--gold2),var(--gold));color:#201804;border:0;box-shadow:0 6px 18px rgba(var(--gold-rgb),.28)}
+dialog[aria-label="Perfil"] .perfil-acoes .pa-main:hover{filter:brightness(1.07)}
+dialog[aria-label="Perfil"] .perfil-acoes .pa-sec{border:1px solid var(--line);background:var(--bg);color:var(--read);font-family:var(--sans)}
+dialog[aria-label="Perfil"] .perfil-acoes .pa-sec:hover:not(:disabled){border-color:var(--gold);color:var(--gold2)}
+dialog[aria-label="Perfil"] .perfil-acoes .pa-sec[aria-pressed=true]{border-color:var(--gold);color:var(--gold2);background:rgba(var(--gold-rgb),.1)}
+dialog[aria-label="Perfil"] .perfil-acoes .pa-sec:disabled{opacity:.45;cursor:not-allowed}
+dialog[aria-label="Perfil"] .perfil-acoes .pa-close{grid-column:1/-1;min-height:38px;border:0;background:transparent;color:var(--mute);font-family:var(--sans);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+dialog[aria-label="Perfil"] .perfil-acoes .pa-close:hover{color:var(--text)}
+dialog[aria-label="Perfil"] .perfil-acoes button:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+/* Ações do ADM */
+dialog[aria-label="Perfil"] .admbox{margin:18px 0 6px;padding:14px;border:1px solid var(--line);border-top:2px solid var(--red);border-radius:12px;background:linear-gradient(180deg,rgba(217,119,87,.08),var(--bg))}
+dialog[aria-label="Perfil"] .admbox h4{display:flex;align-items:center;gap:8px;margin:0 0 10px;font:800 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--gold2)}
+dialog[aria-label="Perfil"] .admbox>h4:first-child::before{content:"ADM";background:var(--red);color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;letter-spacing:.04em}
+dialog[aria-label="Perfil"] .admbox h4:not(:first-child){margin-top:16px;padding-top:12px;border-top:1px dashed var(--line)}
+dialog[aria-label="Perfil"] .admbox .adm-r1{display:flex;gap:8px;align-items:stretch;margin:0}
+dialog[aria-label="Perfil"] .admbox .adm-r1 input{flex:1;min-width:0;height:44px;margin:0;padding:0 12px;border-radius:10px;font-size:15px}
+dialog[aria-label="Perfil"] .admbox .adm-r1 .adm-save{flex:none;height:44px;margin:0;padding:0 16px;border-radius:10px;font:700 14px var(--sans);background:var(--surf);border:1px solid var(--gold);color:var(--gold2);cursor:pointer;white-space:nowrap}
+dialog[aria-label="Perfil"] .admbox .adm-r1 .adm-save:hover{background:var(--gold);color:#201804}
+dialog[aria-label="Perfil"] .admbox .adm-r2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 0}
+dialog[aria-label="Perfil"] .admbox .adm-r2 button{height:44px;margin:0;padding:0 8px;border-radius:10px;font:700 13.5px var(--sans);cursor:pointer;white-space:nowrap;transition:filter .15s,background .15s,border-color .15s}
+dialog[aria-label="Perfil"] .admbox .adm-ban{background:rgba(217,119,87,.14);color:var(--red);border:1px solid var(--red)}
+dialog[aria-label="Perfil"] .admbox .adm-ban:hover{background:var(--red);color:#fff}
+dialog[aria-label="Perfil"] .admbox .adm-oc{background:var(--surf);color:var(--read);border:1px solid var(--line)}
+dialog[aria-label="Perfil"] .admbox .adm-oc:hover{border-color:var(--gold);color:var(--gold2)}
+dialog[aria-label="Perfil"] .admbox .adm-r2:has(.adm-oc:only-child){grid-template-columns:1fr}
+dialog[aria-label="Perfil"] .admbox button:focus-visible,dialog[aria-label="Perfil"] .admbox input:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+dialog[aria-label="Perfil"] .admbox .dep .aact{display:flex;gap:6px;flex-wrap:wrap}
+dialog[aria-label="Perfil"] .admbox .dep .aact button{height:34px;padding:0 12px;border-radius:8px;font:600 12.5px var(--sans);cursor:pointer;margin:0}
+dialog[aria-label="Perfil"] .admbox>.note{margin:8px 0 0}
+@media(max-width:380px){dialog[aria-label="Perfil"] .admbox .adm-r2{grid-template-columns:1fr}}
+dialog[aria-label="Perfil"] .admbox .adm-r1 input::-webkit-calendar-picker-indicator{filter:invert(.8);opacity:.7;cursor:pointer}
+@media(max-width:480px){dialog[aria-label="Perfil"]{padding:16px;width:calc(100vw - 24px)}dialog[aria-label="Perfil"] .admbox .adm-r1{flex-direction:column}dialog[aria-label="Perfil"] .admbox .adm-r1 .adm-save{width:100%}}
+</style>
 </head>
 <body>
 <div id="topLetreiros" class="top-letreiros">
@@ -2249,17 +2288,17 @@ d.append(mk('h4',0,pes.role==='helper'?'Comentários sobre o trabalho':'Comentá
 const l=AV[pes.nome]||[];
 if(!l.length)d.append(mk('p','note','Ainda não tem comentários.'));
 l.slice().reverse().forEach(x=>{const [de,n,t0]=x,a2=av2(t0),t=a2.txt;const b=mk('div','dep');b.append(mk('b',0,de+' · '+estr(n)+(a2.tags.length?' · '+a2.tags.join(', '):'')));b.append(document.createElement('br'),document.createTextNode(t||'(sem comentário)'));if(window.MH_depAdm&&document.body.classList.contains('adm'))window.MH_depAdm(pes,x,b);d.append(b)});
-const ac=mk('div','perfil-acoes');ac.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:14px';
+const ac=mk('div','perfil-acoes');
 if(!meu){
- const pv=mk('button','cta2','Falar no privado');pv.type='button';pv.onclick=()=>{d.close();abrirPrivado(pes.nome)};ac.append(pv);
- if(eu){const fv=mk('button','more',ehFav(pes.nome)?'★ Nos favoritos':'☆ Favoritar');fv.type='button';fv.setAttribute('aria-pressed',String(ehFav(pes.nome)));
+ const pv=mk('button','cta2 pa-main','💬 Falar no privado');pv.type='button';pv.onclick=()=>{d.close();abrirPrivado(pes.nome)};ac.append(pv);
+ if(eu){const fv=mk('button','more pa-sec',ehFav(pes.nome)?'★ Nos favoritos':'☆ Favoritar');fv.type='button';fv.setAttribute('aria-pressed',String(ehFav(pes.nome)));
   fv.onclick=()=>{const on=togFav(pes.nome);fv.textContent=on?'★ Nos favoritos':'☆ Favoritar';fv.setAttribute('aria-pressed',String(on))};ac.append(fv);
   const can=conversou.has(pes.nome);
-  const av=mk('button','more','Avaliar');av.type='button';av.disabled=!can;av.onclick=()=>formAval(pes);ac.append(av);
+  const av=mk('button','more pa-sec','⭐ Avaliar');av.type='button';av.disabled=!can;av.onclick=()=>formAval(pes);ac.append(av);
   if(!can)d.append(mk('p','note','Para avaliar, converse com a pessoa no privado primeiro. Assim só avalia quem falou com ela.'))}
  else d.append(mk('p','note','Cadastre-se para conversar e avaliar.'))
 }else d.append(mk('p','note','Assim as outras pessoas veem o seu perfil.'+(l.length?' Nesta prévia, as avaliações vêm de bots de demonstração.':' A média aparece depois das primeiras avaliações.')));
-const fc=mk('button','more','Fechar');fc.type='button';fc.onclick=()=>d.close();ac.append(fc);d.append(ac);
+const fc=mk('button','more pa-close','Fechar');fc.type='button';fc.onclick=()=>d.close();ac.append(fc);d.append(ac);
 if(window.MH_perfilAdm&&document.body.classList.contains('adm'))window.MH_perfilAdm(pes,d);
 d.showModal()}
 function formAval(pes){const d=pfDlg;d.textContent='';
@@ -3336,16 +3375,16 @@ window.MH_perfilAdm=function(pes,d){
   const n=pes.nome,eu=UI.eu(),souEu=!!(eu&&eu.nome===n);
   const box=mk('div','admbox');box.append(mk('h4',0,'Ações do ADM'));
   const msg=mk('p','note');msg.setAttribute('role','status');
-  const r1=mk('div','aact'),t=inp('text',20,'Título');t.setAttribute('list','admTit');t.value=TIT[n]||'';t.setAttribute('aria-label','Título de '+n);
-  const sv=mk('button','cp','Salvar título');sv.type='button';
+  const r1=mk('div','aact adm-r1'),t=inp('text',20,'Título');t.setAttribute('list','admTit');t.value=TIT[n]||'';t.setAttribute('aria-label','Título de '+n);
+  const sv=mk('button','cp adm-save','💾 Salvar');sv.type='button';
   sv.onclick=()=>{const v=t.value.trim().slice(0,20);if(v)TIT[n]=v;else delete TIT[n];store.set('titulos',TIT);UI.online();msg.textContent=v?'Título salvo: '+v+'.':'Título removido.'};
   r1.append(t,sv);box.append(r1);
-  const r2=mk('div','aact');r2.style.marginTop='8px';
+  const r2=mk('div','aact adm-r2');
   if(!souEu){
-    const bn=mk('button','go',banidos.has(n)?'Desbanir da sala':'Banir da sala');bn.type='button';bn.style.cssText='background:var(--red);color:#fff;flex:1';
+    const bn=mk('button','go adm-ban',banidos.has(n)?'↩ Desbanir da sala':'🚫 Banir da sala');bn.type='button';
     bn.onclick=()=>{if(banidos.has(n)){banidos.delete(n);UI.desbanir(n)}else{banidos.add(n);UI.banir(n)}store.set('banidos',[...banidos]);d.close()};
     r2.append(bn)}
-  const oc=mk('button','cx','Registrar ocorrência');oc.type='button';
+  const oc=mk('button','cx adm-oc','📋 Registrar ocorrência');oc.type='button';
   oc.onclick=()=>{OC.unshift({id:Date.now(),quem:n,motivo:'Aberta pelo perfil.',origem:'chat',quando:Date.now(),status:'aberta',nota:''});salvarOC();chipUpd();msg.textContent='Ocorrência registrada. Veja na aba Ocorrências.'};
   r2.append(oc);box.append(r2,msg);
   box.append(mk('h4',0,'Avaliações que '+n+' fez'));
