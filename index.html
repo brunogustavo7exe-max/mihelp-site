@@ -1018,7 +1018,12 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 /* api: endereço do worker (Cloudflare), ex.: 'https://mihelp-api.SEUNOME.workers.dev'. Vazio = o site funciona como antes
    (contas só no aparelho, painel por PIN, Pix manual). Preenchido = contas em qualquer aparelho, painel por senha,
    limpar/apagar para todos e Pix automático. */
-window.MH_CFG={clientId:'a633f724-c9b4-4ba8-a3f0-ef20c3c17279',bots:false,api:'https://mihelp-api.mihelpmarketing.workers.dev'};
+window.MH_CFG={
+  clientId:'a633f724-c9b4-4ba8-a3f0-ef20c3c17279',
+  bots:false,
+  api:'https://mihelp-api.mihelpmarketing.workers.dev',
+  adminPub:{x:'EhfJtAdwAwQa2XUxsuxWOTAjR7s7wxFfuCSHbSVn_SQ',y:'2MgeBeGOiZTDWP6EPkiS5AZN-LtYHDK-oBqymMta8MI'}
+};
 window.MH_API=(function(){
  const base=String((window.MH_CFG||{}).api||'').replace(/\/+$/,'');
  const ls=(f)=>{try{return f()}catch(e){return ''}};
