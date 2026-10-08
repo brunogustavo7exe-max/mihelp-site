@@ -3183,9 +3183,9 @@ async function sincronizarAnunciosPagosMobile(){
   try{
     const api=String((window.MH_CFG||{}).api||'').replace(/\/+$/,'');
     const A=window.MH_ADS;
-    if(!api || !A || typeof A.put!=='function') return;
+    if(!api || !A || typeof A.put!=='function' || window._mhSem404) return;
     const r=await fetch(api+'/anuncios',{method:'GET',cache:'no-store'});
-    if(!r.ok){try{MH_diag('worker /anuncios: HTTP '+r.status,true)}catch(e){}return}
+    if(!r.ok){if(r.status===404)window._mhSem404=1;try{MH_diag('worker /anuncios: HTTP '+r.status,true)}catch(e){}return}
     const j=await r.json();
     if(!j || !Array.isArray(j.anuncios)){try{MH_diag('worker /anuncios: resposta sem lista de anúncios',true)}catch(e){}return}
     try{MH_diag('worker /anuncios: '+j.anuncios.length+' recebidos')}catch(e){}
@@ -3998,9 +3998,11 @@ async function lerAv(){
   if(it.length!==avN||ult!==avUlt){avN=it.length;avUlt=ult;if(window.MH_RX)MH_RX.avs(it)}}
  catch(e){diag('avaliações: '+msgErro(e),true)}}
 async function lerAds(){
+ const T=v=>{if(v==null||v==='')return NaN;if(typeof v==='object'&&v.$date)v=v.$date;if(typeof v==='number')return v<1e12?v*1000:v;const n=Number(v);return Number.isFinite(n)&&String(v).trim()!==''?(n<1e12?n*1000:n):new Date(v).getTime()};
  try{const r=await q(COL.ad).limit(100).find(),it=(r&&r.items)||[],ag=Date.now();
-  const l=[],mot={pendente:0,limpo:0,vencido:0};it.forEach(x=>{if(x.status==='pendente'){mot.pendente++;return}const i0=x.inicio?dt(x.inicio).getTime():NaN,ini=Number.isFinite(i0)?i0:dt(x._createdDate).getTime(),mn=Number(x.minutos)||Number(x.min)||0;let fim=ini+mn*60000;if(!(mn>0)){const f=dt(x.validade||x.fim||x.expira||0).getTime();if(f>1e11)fim=f}if(ini<=((window.MH_FLOOR||{}).outdoor||0)){mot.limpo++;return}
+  const l=[],mot={pendente:0,limpo:0,vencido:0};it.forEach(x=>{if(x.status==='pendente'){mot.pendente++;return}const i0=T(x.inicio),ini=Number.isFinite(i0)?i0:T(x._createdDate),mn=Number(x.minutos)||Number(x.min)||0,fv=T(x.validade!=null?x.validade:(x.fim!=null?x.fim:x.expira));let fim=Number.isFinite(fv)?fv:ini+mn*60000;if(ini<=((window.MH_FLOOR||{}).outdoor||0)){mot.limpo++;return}
    if(fim>ag)l.push({vaga:x.vaga,nome:x.nome,texto:x.texto,minutos:mn||Math.max(1,Math.round((fim-ini)/60000)),imagem:x.imagemUrl||x.imagem,link:x.link||'',tag:x.status==='cortesia'?'cortesia':'',fim});else mot.vencido++});
+  if(DIAG)it.slice().sort((a,b)=>T(b._createdDate)-T(a._createdDate)).slice(0,3).forEach(x=>diag('amostra: vaga='+x.vaga+' min='+x.minutos+' inicio='+JSON.stringify(x.inicio)+' validade='+JSON.stringify(x.validade)+' status='+x.status+' criado='+JSON.stringify(x._createdDate)));
   if(DIAG)diag('anúncios: '+it.length+' no banco · '+l.length+' no ar'+(l.length?' (vaga '+l.map(z=>z.vaga).join(', ')+')':'')+' · ignorados: '+mot.pendente+' pendentes, '+mot.limpo+' limpos pelo ADM, '+mot.vencido+' vencidos · tela pronta: '+(window.MH_RX?'sim':'NÃO'));
   if(window.MH_RX)MH_RX.ads(l)}
  catch(e){diag('anúncios: '+msgErro(e),true)}}
@@ -4102,6 +4104,7 @@ async function iniciar(){
    seguir()},15000);
   return}
  seguir();
+ setTimeout(function(){try{const n=window.MH_ADS?MH_ADS.vs().filter(Boolean).length:0;diag('RESUMO: '+n+' anúncio(s) no ar neste aparelho · banco '+(DB.ok?'conectado':'SEM conexão')+(n?'':' · se o ADM publicou anúncio, ele NÃO está chegando aqui (veja as linhas acima: permissão da coleção Anuncios ou servidor)'),!n)}catch(e){}},9000);
 }
 iniciar();
 })();
@@ -5230,8 +5233,8 @@ function pintarPulse(){
 window.MH_pintarPulse=pintarPulse;
 async function carregarStats(){
   try{
-    const A=window.MH_API;if(!A||!A.on())return;
-    const r=await A.req('/stats',{ms:8000});
+    const A=window.MH_API;if(!A||!A.on()||STATS._404)return;
+    const r=await A.req('/stats',{ms:8000});if(r.status===404)STATS._404=1;
     try{window.MH_diag&&MH_diag('worker /stats: '+(r.ok&&r.j&&r.j.ok?'ok':'HTTP '+r.status),!(r.ok&&r.j&&r.j.ok))}catch(e){}
     if(r.ok&&r.j&&r.j.ok){STATS.cad=Number(r.j.cad)||0;STATS.help=Number(r.j.helpers)||0;pintarPulse();try{hydrateEu()}catch(e){}}else if(STATS.cad==null&&!STATS._r){STATS._r=1;setTimeout(function(){STATS._r=0;carregarStats()},8000)}
   }catch(e){}
