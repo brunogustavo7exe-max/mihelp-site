@@ -696,7 +696,8 @@ a.wa{color:var(--gold2)}
 #dpq[hidden]{display:none}
 .adm-x{display:none;border:0;background:none;color:var(--red);font:600 11px var(--mono);cursor:pointer;margin-left:8px;padding:0}
 body.adm .adm-x{display:inline}
-.admbar{position:fixed;right:12px;bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:45;display:flex;gap:6px}
+.admbar{position:fixed;left:64px;right:auto;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:61;display:flex;gap:6px}
+body.has-dock .admbar{bottom:calc(78px + env(safe-area-inset-bottom,0px))}
 .admbar[hidden]{display:none}
 .admexit{border:1px solid var(--line);background:var(--surf);color:var(--read);border-radius:8px;padding:8px 12px;font:700 12px var(--sans);cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.5)}
 .admexit:hover{border-color:var(--red);color:var(--text)}
@@ -734,11 +735,15 @@ body.adm .adm-x{display:inline}
 .cfgjan button{flex:1;white-space:nowrap;border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:8px;padding:8px 10px;font:600 12px var(--sans);cursor:pointer}
 .cfgjan button:hover{border-color:var(--gold)}
 .cfgjan button:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
-.avg{display:flex;align-items:center;gap:10px;background:var(--gold);color:#201804;padding:8px 12px;font:700 13px var(--sans);line-height:1.35}
+.avg{display:flex;align-items:flex-start;gap:12px;background:var(--surf);color:var(--text);border-bottom:1px solid var(--line);border-left:4px solid var(--gold);padding:10px 14px;font:600 14px var(--sans);line-height:1.4;box-shadow:0 2px 10px rgba(0,0,0,.25)}
 .avg[hidden]{display:none}
-.avg .avt{flex:1;min-width:0;overflow-wrap:anywhere}
-.avg button{flex:none;border:0;background:none;color:#201804;font-size:20px;line-height:1;cursor:pointer;padding:0 4px}
-.avg button:focus-visible{outline:2px solid #201804;outline-offset:2px}
+.avg .avg-ic{flex:none;font-size:20px;line-height:1.2}
+.avg .avg-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.avg .avg-t small{font:800 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--gold2)}
+.avg .avg-m{overflow-wrap:anywhere;color:var(--text)}
+.avg button{flex:none;width:28px;height:28px;border:1px solid var(--line);border-radius:50%;background:var(--bg);color:var(--text);font-size:18px;line-height:1;cursor:pointer;padding:0}
+.avg button:hover{border-color:var(--gold)}
+.avg button:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
 .tb.cmp td:nth-child(2){font:inherit;color:var(--text)}
 .tb.cmp td:first-child{font-weight:700;color:var(--gold2)}
 .tb.cmp{min-width:480px}
@@ -1449,7 +1454,7 @@ dialog.port-lb img{display:block;max-width:92vw;max-height:80vh;border-radius:10
 </head>
 <body>
 <div id="topLetreiros" class="top-letreiros">
-<div class="avg" id="avg" role="status" hidden><span class="avt" id="avgT"></span><button type="button" id="avgX" aria-label="Fechar aviso">×</button></div>
+<div class="avg" id="avg" role="status" hidden><span class="avg-ic" aria-hidden="true">📢</span><span class="avg-t"><small>Aviso da equipe</small><span class="avg-m" id="avgT"></span></span><button type="button" id="avgX" aria-label="Fechar aviso">×</button></div>
 <div class="mq" aria-hidden="true"><div class="mqi"><span>★ MIHELP: CONECTANDO QUEM PRECISA A QUEM SABE FAZER ★ PRÉ-CADASTRO GRÁTIS ★ LANÇAMENTO NO INÍCIO DE 2027 ★ BARRA DO GARÇAS · PONTAL DO ARAGUAIA · ARAGARÇAS ★ &nbsp;</span><span>★ MIHELP: CONECTANDO QUEM PRECISA A QUEM SABE FAZER ★ PRÉ-CADASTRO GRÁTIS ★ LANÇAMENTO NO INÍCIO DE 2027 ★ BARRA DO GARÇAS · PONTAL DO ARAGUAIA · ARAGARÇAS ★ &nbsp;</span></div></div>
 <div class="tk tka" id="tka" role="region" aria-label="Letreiro dos anunciantes do outdoor digital" data-go="vagas"><div class="tkw"><div class="tki" id="tkai"></div></div></div>
 <div class="tk" role="region" aria-label="Letreiro de apoiadores do MiHelp"><div class="tkw"><div class="tki" id="tki"></div></div></div>
@@ -2239,7 +2244,7 @@ const PESSOAS=[
 {nome:'Tiago R.',role:'cliente',bot:true,oculto:true,missao:'Chave perdida perto da praça'}];
 const por=n=>PESSOAS.find(p=>p.nome===n);
 const REAIS={};
-const visiveis=()=>(BOTS?PESSOAS.filter(p=>!p.oculto&&!bloqueados.has(p.nome)):[]).concat(Object.values(REAIS).filter(p=>p.visto&&Date.now()-p.visto<1800000&&!bloqueados.has(p.nome)&&!(eu&&p.nome===eu.nome)));
+const visiveis=()=>(BOTS?PESSOAS.filter(p=>!p.oculto&&!bloqueados.has(p.nome)):[]).concat(Object.values(REAIS).filter(p=>p.visto&&Date.now()-p.visto<7200000&&!bloqueados.has(p.nome)&&!(eu&&p.nome===eu.nome)));
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
 const depois=(ms,f)=>setTimeout(f,ms);
 function nomeCurto(t){const p=t.replace(/[^A-Za-zÀ-ÿ ]/g,' ').trim().split(/\s+/).filter(Boolean);if(!p.length)return '';const cap=x=>x.charAt(0).toUpperCase()+x.slice(1).toLowerCase();return p.length>1?cap(p[0])+' '+p[1].charAt(0).toUpperCase()+'.':cap(p[0])}
@@ -4069,7 +4074,7 @@ async function iniciar(){
   if(DIAG)testeCompleto();
   await lerCtl();
   lerNomes();lerAv();lerAds();lerAp();lerFrases();lerFotos();ciclo();
-  setInterval(lerAv,25000);setInterval(lerAds,30000);setInterval(lerAp,15000);setInterval(lerNomes,60000);setInterval(lerFrases,60000);setInterval(lerFotos,120000);
+  setInterval(lerAv,25000);setInterval(lerAds,20000);setInterval(lerAp,15000);setInterval(lerNomes,60000);setInterval(lerFrases,60000);setInterval(lerFotos,120000);
   const antiga=window.MH_denuncia;window.MH_denuncia=n=>{try{antiga&&antiga(n)}catch(e){}DB.denuncia(n)}};
  try{await conectar(0)}catch(e){
   diag('NÃO conectou: '+msgErro(e),true);
@@ -4812,7 +4817,7 @@ let cur={txt:'',ate:0,t:0};try{cur=JSON.parse(localStorage.getItem(K)||'null')||
 function mostra(){const b=$('avg');if(!b)return;
   let x=0;try{x=Number(localStorage.getItem(KX)||0)}catch(e){}
   const vivo=!!cur.txt&&(!cur.ate||Date.now()<cur.ate)&&x!==cur.t;
-  b.hidden=!vivo;if(vivo)$('avgT').textContent='📢 Equipe MiHelp: '+cur.txt}
+  b.hidden=!vivo;if(vivo)$('avgT').textContent=cur.txt}
 window.MH_AVISO={set(txt,ate,t){if(t&&t<cur.t)return;cur={txt:String(txt||'').slice(0,120),ate:Number(ate)||0,t:t||Date.now()};try{localStorage.setItem(K,JSON.stringify(cur))}catch(e){}mostra()}};
 const bx=$('avgX');if(bx)bx.onclick=()=>{try{localStorage.setItem(KX,String(cur.t))}catch(e){}mostra()};
 mostra();setInterval(mostra,60000);
@@ -4827,6 +4832,19 @@ const m=document.createElement('button');m.type='button';m.id='navMais';m.classN
 m.onclick=()=>{const o=nv.classList.toggle('nv-aberto');m.setAttribute('aria-expanded',String(o));m.textContent=o?'✕ Fechar':'ℹ️ Mais informações'};
 if(su)su.after(m);else nv.prepend(m)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ini);else ini()})();
+</script>
+
+<script>
+/* Guarda os anúncios no aparelho: ao recarregar ou sair da conta eles aparecem na hora, e o banco só confirma ou corrige depois. */
+try{(function(){
+const A=window.MH_ADS;if(!A||A._cache)return;A._cache=1;const K='mh_adscache';let t=0;
+function salvar(){clearTimeout(t);t=setTimeout(()=>{try{const ag=Date.now(),l=[];A.vs().forEach((v,i)=>{if(v&&v.end>ag)l.push({i,v});});
+  let j=JSON.stringify(l);if(j.length>1200000)j=JSON.stringify(l.map(x=>({i:x.i,v:Object.assign({},x.v,{img:null})})));
+  localStorage.setItem(K,j)}catch(e){}},400)}
+try{const l=JSON.parse(localStorage.getItem(K)||'[]'),ag=Date.now(),db=new Set(window._mhAdsDb||[]);
+  l.forEach(a=>{if(a&&a.v&&a.v.end>ag&&a.i>=0&&a.i<A.total&&!A.vs()[a.i]){A.put(a.i,a.v);if(a.v._db)db.add(a.i)}});window._mhAdsDb=db}catch(e){}
+const p0=A.put,c0=A.clear;A.put=function(i,v){const r=p0.apply(A,arguments);salvar();return r};A.clear=function(i){const r=c0.apply(A,arguments);salvar();return r};
+})()}catch(e){console.error('MiHelp (cache de anúncios):',e)}
 </script>
 </body>
 </html>
