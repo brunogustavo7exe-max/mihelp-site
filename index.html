@@ -3010,7 +3010,7 @@ window.MH_RX={
  fim(){if(rxMuda){rxMuda=false;try{desenharOnline()}catch(x){}}},
  avs(rows){rows.forEach(r=>{const l=AV[r.alvo]||(AV[r.alvo]=[]);const i=l.findIndex(x=>x[0]===r.de);const v=[r.de,r.estrelas,r.texto||''];if(i>=0)l[i]=v;else l.push(v)})},
  ads(list){const A=window.MH_ADS;if(!A)return;const novos=new Set();
-  list.forEach(a=>{const i=(a.vaga|0)-1;if(i<0||i>=A.total)return;novos.add(i);A.put(i,{name:a.nome,text:a.texto||'',end:a.fim,total:a.minutos*60000,tag:'',img:a.imagem||null,link:/^https?:\/\//i.test(a.link||'')?a.link:'',_db:1})});
+  list.forEach(a=>{const i=(a.vaga|0)-1;if(i<0||i>=A.total)return;novos.add(i);A.put(i,{name:a.nome,text:a.texto||'',end:a.fim,total:a.minutos*60000,tag:a.tag||'',img:a.imagem||null,link:/^https?:\/\//i.test(a.link||'')?a.link:'',_db:1})});
   (window._mhAdsDb||new Set()).forEach(i=>{if(!novos.has(i)){const v=A.vs()[i];if(v&&v._db)A.clear(i)}});window._mhAdsDb=novos},
  rec(rows){rows.forEach(r=>{if(r.alvo&&r.de&&r.texto)recAdd(r.alvo,r.de,String(r.texto),r._quando||Date.now())})},
  frase(n,t){if(n&&!por(n)&&!(eu&&eu.nome===n))FRASE[n]=String(t||'').slice(0,60)},
@@ -3623,18 +3623,22 @@ function tAds(b){
     let img=null;if(file.files[0]){try{img=await lerImg(file.files[0],480,'image/jpeg',.8)}catch(x){return say(x.message)}}
     ADS.put(i,{name:nome.value.trim(),text:texto.value.trim(),end:Date.now()+m*60000,total:m*60000,tag:tipo.value==='gratis'?'cortesia':'',img});
     const ok=salvarAds();
-    let r='local';try{if(window.MH_DB&&MH_DB.ctl)r=await MH_DB.ctl({a:'ad',i,m,nome:nome.value.trim(),texto:texto.value.trim(),tag:tipo.value==='gratis'?'cortesia':''})}catch(x){r='erro'}
-    say('Anúncio publicado: '+lugar(i)+'.'+(r==='todos'||r==='ok'?' Já aparece para todo mundo, inclusive no celular'+(img?' (a imagem só aparece neste aparelho)':'')+'.':' Atenção: ficou só neste aparelho (não foi enviado para os outros).')+(ok?'':' Não coube no armazenamento do navegador, então some ao recarregar aqui.'))});
+    let r='local',sv=false;const AP=window.MH_API;
+    /* caminho principal: grava no CMS (coleção Anuncios) pelo Worker; vale para todos os aparelhos, inclusive o celular, com a imagem */
+    if(AP&&AP.on()&&AP.admTk()){try{const qq=await AP.req('/admin',{token:AP.admTk(),body:{acao:'anuncio_add',dados:{vaga:i+1,minutos:m,nome:nome.value.trim(),texto:texto.value.trim(),imagem:img||'',tag:tipo.value==='gratis'?'cortesia':''}}});
+      if(qq.ok&&qq.j&&qq.j.ok){sv=true;r='todos'}else{if(qq.status===401)AP.setAdmTk('');diag('anúncio do painel: '+((qq.j&&(qq.j.erro||qq.j.detalhe))||qq.status),true)}}catch(x){}}
+    if(!sv){try{if(window.MH_DB&&MH_DB.ctl)r=await MH_DB.ctl({a:'ad',i,m,nome:nome.value.trim(),texto:texto.value.trim(),tag:tipo.value==='gratis'?'cortesia':''})}catch(x){r='erro'}}
+    say('Anúncio publicado: '+lugar(i)+'.'+(sv?' Salvo no banco: aparece para todo mundo, inclusive no celular'+(img?', com a imagem':'')+' (pode levar até 30 segundos).':(r==='todos'||r==='ok'?' Já aparece para todo mundo, inclusive no celular'+(img?' (a imagem só aparece neste aparelho)':'')+'.':' Atenção: ficou só neste aparelho (não foi enviado para os outros).'))+(ok?'':' Não coube no armazenamento do navegador, então some ao recarregar aqui.'))});
   b.append(f);
   b.append(mk('h4',0,'No ar agora'));
   let n=0;
   ADS.vs().forEach((v,i)=>{if(!v)return;n++;
     const r=mk('div','arow'),info=mk('div','ainfo');
     info.append(mk('b',0,lugar(i)+' · '+v.name),mk('span',0,v.text+' · '+(v.tag?v.tag+' · ':'')+'restam '+rest(v.end-Date.now())));
-    const rm=mk('button','cx','Remover');rm.type='button';rm.onclick=()=>{ADS.clear(i);salvarAds();try{window.MH_DB&&MH_DB.ctl&&MH_DB.ctl({a:'adx',i})}catch(x){}say('Anúncio removido: '+lugar(i)+'.')};
+    const rm=mk('button','cx','Remover');rm.type='button';rm.onclick=async()=>{ADS.clear(i);salvarAds();const AP=window.MH_API;let sv=false;if(AP&&AP.on()&&AP.admTk()){try{const qq=await AP.req('/admin',{token:AP.admTk(),body:{acao:'anuncio_del',dados:{vaga:i+1}}});sv=!!(qq.ok&&qq.j&&qq.j.ok)}catch(x){}}if(!sv){try{window.MH_DB&&MH_DB.ctl&&MH_DB.ctl({a:'adx',i})}catch(x){}}say('Anúncio removido: '+lugar(i)+'.'+(sv?' Saiu do banco: some para todo mundo em até 30 segundos.':''))};
     r.append(info,rm);b.append(r)});
   if(!n)b.append(mk('p','note','Nenhum anúncio no ar.'));
-  else{const all=mk('button','cx','Remover todos');all.type='button';all.style.marginTop='10px';all.onclick=()=>{if(!all.dataset.c){all.dataset.c='1';all.textContent='Toque de novo para remover '+n;setTimeout(()=>{delete all.dataset.c;all.textContent='Remover todos'},4000);return}ADS.vs().forEach((v,i)=>{if(v){ADS.clear(i);try{window.MH_DB&&MH_DB.ctl&&MH_DB.ctl({a:'adx',i})}catch(x){}}});salvarAds();say('Todos os anúncios foram removidos.')};b.append(all)}
+  else{const all=mk('button','cx','Remover todos');all.type='button';all.style.marginTop='10px';all.onclick=()=>{if(!all.dataset.c){all.dataset.c='1';all.textContent='Toque de novo para remover '+n;setTimeout(()=>{delete all.dataset.c;all.textContent='Remover todos'},4000);return}const AP=window.MH_API;const viaServ=AP&&AP.on()&&AP.admTk();ADS.vs().forEach((v,i)=>{if(v){ADS.clear(i);if(!viaServ){try{window.MH_DB&&MH_DB.ctl&&MH_DB.ctl({a:'adx',i})}catch(x){}}}});salvarAds();if(viaServ){AP.req('/admin',{token:AP.admTk(),body:{acao:'anuncio_limpar',dados:{}}}).then(qq=>{say(qq.ok&&qq.j&&qq.j.ok?'Todos os anúncios foram removidos do banco: somem para todo mundo em até 30 segundos.':'Removidos só neste aparelho: o servidor não respondeu.')}).catch(()=>{})}else say('Todos os anúncios foram removidos.')};b.append(all)}
 }
 
 // ---- aba Pessoas ----
@@ -3980,7 +3984,7 @@ async function lerAv(){
 async function lerAds(){
  try{const r=await q(COL.ad).limit(100).find(),it=(r&&r.items)||[],ag=Date.now();
   const l=[],mot={pendente:0,limpo:0,vencido:0};it.forEach(x=>{if(x.status==='pendente'){mot.pendente++;return}const ini=x.inicio?dt(x.inicio).getTime():dt(x._createdDate).getTime(),fim=ini+(Number(x.minutos)||0)*60000;if(ini<=((window.MH_FLOOR||{}).outdoor||0)){mot.limpo++;return}
-   if(fim>ag)l.push({vaga:x.vaga,nome:x.nome,texto:x.texto,minutos:Number(x.minutos)||0,imagem:x.imagemUrl||x.imagem,link:x.link||'',fim});else mot.vencido++});
+   if(fim>ag)l.push({vaga:x.vaga,nome:x.nome,texto:x.texto,minutos:Number(x.minutos)||0,imagem:x.imagemUrl||x.imagem,link:x.link||'',tag:x.status==='cortesia'?'cortesia':'',fim});else mot.vencido++});
   if(DIAG)diag('anúncios: '+it.length+' no banco · '+l.length+' no ar'+(l.length?' (vaga '+l.map(z=>z.vaga).join(', ')+')':'')+' · ignorados: '+mot.pendente+' pendentes, '+mot.limpo+' limpos pelo ADM, '+mot.vencido+' vencidos · tela pronta: '+(window.MH_RX?'sim':'NÃO'));
   if(window.MH_RX)MH_RX.ads(l)}
  catch(e){diag('anúncios: '+msgErro(e),true)}}
