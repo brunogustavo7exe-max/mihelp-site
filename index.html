@@ -1058,9 +1058,9 @@ window.MH_FLOOR=(function(){try{if(localStorage.getItem('mh_floor_v')!=='2'){loc
     --mobile-card:#191711;
   }
 
-  html{overflow-x:hidden;}
+  html{overflow-x:hidden;overflow-x:clip;}
   body{
-    overflow-x:hidden;
+    overflow-x:hidden;overflow-x:clip;
     background-image:
       radial-gradient(520px 260px at 50% 0,#2a2210 0,transparent 72%),
       linear-gradient(180deg,#0d0c09 0%,#11100d 38%,#0d0c09 100%);
@@ -1450,6 +1450,15 @@ dialog.port-lb img{display:block;max-width:92vw;max-height:80vh;border-radius:10
 .ppg button{min-height:42px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--surf);color:var(--gold2);font:700 14px var(--sans);cursor:pointer}
 .ppg button:disabled{opacity:.4;cursor:not-allowed}
 @media(max-width:640px){#profList{grid-template-columns:1fr}.pcard{padding:12px 10px}}
+/* Com anúncio ativo, a faixa de publicidade fica TRAVADA logo abaixo dos letreiros (compacta). Sem anúncio, rola normal. */
+@media (max-width:1199px){
+  #adtop.tem-ads{position:sticky;top:var(--sticky-h,0px);z-index:45;padding:5px 10px 5px;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+  #adtop.tem-ads .adc{min-height:50px;padding:6px 10px;gap:10px}
+  #adtop.tem-ads .adc img{width:38px;height:38px}
+  #adtop.tem-ads .ad-icon{width:34px;height:34px}
+  #adtop.tem-ads .adt span{-webkit-line-clamp:1}
+  #adtop.tem-ads .add{padding:3px 0 0}
+}
 </style>
 </head>
 <body>
@@ -2177,7 +2186,7 @@ const mk=()=>{const s=document.createElement('span');s.className='tkg';
 lista.forEach(a=>{const i=document.createElement('span');i.className='tkx';const up=document.createElement('b');up.textContent='● ';i.append(up,document.createTextNode(a.nome.toUpperCase()));
 const v=Number(a.valor);if(a.mostrarValor&&v>0){const em=document.createElement('em');em.textContent=' R$ '+v.toFixed(2).replace('.',',');i.append(em)}
 s.append(i)});
-const c=document.createElement('span');c.className='tkx';c.textContent=lista.length?'★ SEJA UM APOIADOR TAMBÉM — CLIQUE EM EMPRESAS E APOIO':'Seja o primeiro apoiador do MiHelp. Clique em Empresas e apoio.';s.append(c);return s};
+const c=document.createElement('span');c.className='tkx';c.textContent='Seja o primeiro apoiador do MiHelp. Clique em Empresas e apoio.';if(!lista.length)s.append(c);return s};
 w.textContent='';
 let a=mk();w.append(a);
 let n=1;while(a.offsetWidth>0&&a.offsetWidth<1400&&n<12){a.append(...mk().childNodes);n++}
@@ -3071,7 +3080,7 @@ function topo(){const box=document.getElementById('adtop');if(!box)return;
 const ativos=[];vs.forEach(v=>{if(v&&v.end>Date.now())ativos.push(v)});
 const sig=ativos.map(v=>v.name+'|'+v.text+'|'+(v.img?1:0)+'|'+(v.link||'')).join('~');
 if(sig===adSig)return;adSig=sig;box.textContent='';box._w=null;
-if(!ativos.length){box.hidden=true;return}
+box.classList.toggle('tem-ads',ativos.length>0);if(!ativos.length){box.hidden=true;return}
 box.hidden=false;const w=el('div','adw'),dots=el('div','add');
 ativos.forEach((v,k)=>{const lk=/^https?:\/\//i.test(v.link||'');const c=el(lk?'a':'button','adc');
  if(lk){c.href=v.link;c.target='_blank';c.rel='noopener noreferrer sponsored'}else{c.type='button';c.onclick=()=>{const t=document.getElementById('vagas');if(t)t.scrollIntoView({behavior:'smooth'})}}
@@ -3176,9 +3185,10 @@ async function sincronizarAnunciosPagosMobile(){
     const A=window.MH_ADS;
     if(!api || !A || typeof A.put!=='function') return;
     const r=await fetch(api+'/anuncios',{method:'GET',cache:'no-store'});
-    if(!r.ok) return;
+    if(!r.ok){try{MH_diag('worker /anuncios: HTTP '+r.status,true)}catch(e){}return}
     const j=await r.json();
-    if(!j || !Array.isArray(j.anuncios)) return;
+    if(!j || !Array.isArray(j.anuncios)){try{MH_diag('worker /anuncios: resposta sem lista de anúncios',true)}catch(e){}return}
+    try{MH_diag('worker /anuncios: '+j.anuncios.length+' recebidos')}catch(e){}
     const ativos=new Set();
     const agora=Date.now();
     j.anuncios.forEach(a=>{
@@ -3198,7 +3208,7 @@ async function sincronizarAnunciosPagosMobile(){
     old.forEach(i=>{if(!ativos.has(i)){const v=A.vs()[i];if(v&&v._paid)A.clear(i)}});
     window._mhPaidMobileAds=ativos;
     if(typeof window.MH_MOBILE_ADS_REFRESH==='function')window.MH_MOBILE_ADS_REFRESH();
-  }catch(e){console.warn('MiHelp anúncios mobile:',e)}
+  }catch(e){console.warn('MiHelp anúncios mobile:',e);try{MH_diag('worker /anuncios falhou: '+e,true)}catch(x){}}
 }
 
 function iniciarStickyAds(){
@@ -3856,6 +3866,7 @@ function diag(t,ruim){try{console[ruim?'error':'log']('MiHelp banco:',t)}catch(e
  if(!DIAG)return;
  if(!painelDiag){painelDiag=document.createElement('pre');painelDiag.style.cssText='position:fixed;left:8px;bottom:8px;z-index:9999;max-width:92vw;max-height:60vh;overflow:auto;margin:0;padding:10px 12px;background:#000;color:#9fe;border:1px solid #E8B93C;border-radius:8px;font:12px/1.5 monospace;white-space:pre-wrap';document.body.append(painelDiag)}
  painelDiag.textContent+=(ruim?'✗ ':'• ')+t+'\n'}
+window.MH_diag=diag;
 const msgErro=e=>{const t=String((e&&(e.message||e.details&&e.details.message))||e);
  if(/not.?found|does not exist|doesn.t exist|WDE0025/i.test(t))return t+' → a coleção não existe ou o nome está diferente.';
  if(/permission|not allowed|forbidden|403|unauthor|WDE0015/i.test(t))return t+' → falta liberar a permissão da coleção.';
@@ -3988,8 +3999,8 @@ async function lerAv(){
  catch(e){diag('avaliações: '+msgErro(e),true)}}
 async function lerAds(){
  try{const r=await q(COL.ad).limit(100).find(),it=(r&&r.items)||[],ag=Date.now();
-  const l=[],mot={pendente:0,limpo:0,vencido:0};it.forEach(x=>{if(x.status==='pendente'){mot.pendente++;return}const ini=x.inicio?dt(x.inicio).getTime():dt(x._createdDate).getTime(),fim=ini+(Number(x.minutos)||0)*60000;if(ini<=((window.MH_FLOOR||{}).outdoor||0)){mot.limpo++;return}
-   if(fim>ag)l.push({vaga:x.vaga,nome:x.nome,texto:x.texto,minutos:Number(x.minutos)||0,imagem:x.imagemUrl||x.imagem,link:x.link||'',tag:x.status==='cortesia'?'cortesia':'',fim});else mot.vencido++});
+  const l=[],mot={pendente:0,limpo:0,vencido:0};it.forEach(x=>{if(x.status==='pendente'){mot.pendente++;return}const i0=x.inicio?dt(x.inicio).getTime():NaN,ini=Number.isFinite(i0)?i0:dt(x._createdDate).getTime(),mn=Number(x.minutos)||Number(x.min)||0;let fim=ini+mn*60000;if(!(mn>0)){const f=dt(x.validade||x.fim||x.expira||0).getTime();if(f>1e11)fim=f}if(ini<=((window.MH_FLOOR||{}).outdoor||0)){mot.limpo++;return}
+   if(fim>ag)l.push({vaga:x.vaga,nome:x.nome,texto:x.texto,minutos:mn||Math.max(1,Math.round((fim-ini)/60000)),imagem:x.imagemUrl||x.imagem,link:x.link||'',tag:x.status==='cortesia'?'cortesia':'',fim});else mot.vencido++});
   if(DIAG)diag('anúncios: '+it.length+' no banco · '+l.length+' no ar'+(l.length?' (vaga '+l.map(z=>z.vaga).join(', ')+')':'')+' · ignorados: '+mot.pendente+' pendentes, '+mot.limpo+' limpos pelo ADM, '+mot.vencido+' vencidos · tela pronta: '+(window.MH_RX?'sim':'NÃO'));
   if(window.MH_RX)MH_RX.ads(l)}
  catch(e){diag('anúncios: '+msgErro(e),true)}}
@@ -4002,6 +4013,7 @@ async function lerNomes(){
   it.forEach(x=>{if(!x.nome)return;const n=String(x.nome);DB.nomes.add(n.toLowerCase());if(x.papel==='helper'){hs.push(x);if(fund.size<100)fund.add(n)}});
   window.MH_FUND=fund;window.MH_HELPERS=hs.map(x=>({nome:String(x.nome),oficio:x.oficio||''}));try{window.MH_profRefresh&&MH_profRefresh()}catch(e){}
   {const of={};it.forEach(x=>{if(x.papel==='helper'&&x.oficio){const w=String(x.oficio).trim(),k=w.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(!k)return;(of[k]=of[k]||{nome:w,n:0}).n++}});window.MH_OFICIOS=of}
+  {const nn=new Set();it.forEach(x=>{if(x.nome)nn.add(String(x.nome).toLowerCase())});window.MH_STATS_WIX={cad:nn.size,help:hs.length};try{window.MH_pintarPulse&&MH_pintarPulse()}catch(e){}}
   const ce=document.getElementById('contaPre'),k=DB.nomes.size;if(ce&&k>0){ce.hidden=false;ce.textContent='● '+k+(k===1?' pessoa já está':' pessoas já estão')+' na lista do Vale do Araguaia'}
   const he=document.getElementById('helperSemana');if(he&&hs.length){const h=hs[Math.floor(Date.now()/604800000)%hs.length];he.hidden=false;he.textContent='⭐ Helper da semana: '+h.nome+(h.oficio?' · '+h.oficio:'')}}
  catch(e){diag('perfis: '+msgErro(e),true)}}
@@ -4960,9 +4972,11 @@ const p0=A.put,c0=A.clear;A.put=function(i,v){const r=p0.apply(A,arguments);salv
       vs.forEach((v,i)=>{
         if(v && v.end>now){cards.push({v,i,open:false});usados.add(i)}
       });
-      /* Sempre deixa algumas vagas livres visíveis para vender publicidade. */
-      for(let i=0;i<vs.length && cards.length<6;i++){
-        if(!vs[i]){cards.push({v:null,i,open:true});usados.add(i)}
+      /* Vagas abertas só aparecem quando NÃO existe nenhum anúncio ativo. */
+      if(!cards.length){
+        for(let i=0;i<vs.length && cards.length<6;i++){
+          if(!vs[i]){cards.push({v:null,i,open:true});usados.add(i)}
+        }
       }
     }
 
@@ -4972,6 +4986,7 @@ const p0=A.put,c0=A.clear;A.put=function(i,v){const r=p0.apply(A,arguments);salv
     }
 
     box.hidden=false;
+    box.classList.toggle('tem-ads',cards.some(function(c){return !c.open}));
     box.innerHTML='';
     const w=document.createElement('div');w.className='adw';
     const dots=document.createElement('div');dots.className='add';
@@ -5206,15 +5221,19 @@ function pintarPulse(){
   if(!cad)return;
   let nOn=0;
   try{const UI=window.MH_UI;if(UI&&UI.realN)nOn=UI.realN()}catch(e){}
-  cad.textContent=STATS.cad==null?'—':String(STATS.cad);
-  help.textContent=STATS.help==null?'—':String(STATS.help);
+  const W=window.MH_STATS_WIX||{};
+  const pega=(a,b)=>(a==null&&b==null)?'—':String(Math.max(a==null?0:a,b==null?0:b));
+  cad.textContent=pega(STATS.cad,W.cad);
+  help.textContent=pega(STATS.help,W.help);
   on.textContent=String(Math.max(nOn,0));
 }
+window.MH_pintarPulse=pintarPulse;
 async function carregarStats(){
   try{
     const A=window.MH_API;if(!A||!A.on())return;
     const r=await A.req('/stats',{ms:8000});
-    if(r.ok&&r.j&&r.j.ok){STATS.cad=Number(r.j.cad)||0;STATS.help=Number(r.j.helpers)||0;pintarPulse();try{hydrateEu()}catch(e){}}
+    try{window.MH_diag&&MH_diag('worker /stats: '+(r.ok&&r.j&&r.j.ok?'ok':'HTTP '+r.status),!(r.ok&&r.j&&r.j.ok))}catch(e){}
+    if(r.ok&&r.j&&r.j.ok){STATS.cad=Number(r.j.cad)||0;STATS.help=Number(r.j.helpers)||0;pintarPulse();try{hydrateEu()}catch(e){}}else if(STATS.cad==null&&!STATS._r){STATS._r=1;setTimeout(function(){STATS._r=0;carregarStats()},8000)}
   }catch(e){}
 }
 
