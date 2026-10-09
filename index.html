@@ -11,7 +11,7 @@
 fetch(location.pathname||'/',{method:'HEAD',cache:'no-store'}).then(function(r){var d=r.headers.get('date');if(!d)return;var s=new Date(d).getTime()+(Number(r.headers.get('age'))||0)*1000;if(!isFinite(s))return;var df=s-o();window.MH_SKEW_RAW=df;if(Math.abs(df)>120000)k=df}).catch(function(){})}catch(e){}})();
 </script>
 <script>try{const v=localStorage.getItem("mh_tema");document.documentElement.dataset.tema=["escuro","claro","miami","brasil","araguaia","terminal","eclipse","cristal","generico","generico-noturno","voltagem","sombra"].includes(v)?v:"generico"}catch(e){}</script>
-<script>(function(){try{var R=document.documentElement;if(localStorage.getItem("mh_sem_outdoor")==="1")R.classList.add("sem-outdoor");if(localStorage.getItem("mh_foco")==="1")R.classList.add("modo-foco")}catch(e){}})()</script>
+<script>(function(){try{var R=document.documentElement;if(localStorage.getItem("mh_sem_outdoor")==="1")R.classList.add("sem-outdoor");if(localStorage.getItem("mh_foco")==="1")R.classList.add("modo-foco");if(localStorage.getItem("mh_sem_letreiro")==="1")R.classList.add("sem-letreiro")}catch(e){}})()</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MiHelp</title>
@@ -674,7 +674,7 @@ a.wa{color:var(--gold2)}
 
 /* perfil fechado: vira aba no chat e o chat ocupa a largura toda */
 .grid.perfil-fechado{grid-template-columns:1fr}
-.grid.perfil-fechado>#cadWin{display:none}
+.grid.perfil-fechado #cadWin{display:none}
 .bar i.fechavel{cursor:pointer}
 .bar i.fechavel:hover{filter:brightness(1.2)}
 .bar i.fechavel:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
@@ -734,7 +734,7 @@ body.has-dock .admbar{bottom:calc(78px + env(safe-area-inset-bottom,0px))}
 /* janelas fecháveis */
 .fechada,.sec-vazia{display:none!important}
 .two:not(:has(.win:not(.fechada))),.perfil-demo:not(:has(.win:not(.fechada))){display:none}
-.grid:has(>.fechada){grid-template-columns:1fr}
+.grid:has(.jcol>.fechada){grid-template-columns:1fr}
 .bar i.xw{cursor:pointer}
 .bar i.xw:hover{filter:brightness(1.2)}
 .bar i.xw:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
@@ -941,10 +941,11 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 :root[data-tema=generico] #quem,:root[data-tema=generico] #apoie,:root[data-tema=generico] #patrocinio,
 :root[data-tema=generico] .nv a:not([href="#cadWin"]):not([href="#cw"]):not([href*="instagram.com"]),:root[data-tema=generico] #dock [data-dock=anunciar]{display:none!important}
 :root[data-tema=generico] #dock{grid-template-columns:repeat(4,1fr)!important}
-/* Genérico no celular: menu direto, sem o botão "Mais informações" e só com o que importa */
+/* Genérico: Suporte, Mais informações e Ajustes no cabeçalho; os links de informação aparecem ao abrir "Mais informações" */
 :root[data-tema=generico] nav.nv.nv-s{display:flex;flex-wrap:wrap;gap:8px;overflow:visible;padding:0}
-:root[data-tema=generico] nav.nv.nv-s>.more:is(#navSup,[href="#cadWin"],[href="#cw"],[href*="instagram.com"],#navBaixar){display:inline-flex!important;align-items:center;min-height:38px;padding:6px 14px;border-radius:999px;font:600 14px var(--sans);flex:0 0 auto;width:auto;white-space:nowrap}
-:root[data-tema=generico] nav.nv.nv-s>.more:not(:is(#navSup,[href="#cadWin"],[href="#cw"],[href*="instagram.com"],#navBaixar)){display:none!important}
+:root[data-tema=generico] nav.nv.nv-s>.more:is(#navSup,#navMais,#navAjustes,[href*="instagram.com"],#navBaixar){display:inline-flex!important;align-items:center;justify-content:center;min-height:38px;padding:6px 14px;border-radius:999px;font:600 14px var(--sans);flex:0 0 auto;width:auto;white-space:nowrap}
+:root[data-tema=generico] nav.nv.nv-s>.more:not(:is(#navSup,#navMais,#navAjustes,[href*="instagram.com"],#navBaixar,[data-go="saiba"],[data-go="hoje"],[data-go="tutorial"],[data-go="guia-chat"],[data-go="seguranca"],[data-go="taxas"],[data-go="duvidas"],[data-go="apoie"],[data-go="patrocinio"],[data-go="quem"],[data-go="privacidade"])){display:none!important}
+:root[data-tema=generico] nav.nv.nv-s.nv-aberto>a.more:is([data-go="saiba"],[data-go="hoje"],[data-go="tutorial"],[data-go="guia-chat"],[data-go="seguranca"],[data-go="taxas"],[data-go="duvidas"],[data-go="apoie"],[data-go="patrocinio"],[data-go="quem"],[data-go="privacidade"]){display:inline-flex!important;align-items:center;min-height:38px;padding:6px 14px;border-radius:999px;font:600 14px var(--sans);flex:0 0 auto;width:auto;white-space:nowrap}
 :root[data-tema=generico] nav.nv .more{background:var(--surf)!important;color:var(--gold2)!important;border:1px solid var(--line)!important}
 :root[data-tema=generico] nav.nv .more.baixar{background:var(--gold)!important;color:#fff!important;border-color:var(--gold)!important}
 .ig-foot{color:var(--gold2);font-weight:700;text-decoration:none;margin-right:8px}
@@ -1018,10 +1019,11 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 :root[data-tema=generico-noturno] #quem,:root[data-tema=generico-noturno] #apoie,:root[data-tema=generico-noturno] #patrocinio,
 :root[data-tema=generico-noturno] .nv a:not([href="#cadWin"]):not([href="#cw"]):not([href*="instagram.com"]),:root[data-tema=generico-noturno] #dock [data-dock=anunciar]{display:none!important}
 :root[data-tema=generico-noturno] #dock{grid-template-columns:repeat(4,1fr)!important}
-/* Genérico no celular: menu direto, sem o botão "Mais informações" e só com o que importa */
+/* Genérico: Suporte, Mais informações e Ajustes no cabeçalho; os links de informação aparecem ao abrir "Mais informações" */
 :root[data-tema=generico-noturno] nav.nv.nv-s{display:flex;flex-wrap:wrap;gap:8px;overflow:visible;padding:0}
-:root[data-tema=generico-noturno] nav.nv.nv-s>.more:is(#navSup,[href="#cadWin"],[href="#cw"],[href*="instagram.com"],#navBaixar){display:inline-flex!important;align-items:center;min-height:38px;padding:6px 14px;border-radius:999px;font:600 14px var(--sans);flex:0 0 auto;width:auto;white-space:nowrap}
-:root[data-tema=generico-noturno] nav.nv.nv-s>.more:not(:is(#navSup,[href="#cadWin"],[href="#cw"],[href*="instagram.com"],#navBaixar)){display:none!important}
+:root[data-tema=generico-noturno] nav.nv.nv-s>.more:is(#navSup,#navMais,#navAjustes,[href*="instagram.com"],#navBaixar){display:inline-flex!important;align-items:center;justify-content:center;min-height:38px;padding:6px 14px;border-radius:999px;font:600 14px var(--sans);flex:0 0 auto;width:auto;white-space:nowrap}
+:root[data-tema=generico-noturno] nav.nv.nv-s>.more:not(:is(#navSup,#navMais,#navAjustes,[href*="instagram.com"],#navBaixar,[data-go="saiba"],[data-go="hoje"],[data-go="tutorial"],[data-go="guia-chat"],[data-go="seguranca"],[data-go="taxas"],[data-go="duvidas"],[data-go="apoie"],[data-go="patrocinio"],[data-go="quem"],[data-go="privacidade"])){display:none!important}
+:root[data-tema=generico-noturno] nav.nv.nv-s.nv-aberto>a.more:is([data-go="saiba"],[data-go="hoje"],[data-go="tutorial"],[data-go="guia-chat"],[data-go="seguranca"],[data-go="taxas"],[data-go="duvidas"],[data-go="apoie"],[data-go="patrocinio"],[data-go="quem"],[data-go="privacidade"]){display:inline-flex!important;align-items:center;min-height:38px;padding:6px 14px;border-radius:999px;font:600 14px var(--sans);flex:0 0 auto;width:auto;white-space:nowrap}
 :root[data-tema=generico-noturno] nav.nv .more{background:var(--surf)!important;color:var(--gold2)!important;border:1px solid var(--line)!important}
 :root[data-tema=generico-noturno] nav.nv .more.baixar{background:var(--gold)!important;color:#fff!important;border-color:var(--gold)!important}
 :root[data-tema=generico-noturno] .shell{display:block;max-width:1120px;margin:0 auto;padding:0 20px}
@@ -1662,6 +1664,11 @@ dialog.pwa-dlg ol{padding-left:20px;margin:10px 0}
 dialog.pwa-dlg li{margin-bottom:6px}
 dialog.pwa-dlg p{color:var(--read)}
 </style>
+<script>window.mhAnuncios=function(){var R=document.documentElement,O=[['Mostrar tudo','Outdoors e letreiros',0],['Mostrar outdoors','Tira só os letreiros do topo',1],['Esconder tudo','Sem outdoors e sem letreiros',2]],bs=[];
+function cur(){return R.classList.contains('sem-outdoor')?2:R.classList.contains('sem-letreiro')?1:0}
+function paint(){var c=cur();bs.forEach(function(b,i){b.setAttribute('aria-pressed',String(i===c))})}
+function set(v){R.classList.toggle('sem-outdoor',v===2);R.classList.toggle('sem-letreiro',v===1);try{localStorage.setItem('mh_sem_outdoor',v===2?'1':'0');localStorage.setItem('mh_sem_letreiro',v===1?'1':'0')}catch(e){}paint();try{window.MH_SOM&&MH_SOM.tocar('pop',0)}catch(e){}}
+O.forEach(function(o,i){var b=document.createElement('button');b.type='button';b.textContent=o[0];b.title=o[1];b.onclick=function(){set(i)};bs.push(b)});paint();return bs};</script>
 <style id="mh-jornal">
 /* ===== Esconder outdoors/letreiros e modo foco (valem em todos os temas) ===== */
 html.sem-outdoor .mq,html.sem-outdoor .tk,html.sem-outdoor #adtop,html.sem-outdoor .side,html.sem-outdoor #vagas,html.sem-outdoor #dock [data-dock=anunciar],
@@ -1692,18 +1699,143 @@ html.sem-outdoor:root[data-tema^=generico] .shell,html.modo-foco:root[data-tema^
 @media(min-width:1000px){
  :root[data-tema^=generico] .wrap{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);column-gap:22px;row-gap:22px;align-items:start}
  :root[data-tema^=generico] .wrap>*{grid-column:1/-1}
- :root[data-tema^=generico] .wrap>.grid{display:contents}
- :root[data-tema^=generico] .grid>#cadWin{grid-column:1;grid-row:span 2}
- :root[data-tema^=generico] .grid>#cw{grid-column:2}
- :root[data-tema^=generico] #vale{grid-column:2}
- :root[data-tema^=generico] #carona{grid-column:1/-1}
- :root[data-tema^=generico] #vale,:root[data-tema^=generico] #carona{margin-top:0}
  :root[data-tema^=generico] #vLista{max-height:300px;overflow-y:auto}
- /* perfil minimizado: chat ocupa a largura toda e Guia e Caronas ficam lado a lado */
- :root[data-tema^=generico] .wrap:has(.grid.perfil-fechado) #cw{grid-column:1/-1}
- :root[data-tema^=generico] .wrap:has(.grid.perfil-fechado) #vale{grid-column:1}
- :root[data-tema^=generico] .wrap:has(.grid.perfil-fechado) #carona{grid-column:2}
 }
+</style>
+<style id="mh-remaster">
+/* barra limpa + layout do Genérico em todos os temas */
+:root[data-tema] #cadWin .bar i.fechavel{display:inline-flex!important;align-items:center;margin-left:auto;width:auto!important;height:auto!important;padding:4px 12px;border:1px solid var(--line)!important;border-radius:999px!important;background:var(--bg)!important;color:var(--gold2);font:600 12px var(--sans);font-style:normal;line-height:1.2;cursor:pointer}
+:root[data-tema] #cadWin .bar i.fechavel::before{content:"— Minimizar"}
+:root[data-tema] #cadWin .bar i.fechavel:hover{background:var(--hov)!important;filter:none}
+:root[data-tema] #perfSq:not([hidden]){display:inline-flex;align-items:center;gap:7px;width:auto!important;height:auto!important;padding:4px 12px;border:1px solid var(--line)!important;border-radius:999px!important;background:var(--surf)!important;color:var(--gold2);font:600 12px var(--sans);cursor:pointer}
+:root[data-tema] #perfSq::before{content:"";width:9px;height:9px;border-radius:50%;background:#6EC8AA}
+:root[data-tema] #perfSq[data-st=ocupado]::before{background:#F2C94C}
+:root[data-tema] #perfSq::after{content:"Meu perfil"}
+:root[data-tema] .shell{display:block;max-width:1120px;margin:0 auto;padding:0 20px}
+:root[data-tema] .wrap{max-width:none;padding:20px 0 60px}
+:root[data-tema] .top{padding:4px 0 20px;border-bottom:1px solid var(--line);margin-bottom:24px}
+:root[data-tema] h1{font-size:clamp(28px,4.2vw,46px);line-height:1.12;letter-spacing:-.02em;font-weight:800;margin:0 0 22px}
+:root[data-tema] h1 span{display:block;color:var(--gold)}
+:root[data-tema] footer{border-top:1px solid var(--line);padding-top:18px;font-family:var(--sans)}
+:root[data-tema] #needRow{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important;gap:12px;flex-wrap:wrap;overflow:visible!important}
+:root[data-tema] #needRow button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:110px;padding:16px 10px;border-radius:14px;background:var(--surf);border:1px solid var(--line);white-space:normal;word-break:normal!important;overflow-wrap:normal!important;hyphens:none}
+:root[data-tema] #needRow button:hover,:root[data-tema] #needRow button:focus-visible{border-color:var(--gold);box-shadow:0 2px 10px rgba(16,24,40,.08);outline:none}
+:root[data-tema] .mq,:root[data-tema] .tka{background:var(--deep)}
+:root[data-tema] .tk{background:var(--surf)}
+:root[data-tema] .mq{border-bottom-color:var(--line)}
+@media(min-width:1200px){
+ :root[data-tema] .shell{display:grid;grid-template-columns:176px minmax(0,1120px) 176px;gap:14px;justify-content:center;max-width:1560px;padding:0 14px}
+}
+html.sem-outdoor:root[data-tema] .shell,html.modo-foco:root[data-tema] .shell{grid-template-columns:minmax(0,1120px)!important}
+
+/* campos de texto, telefone e e-mail com as cores do tema (no celular ficavam pretos no Genérico claro) */
+:root[data-tema] input:is([type=text],[type=tel],[type=email],[type=url]):not(#m){background-color:var(--surf)!important;color:var(--text)!important;border:1px solid var(--line)!important}
+/* ===== Genérico: página em colunas, como jornal ===== */
+:root[data-tema] #cLista{column-width:280px;column-gap:14px}
+:root[data-tema] #cLista .vcard{break-inside:avoid}
+:root[data-tema] #cLista>p{column-span:all}
+@media(min-width:1000px){
+ :root[data-tema] .wrap{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);column-gap:22px;row-gap:22px;align-items:start}
+ :root[data-tema] .wrap>*{grid-column:1/-1}
+ :root[data-tema] #vLista{max-height:300px;overflow-y:auto}
+}
+
+/* ===== chrome comum a todos os temas ===== */
+:root[data-tema]:not([data-tema=terminal]){--mono:var(--sans)}
+:root[data-tema] .win{border-radius:12px;overflow:hidden}
+:root[data-tema] .bar{font-family:var(--sans);font-size:13px;font-weight:600;background:var(--surf);border-bottom:1px solid var(--line)}
+:root[data-tema] .bar i:not(.fechavel){display:none}
+:root[data-tema] .bar .t{text-shadow:none}
+:root[data-tema] *{text-shadow:none}
+#cfgBtn{display:none!important}
+#cfg{left:auto!important;right:12px;top:calc(64px + env(safe-area-inset-top,0px));bottom:auto!important;z-index:60}
+#cfgPan{max-height:calc(100vh - 96px);overflow:auto;border-radius:16px;min-width:240px;padding:10px}
+html.sem-letreiro .mq,html.sem-letreiro .tk{display:none!important}
+nav.nv.nv-s>#navAjustes{display:inline-flex!important;align-items:center;justify-content:center;gap:6px;width:auto;min-height:42px;padding:8px 16px;border-radius:999px;font:700 15px var(--sans);white-space:nowrap;cursor:pointer;background:var(--surf);border:1px solid var(--line);color:var(--gold2)}
+nav.nv.nv-s>#navAjustes:hover,nav.nv.nv-s>#navAjustes[aria-expanded=true]{border-color:var(--gold)}
+@media(max-width:640px){nav.nv.nv-s>#navAjustes{flex:1 1 0;min-width:0;font-size:14px;padding:8px 10px}}
+@keyframes mhblink{50%{opacity:0}}
+
+/* ===== 1 Dourado: editorial, ouro e serifa ===== */
+:root[data-tema=escuro] h1,:root[data-tema=escuro] h2,:root[data-tema=escuro] h3{font-family:Georgia,"Times New Roman",serif;font-weight:700}
+:root[data-tema=escuro] body{background-image:radial-gradient(900px 480px at 15% 0,rgba(var(--gold-rgb),.14),transparent 70%)}
+:root[data-tema=escuro] .win{border-top:2px solid var(--gold);box-shadow:0 12px 30px rgba(0,0,0,.45)}
+:root[data-tema=escuro] .top{border-bottom-color:rgba(var(--gold-rgb),.55)}
+/* ===== 2 Claro: papel e marca-texto ===== */
+:root[data-tema=claro] h1,:root[data-tema=claro] h2,:root[data-tema=claro] h3{font-family:Georgia,"Times New Roman",serif}
+:root[data-tema=claro] .win{background:var(--surf);box-shadow:inset 0 1px 0 #fff,0 10px 24px rgba(122,86,0,.13)}
+:root[data-tema=claro] .bar{background:var(--deep)}
+:root[data-tema=claro] h1 span{background:linear-gradient(transparent 62%,rgba(var(--gold-rgb),.3) 0);width:fit-content}
+/* ===== 3 Miami: neon degradê ===== */
+:root[data-tema=miami] .win{border:1px solid transparent;background:linear-gradient(var(--surf),var(--surf)) padding-box,linear-gradient(135deg,#FF4FA3,#5EE7FF) border-box;box-shadow:0 0 28px rgba(255,79,163,.2)}
+:root[data-tema=miami] h1{font-style:italic;font-weight:900;letter-spacing:-.03em}
+:root[data-tema=miami] h1 span{background:linear-gradient(90deg,#FF4FA3,#FFB86B,#5EE7FF);-webkit-background-clip:text;background-clip:text;color:transparent}
+:root[data-tema=miami] .top{border-bottom:3px solid;border-image:linear-gradient(90deg,#FF4FA3,#FFB86B,#5EE7FF) 1}
+/* ===== 4 Brasil: faixas e losango ===== */
+:root[data-tema=brasil] body{background-image:repeating-linear-gradient(45deg,rgba(255,223,0,.035) 0 2px,transparent 2px 30px),radial-gradient(900px 480px at 15% 0,rgba(0,156,59,.22),transparent 70%),radial-gradient(700px 420px at 90% 10%,rgba(0,39,118,.3),transparent 70%)}
+:root[data-tema=brasil] .top{border-bottom:0;padding-bottom:26px;box-shadow:0 5px 0 #009C3B,0 10px 0 #FFDF00,0 15px 0 #002776}
+:root[data-tema=brasil] .win{border-left:4px solid var(--gold);border-radius:10px}
+:root[data-tema=brasil] h1{font-weight:900}
+/* ===== 5 Pôr do sol: vidro e horizonte ===== */
+:root[data-tema=araguaia] body{background-image:radial-gradient(circle 280px at 82% 0,rgba(255,138,61,.4),transparent 70%),linear-gradient(180deg,#3A1A3F 0,#1A0F1E 560px)}
+:root[data-tema=araguaia] .win{background:rgba(38,22,41,.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-color:rgba(255,184,107,.28);border-radius:20px}
+:root[data-tema=araguaia] .bar{background:transparent}
+:root[data-tema=araguaia] h1 span{background:linear-gradient(90deg,#FF8A3D,#FF5E7E);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* ===== 6 Terminal: prompt e cursor ===== */
+:root[data-tema=terminal] .win{border-radius:2px;border-color:var(--gold);box-shadow:0 0 0 1px rgba(57,255,20,.15),0 0 20px rgba(57,255,20,.12)}
+:root[data-tema=terminal] .bar::before{content:"$";color:var(--gold)}
+:root[data-tema=terminal] h1 span::after{content:"\2588";margin-left:.12em;animation:mhblink 1s steps(1) infinite}
+:root[data-tema=terminal] nav.nv.nv-s>.more,:root[data-tema=terminal] nav.nv.nv-s>#navAjustes{border-radius:2px!important}
+@media(prefers-reduced-motion:reduce){:root[data-tema=terminal] h1 span::after{animation:none}}
+/* ===== 7 Eclipse: disco negro com coroa ===== */
+:root[data-tema=eclipse] body{background-repeat:no-repeat;background-image:radial-gradient(circle 70px at 88% 110px,#000 0 96%,transparent 100%),radial-gradient(circle 150px at 88% 110px,rgba(178,107,255,.6),transparent 72%),radial-gradient(900px 480px at 10% 0,rgba(178,107,255,.2),transparent 70%)}
+:root[data-tema=eclipse] .win{border-radius:20px;box-shadow:0 0 0 1px rgba(178,107,255,.25),0 0 44px rgba(178,107,255,.14)}
+:root[data-tema=eclipse] h1 span{background:linear-gradient(90deg,#B26BFF,#FF6EC7);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* ===== 8 Cristal: gelo e vidro fosco ===== */
+:root[data-tema=cristal] body{background-image:linear-gradient(160deg,#E6F0FF,#F5F6F8 42%,#ECF3FF);background-attachment:fixed}
+:root[data-tema=cristal] .win{background:rgba(255,255,255,.7);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);border:1px solid rgba(255,255,255,.95);border-radius:20px;box-shadow:0 10px 34px rgba(29,95,214,.1),inset 0 1px 0 #fff}
+:root[data-tema=cristal] .bar{background:transparent;border-bottom-color:rgba(29,95,214,.12)}
+/* ===== 11 Voltagem: bloco duro e sombra deslocada ===== */
+:root[data-tema=voltagem] .win{border:2px solid var(--text);border-radius:4px;box-shadow:6px 6px 0 var(--gold)}
+:root[data-tema=voltagem] .bar{background:var(--gold);color:#0D0F12;border-bottom:2px solid var(--text)}
+:root[data-tema=voltagem] h1{text-transform:uppercase;font-weight:900;letter-spacing:-.01em}
+:root[data-tema=voltagem] nav.nv.nv-s>.more,:root[data-tema=voltagem] nav.nv.nv-s>#navAjustes{border-radius:4px!important;border-width:2px!important}
+/* ===== 12 Sombra: noir, só linhas ===== */
+:root[data-tema=sombra] body{background-image:radial-gradient(ellipse at 50% -10%,rgba(255,255,255,.08),transparent 60%)}
+:root[data-tema=sombra] .win{background:transparent;border-radius:2px;box-shadow:none}
+:root[data-tema=sombra] .bar{background:transparent;letter-spacing:.08em}
+:root[data-tema=sombra] h1{font-weight:300;letter-spacing:.02em}
+
+/* ===== Colunas de jornal: perfil + Caronas à esquerda, chat + Guia à direita ===== */
+.jcol{display:flex;flex-direction:column;gap:22px;min-width:0}
+.jcol>#vale,.jcol>#carona{margin-top:0}
+:root[data-tema] .wrap>.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:22px;align-items:start}
+/* perfil minimizado OU chat ampliado: as posições mudam (chat em cima, Guia e Caronas lado a lado) */
+:root[data-tema] .wrap>.grid.perfil-fechado>.jcol,html.cw-open:root[data-tema] .wrap>.grid>.jcol{display:contents}
+:root[data-tema] .grid.perfil-fechado #cw{grid-column:1/-1;grid-row:1}
+:root[data-tema] .grid.perfil-fechado #vale{grid-column:1;grid-row:2}
+:root[data-tema] .grid.perfil-fechado #carona{grid-column:2;grid-row:2}
+html.cw-open:root[data-tema] .grid:not(.perfil-fechado) #cadWin{grid-column:1;grid-row:1/span 2}
+html.cw-open:root[data-tema] .grid:not(.perfil-fechado) #vale{grid-column:2;grid-row:1}
+html.cw-open:root[data-tema] .grid:not(.perfil-fechado) #carona{grid-column:2;grid-row:2}
+html.modo-foco #vale,html.modo-foco #carona{display:none!important}
+@media(max-width:860px){
+ :root[data-tema] .wrap>.grid,:root[data-tema] .wrap>.grid.perfil-fechado{display:flex;flex-direction:column;gap:12px}
+ :root[data-tema] .wrap>.grid>.jcol{display:contents}
+ :root[data-tema] #cadWin{order:1}:root[data-tema] #cw{order:2}:root[data-tema] #vale{order:3}:root[data-tema] #carona{order:4}
+ .jcol>#vale,.jcol>#carona{margin-top:20px}
+}
+/* ===== Genérico: cabeçalho misto (Suporte, Mais informações e Ajustes como nos outros temas) ===== */
+:root[data-tema^=generico] :is(#saiba,#hoje,#tutorial,#guia-chat,#seguranca,#taxas,#duvidas,#apoie,#patrocinio,#quem,#privacidade).mh-ver{display:block!important;scroll-margin-top:16px}
+:root[data-tema^=generico] nav.nv.nv-s.nv-aberto>.more:not(:is(#navSup,#navMais,#navAjustes,[href*="instagram.com"],#navBaixar,[data-go="saiba"],[data-go="hoje"],[data-go="tutorial"],[data-go="guia-chat"],[data-go="seguranca"],[data-go="taxas"],[data-go="duvidas"],[data-go="apoie"],[data-go="patrocinio"],[data-go="quem"],[data-go="privacidade"])):not(#navSup):not(#navMais){display:none!important}
+/* ===== Publicidade lateral: sem moldura nem título, os anúncios soltos na página ===== */
+:root[data-tema] .side>.win{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;overflow:visible}
+:root[data-tema] .side>.win>.bar{display:none!important}
+:root[data-tema] .side .vcol{padding:0}
+/* ===== Letreiros do topo: integrados à página, acompanham a rolagem junto com os outdoors, sem sombra nem linhas ===== */
+:root[data-tema] .top-letreiros{position:sticky!important;top:0;z-index:50;box-shadow:none!important;background:var(--bg)!important;border:0!important}
+:root[data-tema] .top-letreiros .mq,:root[data-tema] .top-letreiros .tk,:root[data-tema] .top-letreiros .tka{background:transparent!important;border:0!important;box-shadow:none!important}
+:root[data-tema] .top-letreiros .tkl{border-radius:999px}
 </style>
 </head>
 <body>
@@ -1756,6 +1888,7 @@ html.sem-outdoor:root[data-tema^=generico] .shell,html.modo-foco:root[data-tema^
   </div>
   </section>
   <div class="grid">
+   <div class="jcol" id="jcE">
     <section class="win" id="cadWin" aria-label="Conta">
       <div class="bar"><span class="t">conta</span><i></i><i></i><i></i></div>
       <div class="body" id="reg">
@@ -1780,7 +1913,19 @@ html.sem-outdoor:root[data-tema^=generico] .shell,html.modo-foco:root[data-tema^
         </form>
       </div>
     </section>
-
+  <section id="carona" aria-labelledby="cl">
+  <h2 id="cl">Caronas do Vale</h2>
+  <p class="lead">Caronas para dividir a viagem. Tudo grátis.</p>
+  <div class="win"><div class="bar"><span class="t">caronas.txt</span><i></i><i></i><i></i></div>
+   <div class="body">
+    <div class="vbar"><button type="button" id="cNovo" class="cta2">+ Oferecer carona</button></div>
+    <div id="cLista"></div>
+    <p class="note" id="cMsg" role="status"></p>
+    <p class="note">Carona é divisão de custos, não é serviço de transporte. Combine tudo no chat privado e avise alguém de confiança sobre a viagem.</p>
+   </div></div>
+  </section>
+   </div>
+   <div class="jcol" id="jcD">
     <section class="win" id="cw" aria-label="Sala de conversa">
       <div class="bar"><span class="t">Sala do Vale — online 24h</span><button type="button" id="cwExp" class="exp" aria-pressed="false" aria-controls="cw" aria-label="Ampliar a sala de conversa">Ampliar</button><button type="button" id="perfSq" hidden aria-label="Meu perfil"></button><i></i><i></i><i></i></div>
       <div class="chat">
@@ -1809,6 +1954,18 @@ html.sem-outdoor:root[data-tema^=generico] .shell,html.modo-foco:root[data-tema^
         </div>
       </div>
     </section>
+  <section id="vale" aria-labelledby="vl">
+  <h2 id="vl">Guia do Vale</h2>
+  <p class="lead">Lugares que a galera recomenda. Tudo grátis.</p>
+  <div class="win"><div class="bar"><span class="t">guia.txt</span><i></i><i></i><i></i></div>
+   <div class="body">
+    <div class="vbar"><select id="vCid" aria-label="Cidade"></select><select id="vCat" aria-label="Categoria"></select><button type="button" id="vNovo" class="cta2">+ Indicar um lugar</button></div>
+    <div id="vLista"></div>
+    <p class="note" id="vMsg" role="status"></p>
+    <p class="note" id="vNota">Lugares com o selo <b>⭐ Visitado pela MiHelp</b> foram visitados pela nossa equipe, com post no Instagram. As indicações novas passam pela nossa análise antes de aparecer.</p>
+   </div></div>
+  </section>
+   </div>
   </div>
   <section id="duelo" aria-labelledby="dl">
   <h2 id="dl">Cabo de guerra da torcida</h2>
@@ -1842,28 +1999,6 @@ html.sem-outdoor:root[data-tema^=generico] .shell,html.modo-foco:root[data-tema^
   </section>
   <section id="enquete" hidden aria-labelledby="eqt"><h2 id="eqt">Enquete</h2><div class="win"><div class="bar"><span class="t">enquete.txt</span><i></i><i></i><i></i></div><div class="tg"><h3 class="tg-tit" id="eqP"></h3><div class="eq-o" id="eqO"></div><p class="note" id="eqM" role="status"></p></div></div></section>
 
-  <section id="vale" aria-labelledby="vl">
-  <h2 id="vl">Guia do Vale</h2>
-  <p class="lead">Lugares que a galera recomenda. Tudo grátis.</p>
-  <div class="win"><div class="bar"><span class="t">guia.txt</span><i></i><i></i><i></i></div>
-   <div class="body">
-    <div class="vbar"><select id="vCid" aria-label="Cidade"></select><select id="vCat" aria-label="Categoria"></select><button type="button" id="vNovo" class="cta2">+ Indicar um lugar</button></div>
-    <div id="vLista"></div>
-    <p class="note" id="vMsg" role="status"></p>
-    <p class="note" id="vNota">Lugares com o selo <b>⭐ Visitado pela MiHelp</b> foram visitados pela nossa equipe, com post no Instagram. As indicações novas passam pela nossa análise antes de aparecer.</p>
-   </div></div>
-  </section>
-  <section id="carona" aria-labelledby="cl">
-  <h2 id="cl">Caronas do Vale</h2>
-  <p class="lead">Caronas para dividir a viagem. Tudo grátis.</p>
-  <div class="win"><div class="bar"><span class="t">caronas.txt</span><i></i><i></i><i></i></div>
-   <div class="body">
-    <div class="vbar"><button type="button" id="cNovo" class="cta2">+ Oferecer carona</button></div>
-    <div id="cLista"></div>
-    <p class="note" id="cMsg" role="status"></p>
-    <p class="note">Carona é divisão de custos, não é serviço de transporte. Combine tudo no chat privado e avise alguém de confiança sobre a viagem.</p>
-   </div></div>
-  </section>
   <section id="instalar" aria-labelledby="inst">
   <h2 id="inst">Instale o MiHelp no celular</h2>
   <p class="lead">Fica na tela inicial como um app, abre rápido e você não precisa digitar o endereço de novo. É grátis e não ocupa quase nada.</p>
@@ -5025,7 +5160,7 @@ const tg=(cls,key,off,on,tip)=>{const b=mk('button');b.type='button';b.title=tip
  const pinta=()=>{const v=RT.classList.contains(cls);b.textContent=v?on:off;b.setAttribute('aria-pressed',String(v))};
  b.onclick=()=>{const v=!RT.classList.contains(cls);RT.classList.toggle(cls,v);try{localStorage.setItem(key,v?'1':'0')}catch(e){}pinta();try{window.MH_SOM&&MH_SOM.tocar('pop',0)}catch(e){}};
  pinta();return b};
-vz.append(tg('modo-foco','mh_foco','🎯 Modo foco: só perfil e chat','🎯 Sair do modo foco','Esconde tudo, menos o cabeçalho, o perfil e o chat'),tg('sem-outdoor','mh_sem_outdoor','🪧 Esconder outdoors e letreiros','🪧 Mostrar outdoors e letreiros','Tira ou volta os anúncios e os letreiros do topo'));
+vz.append(tg('modo-foco','mh_foco','🎯 Modo foco: só perfil e chat','🎯 Sair do modo foco','Esconde tudo, menos o cabeçalho, o perfil e o chat'),...window.mhAnuncios());
 pan.append(...(window.MH_TEMA_LABEL?[window.MH_TEMA_LABEL]:[]),vz,fx,vl,row,tb,jn);box.append(btn,pan);document.body.append(box);
 function abre(v){pan.hidden=!v;btn.textContent=v?'✕':'⚙️';btn.setAttribute('aria-expanded',String(v));btn.setAttribute('aria-label',v?'Fechar ajustes':'Abrir ajustes: tema e sons');try{window.MH_SOM&&MH_SOM.tocar(v?'abre':'fecha',80)}catch(e){}}
 btn.onclick=()=>abre(pan.hidden);
@@ -5497,6 +5632,20 @@ btn.onclick=()=>abre(lst.hidden);
 document.addEventListener('pointerdown',e=>{if(!lst.hidden&&!box.contains(e.target))abre(false)});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!lst.hidden){abre(false);btn.focus()}});
 })()}catch(e){console.error('MiHelp (menu mobile):',e)}
+</script>
+<script>document.addEventListener('DOMContentLoaded',function(){var nv=document.querySelector('nav.nv'),g=document.getElementById('cfgBtn');if(!nv||!g)return;
+var b=document.createElement('button');b.type='button';b.id='navAjustes';b.className='more';b.textContent='⚙️ Ajustes';b.setAttribute('aria-expanded','false');
+b.addEventListener('pointerdown',function(e){e.stopPropagation()});
+b.onclick=function(){g.click();b.setAttribute('aria-expanded',String(g.getAttribute('aria-expanded')==='true'))};
+document.addEventListener('pointerdown',function(){b.setAttribute('aria-expanded','false')});
+var m=document.getElementById('navMais');if(m)m.after(b);else nv.prepend(b)});</script>
+<script id="mh-generico-info">
+(function(){var INFO=['saiba','hoje','tutorial','guia-chat','seguranca','taxas','duvidas','apoie','patrocinio','quem','privacidade'];
+document.addEventListener('click',function(e){try{
+if(!/^generico/.test(document.documentElement.dataset.tema||''))return;
+var a=e.target.closest&&e.target.closest('nav.nv a.more[data-go]');if(!a)return;
+var id=a.dataset.go;if(INFO.indexOf(id)<0)return;var t=document.getElementById(id);if(!t)return;
+document.querySelectorAll('.mh-ver').forEach(function(x){x.classList.remove('mh-ver')});t.classList.add('mh-ver')}catch(_){}},true);})();
 </script>
 </body>
 </html>
