@@ -11,7 +11,7 @@
 fetch(location.pathname||'/',{method:'HEAD',cache:'no-store'}).then(function(r){var d=r.headers.get('date');if(!d)return;var s=new Date(d).getTime()+(Number(r.headers.get('age'))||0)*1000;if(!isFinite(s))return;var df=s-o();window.MH_SKEW_RAW=df;if(Math.abs(df)>120000)k=df}).catch(function(){})}catch(e){}})();
 </script>
 <script>try{const v=localStorage.getItem("mh_tema");document.documentElement.dataset.tema=["escuro","claro","miami","brasil","araguaia","terminal","eclipse","cristal","generico","generico-noturno","voltagem","sombra"].includes(v)?v:"generico"}catch(e){}</script>
-<script>(function(){try{var R=document.documentElement;if(localStorage.getItem("mh_sem_outdoor")==="1")R.classList.add("sem-outdoor");if(localStorage.getItem("mh_foco")==="1")R.classList.add("modo-foco");if(localStorage.getItem("mh_sem_letreiro")==="1")R.classList.add("sem-letreiro")}catch(e){}})()</script>
+<script>(function(){try{var R=document.documentElement;if(localStorage.getItem("mh_sem_outdoor")==="1")R.classList.add("sem-outdoor");if(localStorage.getItem("mh_foco")==="1")R.classList.add("modo-foco")}catch(e){}})()</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MiHelp</title>
@@ -1662,11 +1662,6 @@ dialog.pwa-dlg ol{padding-left:20px;margin:10px 0}
 dialog.pwa-dlg li{margin-bottom:6px}
 dialog.pwa-dlg p{color:var(--read)}
 </style>
-<script>window.mhAnuncios=function(){var R=document.documentElement,O=[['Mostrar tudo','Outdoors e letreiros',0],['Mostrar outdoors','Tira só os letreiros do topo',1],['Esconder tudo','Sem outdoors e sem letreiros',2]],bs=[];
-function cur(){return R.classList.contains('sem-outdoor')?2:R.classList.contains('sem-letreiro')?1:0}
-function paint(){var c=cur();bs.forEach(function(b,i){b.setAttribute('aria-pressed',String(i===c))})}
-function set(v){R.classList.toggle('sem-outdoor',v===2);R.classList.toggle('sem-letreiro',v===1);try{localStorage.setItem('mh_sem_outdoor',v===2?'1':'0');localStorage.setItem('mh_sem_letreiro',v===1?'1':'0')}catch(e){}paint();try{window.MH_SOM&&MH_SOM.tocar('pop',0)}catch(e){}}
-O.forEach(function(o,i){var b=document.createElement('button');b.type='button';b.textContent=o[0];b.title=o[1];b.onclick=function(){set(i)};bs.push(b)});paint();return bs};</script>
 <style id="mh-jornal">
 /* ===== Esconder outdoors/letreiros e modo foco (valem em todos os temas) ===== */
 html.sem-outdoor .mq,html.sem-outdoor .tk,html.sem-outdoor #adtop,html.sem-outdoor .side,html.sem-outdoor #vagas,html.sem-outdoor #dock [data-dock=anunciar],
@@ -1709,123 +1704,6 @@ html.sem-outdoor:root[data-tema^=generico] .shell,html.modo-foco:root[data-tema^
  :root[data-tema^=generico] .wrap:has(.grid.perfil-fechado) #vale{grid-column:1}
  :root[data-tema^=generico] .wrap:has(.grid.perfil-fechado) #carona{grid-column:2}
 }
-</style>
-<style id="mh-remaster">
-/* barra limpa + layout do Genérico em todos os temas */
-:root[data-tema] #cadWin .bar i.fechavel{display:inline-flex!important;align-items:center;margin-left:auto;width:auto!important;height:auto!important;padding:4px 12px;border:1px solid var(--line)!important;border-radius:999px!important;background:var(--bg)!important;color:var(--gold2);font:600 12px var(--sans);font-style:normal;line-height:1.2;cursor:pointer}
-:root[data-tema] #cadWin .bar i.fechavel::before{content:"— Minimizar"}
-:root[data-tema] #cadWin .bar i.fechavel:hover{background:var(--hov)!important;filter:none}
-:root[data-tema] #perfSq:not([hidden]){display:inline-flex;align-items:center;gap:7px;width:auto!important;height:auto!important;padding:4px 12px;border:1px solid var(--line)!important;border-radius:999px!important;background:var(--surf)!important;color:var(--gold2);font:600 12px var(--sans);cursor:pointer}
-:root[data-tema] #perfSq::before{content:"";width:9px;height:9px;border-radius:50%;background:#6EC8AA}
-:root[data-tema] #perfSq[data-st=ocupado]::before{background:#F2C94C}
-:root[data-tema] #perfSq::after{content:"Meu perfil"}
-:root[data-tema] .shell{display:block;max-width:1120px;margin:0 auto;padding:0 20px}
-:root[data-tema] .wrap{max-width:none;padding:20px 0 60px}
-:root[data-tema] .top{padding:4px 0 20px;border-bottom:1px solid var(--line);margin-bottom:24px}
-:root[data-tema] h1{font-size:clamp(28px,4.2vw,46px);line-height:1.12;letter-spacing:-.02em;font-weight:800;margin:0 0 22px}
-:root[data-tema] h1 span{display:block;color:var(--gold)}
-:root[data-tema] footer{border-top:1px solid var(--line);padding-top:18px;font-family:var(--sans)}
-:root[data-tema] #needRow{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important;gap:12px;flex-wrap:wrap;overflow:visible!important}
-:root[data-tema] #needRow button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:110px;padding:16px 10px;border-radius:14px;background:var(--surf);border:1px solid var(--line);white-space:normal;word-break:normal!important;overflow-wrap:normal!important;hyphens:none}
-:root[data-tema] #needRow button:hover,:root[data-tema] #needRow button:focus-visible{border-color:var(--gold);box-shadow:0 2px 10px rgba(16,24,40,.08);outline:none}
-:root[data-tema] .mq,:root[data-tema] .tka{background:var(--deep)}
-:root[data-tema] .tk{background:var(--surf)}
-:root[data-tema] .mq{border-bottom-color:var(--line)}
-@media(min-width:1200px){
- :root[data-tema] .shell{display:grid;grid-template-columns:176px minmax(0,1120px) 176px;gap:14px;justify-content:center;max-width:1560px;padding:0 14px}
-}
-html.sem-outdoor:root[data-tema] .shell,html.modo-foco:root[data-tema] .shell{grid-template-columns:minmax(0,1120px)!important}
-
-/* campos de texto, telefone e e-mail com as cores do tema (no celular ficavam pretos no Genérico claro) */
-:root[data-tema] input:is([type=text],[type=tel],[type=email],[type=url]):not(#m){background-color:var(--surf)!important;color:var(--text)!important;border:1px solid var(--line)!important}
-/* ===== Genérico: página em colunas, como jornal ===== */
-:root[data-tema] #cLista{column-width:280px;column-gap:14px}
-:root[data-tema] #cLista .vcard{break-inside:avoid}
-:root[data-tema] #cLista>p{column-span:all}
-@media(min-width:1000px){
- :root[data-tema] .wrap{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);column-gap:22px;row-gap:22px;align-items:start}
- :root[data-tema] .wrap>*{grid-column:1/-1}
- :root[data-tema] .wrap>.grid{display:contents}
- :root[data-tema] .grid>#cadWin{grid-column:1;grid-row:span 2}
- :root[data-tema] .grid>#cw{grid-column:2}
- :root[data-tema] #vale{grid-column:2}
- :root[data-tema] #carona{grid-column:1/-1}
- :root[data-tema] #vale,:root[data-tema] #carona{margin-top:0}
- :root[data-tema] #vLista{max-height:300px;overflow-y:auto}
- /* perfil minimizado: chat ocupa a largura toda e Guia e Caronas ficam lado a lado */
- :root[data-tema] .wrap:has(.grid.perfil-fechado) #cw{grid-column:1/-1}
- :root[data-tema] .wrap:has(.grid.perfil-fechado) #vale{grid-column:1}
- :root[data-tema] .wrap:has(.grid.perfil-fechado) #carona{grid-column:2}
-}
-
-/* ===== chrome comum a todos os temas ===== */
-:root[data-tema]:not([data-tema=terminal]){--mono:var(--sans)}
-:root[data-tema] .win{border-radius:12px;overflow:hidden}
-:root[data-tema] .bar{font-family:var(--sans);font-size:13px;font-weight:600;background:var(--surf);border-bottom:1px solid var(--line)}
-:root[data-tema] .bar i:not(.fechavel){display:none}
-:root[data-tema] .bar .t{text-shadow:none}
-:root[data-tema] *{text-shadow:none}
-#cfgBtn{display:none!important}
-#cfg{left:auto!important;right:12px;top:calc(64px + env(safe-area-inset-top,0px));bottom:auto!important;z-index:60}
-#cfgPan{max-height:calc(100vh - 96px);overflow:auto;border-radius:16px;min-width:240px;padding:10px}
-html.sem-letreiro .mq,html.sem-letreiro .tk{display:none!important}
-nav.nv.nv-s>#navAjustes{display:inline-flex!important;align-items:center;justify-content:center;gap:6px;width:auto;min-height:42px;padding:8px 16px;border-radius:999px;font:700 15px var(--sans);white-space:nowrap;cursor:pointer;background:var(--surf);border:1px solid var(--line);color:var(--gold2)}
-nav.nv.nv-s>#navAjustes:hover,nav.nv.nv-s>#navAjustes[aria-expanded=true]{border-color:var(--gold)}
-@media(max-width:640px){nav.nv.nv-s>#navAjustes{flex:1 1 0;min-width:0;font-size:14px;padding:8px 10px}}
-/* títulos das janelas sem ".txt" e com inicial maiúscula (o texto original fica intacto; Terminal mantém o estilo arquivo) */
-:root[data-tema]:not([data-tema=terminal]) .bar .t[data-nome]{font-size:0}
-:root[data-tema]:not([data-tema=terminal]) .bar .t[data-nome]::before{content:attr(data-nome);font-size:13px}
-@keyframes mhblink{50%{opacity:0}}
-
-/* ===== 1 Dourado: editorial, ouro e serifa ===== */
-:root[data-tema=escuro] h1,:root[data-tema=escuro] h2,:root[data-tema=escuro] h3{font-family:Georgia,"Times New Roman",serif;font-weight:700}
-:root[data-tema=escuro] body{background-image:radial-gradient(900px 480px at 15% 0,rgba(var(--gold-rgb),.14),transparent 70%)}
-:root[data-tema=escuro] .win{border-top:2px solid var(--gold);box-shadow:0 12px 30px rgba(0,0,0,.45)}
-:root[data-tema=escuro] .top{border-bottom-color:rgba(var(--gold-rgb),.55)}
-/* ===== 2 Claro: papel e marca-texto ===== */
-:root[data-tema=claro] h1,:root[data-tema=claro] h2,:root[data-tema=claro] h3{font-family:Georgia,"Times New Roman",serif}
-:root[data-tema=claro] .win{background:var(--surf);box-shadow:inset 0 1px 0 #fff,0 10px 24px rgba(122,86,0,.13)}
-:root[data-tema=claro] .bar{background:var(--deep)}
-:root[data-tema=claro] h1 span{background:linear-gradient(transparent 62%,rgba(var(--gold-rgb),.3) 0);width:fit-content}
-/* ===== 3 Miami: neon degradê ===== */
-:root[data-tema=miami] .win{border:1px solid transparent;background:linear-gradient(var(--surf),var(--surf)) padding-box,linear-gradient(135deg,#FF4FA3,#5EE7FF) border-box;box-shadow:0 0 28px rgba(255,79,163,.2)}
-:root[data-tema=miami] h1{font-style:italic;font-weight:900;letter-spacing:-.03em}
-:root[data-tema=miami] h1 span{background:linear-gradient(90deg,#FF4FA3,#FFB86B,#5EE7FF);-webkit-background-clip:text;background-clip:text;color:transparent}
-:root[data-tema=miami] .top{border-bottom:3px solid;border-image:linear-gradient(90deg,#FF4FA3,#FFB86B,#5EE7FF) 1}
-/* ===== 4 Brasil: faixas e losango ===== */
-:root[data-tema=brasil] body{background-image:repeating-linear-gradient(45deg,rgba(255,223,0,.035) 0 2px,transparent 2px 30px),radial-gradient(900px 480px at 15% 0,rgba(0,156,59,.22),transparent 70%),radial-gradient(700px 420px at 90% 10%,rgba(0,39,118,.3),transparent 70%)}
-:root[data-tema=brasil] .top{border-bottom:0;padding-bottom:26px;box-shadow:0 5px 0 #009C3B,0 10px 0 #FFDF00,0 15px 0 #002776}
-:root[data-tema=brasil] .win{border-left:4px solid var(--gold);border-radius:10px}
-:root[data-tema=brasil] h1{font-weight:900}
-/* ===== 5 Pôr do sol: vidro e horizonte ===== */
-:root[data-tema=araguaia] body{background-image:radial-gradient(circle 280px at 82% 0,rgba(255,138,61,.4),transparent 70%),linear-gradient(180deg,#3A1A3F 0,#1A0F1E 560px)}
-:root[data-tema=araguaia] .win{background:rgba(38,22,41,.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-color:rgba(255,184,107,.28);border-radius:20px}
-:root[data-tema=araguaia] .bar{background:transparent}
-:root[data-tema=araguaia] h1 span{background:linear-gradient(90deg,#FF8A3D,#FF5E7E);-webkit-background-clip:text;background-clip:text;color:transparent}
-/* ===== 6 Terminal: prompt e cursor ===== */
-:root[data-tema=terminal] .win{border-radius:2px;border-color:var(--gold);box-shadow:0 0 0 1px rgba(57,255,20,.15),0 0 20px rgba(57,255,20,.12)}
-:root[data-tema=terminal] .bar::before{content:"$";color:var(--gold)}
-:root[data-tema=terminal] h1 span::after{content:"\2588";margin-left:.12em;animation:mhblink 1s steps(1) infinite}
-:root[data-tema=terminal] nav.nv.nv-s>.more,:root[data-tema=terminal] nav.nv.nv-s>#navAjustes{border-radius:2px!important}
-@media(prefers-reduced-motion:reduce){:root[data-tema=terminal] h1 span::after{animation:none}}
-/* ===== 7 Eclipse: disco negro com coroa ===== */
-:root[data-tema=eclipse] body{background-repeat:no-repeat;background-image:radial-gradient(circle 70px at 88% 110px,#000 0 96%,transparent 100%),radial-gradient(circle 150px at 88% 110px,rgba(178,107,255,.6),transparent 72%),radial-gradient(900px 480px at 10% 0,rgba(178,107,255,.2),transparent 70%)}
-:root[data-tema=eclipse] .win{border-radius:20px;box-shadow:0 0 0 1px rgba(178,107,255,.25),0 0 44px rgba(178,107,255,.14)}
-:root[data-tema=eclipse] h1 span{background:linear-gradient(90deg,#B26BFF,#FF6EC7);-webkit-background-clip:text;background-clip:text;color:transparent}
-/* ===== 8 Cristal: gelo e vidro fosco ===== */
-:root[data-tema=cristal] body{background-image:linear-gradient(160deg,#E6F0FF,#F5F6F8 42%,#ECF3FF);background-attachment:fixed}
-:root[data-tema=cristal] .win{background:rgba(255,255,255,.7);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);border:1px solid rgba(255,255,255,.95);border-radius:20px;box-shadow:0 10px 34px rgba(29,95,214,.1),inset 0 1px 0 #fff}
-:root[data-tema=cristal] .bar{background:transparent;border-bottom-color:rgba(29,95,214,.12)}
-/* ===== 11 Voltagem: bloco duro e sombra deslocada ===== */
-:root[data-tema=voltagem] .win{border:2px solid var(--text);border-radius:4px;box-shadow:6px 6px 0 var(--gold)}
-:root[data-tema=voltagem] .bar{background:var(--gold);color:#0D0F12;border-bottom:2px solid var(--text)}
-:root[data-tema=voltagem] h1{text-transform:uppercase;font-weight:900;letter-spacing:-.01em}
-:root[data-tema=voltagem] nav.nv.nv-s>.more,:root[data-tema=voltagem] nav.nv.nv-s>#navAjustes{border-radius:4px!important;border-width:2px!important}
-/* ===== 12 Sombra: noir, só linhas ===== */
-:root[data-tema=sombra] body{background-image:radial-gradient(ellipse at 50% -10%,rgba(255,255,255,.08),transparent 60%)}
-:root[data-tema=sombra] .win{background:transparent;border-radius:2px;box-shadow:none}
-:root[data-tema=sombra] .bar{background:transparent;letter-spacing:.08em}
-:root[data-tema=sombra] h1{font-weight:300;letter-spacing:.02em}
 </style>
 </head>
 <body>
@@ -5147,7 +5025,7 @@ const tg=(cls,key,off,on,tip)=>{const b=mk('button');b.type='button';b.title=tip
  const pinta=()=>{const v=RT.classList.contains(cls);b.textContent=v?on:off;b.setAttribute('aria-pressed',String(v))};
  b.onclick=()=>{const v=!RT.classList.contains(cls);RT.classList.toggle(cls,v);try{localStorage.setItem(key,v?'1':'0')}catch(e){}pinta();try{window.MH_SOM&&MH_SOM.tocar('pop',0)}catch(e){}};
  pinta();return b};
-vz.append(tg('modo-foco','mh_foco','🎯 Modo foco: só perfil e chat','🎯 Sair do modo foco','Esconde tudo, menos o cabeçalho, o perfil e o chat'),...window.mhAnuncios());
+vz.append(tg('modo-foco','mh_foco','🎯 Modo foco: só perfil e chat','🎯 Sair do modo foco','Esconde tudo, menos o cabeçalho, o perfil e o chat'),tg('sem-outdoor','mh_sem_outdoor','🪧 Esconder outdoors e letreiros','🪧 Mostrar outdoors e letreiros','Tira ou volta os anúncios e os letreiros do topo'));
 pan.append(...(window.MH_TEMA_LABEL?[window.MH_TEMA_LABEL]:[]),vz,fx,vl,row,tb,jn);box.append(btn,pan);document.body.append(box);
 function abre(v){pan.hidden=!v;btn.textContent=v?'✕':'⚙️';btn.setAttribute('aria-expanded',String(v));btn.setAttribute('aria-label',v?'Fechar ajustes':'Abrir ajustes: tema e sons');try{window.MH_SOM&&MH_SOM.tocar(v?'abre':'fecha',80)}catch(e){}}
 btn.onclick=()=>abre(pan.hidden);
@@ -5620,14 +5498,6 @@ document.addEventListener('pointerdown',e=>{if(!lst.hidden&&!box.contains(e.targ
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!lst.hidden){abre(false);btn.focus()}});
 })()}catch(e){console.error('MiHelp (menu mobile):',e)}
 </script>
-<script>document.addEventListener('DOMContentLoaded',function(){var nv=document.querySelector('nav.nv'),g=document.getElementById('cfgBtn');if(!nv||!g)return;
-var b=document.createElement('button');b.type='button';b.id='navAjustes';b.className='more';b.textContent='⚙️ Ajustes';b.setAttribute('aria-expanded','false');
-b.addEventListener('pointerdown',function(e){e.stopPropagation()});
-b.onclick=function(){g.click();b.setAttribute('aria-expanded',String(g.getAttribute('aria-expanded')==='true'))};
-document.addEventListener('pointerdown',function(){b.setAttribute('aria-expanded','false')});
-var m=document.getElementById('navMais');if(m)m.after(b);else nv.prepend(b)});</script>
-<script>document.addEventListener('DOMContentLoaded',function(){function nome(t){var x=t.textContent.trim().replace(/\.(txt|log|exe)\b/g,'').replace(/-/g,' ').replace(/ — EXEMPLO( ILUSTRATIVO)?/,' — exemplo');return x.charAt(0).toUpperCase()+x.slice(1)}
-document.querySelectorAll('.bar .t').forEach(function(t){var f=function(){t.setAttribute('data-nome',nome(t))};f();new MutationObserver(f).observe(t,{childList:true,characterData:true,subtree:true})})});</script>
 </body>
 </html>
 
