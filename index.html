@@ -1851,6 +1851,8 @@ p.sospv{border-left:4px solid #dc2626;background:rgba(220,38,38,.12);border-radi
 .need-tabs button:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
 #need[data-min="1"] .need-tabs,#need[data-min="1"] #needCats{display:none!important}
 #need[data-aba="cat"] #needRow{display:none!important}
+/* setinha: minimizado esconde tudo (vence as regras dos temas) */
+:root:root:root:root #need[data-min="1"] :is(#needRow,#needTabs,#needCats,#needInfo){display:none!important}
 #needCats .nc-q{width:100%;box-sizing:border-box;min-height:46px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:16px var(--sans);margin:0 0 12px}
 #needCats .nc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 #needCats .need-cat{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:110px;padding:14px 10px;border-radius:14px;background:var(--surf);border:1px solid var(--line);color:var(--read);font:700 15px var(--sans);text-align:center;cursor:pointer;transition:transform .08s,border-color .15s}
@@ -1870,6 +1872,18 @@ p.sospv{border-left:4px solid #dc2626;background:rgba(220,38,38,.12);border-radi
 <style id="mh-v8">
 /* v8: abas, estabelecimentos, equipe e Meu espaço profissional */
 .v8top{margin:8px 0 10px}
+.mhi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:0 0 16px}
+.mhi button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:92px;padding:12px 8px;border-radius:16px;border:1px solid var(--line);background:var(--surf);color:var(--read);font:800 16px var(--sans);text-align:center;cursor:pointer;transition:transform .08s,border-color .15s}
+.mhi button span{font-size:32px;line-height:1}
+.mhi button:hover,.mhi button:focus-visible{border-color:var(--gold);color:var(--gold2);outline:none}
+.mhi button:active{transform:scale(.97)}
+.mhi button[hidden]{display:none}
+@media(min-width:700px){.mhi{grid-template-columns:repeat(4,1fr)}}
+.vfil{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.vfil button{min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surf);color:var(--read);font:700 14px var(--sans);cursor:pointer}
+.vfil button[aria-pressed=true]{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#201804;border-color:transparent}
+.vcard.vdest{border-color:var(--gold);background:linear-gradient(135deg,rgba(var(--gold-rgb),.16),var(--surf))}
+.vtag{align-self:flex-start;background:var(--gold);color:#201804;font:800 11px var(--mono);padding:3px 8px;border-radius:5px;letter-spacing:.04em}
 .v8tabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
 .v8tabs button{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surf);color:var(--read);font:700 14px var(--sans);cursor:pointer}
 .v8tabs button[aria-selected=true]{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#201804;border-color:transparent}
@@ -1887,6 +1901,12 @@ dialog.v8dlg{width:min(94vw,560px)}
 .v8dlg label.ck{display:flex;gap:8px;align-items:flex-start;color:var(--text)}
 .v8dlg input[type=text],.v8dlg select{width:100%;box-sizing:border-box;min-height:42px;padding:0 10px;margin:4px 0;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;font:14px var(--sans)}
 .v8dlg input[type=file]{margin:4px 0;max-width:100%}
+.v8dlg input[type=password],.v8dlg input[type=tel]{width:100%;box-sizing:border-box;min-height:42px;padding:0 10px;margin:4px 0;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;font:14px var(--sans)}
+.v8cab{position:sticky;top:-1px;z-index:6;background:var(--surf);padding:4px 0}
+.v8cab h3{margin:0}
+.v8dlg>p.note[role=status]{position:sticky;top:44px;z-index:5;margin:6px 0;padding:10px 12px;border-radius:10px;background:rgba(46,160,67,.2);border:1px solid rgba(46,160,67,.6);font-weight:700;color:var(--text)}
+.v8dlg>p.note[role=status]:empty{display:none}
+.v8dlg>p.note[role=status][style*=red]{background:rgba(214,40,40,.2);border-color:rgba(214,40,40,.7);color:var(--text)!important}
 .v8pick{margin:6px 0}
 .v8dlg .perfil-acoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 @media(max-width:640px){.v8tabs button{flex:1 1 auto}}
@@ -2041,6 +2061,12 @@ return{tiles,tem,marcar,toast,organiza}})();
     <div class="pulse-item"><b id="pHelp">—</b><span>helpers cadastrados</span></div>
     <div class="pulse-item pulse-cta"><button type="button" id="pShare" class="pulse-share">Convidar no Zap</button></div>
   </div>
+  <nav class="mhi" id="mhInicio" aria-label="Atalhos principais">
+    <button type="button" data-go="prof"><span>🔧</span>Achar profissional</button>
+    <button type="button" data-go="vale"><span>🧭</span>Guia do Vale</button>
+    <button type="button" data-go="carona"><span>🚗</span>Caronas</button>
+    <button type="button" data-go="cw"><span>💬</span>Conversar</button>
+  </nav>
   <div class="need" id="need" aria-label="Buscar por ofício">
     <span class="need-l">Do que você precisa?</span>
     <div class="need-tabs" id="needTabs" role="tablist" aria-label="Tipo de busca"></div>
@@ -2247,6 +2273,17 @@ return{tiles,tem,marcar,toast,organiza}})();
     </ol></div></div>
   <div class="win" style="margin-top:18px"><div class="bar"><span class="t">tudo-que-o-site-faz</span><i></i><i></i><i></i></div>
     <div class="body rules">
+      <details><summary>🆕 Atalhos do início e filtros do Guia</summary>
+        <p><b>4 botões grandes no topo:</b> <b>Achar profissional</b>, <b>Guia do Vale</b>, <b>Caronas</b> e <b>Conversar</b>. Tocou, a página desce até a parte certa. Se o Guia ou as Caronas não estiverem disponíveis, o botão some.</p>
+        <p><b>No Guia do Vale:</b> use os botões <b>Todos</b>, <b>⭐ Visitados</b> (só lugares que a MiHelp visitou) e <b>👍 Mais recomendados</b>. Quando tem lugares suficientes, o mais bem avaliado aparece no alto como <b>🏆 Destaque do Vale</b>.</p>
+      </details>
+      <details><summary>🆕 Meu painel do Helper</summary>
+        <p>Entrou como Helper? No seu perfil aparece o quadro <b>Meu painel</b> com botões grandes: Minha agenda, Minha loja, Avaliações, Portfólio, Favoritos, Conta e privacidade e Compartilhar perfil.</p>
+        <p><b>Salvar:</b> nas opções do painel (ofício, aparecer na busca, equipe) basta marcar: salva sozinho e aparece uma faixa verde "✅". Se der erro, a faixa fica vermelha. Nos formulários (loja, agenda) toque em <b>Salvar</b>.</p>
+        <p><b>Compartilhar perfil:</b> no computador copia o link ("Link copiado!"). No celular abre o menu do WhatsApp e do Instagram.</p>
+        <p><b>Pediu "confirme sua senha"?</b> É normal em contas antigas: digite o telefone e a senha e o painel abre.</p>
+        <p><b>Loja:</b> loja é o seu negócio e é separada do seu perfil de Helper. Quem está na equipe pode ser visto e chamado no privado, a menos que tenha desligado "Aparecer no perfil da loja".</p>
+      </details>
       <details><summary>Criar conta, entrar e sair</summary>
         <p><b>Criar conta:</b> na janela "Conta", deixe marcado "Criar conta". Escolha <b>Sou Cliente</b> (quem precisa de um serviço) ou <b>Sou Helper</b> (quem faz o serviço). O Helper também escreve com o que trabalha, por exemplo "Pintura" ou "Encanador". Depois preencha nome, telefone, e-mail e uma senha de pelo menos 6 letras ou números, marque a caixinha de aceite e toque em <b>Criar minha conta</b>.</p>
         <p><b>Seu nome no chat:</b> aparece só o primeiro nome e a inicial do segundo, por exemplo "Maria S.". O telefone e o e-mail não aparecem para ninguém.</p>
@@ -2434,7 +2471,7 @@ return{tiles,tem,marcar,toast,organiza}})();
       <details><summary>Apoiar e patrocinar</summary>
         <p>Na seção <b>Empresas e apoio</b>, toque em Quero apoiar, escreva seu nome e o valor e siga para o Pix. Você escolhe se quer aparecer no letreiro de apoiadores e se o valor aparece. Empresas podem patrocinar e aparecer no mural de patrocinadores. Apoio e patrocínio <b>não são investimento</b> e não dão participação na empresa.</p></details>
       <details><summary>Engrenagem ⚙️: tema, som, música e janelas</summary>
-        <p>O botão ⚙️ no canto de baixo, à esquerda, abre os ajustes:</p>
+        <p>Toque em <b>ℹ️ Mais informações</b> e depois em <b>⚙️ Ajustes</b> para abrir os ajustes:</p>
         <ul>
           <li><b>Tema:</b> troca as cores do site (Dourado, Claro, Miami Neon, Brasil, Pôr do sol, Terminal, Eclipse, Cristal, Voltagem e Sombra).</li>
           <li><b>🔊 Som:</b> liga ou muta os sons do site, inclusive o do SOS.</li>
@@ -2818,7 +2855,7 @@ return{tiles,tem,marcar,toast,organiza}})();
       <button type="button" class="cta2" data-apoio="patrocinio">Quero patrocinar</button>
     </div></div>
 </section>
-<footer>MiHelp — mais do que serviços, é solução. <a class="ig-foot" href="https://www.instagram.com/mihelp.exe/" target="_blank" rel="noopener noreferrer">📸 @mihelp.exe</a> <small id="ver" style="opacity:.6">versão 2026-10-10 · ofícios coloridos</small></footer>
+<footer>MiHelp — mais do que serviços, é solução. <a class="ig-foot" href="https://www.instagram.com/mihelp.exe/" target="_blank" rel="noopener noreferrer">📸 @mihelp.exe</a> <small id="ver" style="opacity:.6">versão 2026-10-11 · setinha</small></footer>
 </div>
 <aside class="side" aria-label="Publicidade"><div class="win"><div class="bar"><span class="t">publicidade</span><i></i><i></i><i></i></div><div class="vcol" id="vright"><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button><button class="vg open" type="button"><b>Vaga aberta</b><small>A partir de R$ 5. Clique para anunciar</small></button></div></div></aside>
 </div>
@@ -3308,11 +3345,17 @@ window.MH_prosRecarrega=carregaV8;
 function carregaFav8(){if(!apiOn8()||!tk8())return;chama8('/favoritos/minhas').then(r=>{if(r.ok&&r.j&&r.j.ok){V8.fav.lojas=new Set(r.j.lojas||[]);refreshProf()}}).catch(()=>{})}
 /* ===== compartilhar: menu do celular (WhatsApp, Instagram...) ou copia o link ===== */
 const apiBase8=()=>String((window.MH_CFG||{}).api||'').replace(/\/+$/,'');
-const linkLoja8=c=>apiBase8()+'/l/'+encodeURIComponent(c);
-const linkHelper8=n=>apiBase8()+'/h?n='+encodeURIComponent(n);
+/* links apontam para o próprio site (o site já abre o perfil quando a página tem ?helper= ou ?loja=) */
+const siteBase8=()=>{try{const o=location.origin;if(/^https?:\/\//.test(o)&&!/localhost|127\.0\.0\.1/.test(o))return o+'/'}catch(e){}return 'https://www.dcastrolabs.com/'};
+const linkLoja8=c=>siteBase8()+'?loja='+encodeURIComponent(c);
+const linkHelper8=n=>siteBase8()+'?helper='+encodeURIComponent(n);
 async function compartilhar8(titulo,texto,url,aviso){
- try{if(navigator.share){await navigator.share({title:titulo,text:texto,url});return}}catch(e){if(e&&e.name==='AbortError')return}
- try{await navigator.clipboard.writeText(url);if(aviso)aviso('Link copiado!');return}catch(e){}
+ const ok=m=>{if(aviso)aviso(m)};
+ /* celular: menu de compartilhar (WhatsApp, Instagram…). Computador: só copia o link, porque o menu do Windows costuma falhar */
+ let toque=false;try{toque=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent||'')}catch(e){}
+ if(toque&&navigator.share){try{await navigator.share({title:titulo,text:texto,url});return}catch(e){if(e&&e.name==='AbortError')return}}
+ try{await navigator.clipboard.writeText(url);ok('✅ Link copiado! Cole no WhatsApp ou no Instagram.');return}catch(e){}
+ try{const t=document.createElement('textarea');t.value=url;t.style.cssText='position:fixed;left:-999px;top:0';document.body.append(t);t.select();const c=document.execCommand('copy');t.remove();if(c){ok('✅ Link copiado! Cole no WhatsApp ou no Instagram.');return}}catch(e){}
  try{window.prompt('Copie o link:',url)}catch(e){}}
 /* favoritar Helper no servidor (o favorito local do site continua; isto deixa o Helper ver quantas pessoas o favoritaram) */
 function favSrv8(nome,on){if(!apiOn8()||!tk8())return;const h=(window.MH_PROS||[]).find(x=>x.nome===nome);if(!h||!h.uid)return;chama8('/favoritos',{alvo:'h:'+h.uid,on:!!on}).catch(()=>{})}
@@ -3328,7 +3371,7 @@ function listaHelpers(){const m=new Map();
   Object.values(REAIS).forEach(p=>{if(p.role==='helper'&&!m.has(p.nome))m.set(p.nome,{nome:p.nome,work:p.work||''})})}
  if(BOTS)PESSOAS.forEach(p=>{if(p.role==='helper'&&!p.oculto&&!m.has(p.nome))m.set(p.nome,{nome:p.nome,work:p.work||'',bot:true})});
  return[...m.values()].filter(h=>!bloqueados.has(h.nome)&&!(window.MH_FORA&&MH_FORA.has(h.nome))&&!(eu&&h.nome===eu.nome))}
-function chamarHelper(h){if(!pessoa(h.nome))REAIS[h.nome]={nome:h.nome,role:'helper',work:h.work,real:true,status:'fora'};abrirPerfil(h.nome)}
+function chamarHelper(h){if(!pessoa(h.nome))REAIS[h.nome]={nome:h.nome,role:h.role||'helper',work:h.work,real:true,status:'fora'};abrirPerfil(h.nome)}
 window.MH_chamar=chamarHelper;
 function avatarLoja8(l,px){const d=mk8('span','avt');d.style.width=d.style.height=px+'px';d.style.fontSize=Math.round(px*.45)+'px';
  if(l.logo&&/^data:image\//.test(l.logo)){const im=document.createElement('img');im.src=l.logo;im.alt='Logo de '+l.nome;d.append(im)}
@@ -3429,8 +3472,11 @@ function pintaLoja8(d,L,aba,aviso){clearInterval(chatTimer8);d.textContent='';
  if(aba==='equipe'){
   if(!L.equipe.length)pane.append(mk8('p','note','Nenhum profissional aparece aqui ainda.'));
   L.equipe.forEach(m=>{const c=mk8('div','pcard');c.append(avatarEl(m.nome,44));const t=mk8('div','pinfo');t.append(mk8('b',null,m.nome),mk8('span','pw',[m.funcao,m.work].filter(Boolean).join(' · ')||'Equipe'));c.append(t);
-   if(m.helper)c.append(botao8('💬 Chamar','pcall',()=>{d.close();chamarHelper({nome:m.nome,work:m.work})}));
-   if(m.helper){c.append(botao8('👤 Perfil','pcall',()=>{d.close();abrirPerfil(m.nome,true)}));if(window.MH_PAINEL&&MH_PAINEL.tem(m.nome))c.append(botao8('📅 Marcar','pcall',()=>{d.close();MH_PAINEL.marcar(m.nome,mhCtx())}))}
+   /* todos da equipe (exceto você) podem ser vistos e chamados no privado, a menos que a pessoa tenha desligado */
+   if(!(eu&&m.nome===eu.nome)&&m.chamar!==false){const pp={nome:m.nome,work:m.work||m.funcao,role:m.helper===false?'cliente':'helper'};
+    const r0=resumo(m.nome);if(r0)t.append(mk8('span','pe',estr(Math.round(r0.m))+' '+r0.m.toFixed(1).replace('.',',')+' ('+r0.n+')'));
+    c.append(botao8('👤 Perfil','pcall',()=>{d.close();chamarHelper(pp)}),botao8('💬 Privado','pcall',()=>{d.close();chamarHelper(pp);try{abrirPrivado(m.nome)}catch(e){}}));
+    if(m.helper!==false&&window.MH_PAINEL&&MH_PAINEL.tem(m.nome))c.append(botao8('📅 Marcar','pcall',()=>{d.close();MH_PAINEL.marcar(m.nome,mhCtx())}))}
    pane.append(c)});
   const oc=L.totalEquipe-L.equipe.length;
   if(oc>0)pane.append(mk8('p','note',L.totalEquipe+' profissionais no total. '+oc+(oc>1?' preferem':' prefere')+' não aparecer aqui.'));
@@ -3542,21 +3588,37 @@ function trocasTxt8(t){
  if(t.restantes>0)return 'Você ainda pode trocar de ofício '+t.restantes+(t.restantes===1?' vez':' vezes')+' (limite de '+t.max+' por ano).';
  return 'As '+t.max+' trocas do ano acabaram. Libera de novo em '+dataBR8(t.liberaEm)+'.'}
 let ESPF=null;
+/* sem sessão no servidor (conta antiga ou sessão vencida): pede só o telefone e a senha, sem sair da página */
+function pedeSenha8(f){
+ let d=document.getElementById('senhaDlg8');if(d)d.remove();
+ d=novoDlg8('Confirmar senha');d.id='senhaDlg8';
+ d.append(mk8('h3',null,'Confirme sua senha'),mk8('p','note','Por segurança, digite o telefone e a senha da sua conta para abrir o painel. É rapidinho.'));
+ const l1=mk8('label',null,'Telefone');const t=document.createElement('input');t.type='tel';t.inputMode='tel';t.maxLength=20;t.placeholder='(66) 99999-9999';try{t.value=(window.MH_telDe&&MH_telDe(eu&&eu.nome))||''}catch(e){}l1.append(t);
+ const l2=mk8('label',null,'Senha');const p=document.createElement('input');p.type='password';p.autocomplete='current-password';p.placeholder='Sua senha';l2.append(p);
+ const st=mk8('p','note');st.setAttribute('role','status');
+ const ir=async()=>{if(!window.MH_reentrar){st.style.color='var(--red)';st.textContent='Saia e entre na conta de novo.';return}st.style.color='';st.textContent='Entrando…';
+  const r=await MH_reentrar(t.value,p.value);if(r.ok){d.close();d.remove();abrirEspaco8(f)}else{st.style.color='var(--red)';st.textContent=r.msg}};
+ p.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();ir()}});
+ d.append(l1,l2,st);const ac=mk8('div','perfil-acoes');ac.append(botao8('Entrar','cta2 pa-main',ir),botao8('Cancelar','more',()=>{d.close();d.remove()}));d.append(ac);
+ d.showModal();setTimeout(()=>{try{(t.value?p:t).focus()}catch(e){}},50)}
 async function abrirEspaco8(f){ESPF=(f instanceof RegExp)?f:null;
- if(!tk8()){alert('Entre na conta de novo para abrir o Meu espaço profissional.');return}
+ if(!tk8()){pedeSenha8(f);return}
  const d=espDlg8||(espDlg8=novoDlg8('Meu espaço profissional'));d.textContent='';d.append(mk8('p','note','Carregando…'));if(!d.open)d.showModal();
  const r=await chama8('/perfil/meu');
+ if(r.status===401){try{MH_API.setUsrTk('')}catch(e){}d.close();pedeSenha8(f);return}
  if(!r.ok||!(r.j&&r.j.ok)){d.textContent='';d.append(mk8('p','note',erro8(r)),botao8('Fechar','more',()=>d.close()));return}
  pintaEspaco8(d,r.j)}
 function pintaEspaco8(d,E,aviso){d.textContent='';
- const st=mk8('p','note');st.setAttribute('role','status');if(aviso)st.textContent=aviso;
- d.append(mk8('h3',null,'Meu espaço profissional'),st);
+ const st=mk8('p','note');st.setAttribute('role','status');if(aviso)st.textContent=/^[✅❌]/.test(aviso)?aviso:'✅ '+aviso;
+ const cab=mk8('div','v8row v8cab');cab.style.justifyContent='space-between';cab.append(mk8('h3',null,'Meu espaço profissional'),botao8('✕ Fechar','more',()=>d.close()));
+ d.append(cab,st);
+ if(aviso)setTimeout(()=>{if(st.isConnected&&st.textContent===(/^[✅❌]/.test(aviso)?aviso:'✅ '+aviso))st.textContent=''},4500);
  const sec=t=>{const s=mk8('section','v8sec');s.append(mk8('h4',null,t));if(!ESPF||ESPF.test(t))d.append(s);return s};
  const helper=E.papel==='helper';
  const rec=async(msg)=>{const r=await chama8('/perfil/meu');if(r.ok&&r.j&&r.j.ok){pintaEspaco8(d,r.j,msg);carregaV8()}};
- const envia=async(path,body,okMsg)=>{st.style.color='';st.textContent='Salvando…';const r=await chama8(path,body);
+ const envia=async(path,body,okMsg)=>{st.style.color='';st.textContent='⏳ Salvando…';const r=await chama8(path,body);
   if(r.ok&&r.j&&r.j.ok){await rec(okMsg||'Salvo.');return r}
-  st.style.color='var(--red)';st.textContent=erro8(r);return r};
+  st.style.color='var(--red)';st.textContent='❌ '+erro8(r);return r};
  const reload=(role,work)=>{atualizaPapelLocal8(role,work);let p=Promise.resolve();try{if(role==='helper'&&window.MH_DB&&MH_DB.virarHelper)p=Promise.race([MH_DB.virarHelper(eu.nome,work),new Promise(r=>setTimeout(r,2500))])}catch(e){}p.then(()=>location.reload())};
 
  /* 1. tipo de conta */
@@ -5418,6 +5480,17 @@ try{localStorage.removeItem('mh_sess');sessionStorage.removeItem('mh_sess');loca
 /* a "chave" que vai ao servidor é derivada no navegador (PBKDF2); a senha em si nunca sai daqui */
 const normalizaTel=v=>String(v||'').replace(/\D/g,'');
 const chaveDe=(ident,pw)=>hash(pw,new TextEncoder().encode('mihelp:'+String(ident).trim().replace(/\s+/g,' ').toLowerCase()));
+/* reentrar sem recarregar: usado pelo painel quando falta a sessão do servidor */
+window.MH_telDe=nome=>{try{const a=J('mh_acc',{})[String(nome||'').toLowerCase()];return a&&a.tel||''}catch(e){return ''}};
+window.MH_reentrar=async(tel0,pw)=>{const A=window.MH_API,tel=normalizaTel(tel0);
+  if(!A||!A.on())return{ok:false,msg:'Sem conexão com o servidor.'};
+  if(!tel||tel.length<10||!pw)return{ok:false,msg:'Digite o telefone e a senha.'};
+  try{const contaLeg=Object.values(J('mh_acc',{})).find(x=>normalizaTel(x&&x.tel)===tel);
+   const r=await A.req('/conta/entrar',{body:{tel,chave:await chaveDe(tel,pw),chaveLegada:contaLeg?await chaveDe(contaLeg.nome,pw):'',identificador:tel}});
+   if(r.ok&&r.j&&r.j.token){A.setUsrTk(r.j.token);return{ok:true}}
+   if(r.status===401)return{ok:false,msg:'Telefone ou senha incorretos.'};
+   if(r.status===429)return{ok:false,msg:'Muitas tentativas. Espere 15 minutos e tente de novo.'};
+   return{ok:false,msg:'Não consegui entrar agora. Tente de novo.'}}catch(e){return{ok:false,msg:'Sem conexão. Tente de novo.'}}};
 window.MH_conta={async criar(d,pw){
   const salt=crypto.getRandomValues(new Uint8Array(16)),a=J('mh_acc',{});
   a[d.nome.toLowerCase()]={nome:d.nome,role:d.role,work:d.work,tel:normalizaTel(d.tel),salt:b64(salt),hash:await hash(pw,salt)};
@@ -6175,6 +6248,19 @@ if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))window.addE
 pinta();
 })()}catch(e){console.error('MiHelp (pwa):',e)}
 </script>
+<script id="mh-inicio-js">
+/* 4 botões grandes do início: levam para a parte certa da página */
+(function(){function ini(){const nv=document.getElementById('mhInicio');if(!nv||nv._ok)return;nv._ok=1;
+ const alvo=id=>document.getElementById(id)||(id==='prof'?document.getElementById('need'):null);
+ const ok=id=>{const e=alvo(id);return !!e&&!e.hidden&&getComputedStyle(e).display!=='none'};
+ const mostra=()=>nv.querySelectorAll('button').forEach(b=>{b.hidden=!ok(b.dataset.go)});
+ nv.addEventListener('click',e=>{const b=e.target.closest('button[data-go]');if(!b)return;
+  const id=b.dataset.go;if(id==='cw'){const cw=document.getElementById('cw');if(cw)cw.classList.remove('fechada')}
+  const el=alvo(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  try{window.MH_SOM&&MH_SOM.tocar('pop',0)}catch(x){}});
+ mostra();setTimeout(mostra,1200);setTimeout(mostra,3500)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ini);else ini()})();
+</script>
 <script id="mh-vale-js">
 try{(function(){
 const A=window.MH_API,$=id=>document.getElementById(id);
@@ -6191,6 +6277,11 @@ let cid='barra-do-garcas',cat='';
 try{const s=localStorage.getItem('mh_cidade');if(CID.some(x=>x[0]===s))cid=s}catch(e){}
 const opt=(sel,arr)=>arr.forEach(v=>{const o=document.createElement('option');o.value=Array.isArray(v)?v[0]:v;o.textContent=Array.isArray(v)?v[1]:v;sel.append(o)});
 opt($('vCid'),CID);$('vCid').value=cid;opt($('vCat'),[['','Todas as categorias']].concat(CATS));
+let fil='todos';
+{const fb=mk('div','vfil');fb.id='vFil';fb.setAttribute('role','group');fb.setAttribute('aria-label','Filtrar lugares');
+ [['todos','Todos'],['selo','⭐ Visitados'],['top','👍 Mais recomendados']].forEach(([k,t])=>{const b=mk('button',0,t);b.type='button';b.setAttribute('aria-pressed',String(k===fil));
+  b.onclick=()=>{fil=k;fb.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));guia()};fb.append(b)});
+ const vb=$('vCid').closest('.vbar');if(vb)vb.after(fb)}
 function link(txt,href){const a=mk('a',0,txt);a.href=href;a.target='_blank';a.rel='noopener noreferrer';return a}
 function form(titulo,nota,campos,botao,envia){
  let d=$('valeDlg');if(!d){d=document.createElement('dialog');d.id='valeDlg';document.body.append(d);d.addEventListener('click',e=>{if(e.target===d)d.close()})}
@@ -6210,9 +6301,15 @@ async function guia(){
  const box=$('vLista');box.textContent='Carregando…';
  const r=await A.req('/lugares?cidade='+cid);box.textContent='';
  if(!r.ok){box.append(mk('p','note','Não consegui carregar agora. Tente de novo em instantes.'+dica(r)));return}
- const l=(r.j.itens||[]).filter(x=>!cat||x.categoria===cat);
+ let l=(r.j.itens||[]).filter(x=>!cat||x.categoria===cat);
  if(!l.length){box.append(mk('p','note','Ainda não tem indicação por aqui. Seja o primeiro: toque em "Indicar um lugar".'));return}
- l.forEach(x=>{const c=mk('div','vcard');c.append(mk('b',0,x.nome));
+ const rec=x=>x.recs||0,sl=x=>x.selo?1:0;
+ const melhor=l.slice().sort((a,b)=>(sl(b)-sl(a))||(rec(b)-rec(a)))[0];
+ if(fil==='selo'){l=l.filter(x=>x.selo);if(!l.length){box.append(mk('p','note','Ainda não tem lugar visitado pela MiHelp por aqui.'));return}}
+ if(fil==='top')l.sort((a,b)=>rec(b)-rec(a));else l.sort((a,b)=>(sl(b)-sl(a))||(rec(b)-rec(a)));
+ const dest=(fil==='todos'&&l.length>=3&&(melhor.selo||rec(melhor)>0))?melhor:null;
+ if(dest)l=l.filter(x=>x!==dest);
+ const pinta=(x,ehDest)=>{const c=mk('div','vcard'+(ehDest?' vdest':''));if(ehDest)c.append(mk('span','vtag','🏆 DESTAQUE DO VALE'));c.append(mk('b',0,x.nome));
   if(x.selo){const s=mk('span','vselo','⭐ Visitado pela MiHelp');if(seguro(x.postIg)){s.append(' · ',link('ver no Instagram',x.postIg))}c.append(s)}
   c.append(mk('span','vsub',x.categoria+(x.bairro?' · '+x.bairro:'')));
   if(x.descricao)c.append(mk('p','vdesc',x.descricao));
@@ -6222,7 +6319,8 @@ async function guia(){
    if(q.ok&&q.j.ok){rb.textContent='👍 Recomendo · '+q.j.recs;rb.disabled=true;msg('')}
    else msg(q.status===409?'Você já recomendou esse lugar.':q.status===401?'Entre na sua conta para recomendar.':'Não consegui registrar agora.')};
   ac.append(rb);if(seguro(x.mapa))ac.append(link('📍 Mapa',x.mapa));if(x.contato)ac.append(link('💬 WhatsApp','https://wa.me/'+x.contato));
-  c.append(ac);box.append(c)})}
+  c.append(ac);box.append(c)};
+ if(dest)pinta(dest,true);l.forEach(x=>pinta(x,false))}
 const fmt=x=>{const p=String(x.data).split('-'),dt=new Date(x.data+'T12:00:00');return ['dom','seg','ter','qua','qui','sex','sáb'][dt.getDay()]+' '+p[2]+'/'+p[1]+' às '+x.hora};
 async function caronas(){
  const box=$('cLista');box.textContent='Carregando…';
