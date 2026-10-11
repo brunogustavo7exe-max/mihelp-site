@@ -1,0 +1,37 @@
+
+/* botões do ADM não ficam por cima da engrenagem aberta */
+body:has(#cfgPan:not([hidden])) .admbar{display:none}
+.admbar{flex-wrap:wrap;max-width:calc(100vw - 76px)}
+/* painel do ADM: contraste alto, letra grande, seções bem separadas (vale para qualquer tema) */
+#admDlg,dialog[aria-label="Entrar no painel"]{background:#0B0D12!important;color:#F2F5FA;border:1px solid #6B7C99;box-shadow:0 12px 40px rgba(0,0,0,.6);font-size:16px;line-height:1.55}
+#admDlg,#admDlg *,dialog[aria-label="Entrar no painel"] *{font-family:var(--sans)!important;text-shadow:none!important}
+#admDlg h3,dialog[aria-label="Entrar no painel"] h3{font-size:22px;text-transform:none;letter-spacing:0;color:#fff}
+#admDlg h3::before,#admDlg h3::after,dialog[aria-label="Entrar no painel"] h3::before,dialog[aria-label="Entrar no painel"] h3::after{content:none!important;animation:none}
+#admDlg h4{display:block;font-size:16px;font-weight:800;text-transform:none;letter-spacing:0;color:#fff;background:#1B2230;border:0;border-left:5px solid #FFD84D;padding:10px 14px;margin:26px 0 12px}
+#admDlg h4::before{content:none}
+#admDlg label,#admDlg .f label{color:#fff;font-weight:700;font-size:15px;margin-bottom:6px}
+#admDlg .note,#admDlg small,#admDlg p{color:#D3DAE6}
+#admDlg input,#admDlg select,#admDlg textarea{background:#fff!important;color:#0B0D12!important;border:2px solid #8FA3C2!important;font-size:16px!important;padding:11px 12px}
+#admDlg input:focus,#admDlg select:focus,#admDlg textarea:focus,#admDlg button:focus-visible{outline:3px solid #FFD84D!important;outline-offset:2px}
+#admDlg .atabs{gap:6px;border-bottom:1px solid #6B7C99;padding-bottom:10px}
+#admDlg .atabs button{background:#1B2230;color:#fff;border:1px solid #6B7C99;text-transform:none;letter-spacing:0;font-size:15px;font-weight:700;padding:10px 14px}
+#admDlg .atabs button::before,#admDlg .atabs button::after{content:none!important}
+#admDlg .atabs button.on{background:#FFD84D;color:#111;border-color:#FFD84D;box-shadow:none}
+#admDlg .go{background:#FFD84D;color:#111;border:0;font-weight:800;font-size:16px;padding:13px 16px;text-transform:none;letter-spacing:0}
+#admDlg .cx,#admDlg .cp{background:transparent;color:#fff;border:2px solid #8FA3C2;font-weight:700;font-size:15px;text-transform:none;letter-spacing:0}
+/* celular: sem faixa de anúncio grudada por cima do chat; Responder e Denunciar na mesma linha */
+@media(max-width:640px){
+  #adtop.tem-ads{position:static!important;box-shadow:none}
+  #cw .log button.rp,#cw .log button.dn{display:inline-block!important;margin:2px 16px 0 0!important;padding:6px 0!important;font-size:12px!important;min-height:0}
+  .pf-card{gap:10px}
+}
+
+.more.baixar{background:var(--gold);color:#201804;border-color:var(--gold);font-weight:700;cursor:pointer}
+.more.baixar[hidden]{display:none!important}
+:root[data-tema=cristal] .more.baixar,:root[data-tema=generico] .more.baixar,:root[data-tema=generico-noturno] .more.baixar{color:#fff}
+dialog.pwa-dlg{width:min(92vw,420px);padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--surf);color:var(--text);font-size:15px;line-height:1.55}
+dialog.pwa-dlg::backdrop{background:rgba(0,0,0,.6)}
+dialog.pwa-dlg h3{margin:0 0 8px;font-size:20px}
+dialog.pwa-dlg ol{padding-left:20px;margin:10px 0}
+dialog.pwa-dlg li{margin-bottom:6px}
+dialog.pwa-dlg p{color:var(--read)}

@@ -1,0 +1,1 @@
+(function(){try{var R=document.documentElement;if(localStorage.getItem("mh_sem_outdoor")==="1")R.classList.add("sem-outdoor");if(localStorage.getItem("mh_foco")==="1")R.classList.add("modo-foco");if(localStorage.getItem("mh_sem_letreiro")==="1")R.classList.add("sem-letreiro")}catch(e){}})()

@@ -1,0 +1,5 @@
+window.mhAnuncios=function(){var R=document.documentElement,O=[['Mostrar tudo','Outdoors e letreiros',0],['Mostrar outdoors','Tira só os letreiros do topo',1],['Esconder tudo','Sem outdoors e sem letreiros',2]],bs=[];
+function cur(){return R.classList.contains('sem-outdoor')?2:R.classList.contains('sem-letreiro')?1:0}
+function paint(){var c=cur();bs.forEach(function(b,i){b.setAttribute('aria-pressed',String(i===c))})}
+function set(v){R.classList.toggle('sem-outdoor',v===2);R.classList.toggle('sem-letreiro',v===1);try{localStorage.setItem('mh_sem_outdoor',v===2?'1':'0');localStorage.setItem('mh_sem_letreiro',v===1?'1':'0')}catch(e){}paint();try{window.MH_SOM&&MH_SOM.tocar('pop',0)}catch(e){}}
+O.forEach(function(o,i){var b=document.createElement('button');b.type='button';b.textContent=o[0];b.title=o[1];b.onclick=function(){set(i)};bs.push(b)});paint();return bs};

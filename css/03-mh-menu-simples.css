@@ -1,0 +1,10 @@
+
+/* Menu simples: só "Suporte" e "Mais informações" (abre o resto) */
+nav.nv.nv-s{display:flex!important;flex-wrap:wrap;gap:8px;overflow:visible!important;width:100%;margin:10px 0 12px;padding:0;align-items:center}
+nav.nv.nv-s>.more{display:none!important}
+nav.nv.nv-s>#navSup,nav.nv.nv-s>#navMais{display:inline-flex!important;align-items:center;justify-content:center;gap:6px;width:auto;min-height:42px;padding:8px 16px;border-radius:999px;font:700 15px var(--sans);line-height:1.1;white-space:nowrap;cursor:pointer;background:var(--surf);border:1px solid var(--line);color:var(--gold2)}
+nav.nv.nv-s>#navSup{border-color:var(--gold)}
+nav.nv.nv-s>#navSup:hover,nav.nv.nv-s>#navMais:hover{border-color:var(--gold)}
+nav.nv.nv-s.nv-aberto{padding:0}
+nav.nv.nv-s.nv-aberto>.more:not(#navSup):not(#navMais){display:inline-flex!important;align-items:center;min-height:38px;padding:6px 12px;border-radius:999px;font:600 14px var(--sans);width:auto;white-space:nowrap}
+@media(max-width:640px){nav.nv.nv-s>#navSup,nav.nv.nv-s>#navMais{flex:1 1 0;min-width:0;font-size:14px;padding:8px 10px}nav.nv.nv-s.nv-aberto>.more:not(#navSup):not(#navMais){flex:1 1 44%}}

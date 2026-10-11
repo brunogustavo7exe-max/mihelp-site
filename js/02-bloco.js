@@ -1,0 +1,1 @@
+try{const v=localStorage.getItem("mh_tema");document.documentElement.dataset.tema=["escuro","claro","miami","brasil","araguaia","terminal","eclipse","cristal","generico","generico-noturno","voltagem","sombra"].includes(v)?v:"generico"}catch(e){}
