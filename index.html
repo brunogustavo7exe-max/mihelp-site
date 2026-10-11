@@ -1903,6 +1903,113 @@ dialog.v8dlg{width:min(94vw,560px)}
 .v8hrow b{min-width:68px}
 .v8dlg input[type=time]{min-height:38px;padding:0 6px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;font:14px var(--sans)}
 </style>
+<style id="mhp-css">
+.mhp-tiles{margin:16px 0}.mhp-tiles h4{margin:0 0 8px;font-size:16px;color:var(--gold2)}
+.mhp-g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mhp-g button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 8px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:700 15px var(--sans);cursor:pointer;text-align:center}
+.mhp-g button span{font-size:28px}.mhp-g button:hover{border-color:var(--gold)}.mhp-g button:active{transform:scale(.97)}
+dialog.mhp{width:min(94vw,440px);max-height:92vh;overflow:auto;padding:0;background:var(--surf);color:var(--text);border:1px solid var(--gold);border-radius:16px}
+dialog.mhp::backdrop{background:rgba(0,0,0,.85)}
+.mhp-b{padding:18px 18px 24px;font-size:17px}.mhp-b h3{font-size:21px;margin:6px 0 4px;color:var(--gold2)}.mhp-b h4{margin:18px 0 8px;font-size:16px;color:var(--gold2)}
+.mhp-m{color:var(--mute);font-size:15px;margin:2px 0 8px}.mhp-b label{display:block;font-weight:700;margin-top:14px}
+.mhp-b select,.mhp-b input{width:100%;padding:13px;margin-top:6px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--text);font:inherit}
+.mhp-x{background:none;border:0;color:var(--gold2);font:700 16px var(--sans);padding:6px 0;cursor:pointer}
+.mhp-c{display:flex;flex-wrap:wrap;gap:8px}.mhp-chip{padding:12px 14px;min-width:54px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--text);font:700 15px var(--sans);cursor:pointer}
+.mhp-chip.on,.mhp-big.on{background:var(--gold);border-color:var(--gold);color:#201804}.mhp-chip:disabled{opacity:.35;text-decoration:line-through;cursor:not-allowed}
+.mhp-big{display:block;width:100%;padding:16px;margin-bottom:8px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--text);font:700 17px var(--sans);text-align:left;cursor:pointer}
+.mhp-i{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:12px;margin-bottom:8px;border-radius:12px;background:var(--bg);border:1px solid var(--line)}
+.mhp-i button,.mhp-add button{padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surf);color:var(--text);font:700 14px var(--sans);cursor:pointer}
+.mhp-add{display:flex;gap:8px;align-items:center}.mhp-add input{margin:0}
+.mhp-r{background:var(--bg);border-radius:12px;padding:14px;line-height:1.8;margin-top:10px}
+.mhp-n,.mhp-s div{display:flex;gap:8px;margin-top:16px}.mhp-n button,.mhp-s button{flex:1;padding:15px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--mute);font:800 16px var(--sans);cursor:pointer}
+.mhp-n button.ok,.mhp-s button.ok{background:var(--green,#6EC8AA);color:#0a1f18;border:0}.mhp-n button:disabled{opacity:.4;cursor:not-allowed}
+.mhp-s{position:sticky;bottom:0;padding:12px 18px;background:var(--surf);border-top:2px solid var(--gold)}.mhp-s p{margin:0;text-align:center;color:var(--gold2);font-size:14px}.mhp-s div{margin-top:8px}
+.mhp-t{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:99999;background:#6EC8AA;color:#0a1f18;font:800 15px var(--sans);padding:12px 20px;border-radius:999px}
+.pcard{flex-wrap:wrap}
+#reg .mhp-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0 2px}
+#reg .mhp-hd h3{margin:0}#reg .mhp-hd .st-row{margin:0;display:flex;gap:6px;flex:none}
+#reg .mhp-hd .st-btn{padding:7px 11px;min-height:0;width:auto;flex:none;font-size:13px;white-space:nowrap}
+.mhp-g button.on{border-color:var(--gold);background:rgba(var(--gold-rgb),.12);color:var(--gold2)}
+.mhp-g button:last-child:nth-child(odd){grid-column:1/-1}.mhp-sec{margin-top:6px}.mhp-sec[hidden]{display:none}
+</style>
+<script>
+window.MH_PAINEL=(function(){
+const K=n=>'mh_painel:'+String(n||'').toLowerCase(),DIAS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const pad=()=>({agenda:{dias:[1,2,3,4,5,6],ini:'09:00',fim:'17:00',dur:60},servicos:[],marcados:[]});
+const ler=n=>{try{return Object.assign(pad(),JSON.parse(localStorage.getItem(K(n))||'{}'))}catch(e){return pad()}};
+const gravar=(n,o)=>{try{localStorage.setItem(K(n),JSON.stringify(o));return true}catch(e){return false}};
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fd=k=>k.split('-').reverse().slice(0,2).join('/');
+let dlg,modo,D,snap,nome,B;
+const dirty=()=>modo==='h'&&D&&JSON.stringify(D)!==snap;
+const sair=()=>!dirty()||confirm('Você mudou algo e não salvou. Sair sem salvar?');
+function box(){if(!dlg){dlg=document.createElement('dialog');dlg.className='mhp';dlg.setAttribute('aria-label','Agenda');document.body.append(dlg);
+ dlg.addEventListener('click',e=>{if(e.target===dlg)fechar();else clique(e)});
+ dlg.addEventListener('change',e=>{const k=e.target.dataset&&e.target.dataset.k;if(!k||modo!=='h')return;const p=k.split('.');D[p[0]][p[1]]=p[1]==='dur'?+e.target.value:e.target.value;tela()});
+ dlg.addEventListener('cancel',e=>{if(!sair())e.preventDefault()})}return dlg}
+function fechar(){if(!sair())return;D=null;if(dlg&&dlg.open)dlg.close()}
+function toast(m){let t=document.getElementById('mhpT');if(!t){t=document.createElement('div');t.id='mhpT';t.className='mhp-t';document.body.append(t)}t.textContent=m;t.hidden=false;clearTimeout(t._x);t._x=setTimeout(()=>t.hidden=true,2500)}
+/* ---- agenda do Helper ---- */
+function agenda(ctx){if(!ctx.eu)return;modo='h';nome=ctx.eu.nome;D=ler(nome);snap=JSON.stringify(D);tela()}
+function tela(){const a=D.agenda,h=[];for(let i=6;i<=22;i++)h.push(String(i).padStart(2,'0')+':00');
+ const sel=(k,v)=>'<select data-k="'+k+'">'+h.map(x=>'<option'+(x===v?' selected':'')+'>'+x+'</option>').join('')+'</select>';
+ const mar=D.marcados.map((m,i)=>({m,i})).sort((x,y)=>(x.m.dia+x.m.hora).localeCompare(y.m.dia+y.m.hora));
+ box().innerHTML='<div class="mhp-b"><button class="mhp-x" data-a="fechar">✕ Fechar</button><h3>📅 Minha agenda</h3><p class="mhp-m">Escolha quando você atende. Quem quiser marcar só vê esses horários.</p>'
+ +'<h4>Dias que atendo</h4><div class="mhp-c">'+DIAS.map((d,i)=>'<button class="mhp-chip'+(a.dias.includes(i)?' on':'')+'" data-a="dia" data-v="'+i+'">'+d+'</button>').join('')+'</div>'
+ +'<label>Começo às'+sel('agenda.ini',a.ini)+'</label><label>Termino às'+sel('agenda.fim',a.fim)+'</label>'
+ +'<label>Cada atendimento dura<select data-k="agenda.dur">'+[30,45,60,90,120].map(m=>'<option value="'+m+'"'+(m==a.dur?' selected':'')+'>'+m+' minutos</option>').join('')+'</select></label>'
+ +'<h4>O que eu faço</h4><p class="mhp-m">Ex.: corte, pintura, conserto, aula.</p>'
+ +(D.servicos.map((s,i)=>'<div class="mhp-i"><span>'+esc(s)+'</span><button data-a="tirar" data-v="'+i+'">Tirar</button></div>').join('')||'<p class="mhp-m">Nenhum serviço ainda. Sem serviço, ninguém consegue marcar.</p>')
+ +'<div class="mhp-add"><input id="mhpNovo" maxlength="40" placeholder="Novo serviço"><button data-a="add">Adicionar</button></div>'
+ +'<h4>Horários marcados ('+mar.length+')</h4>'+(mar.map(x=>'<div class="mhp-i"><span><b>'+esc(x.m.cliente)+'</b> · '+esc(x.m.serv)+'<br><small>'+fd(x.m.dia)+' às '+x.m.hora+'</small></span><button data-a="canc" data-v="'+x.i+'">Cancelar</button></div>').join('')||'<p class="mhp-m">Ninguém marcou ainda.</p>')+'</div>'
+ +(dirty()?'<div class="mhp-s"><p>Você mudou algo e ainda não salvou</p><div><button data-a="desf">Desfazer</button><button class="ok" data-a="salvar">💾 Salvar</button></div></div>':'');
+ if(!dlg.open)dlg.showModal()}
+function salvar(){const ant=JSON.parse(snap).marcados,cur=ler(nome).marcados;cur.forEach(m=>{if(!ant.some(x=>x.id===m.id)&&!D.marcados.some(x=>x.id===m.id))D.marcados.push(m)});
+ if(gravar(nome,D)){snap=JSON.stringify(D);toast('✅ Salvo!')}else alert('Não consegui salvar neste aparelho.')}
+/* ---- cliente marca horário ---- */
+const tem=n=>{const P=ler(n);return P.servicos.length>0&&P.agenda.dias.length>0};
+function marcar(prof,ctx){const e=ctx.eu;if(!e){alert('Entre na sua conta para marcar um horário.');return}
+ if(prof===e.nome){alert('Você não pode marcar horário com você mesmo.');return}
+ modo='c';B={prof,st:1,serv:'',dia:'',hora:'',cli:e.nome};pintaB()}
+function pintaB(){const P=ler(B.prof),a=P.agenda,n=B.st,t=s=>+s.slice(0,2)*60+ +s.slice(3);let h='<div class="mhp-b"><button class="mhp-x" data-a="fechar">✕ Fechar</button>';
+ const nav=(off)=>'<div class="mhp-n">'+(n>1?'<button data-a="volt">Voltar</button>':'')+'<button class="ok" data-a="prox"'+(off?' disabled':'')+'>Próximo</button></div>';
+ if(n===1)h+='<h3>1. O que você precisa?</h3><p class="mhp-m">Com '+esc(B.prof)+'</p>'+P.servicos.map((s,i)=>'<button class="mhp-big'+(B.serv===s?' on':'')+'" data-a="serv" data-v="'+i+'">'+esc(s)+'</button>').join('')+nav(!B.serv);
+ if(n===2){const r=[],d0=new Date();for(let i=0;i<21&&r.length<9;i++){const x=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+i);if(a.dias.includes(x.getDay()))r.push([x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'),DIAS[x.getDay()]+'<br>'+String(x.getDate()).padStart(2,'0')+'/'+String(x.getMonth()+1).padStart(2,'0')])}
+  h+='<h3>2. Qual dia?</h3><div class="mhp-c">'+r.map(x=>'<button class="mhp-chip'+(B.dia===x[0]?' on':'')+'" data-a="dia" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'+nav(!B.dia)}
+ if(n===3){const r=[];for(let m=t(a.ini);m+a.dur<=t(a.fim);m+=a.dur)r.push(String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'));
+  h+='<h3>3. Que horas?</h3><div class="mhp-c">'+r.map(x=>'<button class="mhp-chip'+(B.hora===x?' on':'')+'" data-a="hora" data-v="'+x+'"'+(P.marcados.some(m=>m.dia===B.dia&&m.hora===x)?' disabled':'')+'>'+x+'</button>').join('')+'</div>'+nav(!B.hora)}
+ if(n===4)h+='<h3>4. Confere se está certo</h3><div class="mhp-r"><b>Com:</b> '+esc(B.prof)+'<br><b>Serviço:</b> '+esc(B.serv)+'<br><b>Dia:</b> '+fd(B.dia)+'<br><b>Hora:</b> '+B.hora+'</div><div class="mhp-n"><button data-a="volt">Voltar</button><button class="ok" data-a="conf">✅ Confirmar</button></div>';
+ if(n===5)h+='<div style="text-align:center"><div style="font-size:52px">✅</div><h3>Marcado!</h3><p class="mhp-m">'+esc(B.serv)+' com '+esc(B.prof)+'<br>'+fd(B.dia)+' às '+B.hora+'<br>O horário aparece na agenda de '+esc(B.prof)+'.</p></div><div class="mhp-n"><button class="ok" data-a="fechar">Fechar</button></div>';
+ box().innerHTML=h+'</div>';if(!dlg.open)dlg.showModal()}
+function clique(e){const b=e.target.closest('[data-a]');if(!b||b.disabled)return;const a=b.dataset.a,v=b.dataset.v;
+ if(a==='fechar')return fechar();
+ if(modo==='h'){if(a==='dia'){const d=D.agenda.dias,i=d.indexOf(+v);i<0?d.push(+v):d.splice(i,1)}
+  else if(a==='tirar')D.servicos.splice(+v,1);
+  else if(a==='add'){const t=document.getElementById('mhpNovo').value.trim();if(!t)return;D.servicos.push(t.slice(0,40))}
+  else if(a==='canc'){if(!confirm('Cancelar este horário?'))return;D.marcados.splice(+v,1)}
+  else if(a==='desf')D=JSON.parse(snap);
+  else if(a==='salvar')salvar();
+  return tela()}
+ const P=ler(B.prof);
+ if(a==='serv')B.serv=P.servicos[+v];else if(a==='dia'){B.dia=v;B.hora=''}else if(a==='hora')B.hora=v;
+ else if(a==='prox')B.st++;else if(a==='volt')B.st--;
+ else if(a==='conf'){if(P.marcados.some(m=>m.dia===B.dia&&m.hora===B.hora)){B.st=3;B.hora='';pintaB();return toast('Esse horário acabou de ser marcado. Escolha outro.')}
+  P.marcados.push({id:Date.now(),cliente:B.cli,serv:B.serv,dia:B.dia,hora:B.hora});if(!gravar(B.prof,P))return alert('Não consegui marcar. Tente de novo.');B.st=5}
+ pintaB()}
+/* ---- botões do Meu perfil ---- */
+let ABERTA='';
+function aplica(){const r=document.getElementById('reg');if(!r)return;r.querySelectorAll('.mhp-sec').forEach(x=>{x.hidden=x.dataset.s!==ABERTA;if(!x.hidden&&x.dataset.s==='port'){const d=x.querySelector('details');if(d)d.open=true}});r.querySelectorAll('.mhp-g button[data-s]').forEach(b=>b.classList.toggle('on',b.dataset.s===ABERTA))}
+function mostrar(k){ABERTA=ABERTA===k?'':k;aplica();const el=ABERTA&&document.querySelector('#reg .mhp-sec[data-s="'+k+'"]');if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'})}
+function organiza(r){const kids=[...r.children],txt=n=>n.textContent||'';
+ const sec=(k,ns)=>{if(!ns.length)return;const w=document.createElement('div');w.className='mhp-sec';w.dataset.s=k;ns[0].before(w);ns.forEach(n=>w.append(n))};
+ const det=kids.find(n=>n.classList.contains('port-ed')||(n.tagName==='DETAILS'&&txt(n).indexOf('Portfólio e contatos')>=0));if(det)sec('port',[det]);
+ const ia=kids.findIndex(n=>n.tagName==='H4'&&txt(n).indexOf('Comentários')===0),ifv=kids.findIndex(n=>n.tagName==='H4'&&txt(n).indexOf('Meus favoritos')===0);
+ if(ia>=0)sec('aval',kids.slice(ia,ifv>ia?ifv:undefined));if(ifv>=0)sec('fav',kids.slice(ifv));aplica()}
+function tiles(ctx){const w=document.createElement('div');w.className='mhp-tiles';w.innerHTML='<h4>Meu painel</h4><div class="mhp-g"></div>';const g=w.lastChild;
+ [['📅','Minha agenda',()=>agenda(ctx)],['🏪','Minha loja',()=>ctx.espaco(/^(Meus estabelecimentos|Minhas equipes|Convites)/)],['⭐','Avaliações',()=>mostrar('aval'),'aval'],['🖼️','Portfólio e contatos',()=>mostrar('port'),'port'],['❤️','Favoritos',()=>mostrar('fav'),'fav'],['🔒','Conta e privacidade',()=>ctx.espaco(/^(Privacidade|Meus ofícios|Minha conta)/)],['📤','Compartilhar perfil',()=>ctx.share()]]
+ .forEach(x=>{const b=document.createElement('button');b.type='button';if(x[3])b.dataset.s=x[3];b.innerHTML='<span>'+x[0]+'</span>'+x[1];b.onclick=x[2];g.append(b)});return w}
+return{tiles,tem,marcar,toast,organiza}})();
+</script>
 </head>
 <body>
 <div id="topLetreiros" class="top-letreiros">
@@ -1945,13 +2052,13 @@ dialog.v8dlg{width:min(94vw,560px)}
   <h2 id="mt">Meta de apoio</h2>
   <p class="lead">O apoio de vocês paga o que falta para o app chegar. Aqui está a meta e para onde vai cada real.</p>
   <div class="two">
-    <div class="win"><div class="bar"><span class="t">meta.txt</span><i></i><i></i><i></i></div>
+    <div class="win"><div class="bar"><span class="t">meta</span><i></i><i></i><i></i></div>
       <div class="body"><p class="mfig"><b id="mArr">R$ 0</b> de <b id="mAlvo">R$ 5.000</b></p>
       <div class="mbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="mBar"><i></i></div>
       <p class="note" id="mPct">0% da meta.</p>
       <p class="note"><b>Valores de exemplo:</b> o dono do site edita o objeto META no código. Só entra no total o que o Pix confirmar.</p>
       <a class="cta2" href="#apoie">Quero apoiar</a></div></div>
-    <div class="win"><div class="bar"><span class="t">para-onde-vai.txt — EXEMPLO</span><i></i><i></i><i></i></div>
+    <div class="win"><div class="bar"><span class="t">para-onde-vai — EXEMPLO</span><i></i><i></i><i></i></div>
       <div class="body rules"><ul id="mUsos"></ul></div></div>
   </div>
   </section>
@@ -1984,7 +2091,7 @@ dialog.v8dlg{width:min(94vw,560px)}
   <section id="carona" aria-labelledby="cl">
   <h2 id="cl">Caronas do Vale</h2>
   <p class="lead">Caronas para dividir a viagem. Tudo grátis.</p>
-  <div class="win"><div class="bar"><span class="t">caronas.txt</span><i></i><i></i><i></i></div>
+  <div class="win"><div class="bar"><span class="t">caronas</span><i></i><i></i><i></i></div>
    <div class="body">
     <div class="vbar"><button type="button" id="cNovo" class="cta2">+ Oferecer carona</button></div>
     <div id="cLista"></div>
@@ -2025,7 +2132,7 @@ dialog.v8dlg{width:min(94vw,560px)}
   <section id="vale" aria-labelledby="vl">
   <h2 id="vl">Guia do Vale</h2>
   <p class="lead">Lugares que a galera recomenda. Tudo grátis.</p>
-  <div class="win"><div class="bar"><span class="t">guia.txt</span><i></i><i></i><i></i></div>
+  <div class="win"><div class="bar"><span class="t">guia</span><i></i><i></i><i></i></div>
    <div class="body">
     <div class="vbar"><select id="vCid" aria-label="Cidade"></select><select id="vCat" aria-label="Categoria"></select><button type="button" id="vNovo" class="cta2">+ Indicar um lugar</button></div>
     <div id="vLista"></div>
@@ -2038,7 +2145,7 @@ dialog.v8dlg{width:min(94vw,560px)}
   <section id="duelo" aria-labelledby="dl">
   <h2 id="dl">Cabo de guerra da torcida</h2>
   <p class="lead">Escolha um lado e puxe a corda. Cada real que você coloca empurra a barra para o seu lado. É uma brincadeira de torcida.</p>
-  <div class="win"><div class="bar"><span class="t">cabo-de-guerra.txt</span><i></i><i></i><i></i></div>
+  <div class="win"><div class="bar"><span class="t">cabo-de-guerra</span><i></i><i></i><i></i></div>
    <div class="tg" id="tgBox">
     <p class="tg-modo" id="tgModo" role="status">Carregando…</p>
     <h3 class="tg-tit" id="tgTit"></h3>
@@ -2055,7 +2162,7 @@ dialog.v8dlg{width:min(94vw,560px)}
     <p class="note">Regras: é um jogo de torcida, não é aposta, sorteio nem enquete. O valor é uma contribuição ao MiHelp, sem prêmio, sem retorno e sem reembolso. Só conta depois que o Pix é confirmado.</p>
    </div>
   </div>
-  <div class="win" id="cpWin"><div class="bar"><span class="t">proxima-cidade.txt</span><i></i><i></i><i></i></div>
+  <div class="win" id="cpWin"><div class="bar"><span class="t">proxima-cidade</span><i></i><i></i><i></i></div>
    <div class="tg">
     <h3 class="tg-tit">Qual cidade vem a seguir?</h3>
     <p class="note">Hoje o MiHelp mostra o Vale do Araguaia. Vote onde você quer ele a seguir (até 3 votos por conta) ou peça a sua cidade. Abrimos a próxima quando juntar gente e um embaixador local.</p>
@@ -2065,12 +2172,12 @@ dialog.v8dlg{width:min(94vw,560px)}
    </div>
   </div>
   </section>
-  <section id="enquete" hidden aria-labelledby="eqt"><h2 id="eqt">Enquete</h2><div class="win"><div class="bar"><span class="t">enquete.txt</span><i></i><i></i><i></i></div><div class="tg"><h3 class="tg-tit" id="eqP"></h3><div class="eq-o" id="eqO"></div><p class="note" id="eqM" role="status"></p></div></div></section>
+  <section id="enquete" hidden aria-labelledby="eqt"><h2 id="eqt">Enquete</h2><div class="win"><div class="bar"><span class="t">enquete</span><i></i><i></i><i></i></div><div class="tg"><h3 class="tg-tit" id="eqP"></h3><div class="eq-o" id="eqO"></div><p class="note" id="eqM" role="status"></p></div></div></section>
 
   <section id="instalar" aria-labelledby="inst">
   <h2 id="inst">Instale o MiHelp no celular</h2>
   <p class="lead">Fica na tela inicial como um app, abre rápido e você não precisa digitar o endereço de novo. É grátis e não ocupa quase nada.</p>
-  <div class="win"><div class="bar"><span class="t">instalar-app.txt</span><i></i><i></i><i></i></div>
+  <div class="win"><div class="bar"><span class="t">instalar-app</span><i></i><i></i><i></i></div>
    <div class="body">
     <p id="pwaOk" hidden><b>✅ Você já está usando o app instalado.</b> Obrigado!</p>
     <button type="button" id="pwaBtn" class="cta2" hidden>📲 Instalar o MiHelp</button>
@@ -2084,7 +2191,7 @@ dialog.v8dlg{width:min(94vw,560px)}
   <h2 id="hj">Hoje o MiHelp é um classificado</h2>
   <p class="lead">Pense no quadro de avisos da padaria: quem precisa pendura um papel dizendo o que quer, quem sabe fazer pendura outro dizendo o que faz, e os dois se falam. O quadro não cobra, não mexe no dinheiro de ninguém e não escolhe quem trabalha. É isso que o site é hoje.</p>
   <div class="two">
-    <div class="win"><div class="bar"><span class="t">hoje-no-site.txt</span><i></i><i></i><i></i></div>
+    <div class="win"><div class="bar"><span class="t">hoje-no-site</span><i></i><i></i><i></i></div>
       <div class="body rules">
         <h3>O que você faz aqui hoje</h3>
         <ul>
@@ -2102,7 +2209,7 @@ dialog.v8dlg{width:min(94vw,560px)}
         <p><b>Exemplo:</b> a Dona Maria precisa de um pintor. Ela entra no site, vê o Seu Zé na lista, chama no privado, e os dois combinam valor e dia. A Dona Maria paga o Seu Zé direto. O MiHelp não participa do pagamento.</p>
         <p><b>Cuidado de quem usa classificado:</b> combine o preço antes, não pague tudo adiantado e confira o serviço antes de pagar o resto.</p>
       </div></div>
-    <div class="win"><div class="bar"><span class="t">app-vem-ai.txt</span><i></i><i></i><i></i></div>
+    <div class="win"><div class="bar"><span class="t">app-vem-ai</span><i></i><i></i><i></i></div>
       <div class="body rules">
         <h3>No app que vem aí</h3>
         <ul>
@@ -2117,7 +2224,7 @@ dialog.v8dlg{width:min(94vw,560px)}
         <p>Enquanto o app não sai, quem sustenta o MiHelp são os <b>outdoors digitais</b>, os <b>apoios</b> e os <b>patrocinadores</b>. Ninguém paga para conversar nem para combinar serviço.</p>
       </div></div>
   </div>
-  <div class="win" style="margin-top:18px"><div class="bar"><span class="t">hoje-x-app.txt</span><i></i><i></i><i></i></div>
+  <div class="win" style="margin-top:18px"><div class="bar"><span class="t">hoje-x-app</span><i></i><i></i><i></i></div>
     <div class="body"><div class="tw"><table class="tb cmp"><thead><tr><th></th><th>Hoje (site)</th><th>Depois (app)</th></tr></thead>
       <tbody>
         <tr><td>Cadastro</td><td>Grátis</td><td>Grátis</td></tr>
@@ -2130,7 +2237,7 @@ dialog.v8dlg{width:min(94vw,560px)}
 <section id="tutorial" aria-labelledby="tu">
   <h2 id="tu">Tutorial: como usar o MiHelp</h2>
   <p class="lead">Passo a passo, sem pressa e sem pular nada. Se você travar em alguma coisa, a resposta está aqui. Clique em cada título para abrir.</p>
-  <div class="win"><div class="bar"><span class="t">primeiros-passos.txt</span><i></i><i></i><i></i></div>
+  <div class="win"><div class="bar"><span class="t">primeiros-passos</span><i></i><i></i><i></i></div>
     <div class="body"><ol class="steps">
       <li><b>1. Crie sua conta</b>Na janela "Conta", toque em Criar conta, escolha se você é Cliente ou Helper e preencha os campos.</li>
       <li><b>2. Complete seu perfil</b>Escolha seu status (Disponível ou Ocupado) e escreva uma frase curta sobre você.</li>
@@ -2138,7 +2245,7 @@ dialog.v8dlg{width:min(94vw,560px)}
       <li><b>4. Procure ou ofereça serviço</b>Veja quem está online, toque no nome da pessoa e escolha Falar no privado.</li>
       <li><b>5. Combine com cuidado</b>Combine preço e dia por escrito, não mande senha nem dados do banco e confira o serviço antes de pagar.</li>
     </ol></div></div>
-  <div class="win" style="margin-top:18px"><div class="bar"><span class="t">tudo-que-o-site-faz.txt</span><i></i><i></i><i></i></div>
+  <div class="win" style="margin-top:18px"><div class="bar"><span class="t">tudo-que-o-site-faz</span><i></i><i></i><i></i></div>
     <div class="body rules">
       <details><summary>Criar conta, entrar e sair</summary>
         <p><b>Criar conta:</b> na janela "Conta", deixe marcado "Criar conta". Escolha <b>Sou Cliente</b> (quem precisa de um serviço) ou <b>Sou Helper</b> (quem faz o serviço). O Helper também escreve com o que trabalha, por exemplo "Pintura" ou "Encanador". Depois preencha nome, telefone, e-mail e uma senha de pelo menos 6 letras ou números, marque a caixinha de aceite e toque em <b>Criar minha conta</b>.</p>
@@ -2359,7 +2466,7 @@ dialog.v8dlg{width:min(94vw,560px)}
   <section id="guilda" aria-labelledby="gd">
   <h2 id="gd">Guilda MiHelp</h2>
   <p class="lead">Tem algo para resolver? Publique. Sabe fazer? Aceite uma missão. Trabalho, serviço, recompensa e achados e perdidos.</p>
-  <div class="win"><div class="bar"><span class="t">missoes.txt — EXEMPLO ILUSTRATIVO</span><i></i><i></i><i></i></div>
+  <div class="win"><div class="bar"><span class="t">missoes — EXEMPLO ILUSTRATIVO</span><i></i><i></i><i></i></div>
     <div class="body"><div class="gl" id="gdList"></div>
     <p class="note" id="gdMsg" role="status">Chamados da galera do Vale. O site não intermedeia trabalho nem pagamento: combine tudo direto com a pessoa.</p></div></div>
   </section>
@@ -2466,7 +2573,7 @@ dialog.v8dlg{width:min(94vw,560px)}
   <h2 id="sh">Conheça o MiHelp</h2>
   <p class="lead">Um só aplicativo, duas portas de entrada. Escolha a sua.</p>
   <div class="win">
-    <div class="bar"><span class="t">saiba-mais.txt</span><i></i><i></i><i></i></div>
+    <div class="bar"><span class="t">saiba-mais</span><i></i><i></i><i></i></div>
     <div class="tabs" role="tablist" aria-label="Para quem é">
       <button role="tab" id="tc" aria-selected="true" aria-controls="pc">Sou Cliente</button>
       <button role="tab" id="th" aria-selected="false" aria-controls="ph">Sou Helper</button>
@@ -2500,7 +2607,7 @@ dialog.v8dlg{width:min(94vw,560px)}
       </ol></div>
     </div>
     <div class="win">
-      <div class="bar"><span class="t">por-que-confiar.txt</span><i></i><i></i><i></i></div>
+      <div class="bar"><span class="t">por-que-confiar</span><i></i><i></i><i></i></div>
       <div class="body"><ul class="trust">
         <li><span class="dot d-on"></span><span><b>Verificação de identidade</b>Feita para os Helpers depois do cadastro.</span></li>
         <li><span class="dot d-on"></span><span><b>Privacidade protegida</b>Nome completo e contato só aparecem depois que o pedido é aceito.</span></li>
@@ -2514,7 +2621,7 @@ dialog.v8dlg{width:min(94vw,560px)}
 <section id="taxas" aria-labelledby="tx">
   <h2 id="tx">Quanto custa</h2>
   <p class="lead">No site de agora: grátis para conversar e se cadastrar. Taxa de serviço só no app, quando ele chegar.</p>
-  <div class="win"><div class="bar"><span class="t">taxas.txt</span><i></i><i></i><i></i></div>
+  <div class="win"><div class="bar"><span class="t">taxas</span><i></i><i></i><i></i></div>
     <div class="body rules">
       <p class="feira-note" style="margin-top:0"><b>Fase 1 (este site):</b> sem cobrança por serviço e sem equipe indo na casa de ninguém. É feira digital — interação e proposta. <b>Fase 2 (app):</b> contratação pelo app, avaliação 1–5 estrelas dos dois lados, e verificação de serviço para ir tirando os ruins do ramo.</p>
       <div class="tw"><table class="tb"><thead><tr><th>Perfil do Helper (no app)</th><th>Taxa</th><th>Em um trabalho de R$ 500</th></tr></thead>
@@ -2535,21 +2642,21 @@ dialog.v8dlg{width:min(94vw,560px)}
 <section id="guia-chat" aria-labelledby="gc">
   <h2 id="gc">Guia do chat</h2>
   <p class="lead">Tudo o que o chat tem, o que faz e o que não faz. Sem letra miúda.</p>
-  <div class="two"><div class="win"><div class="bar"><span class="t">salas.txt</span><i></i><i></i><i></i></div><div class="body rules"><p><b>O que é:</b> salas por assunto e por cidade: Geral, Classificados, Amizade, Construção e reformas, Vagas e bicos, Cozinha, Doação de móveis, Doação de pets, Barra do Garças, Pontal do Araguaia e Aragarças.</p><p><b>Como usa:</b> clique no nome da sala. A regra dela fica fixa no topo.</p><p><b>Não é:</b> sala criada por qualquer um. Por enquanto você só <b>sugere</b> uma sala. Criar salas livremente fica para o app, com moderação.</p></div></div><div class="win"><div class="bar"><span class="t">quem-esta-online.txt</span><i></i><i></i><i></i></div><div class="body rules"><p><b>O que é:</b> a lista de quem está na sala, em duas abas: Helpers e Clientes, com o total de cada uma.</p><p><b>Como usa:</b> entre em Helpers e escolha o ofício (pintura, elétrica...). Com mais de 15 pessoas, aparece uma busca. Clique no nome para ver o perfil e conversar no privado.</p><p><b>Não é:</b> garantia de que a pessoa responde agora.</p></div></div></div>
-  <div class="two"><div class="win"><div class="bar"><span class="t">responder-e-avisos.txt</span><i></i><i></i><i></i></div><div class="body rules"><p><b>O que é:</b> o botão <b>Responder</b> em cada mensagem e o destaque verde "para você".</p><p><b>Como usa:</b> clique em Responder, escreva e envie. Sua mensagem leva a citação. Quando alguém citar você ou responder a você, a mensagem fica verde, e a aba Geral ganha um ●.</p><p><b>Não é:</b> notificação no celular. Isso só vem com o app.</p></div></div><div class="win"><div class="bar"><span class="t">ao-vivo-guilda-comandos.txt</span><i></i><i></i><i></i></div><div class="body rules"><p><b>Ao vivo:</b> painel de acontecimentos da rede. <b>Guilda:</b> missões de trabalho, recompensa, serviço e achados e perdidos; "Falar com..." abre o privado com quem publicou.</p><p><b>Comandos:</b> digite /help no chat.</p><p><b>Não é:</b> real ainda. Ao vivo, missões, nomes e valores são <b>exemplos inventados</b>. O site não intermedeia trabalho.</p></div></div></div>
+  <div class="two"><div class="win"><div class="bar"><span class="t">salas</span><i></i><i></i><i></i></div><div class="body rules"><p><b>O que é:</b> salas por assunto e por cidade: Geral, Classificados, Amizade, Construção e reformas, Vagas e bicos, Cozinha, Doação de móveis, Doação de pets, Barra do Garças, Pontal do Araguaia e Aragarças.</p><p><b>Como usa:</b> clique no nome da sala. A regra dela fica fixa no topo.</p><p><b>Não é:</b> sala criada por qualquer um. Por enquanto você só <b>sugere</b> uma sala. Criar salas livremente fica para o app, com moderação.</p></div></div><div class="win"><div class="bar"><span class="t">quem-esta-online</span><i></i><i></i><i></i></div><div class="body rules"><p><b>O que é:</b> a lista de quem está na sala, em duas abas: Helpers e Clientes, com o total de cada uma.</p><p><b>Como usa:</b> entre em Helpers e escolha o ofício (pintura, elétrica...). Com mais de 15 pessoas, aparece uma busca. Clique no nome para ver o perfil e conversar no privado.</p><p><b>Não é:</b> garantia de que a pessoa responde agora.</p></div></div></div>
+  <div class="two"><div class="win"><div class="bar"><span class="t">responder-e-avisos</span><i></i><i></i><i></i></div><div class="body rules"><p><b>O que é:</b> o botão <b>Responder</b> em cada mensagem e o destaque verde "para você".</p><p><b>Como usa:</b> clique em Responder, escreva e envie. Sua mensagem leva a citação. Quando alguém citar você ou responder a você, a mensagem fica verde, e a aba Geral ganha um ●.</p><p><b>Não é:</b> notificação no celular. Isso só vem com o app.</p></div></div><div class="win"><div class="bar"><span class="t">ao-vivo-guilda-comandos</span><i></i><i></i><i></i></div><div class="body rules"><p><b>Ao vivo:</b> painel de acontecimentos da rede. <b>Guilda:</b> missões de trabalho, recompensa, serviço e achados e perdidos; "Falar com..." abre o privado com quem publicou.</p><p><b>Comandos:</b> digite /help no chat.</p><p><b>Não é:</b> real ainda. Ao vivo, missões, nomes e valores são <b>exemplos inventados</b>. O site não intermedeia trabalho.</p></div></div></div>
 </section>
 <section id="seguranca" aria-labelledby="sg">
   <h2 id="sg">Regras claras para os dois lados</h2>
   <p class="lead">O MiHelp protege quem contrata e quem trabalha. Cada situação importante tem uma regra, uma tela e um registro.</p>
   <div class="two">
-    <div class="win"><div class="bar"><span class="t">quem-contrata.txt</span><i></i><i></i><i></i></div>
+    <div class="win"><div class="bar"><span class="t">quem-contrata</span><i></i><i></i><i></i></div>
       <div class="body rules"><ul>
         <li>Informa a verdade sobre o serviço, o local e os riscos que conhece.</li>
         <li>Paga o valor combinado na forma apresentada no app.</li>
         <li>Registra e aprova qualquer mudança de escopo ou de preço.</li>
         <li>Sem ameaça, assédio ou pressão. Avaliação só de experiência real.</li>
       </ul></div></div>
-    <div class="win"><div class="bar"><span class="t">quem-trabalha.txt</span><i></i><i></i><i></i></div>
+    <div class="win"><div class="bar"><span class="t">quem-trabalha</span><i></i><i></i><i></i></div>
       <div class="body rules"><ul>
         <li>Oferece só o que sabe e pode fazer, com perfil e preço verdadeiros.</li>
         <li>Cumpre data e condições combinadas, ou avisa e registra o novo acordo.</li>
@@ -2563,24 +2670,24 @@ dialog.v8dlg{width:min(94vw,560px)}
         <p>Toda contratação tem um número único e uma linha do tempo automática: pedido, orçamento, mudanças de preço (quem pediu, quanto mudou, quem aceitou), mensagens, fotos de antes e depois, pagamento, conclusão e avaliações.</p>
         <p><b>Teve problema?</b> Todo pedido tem o botão "Tive um problema": serviço não realizado ou abandonado, dano, cobrança errada, comportamento inadequado. Você envia fotos e o histórico já vai junto.</p>
       </div></div>
-    <div class="win"><div class="bar"><span class="t">fechou-aqui-paga-aqui.txt</span><i></i><i></i><i></i></div>
+    <div class="win"><div class="bar"><span class="t">fechou-aqui-paga-aqui</span><i></i><i></i><i></i></div>
       <div class="body rules">
         <p>Se a contratação foi combinada e confirmada pelo MiHelp, o pagamento segue pelo MiHelp, quando essa opção estiver disponível.</p>
         <p>Trocar telefone ou conversar por outro app não é problema. O que não pode é usar o MiHelp só para achar contato e fechar por fora de propósito, fugindo das regras. Isso vale para cliente e Helper, e a análise considera o contexto. Conforme a gravidade, pode haver aviso, limitação de funções, suspensão ou encerramento da conta.</p>
       </div></div>
   </div>
   <div class="two">
-    <div class="win"><div class="bar"><span class="t">seus-dados.txt</span><i></i><i></i><i></i></div>
+    <div class="win"><div class="bar"><span class="t">seus-dados</span><i></i><i></i><i></i></div>
       <div class="body rules">
         <p>Quem trabalha só vê o necessário sobre você em cada etapa. Nome completo, foto nítida e contato aparecem depois que o Helper aceita o pedido. Seguimos a LGPD, e a verificação de identidade não significa juntar documentos à toa.</p>
       </div></div>
-    <div class="win"><div class="bar"><span class="t">avaliacoes.txt</span><i></i><i></i><i></i></div>
+    <div class="win"><div class="bar"><span class="t">avaliacoes</span><i></i><i></i><i></i></div>
       <div class="body rules">
         <p>Só quem participou de uma contratação real pode avaliá-la. Comprar, vender ou fabricar avaliação é proibido, e você pode contestar uma avaliação ou denunciar fraude. Nota alta não é garantia do serviço, e nota baixa não é prova de má-fé.</p>
       </div></div>
   </div>
   <div class="two" id="sos-regras">
-    <div class="win"><div class="bar"><span class="t">sos-o-que-e.txt</span><i></i><i></i><i></i></div>
+    <div class="win"><div class="bar"><span class="t">sos-o-que-e</span><i></i><i></i><i></i></div>
       <div class="body rules">
         <h3>SOS é só para emergência de verdade</h3>
         <p>Tem que ser algo que não pode esperar o dia seguinte e que causa dano ou grande transtorno agora. Exemplos:</p>
@@ -2594,7 +2701,7 @@ dialog.v8dlg{width:min(94vw,560px)}
         <p><b>Não é SOS:</b> pintura, ar-condicionado, DJ, aula particular, reforma e qualquer serviço que pode ser agendado. Para esses, use o chat normal ou a Guilda.</p>
         <p><b>Outros ofícios:</b> a busca dentro da janela do SOS encontra qualquer ofício cadastrado no site (por exemplo, advogado). O alerta vai só para os Helpers daquele ofício, e vale a mesma regra: só para o que não pode esperar.</p>
       </div></div>
-    <div class="win"><div class="bar"><span class="t">sos-leia-antes.txt</span><i></i><i></i><i></i></div>
+    <div class="win"><div class="bar"><span class="t">sos-leia-antes</span><i></i><i></i><i></i></div>
       <div class="body rules">
         <h3>O que o SOS faz e o que não faz</h3>
         <ul>
@@ -2610,7 +2717,7 @@ dialog.v8dlg{width:min(94vw,560px)}
 </section>
 <section id="privacidade" aria-labelledby="pv">
   <h2 id="pv">Privacidade em resumo</h2>
-  <div class="win"><div class="bar"><span class="t">privacidade.txt</span><i></i><i></i><i></i></div>
+  <div class="win"><div class="bar"><span class="t">privacidade</span><i></i><i></i><i></i></div>
     <div class="body rules">
       <p><b>O que pedimos:</b> nome, telefone, e-mail e, para Helpers, o ofício. <b>Para quê:</b> avisar você das novidades e mostrar seu nome na sala.</p>
       <p><b>Seus direitos (LGPD):</b> pedir para ver, corrigir ou apagar seus dados, quando quiser, pelo botão "Chamar o administrador", na seção "Fale com a gente".</p>
@@ -2639,7 +2746,7 @@ dialog.v8dlg{width:min(94vw,560px)}
 <section id="duvidas" aria-labelledby="dv">
   <h2 id="dv">Dúvidas comuns</h2>
   <p class="lead">Clique na pergunta para ver a resposta.</p>
-  <div class="win"><div class="bar"><span class="t">perguntas.txt</span><i></i><i></i><i></i></div>
+  <div class="win"><div class="bar"><span class="t">perguntas</span><i></i><i></i><i></i></div>
     <div class="body rules">
       <details><summary>O que é o MiHelp?</summary><p>Um aplicativo que conecta quem precisa de um serviço a quem sabe fazer, de pintor a diarista, babá e DJ. Você pode entrar como Cliente ou como Helper (o profissional).</p></details>
       <details><summary>Onde o MiHelp funciona?</summary><p>Hoje em Barra do Garças, Pontal do Araguaia e Aragarças. Vamos ficar só nessa região por um bom tempo, para cuidar bem de cada atendimento.</p></details>
@@ -2659,14 +2766,14 @@ dialog.v8dlg{width:min(94vw,560px)}
 
 <section id="quem" aria-labelledby="qm">
   <h2 id="qm">Fale com a gente</h2>
-  <div class="win"><div class="bar"><span class="t">contato.txt</span><i></i><i></i><i></i></div>
+  <div class="win"><div class="bar"><span class="t">contato</span><i></i><i></i><i></i></div>
     <div class="body rules"><p><b>Discord:</b> entre na nossa comunidade para tirar dúvidas, enviar comprovante de anúncio ou avisar de algum erro: <a href="https://discord.gg/eEe4nw7ss" target="_blank" rel="noopener noreferrer">https://discord.gg/eEe4nw7ss</a></p></div></div>
 </section>
 <section id="apoie" aria-labelledby="ap">
   <h2 id="ap">Empresas e apoio</h2>
   <p class="lead">Tem um negócio na região ou quer ajudar o MiHelp a crescer? Tem dois jeitos.</p>
   <div class="two">
-    <div class="win"><div class="bar"><span class="t">outdoors-digitais.txt</span><i></i><i></i><i></i></div>
+    <div class="win"><div class="bar"><span class="t">outdoors-digitais</span><i></i><i></i><i></i></div>
       <div class="body rules">
         <p><b>Outdoors digitais</b> — as vagas no topo do site. Você paga pelos minutos e sua marca aparece. É a forma de apoiar o MiHelp e divulgar na região.</p>
         <p><b>Preço:</b> R$ 1 por minuto. Atalhos de 5, 10 ou 30 min, ou +/− de 1 a 24 horas. A partir de 2h, desconto progressivo.</p>
@@ -2692,7 +2799,7 @@ dialog.v8dlg{width:min(94vw,560px)}
         <p style="margin-top:12px">Todo anúncio marcado como publicidade. Sem conteúdo enganoso, golpe, adulto ou ofensivo.</p>
         <a class="cta2" href="#vagas">Quero um outdoor digital</a>
       </div></div>
-    <div class="win"><div class="bar"><span class="t">apoiar-o-mihelp.txt</span><i></i><i></i><i></i></div>
+    <div class="win"><div class="bar"><span class="t">apoiar-o-mihelp</span><i></i><i></i><i></i></div>
       <div class="body rules">
         <p>Quer ajudar no desenvolvimento do app? Um apoio por Pix ajuda a pagar as próximas etapas do desenvolvimento. Quem apoiar pode, se quiser, ter o nome no letreiro de apoiadores, lá no topo do site.</p>
         <p><b>Apoio não é investimento.</b> Ele não dá participação na empresa e não promete retorno financeiro.</p>
@@ -2703,7 +2810,7 @@ dialog.v8dlg{width:min(94vw,560px)}
 <section id="patrocinio" aria-labelledby="pt">
   <h2 id="pt">Patrocinadores</h2>
   <p class="lead">Empresas que acreditam no MiHelp e ajudam o app a nascer no Vale do Araguaia.</p>
-  <div class="win"><div class="bar"><span class="t">mural-de-patrocinadores.txt</span><i></i><i></i><i></i></div>
+  <div class="win"><div class="bar"><span class="t">mural-de-patrocinadores</span><i></i><i></i><i></i></div>
     <div class="body rules">
       <div class="slots"><button type="button" class="slot" data-apoio="patrocinio">Vaga aberta</button><button type="button" class="slot" data-apoio="patrocinio">Vaga aberta</button><button type="button" class="slot" data-apoio="patrocinio">Vaga aberta</button><button type="button" class="slot" data-apoio="patrocinio">Vaga aberta</button></div>
       <p><b>Quer ver sua marca aqui?</b> Patrocinadores aparecem neste mural, com nome e logo, e podem ter anúncio nas vagas pelo tempo combinado.</p>
@@ -3323,10 +3430,11 @@ function pintaLoja8(d,L,aba,aviso){clearInterval(chatTimer8);d.textContent='';
   if(!L.equipe.length)pane.append(mk8('p','note','Nenhum profissional aparece aqui ainda.'));
   L.equipe.forEach(m=>{const c=mk8('div','pcard');c.append(avatarEl(m.nome,44));const t=mk8('div','pinfo');t.append(mk8('b',null,m.nome),mk8('span','pw',[m.funcao,m.work].filter(Boolean).join(' · ')||'Equipe'));c.append(t);
    if(m.helper)c.append(botao8('💬 Chamar','pcall',()=>{d.close();chamarHelper({nome:m.nome,work:m.work})}));
+   if(m.helper){c.append(botao8('👤 Perfil','pcall',()=>{d.close();abrirPerfil(m.nome,true)}));if(window.MH_PAINEL&&MH_PAINEL.tem(m.nome))c.append(botao8('📅 Marcar','pcall',()=>{d.close();MH_PAINEL.marcar(m.nome,mhCtx())}))}
    pane.append(c)});
   const oc=L.totalEquipe-L.equipe.length;
   if(oc>0)pane.append(mk8('p','note',L.totalEquipe+' profissionais no total. '+oc+(oc>1?' preferem':' prefere')+' não aparecer aqui.'));
-  if(L.modo==='agenda')pane.append(mk8('p','note','Agendamento online: em breve.'))}
+  if(L.modo==='agenda')pane.append(mk8('p','note','Para marcar horário, toque em 📅 Marcar no profissional.'))}
  else{
   if(!L.n)pane.append(mk8('p','note','Ainda não tem avaliações.'));
   else{const dist=L.dist||[0,0,0,0,0];for(let k=5;k>=1;k--){const v=dist[k-1]||0;pane.append(mk8('div','note',k+'★  '+'▮'.repeat(Math.round(v/L.n*10))+'  '+v))}}
@@ -3353,8 +3461,12 @@ function formPedir8(d,L){d.textContent='';d.append(mk8('h3',null,'Quero fazer pa
  const l2=mk8('label','ck');const ck=document.createElement('input');ck.type='checkbox';l2.append(ck,mk8('span',null,'Mostrar meu nome no perfil público da loja'));
  const st=mk8('p','note');st.setAttribute('role','status');
  const ac=mk8('div','perfil-acoes');
- ac.append(botao8('Enviar pedido','cta2 pa-main',async()=>{st.style.color='';st.textContent='Enviando…';const r=await chama8('/equipe/pedir',{chave:L.chave,funcao:f.value.trim(),publico:ck.checked});
-  if(r.ok&&r.j&&r.j.ok){const r2=await chama8('/estabelecimentos/ver?chave='+encodeURIComponent(L.chave));pintaLoja8(d,r2.j&&r2.j.ok?r2.j:L,'equipe','Pedido enviado. Agora é só esperar o dono aprovar.')}else{st.style.color='var(--red)';st.textContent=erro8(r)}}),
+ ac.append(botao8('Enviar pedido','cta2 pa-main',async()=>{st.style.color='';st.textContent='Enviando…';const cd=(()=>{try{return JSON.parse(localStorage.getItem('mh_pedidos')||'{}')}catch(e){return {}}})(),ag=Date.now();
+  if(cd[L.chave]&&ag-cd[L.chave]<864e5){st.style.color='var(--red)';st.textContent='Você já pediu para entrar nesta loja. Espere o dono responder. Dá para tentar de novo em 24 horas.';return}
+  if(Object.values(cd).filter(t=>ag-t<864e5).length>=3){st.style.color='var(--red)';st.textContent='Você já fez 3 pedidos hoje. Tente amanhã.';return}
+  if(!confirm('Enviar pedido para entrar na equipe de '+L.nome+'? O dono vai decidir.')){st.textContent='';return}
+  const r=await chama8('/equipe/pedir',{chave:L.chave,funcao:f.value.trim(),publico:ck.checked});
+  if(r.ok&&r.j&&r.j.ok){const r2=await chama8('/estabelecimentos/ver?chave='+encodeURIComponent(L.chave));cd[L.chave]=ag;try{localStorage.setItem('mh_pedidos',JSON.stringify(cd))}catch(e){}pintaLoja8(d,r2.j&&r2.j.ok?r2.j:L,'equipe','Pedido enviado. Agora é só esperar o dono aprovar.')}else{st.style.color='var(--red)';st.textContent=erro8(r)}}),
   botao8('Voltar','more',()=>pintaLoja8(d,L,'equipe')));
  d.append(l1,l2,st,ac)}
 function formAvalLoja8(d,L){d.textContent='';d.append(mk8('h3',null,'Avaliar '+L.nome));
@@ -3429,7 +3541,8 @@ function trocasTxt8(t){
  if(t.gratis)return 'Você está nos primeiros 7 dias de Helper: trocar de ofício é grátis até '+dataBR8(t.gratisAte)+'.';
  if(t.restantes>0)return 'Você ainda pode trocar de ofício '+t.restantes+(t.restantes===1?' vez':' vezes')+' (limite de '+t.max+' por ano).';
  return 'As '+t.max+' trocas do ano acabaram. Libera de novo em '+dataBR8(t.liberaEm)+'.'}
-async function abrirEspaco8(){
+let ESPF=null;
+async function abrirEspaco8(f){ESPF=(f instanceof RegExp)?f:null;
  if(!tk8()){alert('Entre na conta de novo para abrir o Meu espaço profissional.');return}
  const d=espDlg8||(espDlg8=novoDlg8('Meu espaço profissional'));d.textContent='';d.append(mk8('p','note','Carregando…'));if(!d.open)d.showModal();
  const r=await chama8('/perfil/meu');
@@ -3438,7 +3551,7 @@ async function abrirEspaco8(){
 function pintaEspaco8(d,E,aviso){d.textContent='';
  const st=mk8('p','note');st.setAttribute('role','status');if(aviso)st.textContent=aviso;
  d.append(mk8('h3',null,'Meu espaço profissional'),st);
- const sec=t=>{const s=mk8('section','v8sec');s.append(mk8('h4',null,t));d.append(s);return s};
+ const sec=t=>{const s=mk8('section','v8sec');s.append(mk8('h4',null,t));if(!ESPF||ESPF.test(t))d.append(s);return s};
  const helper=E.papel==='helper';
  const rec=async(msg)=>{const r=await chama8('/perfil/meu');if(r.ok&&r.j&&r.j.ok){pintaEspaco8(d,r.j,msg);carregaV8()}};
  const envia=async(path,body,okMsg)=>{st.style.color='';st.textContent='Salvando…';const r=await chama8(path,body);
@@ -3533,7 +3646,7 @@ function formLoja8(d,E,L){d.textContent='';d.append(mk8('h3',null,L?'Editar '+L.
  const end=campo('Endereço (opcional)','text',100,L&&L.endereco,'Rua, número, bairro');
  const mapa=campo('Link do mapa (opcional)','text',300,L&&L.mapa,'https://maps.google.com/...');
  const wa=campo('WhatsApp da loja (opcional)','text',20,L&&L.contato,'(66) 99999-9999');
- const modo=lista('Como o cliente fala com a equipe',[['contato','Conversa (botão Chamar)'],['agenda','Agenda online (em breve; por enquanto vale como conversa)']],L?L.modo:'contato');
+ const modo=lista('Como o cliente fala com a equipe',[['contato','Conversa (botão Chamar)'],['agenda','Agenda online (o cliente marca horário com cada profissional)']],L?L.modo:'contato');
  const desc=campo('Descrição curta (opcional)','text',200,L&&L.descricao,'Horário, especialidades…');
  const lf=mk8('label',null,'Logo (opcional)');const fi=document.createElement('input');fi.type='file';fi.accept='image/*';lf.append(fi);d.append(lf);
  let logo;fi.onchange=async()=>{const f=fi.files[0];if(!f)return;try{logo=await logoRedim8(f);st.style.color='';st.textContent='Logo pronto.'}catch(e){logo=undefined;st.style.color='var(--red)';st.textContent=e.message||'Não consegui usar a imagem.'}};
@@ -3572,8 +3685,9 @@ async function abrirAdmOficios8(){
 function pessoa(nome){return (eu&&eu.nome===nome)?eu:(por(nome)||REAIS[nome])}
 function avaliar(alvo,nota_,txt){const l=AV[alvo.nome]=AV[alvo.nome]||[];const i=l.findIndex(x=>x[0]===eu.nome);const r=[eu.nome,nota_,txt];if(i>=0)l[i]=r;else l.push(r);try{if(window.MH_DB&&MH_DB.ok)MH_DB.avaliar(alvo.nome,eu.nome,nota_,txt)}catch(x){}}
 let pfDlg=null;
-function abrirPerfil(nome){
-const pes=pessoa(nome);if(!pes)return;fecharHover();
+function mhCtx(){return{eu:eu,espaco:abrirEspaco8,share:()=>compartilhar8(eu.nome+' no MiHelp',(eu.work||'Helper')+' · Vale do Araguaia',linkHelper8(eu.nome),m=>MH_PAINEL.toast(m))}}
+function abrirPerfil(nome,forca){
+const pes=pessoa(nome)||(forca?{nome,role:'helper',work:''}:null);if(!pes)return;fecharHover();
 if(!pfDlg){pfDlg=document.createElement('dialog');pfDlg.setAttribute('aria-label','Perfil');document.body.append(pfDlg);pfDlg.addEventListener('click',e=>{if(e.target===pfDlg)pfDlg.close()})}
 const d=pfDlg;d.textContent='';const meu=eu&&pes===eu;
 const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
@@ -3603,6 +3717,7 @@ if(!meu){
  else d.append(mk('p','note','Cadastre-se para conversar e avaliar.'))
 }else d.append(mk('p','note','Assim as outras pessoas veem o seu perfil.'+(l.length?' Nesta prévia, as avaliações vêm de bots de demonstração.':' A média aparece depois das primeiras avaliações.')));
 if(pes.role==='helper'&&!pes.bot&&window.MH_API&&MH_API.on()){const sh=mk('button','more pa-sec','🔗 Compartilhar');sh.type='button';sh.onclick=()=>compartilhar8(pes.nome+' no MiHelp',(pes.work||'Helper')+' · Vale do Araguaia',linkHelper8(pes.nome),m=>{sh.textContent=m;setTimeout(()=>{sh.textContent='🔗 Compartilhar'},2500)});ac.append(sh)}
+if(!meu&&pes.role==='helper'&&window.MH_PAINEL&&MH_PAINEL.tem(pes.nome)){const bk=mk('button','cta2 pa-main','📅 Marcar horário');bk.type='button';bk.onclick=()=>{d.close();MH_PAINEL.marcar(pes.nome,mhCtx())};ac.append(bk)}
 const fc=mk('button','more pa-close','Fechar');fc.type='button';fc.onclick=()=>d.close();ac.append(fc);d.append(ac);
 if(window.MH_perfilAdm&&document.body.classList.contains('adm'))window.MH_perfilAdm(pes,d);
 d.showModal()}
@@ -3684,8 +3799,8 @@ function renderMeuPerfil(novo){
   if(red&&!red.dataset.ok){red.dataset.ok='1';red.className='fechavel';red.setAttribute('role','button');red.tabIndex=0;red.setAttribute('aria-label','Fechar perfil');red.title='Fechar (vira uma aba no chat)';red.onclick=fecharPerfilJanela;red.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fecharPerfilJanela()}}}
   if(novo&&document.querySelector('.grid').classList.contains('perfil-fechado')){const q=$('perfSq');if(q)q.classList.add('novo')}
   reg.textContent=''; reg.classList.add('meu-perfil');
-  reg.append(mk('div','term','> acesso liberado.\nBem-vindo(a), '+eu.nome+'!\nJá pode conversar na sala ao lado.'));
-  reg.append(mk('h3',0,eu.nome));
+  if(!window._mhBv){window._mhBv=1;const tm=mk('div','term','> acesso liberado.\nBem-vindo(a), '+eu.nome+'!\nJá pode conversar na sala ao lado.');reg.append(tm);setTimeout(()=>{try{tm.remove()}catch(e){}},7000)}
+  const mhHd=mk('div','mhp-hd');mhHd.append(mk('h3',0,eu.nome));reg.append(mhHd);
   reg.append(mk('p','note',papelTxt(eu)));
   if(FOTO[eu.nome]==null){try{const f=localStorage.getItem('mh_foto:'+eu.nome.toLowerCase());if(f&&fotoOk(f))FOTO[eu.nome]=f}catch(e){}}
   {const card=mk('div','pf-card'),side=mk('div','pf-side'),main=mk('div','pf-main');
@@ -3720,11 +3835,11 @@ function renderMeuPerfil(novo){
    desenhaFr();main.append(fr);
    card.append(side,main);reg.append(card,em);
    if(eu.role==='helper')reg.append(mk('p','note',FOTO[eu.nome]?'Sua foto está pronta. O selo ✔ Verificado é dado pelo ADM, de graça.':'Sem foto você não pode receber o selo ✔ Verificado. Coloque uma foto do seu rosto.'))}
-  if(eu.role==='helper')reg.append(editorPortfolio());
+  if(eu.role==='helper'&&window.MH_PAINEL)reg.append(MH_PAINEL.tiles(mhCtx()));if(eu.role==='helper')reg.append(editorPortfolio());
   const sr=mk('div','st-row');sr.setAttribute('role','group');sr.setAttribute('aria-label','Meu status');
   Object.keys(ST).forEach(k=>{const b=mk('button','st-btn',ST[k]);b.type='button';b.dataset.s=k;b.setAttribute('aria-pressed',(eu.status||'disponivel')===k?'true':'false');
     b.onclick=()=>{eu.status=k;renderMeuPerfil();atualizarQuadrado();desenharOnline()};sr.append(b)});
-  reg.append(sr);
+  mhHd.append(sr);
   {const se=selosEl(eu.nome);if(se)reg.append(se)}
   reg.append(mk('h4',0,eu.role==='helper'?'Comentários sobre o seu trabalho':'Comentários sobre você'));
   const l=AV[eu.nome]||[];
@@ -3735,6 +3850,7 @@ function renderMeuPerfil(novo){
    else{const w=mk('div');w.style.cssText='display:flex;flex-wrap:wrap;gap:6px 12px';fl.forEach(n=>{const b=mk('button','nm','★ '+n);b.type='button';b.dataset.u=n;w.append(b)});reg.append(w)}
    reg.append(mk('p','note','Os favoritos ficam salvos só neste aparelho e só você vê.'))}
   reg.append(mk('p','note','Assim as outras pessoas veem o seu perfil. Nesta prévia, as avaliações vêm de bots de demonstração, com notas inventadas.'));
+  if(eu.role==='helper'&&window.MH_PAINEL)MH_PAINEL.organiza(reg);
 }
 function fazerCadastro(e){
   if(e) e.preventDefault();
@@ -6769,7 +6885,7 @@ function enriquecerPerfil(){
     c.textContent=shortCity(eu.cidade);
     wrap.appendChild(c);
   }
-  h3.after(wrap);
+  (h3.parentElement&&h3.parentElement.classList.contains('mhp-hd')?h3.parentElement:h3).after(wrap);
 }
 
 /* Empty state da lista online */
