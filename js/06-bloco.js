@@ -6,7 +6,17 @@ const ler=n=>{try{return Object.assign(pad(),JSON.parse(localStorage.getItem(K(n
 const gravar=(n,o)=>{try{localStorage.setItem(K(n),JSON.stringify(o));return true}catch(e){return false}};
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fd=k=>k.split('-').reverse().slice(0,2).join('/');
-let dlg,modo,D,snap,nome,B;
+const NOMES=['domingo','segunda','terça','quarta','quinta','sexta','sábado'],ORD=[1,2,3,4,5,6,0];
+function resumoDias(ds){const o=ORD.filter(i=>ds.includes(i));if(!o.length)return 'nenhum dia';if(o.length===7)return 'todos os dias';
+ const pos=o.map(i=>ORD.indexOf(i));const seg=pos.every((x,k)=>k===0||x===pos[k-1]+1);
+ return seg&&o.length>=3?'de '+NOMES[o[0]]+' a '+NOMES[o[o.length-1]]:o.map(i=>NOMES[i]).join(', ')}
+const hh=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'),tmin=x=>+x.slice(0,2)*60+ +x.slice(3);
+function diasDisp(a){const r=[],d0=new Date();for(let i=0;i<21&&r.length<9;i++){const x=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+i);
+ if(a.dias.includes(x.getDay())){const dd=String(x.getDate()).padStart(2,'0')+'/'+String(x.getMonth()+1).padStart(2,'0');
+  r.push([x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'),(i===0?'Hoje':i===1?'Amanhã':DIAS[x.getDay()])+'<br>'+dd])}}return r}
+function horasDisp(a,dia,P){const r=[],hj=new Date(),k=hj.getFullYear()+'-'+String(hj.getMonth()+1).padStart(2,'0')+'-'+String(hj.getDate()).padStart(2,'0'),agora=hj.getHours()*60+hj.getMinutes();
+ for(let m=tmin(a.ini);m+a.dur<=tmin(a.fim);m+=a.dur){if(dia===k&&m<=agora)continue;const x=hh(m);r.push([x,P.marcados.some(q=>q.dia===dia&&q.hora===x)])}return r}
+let dlg,modo,D,snap,nome,B,CTX;
 const dirty=()=>modo==='h'&&D&&JSON.stringify(D)!==snap;
 const sair=()=>!dirty()||confirm('Você mudou algo e não salvou. Sair sem salvar?');
 function box(){if(!dlg){dlg=document.createElement('dialog');dlg.className='mhp';dlg.setAttribute('aria-label','Agenda');document.body.append(dlg);
@@ -16,27 +26,30 @@ function box(){if(!dlg){dlg=document.createElement('dialog');dlg.className='mhp'
 function fechar(){if(!sair())return;D=null;if(dlg&&dlg.open)dlg.close()}
 function toast(m){let t=document.getElementById('mhpT');if(!t){t=document.createElement('div');t.id='mhpT';t.className='mhp-t';document.body.append(t)}t.textContent=m;t.hidden=false;clearTimeout(t._x);t._x=setTimeout(()=>t.hidden=true,2500)}
 /* ---- agenda do Helper ---- */
-function agenda(ctx){if(!ctx.eu)return;modo='h';nome=ctx.eu.nome;D=ler(nome);snap=JSON.stringify(D);tela()}
+function agenda(ctx){if(!ctx.eu)return;CTX=ctx;modo='h';nome=ctx.eu.nome;D=ler(nome);snap=JSON.stringify(D);tela()}
 function tela(){const a=D.agenda,h=[];for(let i=6;i<=22;i++)h.push(String(i).padStart(2,'0')+':00');
  const sel=(k,v)=>'<select data-k="'+k+'">'+h.map(x=>'<option'+(x===v?' selected':'')+'>'+x+'</option>').join('')+'</select>';
  const mar=D.marcados.map((m,i)=>({m,i})).sort((x,y)=>(x.m.dia+x.m.hora).localeCompare(y.m.dia+y.m.hora));
- box().innerHTML='<div class="mhp-b"><button class="mhp-x" data-a="fechar">✕ Fechar</button><h3>📅 Minha agenda</h3><p class="mhp-m">Escolha quando você atende. Quem quiser marcar só vê esses horários.</p>'
- +'<h4>Dias que atendo</h4><div class="mhp-c">'+DIAS.map((d,i)=>'<button class="mhp-chip'+(a.dias.includes(i)?' on':'')+'" data-a="dia" data-v="'+i+'">'+d+'</button>').join('')+'</div>'
- +'<label>Começo às'+sel('agenda.ini',a.ini)+'</label><label>Termino às'+sel('agenda.fim',a.fim)+'</label>'
+ const on=D.ativa!==false,sug=String((CTX&&CTX.eu&&CTX.eu.work)||'').split(/[,·\/]| e /).map(x=>x.trim()).filter(x=>x&&x.length<=40&&x.toLowerCase()!=='helper'&&!D.servicos.includes(x));
+ box().innerHTML='<div class="mhp-b"><button class="mhp-x" data-a="fechar">✕ Fechar</button><h3>📅 Minha agenda</h3><p class="mhp-m">Escolha quando você atende. Quem abrir o seu perfil já vê esses horários e marca ali mesmo.</p>'
+ +'<button class="mhp-big'+(on?' on':'')+'" data-a="lig">'+(on?'✅ Estou aceitando marcações (toque para pausar)':'⏸ Marcações pausadas (toque para voltar)')+'</button>'
+ +'<div class="mhp-r">Você atende <b>'+resumoDias(a.dias)+'</b>, das <b>'+a.ini+'</b> às <b>'+a.fim+'</b>, cada atendimento com <b>'+a.dur+' minutos</b>.</div>'
+ +'<h4>1. Dias que atendo</h4><div class="mhp-c">'+DIAS.map((d,i)=>'<button class="mhp-chip'+(a.dias.includes(i)?' on':'')+'" data-a="dia" data-v="'+i+'">'+d+'</button>').join('')+'</div>'
+ +'<h4>2. Horário</h4><label>Começo às'+sel('agenda.ini',a.ini)+'</label><label>Termino às'+sel('agenda.fim',a.fim)+'</label>'
  +'<label>Cada atendimento dura<select data-k="agenda.dur">'+[30,45,60,90,120].map(m=>'<option value="'+m+'"'+(m==a.dur?' selected':'')+'>'+m+' minutos</option>').join('')+'</select></label>'
- +'<h4>O que eu faço</h4><p class="mhp-m">Ex.: corte, pintura, conserto, aula.</p>'
- +(D.servicos.map((s,i)=>'<div class="mhp-i"><span>'+esc(s)+'</span><button data-a="tirar" data-v="'+i+'">Tirar</button></div>').join('')||'<p class="mhp-m">Nenhum serviço ainda. Sem serviço, ninguém consegue marcar.</p>')
+ +'<h4>3. O que eu faço</h4><p class="mhp-m">Ex.: corte, pintura, conserto, aula. (Se deixar vazio, a pessoa marca só o horário.)</p>'
+ +(D.servicos.map((s,i)=>'<div class="mhp-i"><span>'+esc(s)+'</span><button data-a="tirar" data-v="'+i+'">Tirar</button></div>').join('')||'<p class="mhp-m">Nenhum serviço ainda.</p>')+(sug.length?'<p class="mhp-m">Toque para adicionar:</p><div class="mhp-c">'+sug.map(x=>'<button class="mhp-chip" data-a="sug" data-v="'+esc(x)+'">➕ '+esc(x)+'</button>').join('')+'</div>':'')
  +'<div class="mhp-add"><input id="mhpNovo" maxlength="40" placeholder="Novo serviço"><button data-a="add">Adicionar</button></div>'
- +'<h4>Horários marcados ('+mar.length+')</h4>'+(mar.map(x=>'<div class="mhp-i"><span><b>'+esc(x.m.cliente)+'</b> · '+esc(x.m.serv)+'<br><small>'+fd(x.m.dia)+' às '+x.m.hora+'</small></span><button data-a="canc" data-v="'+x.i+'">Cancelar</button></div>').join('')||'<p class="mhp-m">Ninguém marcou ainda.</p>')+'</div>'
+ +'<h4>4. Quem já marcou ('+mar.length+')</h4>'+(mar.map(x=>'<div class="mhp-i"><span><b>'+esc(x.m.cliente)+'</b> · '+esc(x.m.serv)+'<br><small>'+fd(x.m.dia)+' às '+x.m.hora+'</small></span><button data-a="canc" data-v="'+x.i+'">Cancelar</button></div>').join('')||'<p class="mhp-m">Ninguém marcou ainda.</p>')+'</div>'
  +(dirty()?'<div class="mhp-s"><p>Você mudou algo e ainda não salvou</p><div><button data-a="desf">Desfazer</button><button class="ok" data-a="salvar">💾 Salvar</button></div></div>':'');
  if(!dlg.open)dlg.showModal()}
 function salvar(){const ant=JSON.parse(snap).marcados,cur=ler(nome).marcados;cur.forEach(m=>{if(!ant.some(x=>x.id===m.id)&&!D.marcados.some(x=>x.id===m.id))D.marcados.push(m)});
- if(gravar(nome,D)){snap=JSON.stringify(D);toast('✅ Salvo!')}else alert('Não consegui salvar neste aparelho.')}
+ if(D.ativa===undefined)D.ativa=true;if(gravar(nome,D)){snap=JSON.stringify(D);toast('✅ Salvo! Agora as pessoas já podem marcar no seu perfil.')}else alert('Não consegui salvar neste aparelho.')}
 /* ---- cliente marca horário ---- */
-const tem=n=>{const P=ler(n);return P.servicos.length>0&&P.agenda.dias.length>0};
+const tem=n=>{const P=ler(n);return P.agenda.dias.length>0&&P.ativa!==false&&(P.ativa===true||P.servicos.length>0)};
 function marcar(prof,ctx){const e=ctx.eu;if(!e){alert('Entre na sua conta para marcar um horário.');return}
  if(prof===e.nome){alert('Você não pode marcar horário com você mesmo.');return}
- modo='c';B={prof,st:1,serv:'',dia:'',hora:'',cli:e.nome};pintaB()}
+ const P0=ler(prof);modo='c';B={prof,st:P0.servicos.length?1:2,serv:P0.servicos.length?'':'Atendimento',dia:'',hora:'',cli:e.nome};pintaB()}
 function pintaB(){const P=ler(B.prof),a=P.agenda,n=B.st,t=s=>+s.slice(0,2)*60+ +s.slice(3);let h='<div class="mhp-b"><button class="mhp-x" data-a="fechar">✕ Fechar</button>';
  const nav=(off)=>'<div class="mhp-n">'+(n>1?'<button data-a="volt">Voltar</button>':'')+'<button class="ok" data-a="prox"'+(off?' disabled':'')+'>Próximo</button></div>';
  if(n===1)h+='<h3>1. O que você precisa?</h3><p class="mhp-m">Com '+esc(B.prof)+'</p>'+P.servicos.map((s,i)=>'<button class="mhp-big'+(B.serv===s?' on':'')+'" data-a="serv" data-v="'+i+'">'+esc(s)+'</button>').join('')+nav(!B.serv);
@@ -51,6 +64,8 @@ function clique(e){const b=e.target.closest('[data-a]');if(!b||b.disabled)return
  if(a==='fechar')return fechar();
  if(modo==='h'){if(a==='dia'){const d=D.agenda.dias,i=d.indexOf(+v);i<0?d.push(+v):d.splice(i,1)}
   else if(a==='tirar')D.servicos.splice(+v,1);
+  else if(a==='lig')D.ativa=D.ativa===false;
+  else if(a==='sug'){if(v&&!D.servicos.includes(v))D.servicos.push(v)}
   else if(a==='add'){const t=document.getElementById('mhpNovo').value.trim();if(!t)return;D.servicos.push(t.slice(0,40))}
   else if(a==='canc'){if(!confirm('Cancelar este horário?'))return;D.marcados.splice(+v,1)}
   else if(a==='desf')D=JSON.parse(snap);
@@ -62,6 +77,28 @@ function clique(e){const b=e.target.closest('[data-a]');if(!b||b.disabled)return
  else if(a==='conf'){if(P.marcados.some(m=>m.dia===B.dia&&m.hora===B.hora)){B.st=3;B.hora='';pintaB();return toast('Esse horário acabou de ser marcado. Escolha outro.')}
   P.marcados.push({id:Date.now(),cliente:B.cli,serv:B.serv,dia:B.dia,hora:B.hora});if(!gravar(B.prof,P))return alert('Não consegui marcar. Tente de novo.');B.st=5}
  pintaB()}
+
+/* ---- marcar horário direto no perfil (tudo numa tela só) ---- */
+function embutido(prof,ctx){const w=document.createElement('div');w.className='mhp-emb';const P0=ler(prof),a=P0.agenda;
+ const S={serv:P0.servicos.length===1?P0.servicos[0]:(P0.servicos.length?'':'Atendimento'),dia:'',hora:'',ok:false};
+ function pinta(){const P=ler(prof);let h='<h4>📅 Marcar horário com '+esc(prof)+'</h4><p class="mhp-m">Atende <b>'+resumoDias(a.dias)+'</b>, das <b>'+a.ini+'</b> às <b>'+a.fim+'</b>.</p>';
+  if(S.ok){w.innerHTML=h+'<div class="mhp-r" style="text-align:center"><div style="font-size:44px">✅</div><b>Horário marcado!</b><br>'+(S.serv&&S.serv!=='Atendimento'?esc(S.serv)+'<br>':'')+fd(S.dia)+' às '+S.hora+'<br><small>Aparece na agenda de '+esc(prof)+'.</small></div>';return}
+  if(P.servicos.length){h+='<h4>1. O que você precisa?</h4>'+P.servicos.map((x,i)=>'<button class="mhp-big'+(S.serv===x?' on':'')+'" data-a="serv" data-v="'+i+'">'+esc(x)+'</button>').join('')}
+  if(S.serv){h+='<h4>'+(P.servicos.length?'2':'1')+'. Qual dia?</h4><div class="mhp-c">'+diasDisp(a).map(x=>'<button class="mhp-chip'+(S.dia===x[0]?' on':'')+'" data-a="dia" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'}
+  if(S.serv&&S.dia){const hs=horasDisp(a,S.dia,P);h+='<h4>'+(P.servicos.length?'3':'2')+'. Que horas?</h4>'+(hs.length?'<div class="mhp-c">'+hs.map(x=>'<button class="mhp-chip'+(S.hora===x[0]?' on':'')+'" data-a="hora" data-v="'+x[0]+'"'+(x[1]?' disabled':'')+'>'+x[0]+'</button>').join('')+'</div>':'<p class="mhp-m">Não tem mais horário nesse dia. Escolha outro dia.</p>')}
+  if(S.serv&&S.dia&&S.hora){h+='<div class="mhp-r"><b>Resumo:</b> '+(S.serv!=='Atendimento'?esc(S.serv)+', ':'')+fd(S.dia)+' às '+S.hora+'</div><button class="cta2 mhp-go" data-a="conf">✅ Marcar este horário</button>'}
+  w.innerHTML=h}
+ w.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.disabled)return;const x=b.dataset.a,v=b.dataset.v,P=ler(prof);
+  if(x==='serv')S.serv=P.servicos[+v];else if(x==='dia'){S.dia=v;S.hora=''}else if(x==='hora')S.hora=v;
+  else if(x==='conf'){const u=ctx.eu;if(!u){alert('Entre na sua conta para marcar um horário.');return}
+   if(prof===u.nome){alert('Você não pode marcar horário com você mesmo.');return}
+   if(P.marcados.some(m=>m.dia===S.dia&&m.hora===S.hora)){S.hora='';pinta();return toast('Esse horário acabou de ser marcado. Escolha outro.')}
+   P.marcados.push({id:Date.now(),cliente:u.nome,serv:S.serv,dia:S.dia,hora:S.hora});if(!gravar(prof,P))return alert('Não consegui marcar. Tente de novo.');S.ok=true}
+  pinta()});
+ pinta();return w}
+function cartaoMeu(ctx,antes){const w=document.createElement('div');w.className='mhp-emb';const nm=ctx.eu&&ctx.eu.nome,P=ler(nm),ok=tem(nm);
+ w.innerHTML='<h4>📅 Minha agenda</h4><p class="mhp-m">'+(ok?'Quem abrir o seu perfil vê: atende <b>'+resumoDias(P.agenda.dias)+'</b>, das <b>'+P.agenda.ini+'</b> às <b>'+P.agenda.fim+'</b>.':'Abra a sua agenda para os clientes marcarem horário direto aqui no seu perfil.')+'</p><button class="cta2 mhp-go" data-a="ag">'+(ok?'✏️ Mudar minha agenda':'📅 Abrir minha agenda')+'</button>';
+ w.querySelector('button').onclick=()=>{if(antes)antes();agenda(ctx)};return w}
 /* ---- botões do Meu perfil ---- */
 let ABERTA='';
 function aplica(){const r=document.getElementById('reg');if(!r)return;r.querySelectorAll('.mhp-sec').forEach(x=>{x.hidden=x.dataset.s!==ABERTA;if(!x.hidden&&x.dataset.s==='port'){const d=x.querySelector('details');if(d)d.open=true}});r.querySelectorAll('.mhp-g button[data-s]').forEach(b=>b.classList.toggle('on',b.dataset.s===ABERTA))}
@@ -74,4 +111,4 @@ function organiza(r){const kids=[...r.children],txt=n=>n.textContent||'';
 function tiles(ctx){const w=document.createElement('div');w.className='mhp-tiles';w.innerHTML='<h4>Meu painel</h4><div class="mhp-g"></div>';const g=w.lastChild;
  [['📅','Minha agenda',()=>agenda(ctx)],['🏪','Minha loja',()=>ctx.espaco(/^(Meus estabelecimentos|Minhas equipes|Convites)/)],['⭐','Avaliações',()=>mostrar('aval'),'aval'],['🖼️','Portfólio e contatos',()=>mostrar('port'),'port'],['❤️','Favoritos',()=>mostrar('fav'),'fav'],['🔒','Conta e privacidade',()=>ctx.espaco(/^(Privacidade|Meus ofícios|Minha conta)/)],['📤','Compartilhar perfil',()=>ctx.share()]]
  .forEach(x=>{const b=document.createElement('button');b.type='button';if(x[3])b.dataset.s=x[3];b.innerHTML='<span>'+x[0]+'</span>'+x[1];b.onclick=x[2];g.append(b)});return w}
-return{tiles,tem,marcar,toast,organiza}})();
+return{tiles,tem,marcar,toast,organiza,embutido,cartaoMeu}})();

@@ -614,11 +614,11 @@ function pintaLoja8(d,L,aba,aviso){clearInterval(chatTimer8);d.textContent='';
    if(!(eu&&m.nome===eu.nome)&&m.chamar!==false){const pp={nome:m.nome,work:m.work||m.funcao,role:m.helper===false?'cliente':'helper'};
     const r0=resumo(m.nome);if(r0)t.append(mk8('span','pe',estr(Math.round(r0.m))+' '+r0.m.toFixed(1).replace('.',',')+' ('+r0.n+')'));
     c.append(botao8('👤 Perfil','pcall',()=>{d.close();chamarHelper(pp)}),botao8('💬 Privado','pcall',()=>{d.close();chamarHelper(pp);try{abrirPrivado(m.nome)}catch(e){}}));
-    if(m.helper!==false&&window.MH_PAINEL&&MH_PAINEL.tem(m.nome))c.append(botao8('📅 Marcar','pcall',()=>{d.close();MH_PAINEL.marcar(m.nome,mhCtx())}))}
+    if(m.helper!==false&&window.MH_PAINEL&&MH_PAINEL.tem(m.nome)){c.style.flexWrap='wrap';const mb=botao8('📅 Marcar horário','cta2',()=>{d.close();MH_PAINEL.marcar(m.nome,mhCtx())});mb.style.cssText='flex:1 1 100%;margin-top:6px;padding:13px;font-size:16px';c.append(mb)}}
    pane.append(c)});
   const oc=L.totalEquipe-L.equipe.length;
   if(oc>0)pane.append(mk8('p','note',L.totalEquipe+' profissionais no total. '+oc+(oc>1?' preferem':' prefere')+' não aparecer aqui.'));
-  if(L.modo==='agenda')pane.append(mk8('p','note','Para marcar horário, toque em 📅 Marcar no profissional.'))}
+  if(L.modo==='agenda'&&window.MH_PAINEL&&L.equipe.some(m=>m.helper!==false&&MH_PAINEL.tem(m.nome)))pane.append(mk8('p','note','Para marcar horário, toque em "Marcar horário" embaixo do nome do profissional.'))}
  else{
   if(!L.n)pane.append(mk8('p','note','Ainda não tem avaliações.'));
   else{const dist=L.dist||[0,0,0,0,0];for(let k=5;k>=1;k--){const v=dist[k-1]||0;pane.append(mk8('div','note',k+'★  '+'▮'.repeat(Math.round(v/L.n*10))+'  '+v))}}
@@ -819,9 +819,9 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
   if(!E.lojas.length)s.append(mk8('p','note','Você ainda não criou nenhum. Barbearia, salão, loja de motos, oficina: crie e monte a sua equipe.'));
   E.lojas.forEach(L=>{
    const box=mk8('div','v8card');const row=mk8('div','v8row');row.append(mk8('b',null,L.nome),mk8('span','note',L.tipo+(CID8[L.cidade]?' · '+CID8[L.cidade]:'')));
-   row.append(botao8('Ver perfil','more',()=>{d.close();abrirLoja8(L.chave)}),botao8('Editar','more',()=>formLoja8(d,E,L)),botao2x8('Apagar','more',()=>envia('/estabelecimentos/apagar',{chave:L.chave},'Estabelecimento apagado.')));
-   box.append(row);if(L.favs>0)box.append(mk8('p','note','⭐ '+L.favs+(L.favs===1?' pessoa favoritou':' pessoas favoritaram')+' esta loja.'));
-   box.append(botao8('🔗 Compartilhar a loja','more',()=>compartilhar8(L.nome+' no MiHelp',L.tipo,linkLoja8(L.chave),m=>{st.style.color='';st.textContent=m})),mk8('h4',null,'Equipe'));
+   const acts=mk8('div','v8acts');acts.append(botao8('👁 Ver perfil','more',()=>{d.close();abrirLoja8(L.chave)}),botao8('✏️ Editar','more',()=>formLoja8(d,E,L)),botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',L.tipo,linkLoja8(L.chave),m=>{st.style.color='';st.textContent=m})),botao2x8('🗑 Apagar','more',()=>envia('/estabelecimentos/apagar',{chave:L.chave},'Estabelecimento apagado.')));
+   box.append(row,acts);if(L.favs>0)box.append(mk8('p','note','⭐ '+L.favs+(L.favs===1?' pessoa favoritou':' pessoas favoritaram')+' esta loja.'));
+   box.append(mk8('h4',null,'Equipe'));
    if(!L.equipe.length)box.append(mk8('p','note','Ninguém na equipe ainda. Convide pelo telefone abaixo.'));
    L.equipe.forEach(m=>{const r2=mk8('div','v8row');const rot=m.status==='aceito'?'na equipe'+(m.publico?'':' (oculto no perfil público)'):m.status==='pedido'?'pediu para entrar':'convite enviado, esperando aceite';
     r2.append(mk8('span',null,m.nome+(m.funcao?' · '+m.funcao:'')+(m.eu?' (você)':'')+' — '+rot));
@@ -830,28 +830,62 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
      if(m.status==='aceito'&&!m.eu){const sel=document.createElement('select');sel.setAttribute('aria-label','Cargo de '+m.nome);[['nenhum','Sem acesso ao chat'],['atendente','Atendente (clientes + equipe)'],['interno','Só chat da equipe']].forEach(([v,t])=>sel.add(new Option(t,v)));sel.value=m.cargo||'nenhum';sel.onchange=()=>envia('/equipe/cargo',{id:m.id,cargo:sel.value},'Cargo atualizado.');r2.append(sel)}
      r2.append(botao2x8('Remover','more',()=>envia('/equipe/remover',{id:m.id},'Removido.')))}
     box.append(r2)});
-   const l1=mk8('label',null,'Convidar pelo telefone');const tel=document.createElement('input');tel.type='text';tel.inputMode='tel';tel.placeholder='(66) 99999-9999';tel.maxLength=20;l1.append(tel);
-   const l2=mk8('label',null,'Função (opcional)');const fn=document.createElement('input');fn.type='text';fn.maxLength=30;fn.placeholder='Ex.: Barbeiro, Vendedor';l2.append(fn);
-   box.append(l1,l2,botao8('Enviar convite','more',()=>envia('/equipe/convidar',{chave:L.chave,tel:tel.value,funcao:fn.value.trim()},'Se esse telefone tiver conta no MiHelp, o convite aparece para a pessoa. Ela decide se aceita e se o nome dela aparece.')));
+   const cv=mk8('div');cv.hidden=true;const l1=mk8('label',null,'Telefone da pessoa');const tel=document.createElement('input');tel.type='text';tel.inputMode='tel';tel.placeholder='(66) 99999-9999';tel.maxLength=20;l1.append(tel);
+   const l2=mk8('label',null,'Função da pessoa (se quiser)');const fn=document.createElement('input');fn.type='text';fn.maxLength=30;fn.placeholder='Ex.: Barbeiro, Vendedor';l2.append(fn);
+   cv.append(l1,l2,botao8('Enviar convite','cta2',()=>envia('/equipe/convidar',{chave:L.chave,tel:tel.value,funcao:fn.value.trim()},'Se esse telefone tiver conta no MiHelp, o convite aparece para a pessoa. Ela decide se aceita e se o nome dela aparece.')));
+   box.append(botao8('➕ Chamar alguém para a equipe','more',()=>{cv.hidden=!cv.hidden}),cv);
    s.append(box)});
-  if(E.lojas.length<3)s.append(botao8('➕ Criar estabelecimento','cta2',()=>formLoja8(d,E,null)))}
+  if(E.lojas.length<3)s.append(botao8('➕ Criar meu negócio','cta2 v8go',()=>criarLoja8(d,E)))}
  d.append(botao8('Fechar','more pa-close',()=>d.close()))}
+
+/* ===== criar negócio em passos (um toque por tela) ===== */
+function criarLoja8(d,E){
+ const S={n:1,nome:'',tipo:'',cidade:'',modo:'contato',atende:true,envio:false},TOT=6;
+ const st=mk8('p','note');st.setAttribute('role','status');
+ function pinta(){d.textContent='';
+  const topo=mk8('div','v8row v8cab');topo.style.justifyContent='space-between';topo.append(mk8('h3',null,'Criar meu negócio'),botao8('✕ Fechar','more',()=>d.close()));
+  d.append(topo,mk8('p','note','Passo '+S.n+' de '+TOT));
+  const volta=botao8('← Voltar','more',()=>{if(S.n>1){S.n--;pinta()}else abrirEspaco8()});
+  const opcoes=(lista,atual,fn,um)=>{const g=mk8('div','v8big'+(um?' um':''));lista.forEach(o=>{const b=mk8('button',atual===o[0]?'on':'',o[1]);b.type='button';if(o[2]){const sm=mk8('small',null,o[2]);b.append(sm)}b.onclick=()=>fn(o[0]);g.append(b)});return g};
+  const prox=()=>{S.n++;pinta()};
+  if(S.n===1){d.append(mk8('p','v8passo','Qual é o nome do seu negócio?'));
+   const i=document.createElement('input');i.type='text';i.maxLength=60;i.className='v8grande';i.placeholder='Ex.: Barbearia do João';i.value=S.nome;i.setAttribute('aria-label','Nome do negócio');
+   const ir=botao8('Continuar →','cta2 v8go',()=>{S.nome=i.value.trim();prox()});ir.disabled=i.value.trim().length<2;
+   i.oninput=()=>{ir.disabled=i.value.trim().length<2};i.addEventListener('keydown',e=>{if(e.key==='Enter'&&!ir.disabled){e.preventDefault();ir.click()}});
+   d.append(i,ir);setTimeout(()=>{try{i.focus()}catch(e){}},50)}
+  else if(S.n===2){d.append(mk8('p','v8passo','Que tipo de negócio é?'),mk8('p','note','Toque no que mais combina.'),opcoes((E.tipos||[]).map(t=>[t,t]),S.tipo,v=>{S.tipo=v;prox()}))}
+  else if(S.n===3){d.append(mk8('p','v8passo','Em qual cidade fica?'),opcoes(Object.keys(E.cidades).map(k=>[k,E.cidades[k]]),S.cidade,v=>{S.cidade=v;prox()},true))}
+  else if(S.n===4){d.append(mk8('p','v8passo','Como o cliente vai falar com vocês?'),opcoes([['contato','💬 Por conversa','O cliente toca em Chamar e fala com vocês'],['agenda','📅 Marcando horário','O cliente escolhe o dia e a hora com cada profissional']],S.modo,v=>{S.modo=v;prox()},true))}
+  else if(S.n===5){d.append(mk8('p','v8passo','Você também trabalha nesse lugar?'),mk8('p','note','Se sim, o seu nome aparece na equipe.'),opcoes([['s','✅ Sim, eu atendo aqui'],['n','Não, só sou o dono']],S.atende?'s':'n',v=>{S.atende=v==='s';prox()},true))}
+  else{d.append(mk8('p','v8passo','Confere se está certo'));
+   const r=mk8('div','v8resumo');[['Nome',S.nome],['Tipo',S.tipo],['Cidade',E.cidades[S.cidade]||S.cidade],['Clientes falam',S.modo==='agenda'?'Marcando horário':'Por conversa'],['Você atende aí',S.atende?'Sim':'Não']].forEach(x=>{const l=document.createElement('div');const b=document.createElement('b');b.textContent=x[0]+': ';l.append(b,document.createTextNode(x[1]));r.append(l)});
+   d.append(r,mk8('p','note','Depois você pode colocar endereço, WhatsApp, logo e horário tocando em "Editar".'),st);
+   const ok=botao8('✅ Criar meu negócio','cta2 v8go',async()=>{if(S.envio)return;S.envio=true;ok.disabled=true;st.style.color='';st.textContent='Criando…';
+    const body={nome:S.nome,tipo:S.tipo,cidade:S.cidade,endereco:'',mapa:'',contato:'',modo:S.modo,descricao:'',chat:true,horario:horarioEditor8(null).valor(),atende:S.atende,funcao:''};
+    const r2=await chama8('/estabelecimentos',body);
+    if(r2.ok&&r2.j&&r2.j.ok){carregaV8();const r3=await chama8('/perfil/meu');if(r3.ok&&r3.j&&r3.j.ok)pintaEspaco8(d,r3.j,'Pronto! Seu negócio foi criado. Agora chame a sua equipe.');else abrirEspaco8()}
+    else{S.envio=false;ok.disabled=false;st.style.color='var(--red)';st.textContent=erro8(r2)}});
+   d.append(ok)}
+  if(S.n!==1||true)d.append(volta)}
+ pinta()}
 function formLoja8(d,E,L){d.textContent='';d.append(mk8('h3',null,L?'Editar '+L.nome:'Criar estabelecimento'));
  const st=mk8('p','note');st.setAttribute('role','status');
- const campo=(rot,tipo,max,val,ph)=>{const l=mk8('label',null,rot);const i=document.createElement('input');i.type=tipo||'text';i.maxLength=max||60;i.value=val||'';if(ph)i.placeholder=ph;l.append(i);d.append(l);return i};
- const lista=(rot,opts,val)=>{const l=mk8('label',null,rot);const s=document.createElement('select');opts.forEach(([v,t])=>s.add(new Option(t,v)));s.value=val;l.append(s);d.append(l);return s};
+ let alvo=d;
+ const campo=(rot,tipo,max,val,ph)=>{const l=mk8('label',null,rot);const i=document.createElement('input');i.type=tipo||'text';i.maxLength=max||60;i.value=val||'';if(ph)i.placeholder=ph;l.append(i);alvo.append(l);return i};
+ const lista=(rot,opts,val)=>{const l=mk8('label',null,rot);const s=document.createElement('select');opts.forEach(([v,t])=>s.add(new Option(t,v)));s.value=val;l.append(s);alvo.append(l);return s};
  const nome=campo('Nome do estabelecimento','text',60,L&&L.nome,'Ex.: Social Clube');
  const tipo=lista('Tipo de negócio (ofício)',E.tipos.map(t=>[t,t]),L?L.tipo:E.tipos[0]);
  const cid=lista('Cidade',Object.keys(E.cidades).map(k=>[k,E.cidades[k]]),L?L.cidade:'barra-do-garcas');
+ const modo=lista('Como o cliente fala com a equipe',[['contato','Conversa (botão Chamar)'],['agenda','Marcando horário (o cliente escolhe dia e hora)']],L?L.modo:'contato');
+ const det=document.createElement('details');det.append(mk8('summary',null,'➕ Mais informações (só se quiser)'));d.append(det);alvo=det;
  const end=campo('Endereço (opcional)','text',100,L&&L.endereco,'Rua, número, bairro');
  const mapa=campo('Link do mapa (opcional)','text',300,L&&L.mapa,'https://maps.google.com/...');
  const wa=campo('WhatsApp da loja (opcional)','text',20,L&&L.contato,'(66) 99999-9999');
- const modo=lista('Como o cliente fala com a equipe',[['contato','Conversa (botão Chamar)'],['agenda','Agenda online (o cliente marca horário com cada profissional)']],L?L.modo:'contato');
  const desc=campo('Descrição curta (opcional)','text',200,L&&L.descricao,'Horário, especialidades…');
- const lf=mk8('label',null,'Logo (opcional)');const fi=document.createElement('input');fi.type='file';fi.accept='image/*';lf.append(fi);d.append(lf);
+ const lf=mk8('label',null,'Logo (opcional)');const fi=document.createElement('input');fi.type='file';fi.accept='image/*';lf.append(fi);det.append(lf);
  let logo;fi.onchange=async()=>{const f=fi.files[0];if(!f)return;try{logo=await logoRedim8(f);st.style.color='';st.textContent='Logo pronto.'}catch(e){logo=undefined;st.style.color='var(--red)';st.textContent=e.message||'Não consegui usar a imagem.'}};
- const chatCk=mk8('label','ck');const chatIn=document.createElement('input');chatIn.type='checkbox';chatIn.checked=L?L.chat!==0:true;chatCk.append(chatIn,mk8('span',null,'Receber conversas de clientes no perfil da loja (chat de atendimento)'));d.append(chatCk);
- d.append(mk8('h4',null,'Horário de funcionamento (opcional)'));const hed=horarioEditor8(L&&L.horario);d.append(hed.el);
+ const chatCk=mk8('label','ck');const chatIn=document.createElement('input');chatIn.type='checkbox';chatIn.checked=L?L.chat!==0:true;chatCk.append(chatIn,mk8('span',null,'Receber conversas de clientes no perfil da loja (chat de atendimento)'));det.append(chatCk);
+ det.append(mk8('h4',null,'Horário de funcionamento (opcional)'));const hed=horarioEditor8(L&&L.horario);det.append(hed.el);alvo=d;
  let atende,fun;
  if(!L){const l=mk8('label','ck');atende=document.createElement('input');atende.type='checkbox';l.append(atende,mk8('span',null,'Eu também atendo aqui (aparece o meu nome na equipe)'));d.append(l);fun=campo('Minha função (opcional)','text',30,'','Ex.: Barbeiro, Dono')}
  d.append(st);
@@ -901,6 +935,7 @@ if(r){d.append(mk('p','stars',estr(Math.round(r.m))+'  '+r.m.toFixed(1).replace(
 else{const q=mk('p','stars','☆☆☆☆☆ · ainda sem avaliação');d.append(q);d.append(mk('span','badge-novo','Novo na feira'))}
 if(pes.bot)d.append(mk('p','note','Avaliações de exemplo, com notas inventadas para mostrar como vai funcionar.'));
 {const se=selosEl(pes.nome);if(se)d.append(se)}
+if(pes.role==='helper'&&!pes.bot&&window.MH_PAINEL){try{if(meu)d.append(MH_PAINEL.cartaoMeu(mhCtx(),()=>d.close()));else if(MH_PAINEL.tem(pes.nome))d.append(MH_PAINEL.embutido(pes.nome,mhCtx()))}catch(x){}}
 if(pes.role==='helper'){const ph=mk('div');d.append(ph);const pr=()=>{const e=portfolioEl(pes.nome);ph.textContent='';if(e)ph.append(e)};if(meu)carregarPortLocal();pr();if(!meu)carregaPort(pes.nome).then(()=>{if(d.open)pr()})}
 d.append(mk('h4',0,pes.role==='helper'?'Comentários sobre o trabalho':'Comentários sobre o cliente'));
 const l=AV[pes.nome]||[];
@@ -917,7 +952,6 @@ if(!meu){
  else d.append(mk('p','note','Cadastre-se para conversar e avaliar.'))
 }else d.append(mk('p','note','Assim as outras pessoas veem o seu perfil.'+(l.length?' Nesta prévia, as avaliações vêm de bots de demonstração.':' A média aparece depois das primeiras avaliações.')));
 if(pes.role==='helper'&&!pes.bot&&window.MH_API&&MH_API.on()){const sh=mk('button','more pa-sec','🔗 Compartilhar');sh.type='button';sh.onclick=()=>compartilhar8(pes.nome+' no MiHelp',(pes.work||'Helper')+' · Vale do Araguaia',linkHelper8(pes.nome),m=>{sh.textContent=m;setTimeout(()=>{sh.textContent='🔗 Compartilhar'},2500)});ac.append(sh)}
-if(!meu&&pes.role==='helper'&&window.MH_PAINEL&&MH_PAINEL.tem(pes.nome)){const bk=mk('button','cta2 pa-main','📅 Marcar horário');bk.type='button';bk.onclick=()=>{d.close();MH_PAINEL.marcar(pes.nome,mhCtx())};ac.append(bk)}
 const fc=mk('button','more pa-close','Fechar');fc.type='button';fc.onclick=()=>d.close();ac.append(fc);d.append(ac);
 if(window.MH_perfilAdm&&document.body.classList.contains('adm'))window.MH_perfilAdm(pes,d);
 d.showModal()}

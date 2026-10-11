@@ -26,3 +26,17 @@ dialog.mhp::backdrop{background:rgba(0,0,0,.85)}
 #reg .mhp-hd .st-btn{padding:7px 11px;min-height:0;width:auto;flex:none;font-size:13px;white-space:nowrap}
 .mhp-g button.on{border-color:var(--gold);background:rgba(var(--gold-rgb),.12);color:var(--gold2)}
 .mhp-g button:last-child:nth-child(odd){grid-column:1/-1}.mhp-sec{margin-top:6px}.mhp-sec[hidden]{display:none}
+.v8dlg summary{cursor:pointer;font-weight:700;padding:12px 0;font-size:15px}
+.v8acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.v8acts button{min-height:48px;font-size:15px}
+.v8big{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}.v8big.um{grid-template-columns:1fr}
+.v8big button{min-height:60px;padding:12px;border-radius:14px;border:2px solid var(--line);background:var(--bg);color:var(--text);font:700 17px var(--sans);cursor:pointer;text-align:center}
+.v8big button small{display:block;font-weight:400;font-size:13px;color:var(--mute);margin-top:4px}
+.v8big button.on{background:var(--gold);border-color:var(--gold);color:#201804}
+.v8dlg input.v8grande{min-height:58px;font-size:19px}
+.v8passo{font-size:21px;font-weight:800;margin:14px 0 6px}
+.v8resumo{background:var(--bg);border-radius:12px;padding:14px;line-height:1.9;font-size:17px;margin:10px 0}
+.v8go{display:block;width:100%;padding:17px;margin-top:12px;font-size:19px;font-weight:800;border-radius:14px}
+.mhp-emb{border:2px solid var(--line);border-radius:14px;padding:4px 14px 16px;margin:14px 0;background:rgba(127,127,127,.06);text-align:left}
+.mhp-emb h4{margin:14px 0 6px;font-size:17px}.mhp-emb .mhp-m{font-size:15px}
+.mhp-go{display:block;width:100%;padding:17px;margin-top:12px;font-size:19px;font-weight:800;border-radius:14px}
+.mhp-emb .mhp-c{margin-bottom:4px}
