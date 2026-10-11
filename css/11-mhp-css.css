@@ -40,3 +40,18 @@ dialog.mhp::backdrop{background:rgba(0,0,0,.85)}
 .mhp-emb h4{margin:14px 0 6px;font-size:17px}.mhp-emb .mhp-m{font-size:15px}
 .mhp-go{display:block;width:100%;padding:17px;margin-top:12px;font-size:19px;font-weight:800;border-radius:14px}
 .mhp-emb .mhp-c{margin-bottom:4px}
+
+.v8serv{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}
+.v8servinfo{display:flex;flex-direction:column;gap:2px}.v8servinfo b{font-size:16px}
+.v8servinfo .note{margin:0}
+.v8dias{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.v8dia{min-width:58px;padding:8px 6px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--text);cursor:pointer;text-align:center;font:700 17px var(--sans)}
+.v8dia small{display:block;font-size:10px;font-weight:700;color:var(--mute);letter-spacing:.3px}
+.v8dia.on{background:var(--gold);border-color:var(--gold);color:#201804}.v8dia.on small{color:#201804}.v8dia.off{opacity:.45}
+.v8hrs{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.v8pros{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.v8pro{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 12px;border-radius:14px;border:2px solid var(--line);background:var(--bg);color:var(--text);cursor:pointer;font:700 14px var(--sans);min-width:96px}
+.v8pro.on{border-color:var(--gold)}
+.v8ok{font-size:54px;text-align:center;margin:6px 0}
+.mhp-big small{display:block;font-weight:400;font-size:14px;opacity:.75;margin-top:2px}
+.v8lin{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}

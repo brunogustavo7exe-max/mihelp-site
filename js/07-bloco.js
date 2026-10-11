@@ -574,11 +574,11 @@ const erro8=r=>((r&&r.j&&r.j.erro)||'Não deu certo. Tente de novo.')+(r&&r.j&&r
 const botao8=(txt,cls,fn)=>{const b=mk8('button',cls||'more',txt);b.type='button';b.onclick=fn;return b};
 /* botão que pede um segundo toque (apagar, sair, etc.) */
 const botao2x8=(txt,cls,fn)=>{let t=0;const b=botao8(txt,cls,()=>{if(!t){t=setTimeout(()=>{t=0;b.textContent=txt},4000);b.textContent='Toque de novo para confirmar';return}clearTimeout(t);t=0;b.textContent=txt;fn()});return b};
-async function abrirLoja8(chave){
+async function abrirLoja8(chave,opc){
  const d=lojaDlg8||(lojaDlg8=novoDlg8('Estabelecimento'));d.textContent='';d.append(mk8('p','note','Carregando…'));if(!d.open)d.showModal();
  const r=await chama8('/estabelecimentos/ver?chave='+encodeURIComponent(chave));
  if(!r.ok||!(r.j&&r.j.ok)){d.textContent='';d.append(mk8('p','note',erro8(r)),botao8('Fechar','more',()=>d.close()));return}
- pintaLoja8(d,r.j,'equipe')}
+ if(opc&&opc.pro)r.j._pro=opc.pro;pintaLoja8(d,r.j,(opc&&opc.aba)||(r.j.modo==='agenda'&&(r.j.servicos||[]).length?'serv':'equipe'))}
 function horarioTxt8(h){if(!h||!Array.isArray(h.d))return[];const N=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];return [1,2,3,4,5,6,0].map(i=>N[i]+': '+((h.d[i]||[]).length?h.d[i].map(x=>x.replace('-','–')).join(' e '):'fechado'))}
 function pintaLoja8(d,L,aba,aviso){clearInterval(chatTimer8);d.textContent='';
  const top=mk8('div','v8head');top.append(avatarLoja8(L,64));
@@ -604,21 +604,21 @@ function pintaLoja8(d,L,aba,aviso){clearInterval(chatTimer8);d.textContent='';
   if(L.acesso&&L.acesso.interno)ch.append(botao8('🔒 Chat da equipe','more',()=>abrirChat8(d,L,'i','Chat da equipe',()=>pintaLoja8(d,L,aba))));
   d.append(ch)}
  const tabs=mk8('div','v8tabs');
- [['equipe','Equipe ('+L.totalEquipe+')'],['aval','Avaliações ('+L.n+')']].forEach(([k,t])=>{const b=mk8('button',null,t);b.type='button';b.setAttribute('aria-selected',String(aba===k));b.onclick=()=>pintaLoja8(d,L,k);tabs.append(b)});
+ ((L.modo==='agenda'&&((L.servicos||[]).length||L.souDono)?[['serv','Serviços ('+(L.servicos||[]).length+')']]:[]).concat([['equipe','Equipe ('+L.totalEquipe+')'],['aval','Avaliações ('+L.n+')']])).forEach(([k,t])=>{const b=mk8('button',null,t);b.type='button';b.setAttribute('aria-selected',String(aba===k));b.onclick=()=>pintaLoja8(d,L,k);tabs.append(b)});
  d.append(tabs);
  const pane=mk8('div');
- if(aba==='equipe'){
+ if(aba==='serv'){painelServ8(pane,d,L)}else if(aba==='equipe'){
   if(!L.equipe.length)pane.append(mk8('p','note','Nenhum profissional aparece aqui ainda.'));
   L.equipe.forEach(m=>{const c=mk8('div','pcard');c.append(avatarEl(m.nome,44));const t=mk8('div','pinfo');t.append(mk8('b',null,m.nome),mk8('span','pw',[m.funcao,m.work].filter(Boolean).join(' · ')||'Equipe'));c.append(t);
    /* todos da equipe (exceto você) podem ser vistos e chamados no privado, a menos que a pessoa tenha desligado */
    if(!(eu&&m.nome===eu.nome)&&m.chamar!==false){const pp={nome:m.nome,work:m.work||m.funcao,role:m.helper===false?'cliente':'helper'};
     const r0=resumo(m.nome);if(r0)t.append(mk8('span','pe',estr(Math.round(r0.m))+' '+r0.m.toFixed(1).replace('.',',')+' ('+r0.n+')'));
     c.append(botao8('👤 Perfil','pcall',()=>{d.close();chamarHelper(pp)}),botao8('💬 Privado','pcall',()=>{d.close();chamarHelper(pp);try{abrirPrivado(m.nome)}catch(e){}}));
-    if(m.helper!==false&&window.MH_PAINEL&&MH_PAINEL.tem(m.nome)){c.style.flexWrap='wrap';const mb=botao8('📅 Marcar horário','cta2',()=>{d.close();MH_PAINEL.marcar(m.nome,mhCtx())});mb.style.cssText='flex:1 1 100%;margin-top:6px;padding:13px;font-size:16px';c.append(mb)}}
+    if(m.helper!==false&&m.ag&&L.modo==='agenda'&&(L.servicos||[]).length){c.style.flexWrap='wrap';const mb=botao8('📅 Marcar horário','cta2',()=>reservar8(d,L,{pro:m.nome}));mb.style.cssText='flex:1 1 100%;margin-top:6px;padding:13px;font-size:16px';c.append(mb)}}
    pane.append(c)});
   const oc=L.totalEquipe-L.equipe.length;
   if(oc>0)pane.append(mk8('p','note',L.totalEquipe+' profissionais no total. '+oc+(oc>1?' preferem':' prefere')+' não aparecer aqui.'));
-  if(L.modo==='agenda'&&window.MH_PAINEL&&L.equipe.some(m=>m.helper!==false&&MH_PAINEL.tem(m.nome)))pane.append(mk8('p','note','Para marcar horário, toque em "Marcar horário" embaixo do nome do profissional.'))}
+  if(L.modo==='agenda'&&(L.servicos||[]).length)pane.append(mk8('p','note','Para marcar horário, toque em "Marcar horário" embaixo do profissional ou abra a aba Serviços.'))}
  else{
   if(!L.n)pane.append(mk8('p','note','Ainda não tem avaliações.'));
   else{const dist=L.dist||[0,0,0,0,0];for(let k=5;k>=1;k--){const v=dist[k-1]||0;pane.append(mk8('div','note',k+'★  '+'▮'.repeat(Math.round(v/L.n*10))+'  '+v))}}
@@ -759,6 +759,7 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
   st.style.color='var(--red)';st.textContent='❌ '+erro8(r);return r};
  const reload=(role,work)=>{atualizaPapelLocal8(role,work);let p=Promise.resolve();try{if(role==='helper'&&window.MH_DB&&MH_DB.virarHelper)p=Promise.race([MH_DB.virarHelper(eu.nome,work),new Promise(r=>setTimeout(r,2500))])}catch(e){}p.then(()=>location.reload())};
 
+ {const s=sec('Meus horários');s.append(mk8('p','note','Veja os horários que você marcou'+(helper?' e quem marcou com você':'')+'.'),botao8('🗓 Abrir meus horários','cta2 v8go',()=>{d.close();abrirHorarios8()}))}
  /* 1. tipo de conta */
  {const s=sec('Minha conta');
   if(!helper){
@@ -819,7 +820,7 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
   if(!E.lojas.length)s.append(mk8('p','note','Você ainda não criou nenhum. Barbearia, salão, loja de motos, oficina: crie e monte a sua equipe.'));
   E.lojas.forEach(L=>{
    const box=mk8('div','v8card');const row=mk8('div','v8row');row.append(mk8('b',null,L.nome),mk8('span','note',L.tipo+(CID8[L.cidade]?' · '+CID8[L.cidade]:'')));
-   const acts=mk8('div','v8acts');acts.append(botao8('👁 Ver perfil','more',()=>{d.close();abrirLoja8(L.chave)}),botao8('✏️ Editar','more',()=>formLoja8(d,E,L)),botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',L.tipo,linkLoja8(L.chave),m=>{st.style.color='';st.textContent=m})),botao2x8('🗑 Apagar','more',()=>envia('/estabelecimentos/apagar',{chave:L.chave},'Estabelecimento apagado.')));
+   const acts=mk8('div','v8acts');acts.append(botao8('💰 Serviços e preços','more',()=>formServicos8(d,E,L)),botao8('👁 Ver perfil','more',()=>{d.close();abrirLoja8(L.chave)}),botao8('✏️ Editar','more',()=>formLoja8(d,E,L)),botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',L.tipo,linkLoja8(L.chave),m=>{st.style.color='';st.textContent=m})),botao2x8('🗑 Apagar','more',()=>envia('/estabelecimentos/apagar',{chave:L.chave},'Estabelecimento apagado.')));
    box.append(row,acts);if(L.favs>0)box.append(mk8('p','note','⭐ '+L.favs+(L.favs===1?' pessoa favoritou':' pessoas favoritaram')+' esta loja.'));
    box.append(mk8('h4',null,'Equipe'));
    if(!L.equipe.length)box.append(mk8('p','note','Ninguém na equipe ainda. Convide pelo telefone abaixo.'));
@@ -837,6 +838,173 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
    s.append(box)});
   if(E.lojas.length<3)s.append(botao8('➕ Criar meu negócio','cta2 v8go',()=>criarLoja8(d,E)))}
  d.append(botao8('Fechar','more pa-close',()=>d.close()))}
+
+
+/* ===== v10: reservas — serviços da loja, agenda do Helper, marcar horário e "Meus horários" ===== */
+const DIAS8=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],DIASN8=['domingo','segunda','terça','quarta','quinta','sexta','sábado'],ORD8=[1,2,3,4,5,6,0];
+const p28=n=>String(n).padStart(2,'0');
+const hm8=m=>p28(Math.floor(m/60)%24)+':'+p28(m%60);
+const tmin8=t=>+String(t).slice(0,2)*60+ +String(t).slice(3,5);
+const brl8=v=>'R$ '+Number(v||0).toFixed(2).replace('.',',');
+const durTxt8=m=>m<60?m+'min':(Math.floor(m/60)+'h'+(m%60?':'+p28(m%60)+'min':''));
+const diaBR8=k=>{const q=String(k).split('-');return q[2]+'/'+q[1]+'/'+q[0]};
+const dataLoc8=k=>{const q=String(k).split('-');return new Date(+q[0],+q[1]-1,+q[2])};
+const chaveDia8=x=>x.getFullYear()+'-'+p28(x.getMonth()+1)+'-'+p28(x.getDate());
+function resumoDias8(ds){const o=ORD8.filter(i=>ds.includes(i));if(!o.length)return 'nenhum dia';if(o.length===7)return 'todos os dias';
+ const pos=o.map(i=>ORD8.indexOf(i)),seg=pos.every((x,k)=>k===0||x===pos[k-1]+1);
+ return seg&&o.length>=3?'de '+DIASN8[o[0]]+' a '+DIASN8[o[o.length-1]]:o.map(i=>DIASN8[i]).join(', ')}
+let agDlg8=null,horDlg8=null;
+
+/* aba "Serviços" do perfil da loja: cada serviço com tempo, valor e o botão Reservar */
+function painelServ8(pane,d,L){const sv=L.servicos||[];
+ if(!sv.length){pane.append(mk8('p','note',L.souDono?'Você ainda não cadastrou serviços. Toque em "Gerenciar minha loja" e depois em "Serviços e preços".':'Esta loja ainda não cadastrou serviços.'));return}
+ if(!L.logado)pane.append(mk8('p','note','Entre na conta para reservar um horário.'));
+ sv.forEach(s=>{const c=mk8('div','v8serv'),t=mk8('div','v8servinfo');
+  t.append(mk8('b',null,s.nome),mk8('span','note','🕒 '+durTxt8(s.min)),mk8('span','note','💲 a partir de '+brl8(s.valor)));c.append(t);
+  const b=botao8('📅 Reservar','cta2',()=>reservar8(d,L,{sv:s.id,pro:L._pro}));b.disabled=!L.logado;c.append(b);pane.append(c)})}
+
+/* o passo a passo da reserva: serviço → profissional → dia → hora → confirmar */
+function reservar8(d,L,pre){pre=pre||{};
+ if(!L.logado){pintaLoja8(d,L,'serv','Entre na conta para marcar um horário.');return}
+ const R={cart:[],sv:null,pro:null,dia:'',info:null,tela:'serv',msg:'',busy:false,feito:null},svs=L.servicos||[];
+ const pros=()=>(L.equipe||[]).filter(m=>m.helper!==false&&m.ag&&m.uid);
+ function escolheServ(s){R.sv=s;R.dia='';R.info=null;const pn=pre.pro&&pros().find(m=>m.nome===pre.pro);pre.pro=null;
+  if(pn){R.pro=pn;carrega()}else{R.pro=null;R.tela='prof';pinta()}}
+ async function carrega(){R.tela='dia';R.info=null;R.dia='';pinta();
+  const r=await chama8('/reservas/agenda?chave='+encodeURIComponent(L.chave)+'&uid='+encodeURIComponent(R.pro.uid));
+  R.info=(r.ok&&r.j&&r.j.ok&&r.j.ag)?r.j:{vazio:true};if(R.tela==='dia')pinta()}
+ function horas(){const a=R.info.ag,k=R.dia;if(!k||!a.dias.includes(dataLoc8(k).getDay()))return[];
+  const oc=(R.info.ocupados[k]||[]).concat(R.cart.filter(c=>c.pro.uid===R.pro.uid&&c.dia===k).map(c=>[c.ini,c.ini+c.sv.min])),out=[];
+  for(let t=tmin8(a.ini);t+R.sv.min<=tmin8(a.fim);t+=R.sv.min){if(k===R.info.hoje&&t<=R.info.agora)continue;if(oc.some(x=>t<x[1]&&t+R.sv.min>x[0]))continue;out.push(t)}return out}
+ async function confirma(){if(R.busy)return;R.busy=true;R.msg='';pinta();
+  const r=await chama8('/reservas',{chave:L.chave,itens:R.cart.map(c=>({uid:c.pro.uid,servico:c.sv.id,dia:c.dia,ini:c.ini}))});R.busy=false;
+  if(r.ok&&r.j&&r.j.ok){R.feito=R.cart;R.cart=[];R.tela='ok'}else R.msg=erro8(r);pinta()}
+ function pinta(){d.textContent='';
+  const top=mk8('div','v8head');top.append(avatarLoja8(L,48));const hd=mk8('div');hd.append(mk8('p','note','Reservar em'),mk8('h3',null,L.nome));top.append(hd);d.append(top);
+  if(R.tela==='serv'){d.append(mk8('p','v8passo','Escolha o serviço'));
+   svs.forEach(s=>{const b=mk8('button','mhp-big');b.type='button';b.append(document.createTextNode(s.nome),mk8('small',null,durTxt8(s.min)+' · a partir de '+brl8(s.valor)));b.onclick=()=>escolheServ(s);d.append(b)});
+   d.append(R.cart.length?botao8('← Voltar ao meu horário','more',()=>{R.tela='cart';pinta()}):botao8('← Voltar','more',()=>pintaLoja8(d,L,'serv')))}
+  else if(R.tela==='prof'){d.append(mk8('p','note','Serviço selecionado: '+R.sv.nome),mk8('p','v8passo','Escolha o profissional'));
+   const ps=pros();if(!ps.length)d.append(mk8('p','note','Ninguém está recebendo marcações agora. Você pode chamar a loja pela conversa.'));
+   const g=mk8('div','v8pros');ps.forEach(m=>{const b=mk8('button','v8pro');b.type='button';b.append(avatarEl(m.nome,52),mk8('span',null,m.nome));b.onclick=()=>{R.pro=m;carrega()};g.append(b)});
+   d.append(g,botao8('← Trocar serviço','more',()=>{R.tela='serv';pinta()}))}
+  else if(R.tela==='dia'){d.append(mk8('p','note','Serviço: '+R.sv.nome+' · Profissional: '+R.pro.nome));
+   if(!R.info)d.append(mk8('p','note','Carregando horários…'));
+   else if(R.info.vazio)d.append(mk8('p','note','Esse profissional não está recebendo marcações agora.'));
+   else{const h0=dataLoc8(R.info.hoje);d.append(mk8('p','v8passo','Qual dia?'));const sd=mk8('div','v8dias');
+    for(let i=0;i<14;i++){const x=new Date(h0.getFullYear(),h0.getMonth(),h0.getDate()+i),k=chaveDia8(x),w=x.getDay();
+     const b=mk8('button','v8dia'+(R.dia===k?' on':'')+(R.info.ag.dias.includes(w)?'':' off'));b.type='button';
+     b.append(mk8('small',null,i===0?'HOJE':i===1?'AMANHÃ':DIAS8[w].toUpperCase()),document.createTextNode(p28(x.getDate())+'/'+p28(x.getMonth()+1)));
+     b.onclick=()=>{R.dia=k;pinta()};sd.append(b)}
+    d.append(sd);
+    if(R.dia){const hs=horas();d.append(mk8('p','v8passo','Que horas?'));
+     if(!hs.length)d.append(mk8('p','note','Nenhum horário disponível nesse dia. Escolha outro dia.'));
+     else{const gh=mk8('div','v8hrs');hs.forEach(t=>{const b=mk8('button','mhp-chip',hm8(t));b.type='button';b.onclick=()=>{R.cart.push({sv:R.sv,pro:R.pro,dia:R.dia,ini:t});R.tela='cart';R.msg='';pinta()};gh.append(b)});d.append(gh)}}}
+   d.append(botao8('← Trocar profissional','more',()=>{R.tela='prof';pinta()}))}
+  else if(R.tela==='cart'){d.append(mk8('p','v8passo','Seu horário'));
+   R.cart.forEach((c,i)=>{const k=mk8('div','v8card');k.append(mk8('b',null,c.sv.nome),mk8('p','note','🕒 '+diaBR8(c.dia)+', '+hm8(c.ini)+' às '+hm8(c.ini+c.sv.min)),mk8('p','note','💲 a partir de '+brl8(c.sv.valor)),mk8('p','note','Profissional: '+c.pro.nome));
+    k.append(botao8('🗑 Tirar','more',()=>{R.cart.splice(i,1);if(!R.cart.length)R.tela='serv';pinta()}));d.append(k)});
+   if(R.cart.length>1)d.append(mk8('p','note','Total a partir de '+brl8(R.cart.reduce((a,c)=>a+c.sv.valor,0))));
+   d.append(mk8('p','note','A reserva só marca o horário. O valor você combina na hora com o profissional.'));
+   if(R.msg){const m=mk8('p','note','❌ '+R.msg);m.setAttribute('role','status');m.style.color='var(--red)';d.append(m)}
+   if(R.cart.length<4)d.append(botao8('➕ Adicionar outro serviço','more',()=>{R.tela='serv';pinta()}));
+   const ok=botao8(R.busy?'Marcando…':'✅ Confirmar reserva','cta2 v8go',confirma);ok.disabled=R.busy;d.append(ok)}
+  else if(R.tela==='ok'){d.append(mk8('div','v8ok','✅'),mk8('p','v8passo','Horário marcado!'));
+   R.feito.forEach(c=>d.append(mk8('p',null,c.sv.nome+' com '+c.pro.nome+' · '+diaBR8(c.dia)+' às '+hm8(c.ini))));
+   d.append(mk8('p','note','O profissional já vê a sua reserva. Para cancelar, abra "Meus horários".'),botao8('🗓 Ver meus horários','more',()=>{d.close();abrirHorarios8()}))}
+  d.append(botao8(R.tela==='ok'?'Fechar':'✕ Fechar','more pa-close',()=>d.close()))}
+ const s0=pre.sv&&svs.find(x=>x.id===pre.sv);
+ if(s0)escolheServ(s0);else pinta()}
+
+/* Helper: dias e horário em que atende */
+async function abrirAgenda8(){
+ const d=agDlg8||(agDlg8=novoDlg8('Minha agenda'));d.textContent='';d.append(mk8('p','note','Carregando…'));if(!d.open)d.showModal();
+ const r=await chama8('/perfil/meu');
+ if(!r.ok||!(r.j&&r.j.ok)){d.textContent='';d.append(mk8('p','note',r.status===401?'Entre na conta de novo para abrir a agenda.':erro8(r)),botao8('Fechar','more',()=>d.close()));return}
+ const E=r.j;
+ if(E.papel!=='helper'){d.textContent='';d.append(mk8('h3',null,'Minha agenda'),mk8('p','note','Só quem é Helper tem agenda. Em "Meu espaço profissional" toque em "Quero ser Helper".'),botao8('Fechar','more',()=>d.close()));return}
+ const A=Object.assign({on:1,dias:[1,2,3,4,5,6],ini:'09:00',fim:'17:00'},E.agenda||{});A.dias=(A.dias||[]).slice();
+ const naLoja=(E.lojas||[]).length>0||(E.vinculos||[]).some(v=>v.status==='aceito');
+ const st=mk8('p','note');st.setAttribute('role','status');
+ const horas=[];for(let m=5*60;m<=23*60+30;m+=30)horas.push(hm8(m));
+ const sel=(v,fn)=>{const x=document.createElement('select');horas.forEach(h=>x.add(new Option(h,h)));x.value=v;x.onchange=()=>fn(x.value);return x};
+ async function salvar(){
+  if(A.on&&!A.dias.length){st.style.color='var(--red)';st.textContent='❌ Escolha pelo menos um dia.';return}
+  if(tmin8(A.fim)<=tmin8(A.ini)){st.style.color='var(--red)';st.textContent='❌ O horário de terminar precisa ser depois do de começar.';return}
+  st.style.color='';st.textContent='⏳ Salvando…';
+  const r2=await chama8('/agenda',{on:A.on?1:0,dias:A.dias,ini:A.ini,fim:A.fim});
+  if(r2.ok&&r2.j&&r2.j.ok){st.textContent='✅ Agenda salva!';setTimeout(()=>{if(st.textContent==='✅ Agenda salva!')st.textContent=''},4000)}
+  else{st.style.color='var(--red)';st.textContent='❌ '+erro8(r2)}}
+ function pinta(){d.textContent='';
+  const cab=mk8('div','v8row v8cab');cab.style.justifyContent='space-between';cab.append(mk8('h3',null,'📅 Minha agenda'),botao8('✕ Fechar','more',()=>d.close()));
+  d.append(cab,st,mk8('p','note','Escolha quando você atende. Os clientes marcam pela página da loja onde você trabalha e só veem estes dias e horários.'));
+  const g=mk8('div','v8big um'),tg=mk8('button',A.on?'on':'',A.on?'✅ Estou aceitando marcações':'⏸ Marcações pausadas');tg.type='button';tg.append(mk8('small',null,A.on?'Toque para pausar':'Toque para voltar a aceitar'));tg.onclick=()=>{A.on=A.on?0:1;pinta()};g.append(tg);d.append(g);
+  d.append(mk8('div','v8resumo','Você atende '+resumoDias8(A.dias)+', das '+A.ini+' às '+A.fim+'.'));
+  d.append(mk8('h4',null,'1. Dias que atendo'));const cd=mk8('div','v8hrs');
+  DIAS8.forEach((n,i)=>{const b=mk8('button','mhp-chip'+(A.dias.includes(i)?' on':''),n);b.type='button';b.onclick=()=>{const k=A.dias.indexOf(i);k<0?A.dias.push(i):A.dias.splice(k,1);pinta()};cd.append(b)});d.append(cd);
+  d.append(mk8('h4',null,'2. Horário'));
+  const l1=mk8('label',null,'Começo às');l1.append(sel(A.ini,v=>{A.ini=v;pinta()}));const l2=mk8('label',null,'Termino às');l2.append(sel(A.fim,v=>{A.fim=v;pinta()}));d.append(l1,l2);
+  d.append(botao8('💾 Salvar minha agenda','cta2 v8go',salvar));
+  if(!naLoja)d.append(mk8('p','note','⚠ Você ainda não está na equipe de nenhuma loja. O cliente marca pela página da loja. Crie a sua em "Meu espaço profissional" (pode ser só você) ou peça para o dono da loja te chamar para a equipe.'));
+  d.append(botao8('🗓 Ver quem marcou comigo','more',()=>{d.close();abrirHorarios8()}))}
+ pinta()}
+
+/* Meus horários: o que eu marquei e (se sou Helper) quem marcou comigo, com o perfil da pessoa */
+async function abrirHorarios8(){
+ const d=horDlg8||(horDlg8=novoDlg8('Meus horários'));d.textContent='';d.append(mk8('p','note','Carregando…'));if(!d.open)d.showModal();
+ const r=await chama8('/reservas/minhas');
+ if(!r.ok||!(r.j&&r.j.ok)){d.textContent='';d.append(mk8('p','note',r.status===401?'Entre na conta para ver os seus horários.':erro8(r)),botao8('Fechar','more',()=>d.close()));return}
+ const J=r.j,hoje=dataLoc8(chaveDia8(new Date()));
+ const rot=k=>{const dt=dataLoc8(k),dif=Math.round((dt-hoje)/86400000);return (dif===0?'Hoje':dif===1?'Amanhã':DIAS8[dt.getDay()])+' '+p28(dt.getDate())+'/'+p28(dt.getMonth()+1)};
+ const st=mk8('p','note');st.setAttribute('role','status');
+ const cancela=x=>botao2x8('Cancelar horário','more',async()=>{const r2=await chama8('/reservas/cancelar',{id:x.id});if(r2.ok&&r2.j&&r2.j.ok)abrirHorarios8();else{st.style.color='var(--red)';st.textContent='❌ '+erro8(r2)}});
+ const cab=mk8('div','v8row v8cab');cab.style.justifyContent='space-between';cab.append(mk8('h3',null,'🗓 Meus horários'),botao8('✕ Fechar','more',()=>d.close()));
+ d.textContent='';d.append(cab,st);
+ const ehHelper=(J.comoHelper||[]).length>0||(eu&&eu.role==='helper');
+ if(ehHelper){d.append(mk8('h4',null,'Quem marcou comigo'));
+  if(!J.comoHelper.length)d.append(mk8('p','note','Ninguém marcou com você ainda.'));
+  J.comoHelper.forEach(x=>{const c=mk8('div','v8card');c.append(mk8('b',null,rot(x.dia)+' · '+hm8(x.ini)+' às '+hm8(x.ini+x.min)),mk8('p','note',x.servico+' · '+brl8(x.valor)+(x.estNome?' · '+x.estNome:'')),mk8('p',null,'👤 '+x.clienteNome));
+   const ln=mk8('div','v8lin'),pp={nome:x.clienteNome,role:'cliente',work:''};
+   ln.append(botao8('👤 Ver perfil e avaliações','more',()=>{d.close();chamarHelper(pp)}),botao8('💬 Privado','more',()=>{d.close();chamarHelper(pp);try{abrirPrivado(x.clienteNome)}catch(e){}}),cancela(x));c.append(ln);d.append(c)})}
+ d.append(mk8('h4',null,'Horários que eu marquei'));
+ if(!J.comoCliente.length)d.append(mk8('p','note','Você não tem horário marcado. Abra uma loja, toque em "Serviços" e depois em "Reservar".'));
+ J.comoCliente.forEach(x=>{const c=mk8('div','v8card');c.append(mk8('b',null,rot(x.dia)+' · '+hm8(x.ini)+' às '+hm8(x.ini+x.min)),mk8('p','note',x.servico+' · '+brl8(x.valor)),mk8('p',null,'Com '+x.helperNome+(x.estNome?' · '+x.estNome:'')));
+  const ln=mk8('div','v8lin');ln.append(botao8('👤 Ver perfil','more',()=>{d.close();chamarHelper({nome:x.helperNome,role:'helper',work:''})}),cancela(x));c.append(ln);d.append(c)});
+ d.append(botao8('Fechar','more pa-close',()=>d.close()))}
+
+/* dono da loja: serviços e valores (um cardápio só para a loja) */
+function formServicos8(d,E,L,aviso){d.textContent='';
+ const st=mk8('p','note');st.setAttribute('role','status');if(aviso)st.textContent=aviso;
+ const cab=mk8('div','v8row v8cab');cab.style.justifyContent='space-between';cab.append(mk8('h3',null,'💰 Serviços de '+L.nome),botao8('✕ Fechar','more',()=>d.close()));
+ d.append(cab,st,mk8('p','note','Cadastre o que a sua loja faz. O cliente escolhe o serviço, depois o profissional e o horário. Todos da equipe usam esta mesma lista.'));
+ const lista=(L.servicos||[]).map(s=>({nome:s.nome,min:s.min,valor:s.valor}));if(!lista.length)lista.push({nome:'',min:30,valor:0});
+ const box=mk8('div');d.append(box);
+ const MINS=[15,30,45,60,75,90,120,150,180,240];
+ function pinta(foco){box.textContent='';
+  lista.forEach((s,i)=>{const c=mk8('div','v8card');c.append(mk8('h4',null,'Serviço '+(i+1)));
+   const l1=mk8('label',null,'Nome do serviço'),n=document.createElement('input');n.type='text';n.maxLength=50;n.placeholder='Ex.: Corte, Barba, Escova';n.value=s.nome;n.oninput=()=>{s.nome=n.value};l1.append(n);
+   const l2=mk8('label',null,'Quanto tempo dura'),m=document.createElement('select');(MINS.includes(s.min)?MINS:MINS.concat([s.min]).sort((a,b)=>a-b)).forEach(x=>m.add(new Option(durTxt8(x),x)));m.value=s.min;m.onchange=()=>{s.min=+m.value};l2.append(m);
+   const l3=mk8('label',null,'Valor (R$)'),v=document.createElement('input');v.type='text';v.inputMode='decimal';v.maxLength=9;v.placeholder='Ex.: 25,00';v.value=s.valor?String(s.valor).replace('.',','):'';v.oninput=()=>{s.valor=Number(String(v.value).replace(',','.'))||0};l3.append(v);
+   c.append(l1,l2,l3,botao2x8('🗑 Tirar este serviço','more',()=>{lista.splice(i,1);pinta()}));box.append(c);if(foco&&i===lista.length-1)setTimeout(()=>{try{n.focus()}catch(e){}},50)})}
+ pinta();
+ if(lista.length<20)d.append(botao8('➕ Adicionar serviço','more',()=>{lista.push({nome:'',min:30,valor:0});pinta(true)}));
+ d.append(botao8('💾 Salvar serviços','cta2 v8go',async()=>{
+  const limpa=lista.filter(s=>String(s.nome).trim().length>=2);
+  st.style.color='';st.textContent='⏳ Salvando…';
+  const r=await chama8('/estabelecimentos/servicos',{chave:L.chave,servicos:limpa.map(s=>({nome:String(s.nome).trim(),min:s.min,valor:s.valor}))});
+  if(r.ok&&r.j&&r.j.ok){carregaV8();const r2=await chama8('/perfil/meu');if(r2.ok&&r2.j&&r2.j.ok)pintaEspaco8(d,r2.j,'Serviços salvos! Agora o cliente já pode reservar.');else abrirEspaco8()}
+  else{st.style.color='var(--red)';st.textContent='❌ '+erro8(r)}}),botao8('← Voltar','more',()=>abrirEspaco8()))}
+
+/* no perfil do Helper: no próprio perfil, atalho para a agenda; no dos outros, onde marcar horário */
+function blocoReserva8(pes,meu,fechar){
+ const w=mk8('div','mhp-emb');
+ if(meu){w.append(mk8('h4',null,'📅 Minha agenda'),mk8('p','mhp-m','Defina os dias e horários em que você atende. Os clientes marcam pela página da sua loja.'));
+  const b=mk8('button','cta2 mhp-go','📅 Abrir minha agenda');b.type='button';b.onclick=()=>{fechar();abrirAgenda8()};w.append(b);return w}
+ const h=(window.MH_PROS||[]).find(x=>x.nome===pes.nome),lj=((h&&h.lojas)||[]).filter(l=>{const o=(V8.lojas||[]).find(x=>x.chave===l.chave);return o&&o.modo==='agenda'});
+ if(!lj.length)return null;
+ w.append(mk8('h4',null,'📅 Marcar horário'),mk8('p','mhp-m','Escolha o serviço, o dia e a hora.'));
+ lj.forEach(l=>{const b=mk8('button','cta2 mhp-go','📅 Marcar em '+l.nome);b.type='button';b.onclick=()=>{fechar();abrirLoja8(l.chave,{aba:'serv',pro:pes.nome})};w.append(b)});
+ return w}
 
 /* ===== criar negócio em passos (um toque por tela) ===== */
 function criarLoja8(d,E){
@@ -863,7 +1031,7 @@ function criarLoja8(d,E){
    const ok=botao8('✅ Criar meu negócio','cta2 v8go',async()=>{if(S.envio)return;S.envio=true;ok.disabled=true;st.style.color='';st.textContent='Criando…';
     const body={nome:S.nome,tipo:S.tipo,cidade:S.cidade,endereco:'',mapa:'',contato:'',modo:S.modo,descricao:'',chat:true,horario:horarioEditor8(null).valor(),atende:S.atende,funcao:''};
     const r2=await chama8('/estabelecimentos',body);
-    if(r2.ok&&r2.j&&r2.j.ok){carregaV8();const r3=await chama8('/perfil/meu');if(r3.ok&&r3.j&&r3.j.ok)pintaEspaco8(d,r3.j,'Pronto! Seu negócio foi criado. Agora chame a sua equipe.');else abrirEspaco8()}
+    if(r2.ok&&r2.j&&r2.j.ok){carregaV8();const r3=await chama8('/perfil/meu');if(r3.ok&&r3.j&&r3.j.ok){const nl=(r3.j.lojas||[]).find(x=>x.chave===r2.j.chave);if(S.modo==='agenda'&&nl)formServicos8(d,r3.j,nl,'✅ Negócio criado! Agora cadastre os serviços para o cliente poder reservar.');else pintaEspaco8(d,r3.j,'Pronto! Seu negócio foi criado. Agora chame a sua equipe.')}else abrirEspaco8()}
     else{S.envio=false;ok.disabled=false;st.style.color='var(--red)';st.textContent=erro8(r2)}});
    d.append(ok)}
   if(S.n!==1||true)d.append(volta)}
@@ -919,7 +1087,7 @@ async function abrirAdmOficios8(){
 function pessoa(nome){return (eu&&eu.nome===nome)?eu:(por(nome)||REAIS[nome])}
 function avaliar(alvo,nota_,txt){const l=AV[alvo.nome]=AV[alvo.nome]||[];const i=l.findIndex(x=>x[0]===eu.nome);const r=[eu.nome,nota_,txt];if(i>=0)l[i]=r;else l.push(r);try{if(window.MH_DB&&MH_DB.ok)MH_DB.avaliar(alvo.nome,eu.nome,nota_,txt)}catch(x){}}
 let pfDlg=null;
-function mhCtx(){return{eu:eu,espaco:abrirEspaco8,share:()=>compartilhar8(eu.nome+' no MiHelp',(eu.work||'Helper')+' · Vale do Araguaia',linkHelper8(eu.nome),m=>MH_PAINEL.toast(m))}}
+function mhCtx(){return{eu:eu,espaco:abrirEspaco8,agenda:abrirAgenda8,horarios:abrirHorarios8,share:()=>compartilhar8(eu.nome+' no MiHelp',(eu.work||'Helper')+' · Vale do Araguaia',linkHelper8(eu.nome),m=>MH_PAINEL.toast(m))}}
 function abrirPerfil(nome,forca){
 const pes=pessoa(nome)||(forca?{nome,role:'helper',work:''}:null);if(!pes)return;fecharHover();
 if(!pfDlg){pfDlg=document.createElement('dialog');pfDlg.setAttribute('aria-label','Perfil');document.body.append(pfDlg);pfDlg.addEventListener('click',e=>{if(e.target===pfDlg)pfDlg.close()})}
@@ -935,7 +1103,7 @@ if(r){d.append(mk('p','stars',estr(Math.round(r.m))+'  '+r.m.toFixed(1).replace(
 else{const q=mk('p','stars','☆☆☆☆☆ · ainda sem avaliação');d.append(q);d.append(mk('span','badge-novo','Novo na feira'))}
 if(pes.bot)d.append(mk('p','note','Avaliações de exemplo, com notas inventadas para mostrar como vai funcionar.'));
 {const se=selosEl(pes.nome);if(se)d.append(se)}
-if(pes.role==='helper'&&!pes.bot&&window.MH_PAINEL){try{if(meu)d.append(MH_PAINEL.cartaoMeu(mhCtx(),()=>d.close()));else if(MH_PAINEL.tem(pes.nome))d.append(MH_PAINEL.embutido(pes.nome,mhCtx()))}catch(x){}}
+if(pes.role==='helper'&&!pes.bot){try{const bx=blocoReserva8(pes,meu,()=>d.close());if(bx)d.append(bx)}catch(x){}}
 if(pes.role==='helper'){const ph=mk('div');d.append(ph);const pr=()=>{const e=portfolioEl(pes.nome);ph.textContent='';if(e)ph.append(e)};if(meu)carregarPortLocal();pr();if(!meu)carregaPort(pes.nome).then(()=>{if(d.open)pr()})}
 d.append(mk('h4',0,pes.role==='helper'?'Comentários sobre o trabalho':'Comentários sobre o cliente'));
 const l=AV[pes.nome]||[];
