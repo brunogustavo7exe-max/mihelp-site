@@ -630,7 +630,7 @@ function pintaLoja8(d,L,aba,aviso){clearInterval(chatTimer8);d.textContent='';
  if(aviso){const p=mk8('p','note',aviso);p.setAttribute('role','status');d.append(p)}
  const ac=mk8('div','perfil-acoes');
  if(!L.logado)d.append(mk8('p','note','Entre na conta para favoritar, falar com a loja, avaliar ou pedir para fazer parte da equipe.'));
- else if(L.souDono)ac.append(botao8('⚙ Gerenciar minha loja','cta2 pa-main',()=>{d.close();abrirEspaco8()}));
+ else if(L.souDono)ac.append(botao8('⚙ Gerenciar minha loja','cta2 pa-main',()=>{d.close();abrirEspaco8('lojas')}));
  else{
   if(!L.meuVinculo)ac.append(botao8('🙋 Quero fazer parte','more pa-sec',()=>formPedir8(d,L)));
   else if(L.meuVinculo.status==='pedido')d.append(mk8('p','note','Seu pedido para entrar na equipe está esperando o dono.'));
@@ -725,21 +725,21 @@ function trocasTxt8(t){
  if(t.gratis)return 'Você está nos primeiros 7 dias de Helper: trocar de ofício é grátis até '+dataBR8(t.gratisAte)+'.';
  if(t.restantes>0)return 'Você ainda pode trocar de ofício '+t.restantes+(t.restantes===1?' vez':' vezes')+' (limite de '+t.max+' por ano).';
  return 'As '+t.max+' trocas do ano acabaram. Libera de novo em '+dataBR8(t.liberaEm)+'.'}
-let ESPF=null;
+let ESPV=null;
 /* sem sessão no servidor (conta antiga ou sessão vencida): pede só o telefone e a senha, sem sair da página */
 function pedeSenha8(f){
  let d=document.getElementById('senhaDlg8');if(d)d.remove();
  d=novoDlg8('Confirmar senha');d.id='senhaDlg8';
- d.append(mk8('h3',null,'Confirme sua senha'),mk8('p','note','Por segurança, digite o telefone e a senha da sua conta para abrir o painel. É rapidinho.'));
+ d.append(mk8('h3',null,'Confirme sua senha'),mk8('p','note','Por segurança, digite o telefone e a senha da sua conta para continuar. É rapidinho.'));
  const l1=mk8('label',null,'Telefone');const t=document.createElement('input');t.type='tel';t.inputMode='tel';t.maxLength=20;t.placeholder='(66) 99999-9999';try{t.value=(window.MH_telDe&&MH_telDe(eu&&eu.nome))||''}catch(e){}l1.append(t);
  const l2=mk8('label',null,'Senha');const p=document.createElement('input');p.type='password';p.autocomplete='current-password';p.placeholder='Sua senha';l2.append(p);
  const st=mk8('p','note');st.setAttribute('role','status');
  const ir=async()=>{if(!window.MH_reentrar){st.style.color='var(--red)';st.textContent='Saia e entre na conta de novo.';return}st.style.color='';st.textContent='Entrando…';
-  const r=await MH_reentrar(t.value,p.value);if(r.ok){d.close();d.remove();abrirEspaco8(f)}else{st.style.color='var(--red)';st.textContent=r.msg}};
+  const r=await MH_reentrar(t.value,p.value);if(r.ok){d.close();d.remove();if(typeof f==='function')f();else abrirEspaco8(f)}else{st.style.color='var(--red)';st.textContent=r.msg}};
  p.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();ir()}});
  d.append(l1,l2,st);const ac=mk8('div','perfil-acoes');ac.append(botao8('Entrar','cta2 pa-main',ir),botao8('Cancelar','more',()=>{d.close();d.remove()}));d.append(ac);
  d.showModal();setTimeout(()=>{try{(t.value?p:t).focus()}catch(e){}},50)}
-async function abrirEspaco8(f){ESPF=(f instanceof RegExp)?f:null;
+async function abrirEspaco8(f){ESPV=(typeof f==='string')?f:null;
  if(!tk8()){pedeSenha8(f);return}
  const d=espDlg8||(espDlg8=novoDlg8('Meu espaço profissional'));d.textContent='';d.append(mk8('p','note','Carregando…'));if(!d.open)d.showModal();
  const r=await chama8('/perfil/meu');
@@ -751,7 +751,7 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
  const cab=mk8('div','v8row v8cab');cab.style.justifyContent='space-between';cab.append(mk8('h3',null,'Meu espaço profissional'),botao8('✕ Fechar','more',()=>d.close()));
  d.append(cab,st);
  if(aviso)setTimeout(()=>{if(st.isConnected&&st.textContent===(/^[✅❌]/.test(aviso)?aviso:'✅ '+aviso))st.textContent=''},4500);
- const sec=t=>{const s=mk8('section','v8sec');s.append(mk8('h4',null,t));if(!ESPF||ESPF.test(t))d.append(s);return s};
+ const secs=[];const sec=(id,t,ic,go)=>{const s=mk8('section','v8sec');s.append(mk8('h4',null,t));secs.push({id,t,ic,s,go});return s};
  const helper=E.papel==='helper';
  const rec=async(msg)=>{const r=await chama8('/perfil/meu');if(r.ok&&r.j&&r.j.ok){pintaEspaco8(d,r.j,msg);carregaV8()}};
  const envia=async(path,body,okMsg)=>{st.style.color='';st.textContent='⏳ Salvando…';const r=await chama8(path,body);
@@ -759,11 +759,11 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
   st.style.color='var(--red)';st.textContent='❌ '+erro8(r);return r};
  const reload=(role,work)=>{atualizaPapelLocal8(role,work);let p=Promise.resolve();try{if(role==='helper'&&window.MH_DB&&MH_DB.virarHelper)p=Promise.race([MH_DB.virarHelper(eu.nome,work),new Promise(r=>setTimeout(r,2500))])}catch(e){}p.then(()=>location.reload())};
 
- {const s=sec('Meus horários');s.append(mk8('p','note','Veja os horários que você marcou'+(helper?' e quem marcou com você':'')+'.'),botao8('🗓 Abrir meus horários','cta2 v8go',()=>{d.close();abrirHorarios8()}))}
+ {const s=sec('horarios','Meus horários','🗓',()=>{d.close();abrirHorarios8()});s.append(mk8('p','note','Veja os horários que você marcou'+(helper?' e quem marcou com você':'')+'.'),botao8('🗓 Abrir meus horários','cta2 v8go',()=>{d.close();abrirHorarios8()}))}
  /* 1. tipo de conta */
- {const s=sec('Minha conta');
+ {const s=sec('conta',helper?'Cliente ou Helper':'Minha conta','👤');
   if(!helper){
-   s.append(mk8('p','note','Você é Cliente. Quer oferecer um serviço? Vire Helper: é a mesma conta, com o mesmo telefone e senha.'));
+   s.append(mk8('p','note','Você é Cliente e pode continuar assim para sempre: não precisa fazer nada. Se quiser oferecer um serviço, vire Helper: é a mesma conta, com o mesmo telefone e senha.'));
    const pk=pick8(E.catalogo);const l2=mk8('label','ck');const ck=document.createElement('input');ck.type='checkbox';ck.checked=true;l2.append(ck,mk8('span',null,'Aparecer em "Profissionais do Vale"'));
    s.append(pk.el,l2,botao8('Quero ser Helper','cta2',async()=>{const o=pk.valor();if(!o){st.style.color='var(--red)';st.textContent='Escolha o seu ofício.';return}
     st.style.color='';st.textContent='Salvando…';const r=await chama8('/perfil/virar-helper',{oficio:o,aparecer:ck.checked});
@@ -778,12 +778,12 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
 
  /* 2. privacidade + ofícios (só Helper) */
  if(helper){
-  {const s=sec('Privacidade');
+  {const s=sec('priv','Privacidade','🔒');
    const l=mk8('label','ck');const ck=document.createElement('input');ck.type='checkbox';ck.checked=!!E.aparecer;
    ck.onchange=()=>envia('/perfil/privacidade',{aparecer:ck.checked},ck.checked?'Agora você aparece em "Profissionais do Vale".':'Você saiu da busca. Continua usando o app normalmente.');
    l.append(ck,mk8('span',null,'Aparecer em "Profissionais do Vale"'));s.append(l);
    s.append(mk8('p','note','Desligado, ninguém acha você na busca. Você pode esconder só um ofício (abaixo) ou só uma loja (mais abaixo).'))}
-  {const s=sec('Meus ofícios ('+E.oficios.length+' de '+E.maxOficios+')');
+  {const s=sec('oficios','Meus ofícios ('+E.oficios.length+' de '+E.maxOficios+')','🛠');
    const bloqueado=!E.trocas.gratis&&E.trocas.restantes<=0;
    if(!E.oficios.length)s.append(mk8('p','note','Você ainda não tem ofício. Adicione um abaixo.'));
    E.oficios.forEach(o=>{
@@ -800,14 +800,14 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
    if(E.oficios.length<E.maxOficios){const pk=pick8(E.catalogo);s.append(pk.el,botao8('Adicionar ofício','more',()=>{const v=pk.valor();if(!v){st.style.color='var(--red)';st.textContent='Escolha o ofício.';return}envia('/perfil/oficios',{acao:'add',nome:v},'Ofício adicionado.')}))}}}
 
  /* 3. convites recebidos */
- if(E.convites.length){const s=sec('Convites para entrar em equipes');
+ if(E.convites.length){const s=sec('convites','Convites para equipes ('+E.convites.length+')','📨');
   E.convites.forEach(c=>{const box=mk8('div','v8card');box.append(mk8('p',null,c.estNome+' convidou você'+(c.funcao?' como '+c.funcao:'')+'.'));
    const l=mk8('label','ck');const ck=document.createElement('input');ck.type='checkbox';l.append(ck,mk8('span',null,'Mostrar meu nome no perfil público da loja'));
    const row=mk8('div','v8row');row.append(botao8('Aceitar','cta2',()=>envia('/equipe/responder',{id:c.id,aceitar:true,publico:ck.checked},'Você entrou na equipe.')),botao8('Recusar','more',()=>envia('/equipe/responder',{id:c.id,aceitar:false},'Convite recusado.')));
    box.append(l,row);s.append(box)})}
 
  /* 4. meus vínculos */
- if(E.vinculos.length){const s=sec('Minhas equipes');
+ if(E.vinculos.length){const s=sec('equipes','Minhas equipes','🤝');
   E.vinculos.forEach(v=>{const box=mk8('div','v8card');const row=mk8('div','v8row');row.append(mk8('b',null,v.estNome),mk8('span','note',(v.funcao?v.funcao+' · ':'')+(v.status==='pedido'?'esperando o dono aprovar':'na equipe')));
    if(v.status==='aceito'){const l=mk8('label','ck');const ck=document.createElement('input');ck.type='checkbox';ck.checked=!!v.publico;
     ck.onchange=()=>envia('/equipe/visibilidade',{id:v.id,publico:ck.checked},ck.checked?'Seu nome aparece no perfil da loja.':'Seu nome saiu do perfil público da loja.');
@@ -816,7 +816,7 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
    box.append(row);s.append(box)})}
 
  /* 5. minhas lojas (só Helper) */
- if(helper){const s=sec('Meus estabelecimentos');
+ if(helper){const s=sec('lojas','Meus estabelecimentos','🏪');
   if(!E.lojas.length)s.append(mk8('p','note','Você ainda não criou nenhum. Barbearia, salão, loja de motos, oficina: crie e monte a sua equipe.'));
   E.lojas.forEach(L=>{
    const box=mk8('div','v8card');const row=mk8('div','v8row');row.append(mk8('b',null,L.nome),mk8('span','note',L.tipo+(CID8[L.cidade]?' · '+CID8[L.cidade]:'')));
@@ -828,7 +828,7 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
     r2.append(mk8('span',null,m.nome+(m.funcao?' · '+m.funcao:'')+(m.eu?' (você)':'')+' — '+rot));
     if(m.status==='pedido')r2.append(botao8('Aprovar','cta2',()=>envia('/equipe/responder',{id:m.id,aceitar:true},'Pessoa aprovada.')),botao8('Recusar','more',()=>envia('/equipe/responder',{id:m.id,aceitar:false},'Pedido recusado.')));
     else{
-     if(m.status==='aceito'&&!m.eu){const sel=document.createElement('select');sel.setAttribute('aria-label','Cargo de '+m.nome);[['nenhum','Sem acesso ao chat'],['atendente','Atendente (clientes + equipe)'],['interno','Só chat da equipe']].forEach(([v,t])=>sel.add(new Option(t,v)));sel.value=m.cargo||'nenhum';sel.onchange=()=>envia('/equipe/cargo',{id:m.id,cargo:sel.value},'Cargo atualizado.');r2.append(sel)}
+     if(m.status==='aceito'&&!m.eu){const sel=document.createElement('select');sel.setAttribute('aria-label','Cargo de '+m.nome);[['nenhum','Sem acesso ao chat'],['atendente','Atendente (clientes + equipe)'],['interno','Só chat da equipe']].forEach(([v,t])=>sel.add(new Option(t,v)));sel.value=m.cargo||'nenhum';const sv=botao8('💾 Salvar cargo','cta2',()=>envia('/equipe/cargo',{id:m.id,cargo:sel.value},'Cargo de '+m.nome+' salvo.'));sv.hidden=true;sel.onchange=()=>{sv.hidden=sel.value===(m.cargo||'nenhum')};r2.append(sel,sv)}
      r2.append(botao2x8('Remover','more',()=>envia('/equipe/remover',{id:m.id},'Removido.')))}
     box.append(r2)});
    const cv=mk8('div');cv.hidden=true;const l1=mk8('label',null,'Telefone da pessoa');const tel=document.createElement('input');tel.type='text';tel.inputMode='tel';tel.placeholder='(66) 99999-9999';tel.maxLength=20;l1.append(tel);
@@ -837,6 +837,9 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
    box.append(botao8('➕ Chamar alguém para a equipe','more',()=>{cv.hidden=!cv.hidden}),cv);
    s.append(box)});
   if(E.lojas.length<3)s.append(botao8('➕ Criar meu negócio','cta2 v8go',()=>criarLoja8(d,E)))}
+ {const cur=ESPV&&secs.find(x=>x.id===ESPV);
+  if(cur){d.append(botao8('← Voltar ao meu espaço','more',()=>{ESPV=null;pintaEspaco8(d,E)}),cur.s)}
+  else{const g=mk8('div','mhp-g');secs.forEach(x=>{const b=document.createElement('button');b.type='button';const ic=document.createElement('span');ic.textContent=x.ic;b.append(ic,x.t);b.onclick=()=>{if(x.go){x.go();return}ESPV=x.id;pintaEspaco8(d,E)};g.append(b)});d.append(g)}}
  d.append(botao8('Fechar','more pa-close',()=>d.close()))}
 
 
@@ -858,14 +861,14 @@ let agDlg8=null,horDlg8=null;
 /* aba "Serviços" do perfil da loja: cada serviço com tempo, valor e o botão Reservar */
 function painelServ8(pane,d,L){const sv=L.servicos||[];
  if(!sv.length){pane.append(mk8('p','note',L.souDono?'Você ainda não cadastrou serviços. Toque em "Gerenciar minha loja" e depois em "Serviços e preços".':'Esta loja ainda não cadastrou serviços.'));return}
- if(!L.logado)pane.append(mk8('p','note','Entre na conta para reservar um horário.'));
+
  sv.forEach(s=>{const c=mk8('div','v8serv'),t=mk8('div','v8servinfo');
   t.append(mk8('b',null,s.nome),mk8('span','note','🕒 '+durTxt8(s.min)),mk8('span','note','💲 a partir de '+brl8(s.valor)));c.append(t);
-  const b=botao8('📅 Reservar','cta2',()=>reservar8(d,L,{sv:s.id,pro:L._pro}));b.disabled=!L.logado;c.append(b);pane.append(c)})}
+  const b=botao8('📅 Reservar','cta2',()=>reservar8(d,L,{sv:s.id,pro:L._pro}));b.disabled=!eu;c.append(b);pane.append(c)})}
 
 /* o passo a passo da reserva: serviço → profissional → dia → hora → confirmar */
 function reservar8(d,L,pre){pre=pre||{};
- if(!L.logado){pintaLoja8(d,L,'serv','Entre na conta para marcar um horário.');return}
+ if(!L.logado){if(eu){pedeSenha8(()=>{try{d.close()}catch(e){}abrirLoja8(L.chave,{aba:'serv'})})}else pintaLoja8(d,L,'serv','Crie a sua conta ou entre para marcar um horário.');return}
  const R={cart:[],sv:null,pro:null,dia:'',info:null,tela:'serv',msg:'',busy:false,feito:null},svs=L.servicos||[];
  const pros=()=>(L.equipe||[]).filter(m=>m.helper!==false&&m.ag&&m.uid);
  function escolheServ(s){R.sv=s;R.dia='';R.info=null;const pn=pre.pro&&pros().find(m=>m.nome===pre.pro);pre.pro=null;
@@ -992,8 +995,8 @@ function formServicos8(d,E,L,aviso){d.textContent='';
   const limpa=lista.filter(s=>String(s.nome).trim().length>=2);
   st.style.color='';st.textContent='⏳ Salvando…';
   const r=await chama8('/estabelecimentos/servicos',{chave:L.chave,servicos:limpa.map(s=>({nome:String(s.nome).trim(),min:s.min,valor:s.valor}))});
-  if(r.ok&&r.j&&r.j.ok){carregaV8();const r2=await chama8('/perfil/meu');if(r2.ok&&r2.j&&r2.j.ok)pintaEspaco8(d,r2.j,'Serviços salvos! Agora o cliente já pode reservar.');else abrirEspaco8()}
-  else{st.style.color='var(--red)';st.textContent='❌ '+erro8(r)}}),botao8('← Voltar','more',()=>abrirEspaco8()))}
+  if(r.ok&&r.j&&r.j.ok){carregaV8();const r2=await chama8('/perfil/meu');if(r2.ok&&r2.j&&r2.j.ok)pintaEspaco8(d,r2.j,'Serviços salvos! Agora o cliente já pode reservar.');else abrirEspaco8('lojas')}
+  else{st.style.color='var(--red)';st.textContent='❌ '+erro8(r)}}),botao8('← Voltar','more',()=>abrirEspaco8('lojas')))}
 
 /* no perfil do Helper: no próprio perfil, atalho para a agenda; no dos outros, onde marcar horário */
 function blocoReserva8(pes,meu,fechar){
@@ -1013,7 +1016,7 @@ function criarLoja8(d,E){
  function pinta(){d.textContent='';
   const topo=mk8('div','v8row v8cab');topo.style.justifyContent='space-between';topo.append(mk8('h3',null,'Criar meu negócio'),botao8('✕ Fechar','more',()=>d.close()));
   d.append(topo,mk8('p','note','Passo '+S.n+' de '+TOT));
-  const volta=botao8('← Voltar','more',()=>{if(S.n>1){S.n--;pinta()}else abrirEspaco8()});
+  const volta=botao8('← Voltar','more',()=>{if(S.n>1){S.n--;pinta()}else abrirEspaco8('lojas')});
   const opcoes=(lista,atual,fn,um)=>{const g=mk8('div','v8big'+(um?' um':''));lista.forEach(o=>{const b=mk8('button',atual===o[0]?'on':'',o[1]);b.type='button';if(o[2]){const sm=mk8('small',null,o[2]);b.append(sm)}b.onclick=()=>fn(o[0]);g.append(b)});return g};
   const prox=()=>{S.n++;pinta()};
   if(S.n===1){d.append(mk8('p','v8passo','Qual é o nome do seu negócio?'));
@@ -1065,7 +1068,7 @@ function formLoja8(d,E,L){d.textContent='';d.append(mk8('h3',null,L?'Editar '+L.
   const r=await chama8(L?'/estabelecimentos/editar':'/estabelecimentos',body);
   if(r.ok&&r.j&&r.j.ok){carregaV8();const r2=await chama8('/perfil/meu');if(r2.ok&&r2.j&&r2.j.ok)pintaEspaco8(d,r2.j,L?'Estabelecimento atualizado.':'Estabelecimento criado! Agora convide a sua equipe.')}
   else{st.style.color='var(--red)';st.textContent=erro8(r)}}),
-  botao8('Voltar','more',()=>abrirEspaco8()));
+  botao8('Voltar','more',()=>abrirEspaco8('lojas')));
  d.append(ac)}
 
 /* ===== v8: admin (ofícios "Outro" e trocas) ===== */
@@ -1192,6 +1195,17 @@ function abrirPerfilJanela(){
   atualizarQuadrado();
   const w=$('cadWin');if(w)w.scrollIntoView({behavior:'smooth',block:'nearest'})}
 {const q=$('perfSq');if(q)q.addEventListener('click',abrirPerfilJanela)}
+/* painel do Cliente: atalhos + próximos horários marcados */
+function painelCliente8(){const w=mk8('div','mhp-tiles');w.append(mk8('h4',null,'Meu painel'));
+ const g=mk8('div','mhp-g');
+ [['🗓','Meus agendamentos',()=>abrirHorarios8()],['🔒','Conta e privacidade',()=>abrirEspaco8('conta')]].forEach(x=>{const b=document.createElement('button');b.type='button';const i=document.createElement('span');i.textContent=x[0];b.append(i,x[1]);b.onclick=x[2];g.append(b)});
+ w.append(g);
+ const box=mk8('div');w.append(box);
+ if(apiOn8()&&tk8()){chama8('/reservas/minhas').then(r=>{if(!r.ok||!(r.j&&r.j.ok))return;const l=(r.j.comoCliente||[]).slice(0,3);
+  box.append(mk8('h4',null,'Onde estou agendado'));
+  if(!l.length){box.append(mk8('p','note','Nenhum horário marcado. Abra uma loja, toque em "Serviços" e depois em "Reservar".'));return}
+  l.forEach(x=>{const c=mk8('div','v8card');c.append(mk8('b',null,diaBR8(x.dia)+' · '+hm8(x.ini)+' às '+hm8(x.ini+x.min)),mk8('p','note',x.servico+' · '+brl8(x.valor)),mk8('p',null,'📍 '+(x.estNome?x.estNome+' · ':'')+'com '+x.helperNome));box.append(c)})}).catch(()=>{})}
+ return w}
 function renderMeuPerfil(novo){
   const reg=$('reg'); if(!reg||!eu) return;
   if(FRASE[eu.nome]==null){try{const fv=localStorage.getItem('mh_frase:'+eu.nome.toLowerCase());if(fv)FRASE[eu.nome]=fv}catch(e){}}
@@ -1238,6 +1252,7 @@ function renderMeuPerfil(novo){
    card.append(side,main);reg.append(card,em);
    if(eu.role==='helper')reg.append(mk('p','note',FOTO[eu.nome]?'Sua foto está pronta. O selo ✔ Verificado é dado pelo ADM, de graça.':'Sem foto você não pode receber o selo ✔ Verificado. Coloque uma foto do seu rosto.'))}
   if(eu.role==='helper'&&window.MH_PAINEL)reg.append(MH_PAINEL.tiles(mhCtx()));if(eu.role==='helper')reg.append(editorPortfolio());
+  if(eu.role!=='helper')reg.append(painelCliente8());
   const sr=mk('div','st-row');sr.setAttribute('role','group');sr.setAttribute('aria-label','Meu status');
   Object.keys(ST).forEach(k=>{const b=mk('button','st-btn',ST[k]);b.type='button';b.dataset.s=k;b.setAttribute('aria-pressed',(eu.status||'disponivel')===k?'true':'false');
     b.onclick=()=>{eu.status=k;renderMeuPerfil();atualizarQuadrado();desenharOnline()};sr.append(b)});
