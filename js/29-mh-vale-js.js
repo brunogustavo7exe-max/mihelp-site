@@ -16,7 +16,7 @@ const opt=(sel,arr)=>arr.forEach(v=>{const o=document.createElement('option');o.
 opt($('vCid'),CID);$('vCid').value=cid;opt($('vCat'),[['','Todas as categorias']].concat(CATS));
 let fil='todos';
 {const fb=mk('div','vfil');fb.id='vFil';fb.setAttribute('role','group');fb.setAttribute('aria-label','Filtrar lugares');
- [['todos','Todos'],['selo','⭐ Visitados'],['top','👍 Mais recomendados']].forEach(([k,t])=>{const b=mk('button',0,t);b.type='button';b.setAttribute('aria-pressed',String(k===fil));
+ [['todos','Todos'],['selo','⭐ Estrela MiHelp'],['top','👍 Mais recomendados']].forEach(([k,t])=>{const b=mk('button',0,t);b.type='button';b.setAttribute('aria-pressed',String(k===fil));
   b.onclick=()=>{fil=k;fb.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));guia()};fb.append(b)});
  const vb=$('vCid').closest('.vbar');if(vb)vb.after(fb)}
 function link(txt,href){const a=mk('a',0,txt);a.href=href;a.target='_blank';a.rel='noopener noreferrer';return a}
@@ -42,7 +42,7 @@ async function guia(){
  if(!l.length){box.append(mk('p','note','Ainda não tem indicação por aqui. Seja o primeiro: toque em "Indicar um lugar".'));return}
  const rec=x=>x.recs||0,sl=x=>x.selo?1:0;
  const melhor=l.slice().sort((a,b)=>(sl(b)-sl(a))||(rec(b)-rec(a)))[0];
- if(fil==='selo'){l=l.filter(x=>x.selo);if(!l.length){box.append(mk('p','note','Ainda não tem lugar visitado pela MiHelp por aqui.'));return}}
+ if(fil==='selo'){l=l.filter(x=>x.selo);if(!l.length){box.append(mk('p','note','Ainda não tem lugar com a estrela MiHelp por aqui.'));return}}
  if(fil==='top')l.sort((a,b)=>rec(b)-rec(a));else l.sort((a,b)=>(sl(b)-sl(a))||(rec(b)-rec(a)));
  const dest=(fil==='todos'&&l.length>=3&&(melhor.selo||rec(melhor)>0))?melhor:null;
  if(dest)l=l.filter(x=>x!==dest);
@@ -56,6 +56,10 @@ async function guia(){
    if(q.ok&&q.j.ok){rb.textContent='👍 Recomendo · '+q.j.recs;rb.disabled=true;msg('')}
    else msg(q.status===409?'Você já recomendou esse lugar.':q.status===401?'Entre na sua conta para recomendar.':'Não consegui registrar agora.')};
   ac.append(rb);if(seguro(x.mapa))ac.append(link('📍 Mapa',x.mapa));if(x.contato)ac.append(link('💬 WhatsApp','https://wa.me/'+x.contato));
+  if(A.admTk&&A.admTk()){const mod=async(a,extra)=>{const q=await A.req('/lugares/moderar',{token:A.admTk(),body:Object.assign({id:x.id,acao:a},extra||{})});if(q.ok&&q.j&&q.j.ok)guia();else msg('Não consegui: '+((q.j&&q.j.erro)||'erro'))};
+   const ab=(t,f)=>{const e=mk('button',0,t);e.type='button';e.onclick=f;ac.append(e)};
+   if(!x.selo)ab('⭐ Dar estrela MiHelp',()=>{const ig=prompt('Link do post no Instagram da MiHelp (opcional):','');if(ig===null)return;mod('selo',{postIg:(ig||'').trim()})});else ab('Tirar estrela',()=>mod('tirarselo'));
+   ab('🗑 Apagar',()=>{if(confirm('Apagar "'+x.nome+'"?'))mod('apagar')})}
   c.append(ac);box.append(c)};
  if(dest)pinta(dest,true);l.forEach(x=>pinta(x,false))}
 const fmt=x=>{const p=String(x.data).split('-'),dt=new Date(x.data+'T12:00:00');return ['dom','seg','ter','qua','qui','sex','sáb'][dt.getDay()]+' '+p[2]+'/'+p[1]+' às '+x.hora};
