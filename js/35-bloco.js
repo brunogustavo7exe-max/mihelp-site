@@ -1,119 +1,56 @@
 
-/* Publicidade mobile: transforma as vagas laterais + slots do outdoor
-   em uma vitrine no topo. Não depende de anúncios pagos existirem. */
-(function(){
-  function fmtRestante(ms){ms=Math.max(0,Math.floor(ms/1000));const h=Math.floor(ms/3600),m=Math.floor(ms%3600/60),s=ms%60,p=n=>String(n).padStart(2,'0');return h?h+':'+p(m)+':'+p(s):p(m)+':'+p(s)}
-  function instalarPublicidadeMobile(){
-    const box=document.getElementById('adtop');
-    if(!box)return;
-    const vs=window.MH_ADS&&typeof window.MH_ADS.vs==='function'?window.MH_ADS.vs():null;
-    const now=Date.now();
-    const cards=[];
-    const usados=new Set();
-
-    if(Array.isArray(vs)){
-      vs.forEach((v,i)=>{
-        if(v && v.end>now){cards.push({v,i,open:false});usados.add(i)}
-      });
-      /* Vagas abertas só aparecem quando NÃO existe nenhum anúncio ativo. */
-      if(!cards.length){
-        for(let i=0;i<vs.length && cards.length<6;i++){
-          if(!vs[i]){cards.push({v:null,i,open:true});usados.add(i)}
-        }
-      }
-    }
-
-    /* Fallback para a primeira carga, caso MH_ADS ainda não exista. */
-    if(!cards.length){
-      for(let i=0;i<4;i++)cards.push({v:null,i,open:true});
-    }
-
-    const sig=cards.map(c=>c.open?'o'+c.i:'a'+c.i+'|'+c.v.name+'|'+c.v.text+'|'+(c.v.link||'')+'|'+(c.v.img?String(c.v.img).length:0)+'|'+c.v.end).join('~');
-    try{document.body.classList.toggle('tem-pub',cards.some(c=>!c.open))}catch(e){}
-    if(box._sig===sig&&box.firstChild)return;
-    box._sig=sig;
-    box.hidden=false;
-    box.classList.toggle('tem-ads',cards.some(function(c){return !c.open}));
-    box.innerHTML='';
-    const w=document.createElement('div');w.className='adw';
-    const dots=document.createElement('div');dots.className='add';
-
-    cards.forEach((item,k)=>{
-      const v=item.v;
-      const c=document.createElement('button');
-      c.type='button';
-      c.className='adc'+(item.open?' open-ad':'');
-      c.setAttribute('aria-label',item.open?'Vaga aberta para anunciar':'Publicidade: '+v.name);
-
-      if(v && v.img){
-        const im=document.createElement('img');
-        im.src=v.img;im.alt='';im.loading='lazy';
-        c.appendChild(im);
-      }else{
-        const ic=document.createElement('span');ic.className='ad-icon';ic.textContent=item.open?'$':'•';c.appendChild(ic);
-      }
-
-      const t=document.createElement('div');t.className='adt';
-      const small=document.createElement('small');small.textContent='Publicidade';
-      const b=document.createElement('b');b.textContent=item.open?'Vaga aberta':v.name;
-      const s=document.createElement('span');s.textContent=item.open?'A partir de R$ 5 · coloque sua marca aqui':v.text;
-      t.append(small,b,s);c.appendChild(t);
-      if(!item.open){const tm=document.createElement('span');tm.className='ad-tm';tm.dataset.end=v.end;tm.innerHTML='<small>restam</small><b>'+fmtRestante(v.end-Date.now())+'</b>';c.appendChild(tm)}
-      if(item.open||(v.link&&/^https?:\/\//i.test(v.link))){const ar=document.createElement('span');ar.className='ad-arrow';ar.textContent='›';c.appendChild(ar)}
-
-      c.addEventListener('click',function(){
-        if(item.open){
-          const alvo=document.getElementById('vagas');
-          if(alvo)alvo.scrollIntoView({behavior:'smooth',block:'start'});
-          setTimeout(function(){
-            const btn=document.querySelector('#vgrid .vg.open');
-            if(btn)btn.click();
-          },350);
-        }else if(v.link && /^https?:\/\//i.test(v.link)){
-          window.open(v.link,'_blank','noopener');
-        }else{
-          const alvo=document.getElementById('vagas');
-          if(alvo)alvo.scrollIntoView({behavior:'smooth',block:'start'});
-        }
-      });
-      w.appendChild(c);
-      const d=document.createElement('i');if(k===0)d.className='on';dots.appendChild(d);
-    });
-
-    box.appendChild(w);
-    if(cards.length>1)box.appendChild(dots);
-
-    let idx=0;
-    function pintar(){
-      const largura=w.clientWidth+9;
-      w.scrollTo({left:idx*largura,behavior:'smooth'});
-      Array.from(dots.children).forEach((d,i)=>d.className=i===idx?'on':'');
-    }
-    w.addEventListener('scroll',function(){
-      idx=Math.round(w.scrollLeft/Math.max(1,w.clientWidth+9));
-      idx=Math.max(0,Math.min(idx,cards.length-1));
-      Array.from(dots.children).forEach((d,i)=>d.className=i===idx?'on':'');
-    },{passive:true});
-
-    clearInterval(box._mobileAdTimer);
-    if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches && cards.length>1){
-      box._mobileAdTimer=setInterval(function(){
-        if(document.hidden)return;
-        idx=(idx+1)%cards.length;
-        pintar();
-      },5000);
-    }
-  }
-
-  /* O código original também atualiza anúncios; damos prioridade à nossa vitrine. */
-  window.MH_mobileAds=instalarPublicidadeMobile;
-  window.MH_MOBILE_ADS_REFRESH=instalarPublicidadeMobile;
-  setInterval(function(){document.querySelectorAll('#adtop .ad-tm').forEach(function(t){const ms=Number(t.dataset.end)-Date.now(),b=t.querySelector('b');if(b)b.textContent=fmtRestante(ms);t.classList.toggle('acabando',ms<60000)})},1000);
-  function tentar(){
-    try{instalarPublicidadeMobile()}catch(e){console.error('MiHelp mobile ads:',e)}
-  }
-  setTimeout(tentar,500);
-  setTimeout(tentar,1600);
-  setTimeout(tentar,3200);
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(tentar,150)});
-})();
+/* Selos MiHelp: o adm dá e tira selos de lojas e de pessoas. Ficam no servidor (chave "selos" da config) e valem para todo mundo. */
+try{(function(){
+const CAT=[
+ {id:'verificado',ic:'✔',nome:'Verificado MiHelp',cor:'#22a55a',txt:'A equipe do MiHelp confirmou que este negócio ou profissional existe e é quem diz ser.'},
+ {id:'estrela',ic:'⭐',nome:'Estrela MiHelp',cor:'#e0a100',txt:'Visitado pela equipe do MiHelp e aprovado.'},
+ {id:'obra',ic:'🏗️',nome:'Obra aprovada',cor:'#b4690e',txt:'Obras e reformas conferidas e aprovadas pela equipe (construtoras, empreiteiras, reformas).'},
+ {id:'sabor',ic:'🍽️',nome:'Sabor aprovado',cor:'#d94141',txt:'Provado e aprovado pela equipe (restaurantes, lanchonetes, padarias).'},
+ {id:'qualidade',ic:'💎',nome:'Qualidade aprovada',cor:'#0891b2',txt:'Serviço ou produto de qualidade, conferido pela equipe.'},
+ {id:'confianca',ic:'🤝',nome:'Confiança comprovada',cor:'#2f6fe4',txt:'Cumpre o que combina. A equipe conferiu o trabalho.'},
+ {id:'destaque',ic:'🏆',nome:'Destaque do mês',cor:'#ea6a0a',txt:'Escolhido como destaque do mês no Vale.'},
+ {id:'parceiro',ic:'🤲',nome:'Parceiro do MiHelp',cor:'#9b51e0',txt:'Apoia o MiHelp e ajuda o projeto a crescer.'},
+ {id:'pioneiro',ic:'🌱',nome:'Pioneiro do Vale',cor:'#6aa80f',txt:'Entrou no começo do MiHelp.'}];
+const POR={};CAT.forEach(c=>POR[c.id]=c);
+const KL='mihelp_selos_v1';
+let D={};try{D=JSON.parse(localStorage.getItem(KL)||'{}')||{}}catch(e){D={}}
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const api=()=>!!(window.MH_API&&MH_API.on());
+const adm=()=>!!(document.body&&document.body.classList.contains('adm')&&(!api()||MH_API.admTk()));
+const get=k=>{const l=Array.isArray(D[k])?D[k]:[];return CAT.filter(c=>l.includes(c.id))};
+const avisa=()=>{try{document.dispatchEvent(new Event('mh-selos'))}catch(e){}};
+function tile(c){const i=el('i','mhs-i',c.ic);i.style.setProperty('--c',c.cor);i.setAttribute('aria-hidden','true');return i}
+function mini(k,max){const l=get(k);if(!l.length)return null;max=max||4;const w=el('span','mhs-m');w.setAttribute('aria-label','Selos MiHelp: '+l.map(c=>c.nome).join(', '));
+ l.slice(0,max).forEach(c=>{const t=tile(c);t.title=c.nome;w.append(t)});if(l.length>max)w.append(el('small',null,'+'+(l.length-max)));return w}
+async function salva(){let ok=false;try{localStorage.setItem(KL,JSON.stringify(D))}catch(e){}
+ if(api()&&MH_API.admTk()){const r=await MH_API.req('/admin/config',{token:MH_API.admTk(),body:{itens:{selos:JSON.stringify(D)}}});ok=!!(r.ok&&r.j&&r.j.ok);if(r.status===401)MH_API.setAdmTk('')}
+ return ok}
+function editar(k,rot,pronto){
+ const d=document.createElement('dialog');d.className='v8dlg';d.setAttribute('aria-label','Selos');document.body.append(d);
+ const fecha=()=>{try{d.close()}catch(e){}d.remove()};d.addEventListener('click',e=>{if(e.target===d)fecha()});d.addEventListener('cancel',()=>setTimeout(()=>d.remove(),0));
+ const cur=get(k).map(c=>c.id),box=[];
+ d.append(el('h3',null,'🏅 Selos de '+rot),el('p','note','Marque os selos que essa página merece e toque em Salvar. Quem abrir a página vê os selos marcados.'));
+ CAT.forEach(c=>{const l=el('label','mhs-lin');const ck=document.createElement('input');ck.type='checkbox';ck.checked=cur.includes(c.id);box.push([c.id,ck]);
+  const tx=el('div');tx.append(el('b',null,c.nome),el('small',null,c.txt));l.append(ck,tile(c),tx);d.append(l)});
+ const st=el('p','note');st.setAttribute('role','status');d.append(st);
+ const ac=el('div','perfil-acoes');
+ const sv=el('button','cta2 pa-main','💾 Salvar selos');sv.type='button';
+ sv.onclick=async()=>{sv.disabled=true;st.style.color='';st.textContent='⏳ Salvando…';
+  const ids=box.filter(x=>x[1].checked).map(x=>x[0]);if(ids.length)D[k]=ids;else delete D[k];
+  const ok=await salva();avisa();if(pronto)pronto();
+  if(ok){st.textContent='✅ Selos salvos para todo mundo.';setTimeout(fecha,900)}
+  else{sv.disabled=false;st.style.color='var(--red)';st.textContent=api()?'⚠ Salvei só neste navegador: o servidor não aceitou. Confira se o Worker está com a atualização dos selos.':'⚠ Salvei só neste navegador (o site está sem servidor).'}};
+ const cn=el('button','more','Cancelar');cn.type='button';cn.onclick=fecha;ac.append(sv,cn);d.append(ac);d.showModal()}
+function bloco(k,rot){const l=get(k),a=adm();if(!l.length&&!a)return null;
+ const w=el('div','mhs-bloco');
+ const pinta=()=>{w.textContent='';const ls=get(k);
+  if(ls.length){w.append(el('h4',null,'Selos MiHelp'));const g=el('div','mhs-g'),dd=el('p','mhs-d');dd.hidden=true;dd.setAttribute('role','status');
+   ls.forEach(c=>{const b=el('button','mhs-b');b.type='button';b.append(tile(c),document.createTextNode(c.nome));b.setAttribute('aria-pressed','false');
+    b.onclick=()=>{const on=b.getAttribute('aria-pressed')==='true';g.querySelectorAll('.mhs-b').forEach(x=>x.setAttribute('aria-pressed','false'));if(on){dd.hidden=true}else{b.setAttribute('aria-pressed','true');dd.hidden=false;dd.textContent=c.nome+': '+c.txt}};g.append(b)});
+   w.append(g,dd)}
+  if(adm()){const b=el('button','more','🏅 '+(ls.length?'Editar selos':'Dar selos')+' (adm)');b.type='button';b.onclick=()=>editar(k,rot||'esta página',pinta);w.append(b)}};
+ pinta();return w}
+window.MH_SELOS={cat:CAT,get,mini,bloco,editar};
+/* lê os selos do servidor (todo mundo vê) */
+if(api())MH_API.req('/config').then(r=>{try{if(r.ok&&r.j&&typeof r.j.selos==='string'){const o=JSON.parse(r.j.selos);if(o&&typeof o==='object'){D=o;try{localStorage.setItem(KL,JSON.stringify(D))}catch(e){}avisa()}}}catch(e){}}).catch(()=>{});
+})()}catch(e){console.error('MiHelp (selos):',e)}
