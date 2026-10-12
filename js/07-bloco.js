@@ -539,7 +539,6 @@ function desenhaTopo8(){const top=document.getElementById('profTop');if(!top)ret
  [['todos','Todos'],['helpers','Helpers'],['lojas','Estabelecimentos']].concat(eu&&apiOn8()?[['fav','★ Favoritos']]:[]).forEach(([k,t])=>{const b=mk8('button',null,t);b.type='button';b.setAttribute('role','tab');b.setAttribute('aria-selected',String(V8.tab===k));b.onclick=()=>{V8.tab=k;profPag=0;desenharProf()};tabs.append(b)});
  top.append(tabs);
  const ac=mk8('div','v8acts');
- if(eu&&apiOn8()){const b=mk8('button','more','⚙ Meu espaço profissional');b.type='button';b.onclick=abrirEspaco8;ac.append(b)}
  if(apiOn8()&&window.MH_API.admTk()&&document.body.classList.contains('adm')){const b=mk8('button','more','🛠 Adm: ofícios');b.type='button';b.onclick=abrirAdmOficios8;ac.append(b)}
  if(ac.children.length)top.append(ac)}
 function desenharProf(){
@@ -614,7 +613,8 @@ function pintaLoja8(d,L,aba,aviso){clearInterval(chatTimer8);d.textContent='';
    if(!(eu&&m.nome===eu.nome)&&m.chamar!==false){const pp={nome:m.nome,work:m.work||m.funcao,role:m.helper===false?'cliente':'helper'};
     const r0=resumo(m.nome);if(r0)t.append(mk8('span','pe',estr(Math.round(r0.m))+' '+r0.m.toFixed(1).replace('.',',')+' ('+r0.n+')'));
     c.append(botao8('👤 Perfil','pcall',()=>{d.close();chamarHelper(pp)}),botao8('💬 Privado','pcall',()=>{d.close();chamarHelper(pp);try{abrirPrivado(m.nome)}catch(e){}}));
-    if(m.helper!==false&&m.ag&&L.modo==='agenda'&&(L.servicos||[]).length){c.style.flexWrap='wrap';const mb=botao8('📅 Marcar horário','cta2',()=>reservar8(d,L,{pro:m.nome}));mb.style.cssText='flex:1 1 100%;margin-top:6px;padding:13px;font-size:16px';c.append(mb)}}
+    if(m.helper!==false&&m.ag&&L.modo==='agenda'&&(L.servicos||[]).length){c.style.flexWrap='wrap';const mb=botao8('📅 Marcar horário','cta2',()=>reservar8(d,L,{pro:m.nome}));mb.style.cssText='flex:1 1 100%;margin-top:6px;padding:13px;font-size:16px';c.append(mb)}
+    else if(m.helper!==false&&L.modo==='agenda'&&(L.servicos||[]).length)t.append(mk8('span','pe','📅 agenda fechada (ainda não recebe marcações)'))}
    pane.append(c)});
   const oc=L.totalEquipe-L.equipe.length;
   if(oc>0)pane.append(mk8('p','note',L.totalEquipe+' profissionais no total. '+oc+(oc>1?' preferem':' prefere')+' não aparecer aqui.'));
@@ -888,8 +888,8 @@ function reservar8(d,L,pre){pre=pre||{};
    svs.forEach(s=>{const b=mk8('button','mhp-big');b.type='button';b.append(document.createTextNode(s.nome),mk8('small',null,durTxt8(s.min)+' · a partir de '+brl8(s.valor)));b.onclick=()=>escolheServ(s);d.append(b)});
    d.append(R.cart.length?botao8('← Voltar ao meu horário','more',()=>{R.tela='cart';pinta()}):botao8('← Voltar','more',()=>pintaLoja8(d,L,'serv')))}
   else if(R.tela==='prof'){d.append(mk8('p','note','Serviço selecionado: '+R.sv.nome),mk8('p','v8passo','Escolha o profissional'));
-   const ps=pros();if(!ps.length)d.append(mk8('p','note','Ninguém está recebendo marcações agora. Você pode chamar a loja pela conversa.'));
-   const g=mk8('div','v8pros');ps.forEach(m=>{const b=mk8('button','v8pro');b.type='button';b.append(avatarEl(m.nome,52),mk8('span',null,m.nome));b.onclick=()=>{R.pro=m;carrega()};g.append(b)});
+   const ps=pros(),todos=(L.equipe||[]).filter(m=>m.helper!==false);if(!ps.length)d.append(mk8('p','note','Ninguém está recebendo marcações agora. Você pode chamar a loja pela conversa.'));
+   const g=mk8('div','v8pros');todos.forEach(m=>{const ok=ps.includes(m),b=mk8('button','v8pro');b.type='button';b.append(avatarEl(m.nome,52),mk8('span',null,m.nome));if(ok)b.onclick=()=>{R.pro=m;carrega()};else{b.disabled=true;b.style.opacity='.55';b.append(mk8('small',null,'agenda fechada'))}g.append(b)});
    d.append(g,botao8('← Trocar serviço','more',()=>{R.tela='serv';pinta()}))}
   else if(R.tela==='dia'){d.append(mk8('p','note','Serviço: '+R.sv.nome+' · Profissional: '+R.pro.nome));
    if(!R.info)d.append(mk8('p','note','Carregando horários…'));
@@ -1198,7 +1198,7 @@ function abrirPerfilJanela(){
 /* painel do Cliente: atalhos + próximos horários marcados */
 function painelCliente8(){const w=mk8('div','mhp-tiles');w.append(mk8('h4',null,'Meu painel'));
  const g=mk8('div','mhp-g');
- [['🗓','Meus agendamentos',()=>abrirHorarios8()],['🔒','Conta e privacidade',()=>abrirEspaco8('conta')]].forEach(x=>{const b=document.createElement('button');b.type='button';const i=document.createElement('span');i.textContent=x[0];b.append(i,x[1]);b.onclick=x[2];g.append(b)});
+ [['🗓','Meus agendamentos',()=>abrirHorarios8()],['🔒','Conta e privacidade',()=>abrirEspaco8('conta')],['🤝','Minhas equipes',()=>abrirEspaco8('equipes')]].forEach(x=>{const b=document.createElement('button');b.type='button';const i=document.createElement('span');i.textContent=x[0];b.append(i,x[1]);b.onclick=x[2];g.append(b)});
  w.append(g);
  const box=mk8('div');w.append(box);
  if(apiOn8()&&tk8()){chama8('/reservas/minhas').then(r=>{if(!r.ok||!(r.j&&r.j.ok))return;const l=(r.j.comoCliente||[]).slice(0,3);

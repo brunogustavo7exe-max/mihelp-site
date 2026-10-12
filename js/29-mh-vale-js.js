@@ -47,7 +47,7 @@ async function guia(){
  const dest=(fil==='todos'&&l.length>=3&&(melhor.selo||rec(melhor)>0))?melhor:null;
  if(dest)l=l.filter(x=>x!==dest);
  const pinta=(x,ehDest)=>{const c=mk('div','vcard'+(ehDest?' vdest':''));if(ehDest)c.append(mk('span','vtag','🏆 DESTAQUE DO VALE'));c.append(mk('b',0,x.nome));
-  if(x.selo){const s=mk('span','vselo','⭐ Visitado pela MiHelp');if(seguro(x.postIg)){s.append(' · ',link('ver no Instagram',x.postIg))}c.append(s)}
+  if(x.selo){const s=mk('span','vselo','⭐ Estrela MiHelp');if(seguro(x.postIg)){s.append(' · ',link('ver no Instagram',x.postIg))}c.append(s)}
   c.append(mk('span','vsub',x.categoria+(x.bairro?' · '+x.bairro:'')));
   if(x.descricao)c.append(mk('p','vdesc',x.descricao));
   const ac=mk('div','vac');const rb=mk('button',0,'👍 Recomendo · '+(x.recs||0));rb.type='button';
@@ -78,11 +78,11 @@ async function caronas(){
   ac.append(b);c.append(ac);box.append(c)})}
 function indicar(){
  if(!logado()){msg('Entre na sua conta para indicar um lugar.');return}
- form('Indicar um lugar','Vai para a análise da equipe MiHelp antes de aparecer. Se visitarmos, o lugar ganha o selo "Visitado pela MiHelp".',
+ form('Indicar um lugar','Qualquer pessoa pode indicar: o lugar aparece na hora. Se a equipe visitar, ele ganha a ⭐ estrela MiHelp.',
   [{k:'nome',l:'Nome do lugar',max:60},{k:'categoria',l:'Categoria',t:'select',o:CATS},{k:'bairro',l:'Bairro (opcional)',max:40},{k:'descricao',l:'Por que você recomenda? (até 300 letras)',t:'area',max:300},{k:'contato',l:'WhatsApp do lugar (opcional)',t:'tel',ph:'66 99999-9999',max:20},{k:'mapa',l:'Link do mapa (opcional)',ph:'https://maps.app.goo.gl/...',max:300}],
   'Enviar indicação',async o=>{const r=await A.req('/lugares',{token:A.usrTk(),body:Object.assign(o,{cidade:cid})});
-   if(r.ok&&r.j.ok){msg('Indicação enviada! Ela aparece depois que a equipe aprovar.');return ''}
-   return r.status===429?'Você já tem 5 indicações esperando aprovação.':r.status===401?'Entre na sua conta.':(r.j&&r.j.erro)||'Não consegui enviar agora.'})}
+   if(r.ok&&r.j.ok){msg('Indicação publicada! Já aparece no Guia do Vale.');return ''}
+   return r.status===429?'Você já indicou muitos lugares hoje. Tente amanhã.':r.status===401?'Entre na sua conta.':(r.j&&r.j.erro)||'Não consegui enviar agora.'})}
 function oferecer(){
  if(!logado()){msgC('Entre na sua conta para oferecer uma carona.');return}
  const hoje=new Date().toISOString().slice(0,10);

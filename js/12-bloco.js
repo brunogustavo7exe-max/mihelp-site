@@ -308,7 +308,7 @@ function tSite(b){
     if(x.descricao)c.append(mk('p','vdesc',x.descricao));
     const ac=mk('div','vac');const bt=(t,f)=>{const e=mk('button',0,t);e.type='button';e.onclick=f;ac.append(e)};
     if(x.status==='pendente')bt('Aprovar',()=>acao(x,'aprovar'));
-    if(!x.selo)bt('⭐ Visitei (dar selo)',()=>{const ig=prompt('Link do post no Instagram da MiHelp (opcional):','')||'';acao(x,'selo',{postIg:ig.trim()})});else bt('Tirar selo',()=>acao(x,'tirarselo'));
+    if(!x.selo)bt('⭐ Dar estrela MiHelp',()=>{const ig=prompt('Link do post no Instagram da MiHelp (opcional):','')||'';acao(x,'selo',{postIg:ig.trim()})});else bt('Tirar estrela',()=>acao(x,'tirarselo'));
     bt(x.status==='pendente'?'Rejeitar':'Apagar',()=>{if(confirm('Remover "'+x.nome+'"?'))acao(x,'apagar')});
     c.append(ac);box.append(c)})})}
   b.append(mk('h4',0,'Cidades pedidas'));
