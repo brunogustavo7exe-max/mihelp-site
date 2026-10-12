@@ -79,7 +79,9 @@ async function caronas(){
    if(x.meu){if(!confirm('Cancelar essa carona?'))return;const q=await A.req('/caronas/cancelar',{token:A.usrTk(),body:{id:x.id}});if(q.ok)caronas();else msgC('Não consegui cancelar agora.');return}
    if(!logado()){msgC('Entre na sua conta para falar com o motorista.');return}
    if(window.MH_chamar)MH_chamar({nome:x.autor,work:'Motorista'});else msgC('Chame '+x.autor+' pelo chat.')};
-  ac.append(b);c.append(ac);box.append(c)})}
+  ac.append(b);
+  if(!x.meu&&A.admTk&&A.admTk()){const rm=mk('button',0,'🗑 Remover (adm)');rm.type='button';rm.onclick=async()=>{if(!confirm('Remover essa carona?'))return;const q=await A.req('/caronas/cancelar',{token:A.admTk(),body:{id:x.id}});if(q.ok&&q.j&&q.j.ok)caronas();else msgC('Não consegui remover agora.')};ac.append(rm)}
+  c.append(ac);box.append(c)})}
 function indicar(){
  if(!logado()){msg('Entre na sua conta para indicar um lugar.');return}
  form('Indicar um lugar','Qualquer pessoa pode indicar: o lugar aparece na hora. Se a equipe visitar, ele ganha a ⭐ estrela MiHelp.',

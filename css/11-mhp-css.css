@@ -55,3 +55,19 @@ dialog.mhp::backdrop{background:rgba(0,0,0,.85)}
 .v8ok{font-size:54px;text-align:center;margin:6px 0}
 .mhp-big small{display:block;font-weight:400;font-size:14px;opacity:.75;margin-top:2px}
 .v8lin{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.v8tabs button.dest{border:2px solid var(--gold);font-weight:900;box-shadow:0 0 0 3px rgba(var(--gold-rgb),.18)}
+/* v11: equipe, dias e horas organizados no celular + alertas em destaque */
+.pteam{display:grid!important;grid-template-columns:auto 1fr;gap:10px 12px;align-items:center}
+.pteam .pinfo{min-width:0}.pteam .pinfo b{white-space:normal;overflow:visible}
+.pteam .pacts{grid-column:1/-1;display:flex;gap:8px}.pteam .pacts .pcall{flex:1 1 0;min-height:46px}
+.pteam .pmarca{grid-column:1/-1;width:100%;min-height:50px;font-size:17px;font-weight:800;border-radius:12px}
+.v8dias{display:grid!important;grid-template-columns:repeat(4,1fr);gap:8px}
+.v8dia{min-width:0!important;padding:8px 2px!important;font-size:16px!important}
+.v8hrs.hor{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.v8hrs.hor .mhp-chip{padding:16px 6px;font-size:19px;font-weight:800;min-width:0}
+.v8pros{display:grid!important;grid-template-columns:repeat(2,1fr);gap:10px}
+.v8pro{min-width:0!important}
+.mh-alerta{display:block;margin:10px 0!important;padding:12px 14px!important;border-radius:12px;border:2px solid #ffb3ad;background:#b3261e!important;color:#fff!important;font:800 16px var(--sans)!important;line-height:1.35;animation:mhTrem .45s}
+.mh-alerta::before{content:"⚠️ "}
+@keyframes mhTrem{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@media(prefers-reduced-motion:reduce){.mh-alerta{animation:none}}

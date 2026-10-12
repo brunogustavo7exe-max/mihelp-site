@@ -144,7 +144,8 @@ p.sospv{border-left:4px solid #dc2626;background:rgba(220,38,38,.12);border-radi
 .need-tabs button[aria-selected=true]{border-color:var(--gold);color:var(--gold2);background:var(--deep)}
 .need-tabs button:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
 #need[data-min="1"] .need-tabs,#need[data-min="1"] #needCats{display:none!important}
-#need[data-aba="cat"] #needRow{display:none!important}
+#need .need-sep{grid-column:1/-1;margin:6px 0 0;font:800 13px var(--sans);letter-spacing:.3px;color:var(--mute)}#need .need-sep:first-child{margin-top:0}
+#need[data-aba="cat"] #needRow,#need[data-aba="est"] #needRow{display:none!important}
 /* setinha: minimizado esconde tudo (vence as regras dos temas) */
 :root:root:root:root #need[data-min="1"] :is(#needRow,#needTabs,#needCats,#needInfo){display:none!important}
 #needCats .nc-q{width:100%;box-sizing:border-box;min-height:46px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:16px var(--sans);margin:0 0 12px}
