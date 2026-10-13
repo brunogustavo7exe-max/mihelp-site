@@ -543,7 +543,7 @@ function desenhaTopo8(){const top=document.getElementById('profTop');if(!top)ret
   if(ks.length>1||V8.tipoF){const sl=document.createElement('select');sl.setAttribute('aria-label','Filtrar estabelecimentos por tipo');sl.add(new Option('Todos os tipos ('+V8.lojas.length+')',''));ks.forEach(k=>sl.add(new Option(k+' ('+ts[k]+')',k)));
    if(V8.tipoF&&!ts[V8.tipoF])sl.add(new Option(V8.tipoF+' (0)',V8.tipoF));sl.value=V8.tipoF;sl.onchange=()=>{V8.tipoF=sl.value;profPag=0;desenharProf()};top.append(sl)}}
  const ac=mk8('div','v8acts');
- if(apiOn8()&&window.MH_API.admTk()&&document.body.classList.contains('adm')){const b=mk8('button','more','🛠 Adm: ofícios');b.type='button';b.onclick=abrirAdmOficios8;ac.append(b)}
+ if(apiOn8()&&window.MH_API.admTk()&&document.body.classList.contains('adm')){const b=mk8('button','more','🛠 Adm: ofícios');b.type='button';b.onclick=abrirAdmOficios8;ac.append(b);const b2=mk8('button','more','🛠 Adm: pessoas');b2.type='button';b2.onclick=abrirAdmPessoas8;ac.append(b2)}
  if(ac.children.length)top.append(ac)}
 function desenharProf(){
  const box=document.getElementById('profList'),pg=document.getElementById('profPg');if(!box||!pg)return;
@@ -1110,12 +1110,31 @@ async function abrirAdmOficios8(){
  const st=mk8('p','note');st.setAttribute('role','status');d.append(st);
  if(!r.ok||!(r.j&&r.j.ok)){st.style.color='var(--red)';st.textContent=erro8(r);d.append(botao8('Fechar','more',()=>d.close()));return}
  if(!r.j.itens.length)d.append(mk8('p','note','Nenhum ofício pendente.'));
- const dec=async(it,aprovar)=>{const x=await MH_API.req('/admin/oficios/decidir',{token:MH_API.admTk(),body:{tel:it.tel,oficio:it.oficio,aprovar}});if(x.ok){abrirAdmOficios8();carregaV8()}else{st.style.color='var(--red)';st.textContent=erro8(x)}};
- r.j.itens.forEach(it=>{const row=mk8('div','v8card v8row');row.append(mk8('span',null,it.nome+' pediu: '),mk8('b',null,it.oficio),botao8('Aprovar','cta2',()=>dec(it,true)),botao8('Recusar','more',()=>dec(it,false)));d.append(row)});
+ const dec=async(it,aprovar,como)=>{const bd={tel:it.tel,oficio:it.oficio,aprovar};if(aprovar&&como&&como!==it.oficio)bd.como=como;const x=await MH_API.req('/admin/oficios/decidir',{token:MH_API.admTk(),body:bd});if(x.ok){abrirAdmOficios8();carregaV8()}else{st.style.color='var(--red)';st.textContent=erro8(x)}};
+ if(r.j.itens.length)d.append(mk8('p','note','Dica: se o ofício já existe na lista, troque o nome (ex.: "Pintor") antes de aprovar.'));
+ r.j.itens.forEach(it=>{const row=mk8('div','v8card v8row');const ip=document.createElement('input');ip.type='text';ip.maxLength=60;ip.value=it.oficio;ip.setAttribute('aria-label','Ofício que vai aparecer');row.append(mk8('span',null,it.nome+' pediu: '),mk8('b',null,it.oficio),ip,botao8('Aprovar','cta2',()=>dec(it,true,ip.value.trim())),botao8('Recusar','more',()=>dec(it,false)));d.append(row)});
  d.append(mk8('h4',null,'Liberar trocas de ofício (força maior)'));
  const l=mk8('label',null,'Telefone da conta');const tel=document.createElement('input');tel.type='text';tel.inputMode='tel';tel.maxLength=20;l.append(tel);
  d.append(l,botao8('Zerar as trocas dessa conta','more',async()=>{const x=await MH_API.req('/admin/oficios/liberar',{token:MH_API.admTk(),body:{tel:tel.value}});st.style.color=x.ok?'':'var(--red)';st.textContent=x.ok?'Trocas liberadas.':erro8(x)}));
  d.append(botao8('Fechar','more pa-close',()=>d.close()))}
+
+/* ===== v8: admin — mudar tipo (Helper/Cliente) e ofício de uma pessoa ===== */
+async function abrirAdmPessoas8(){
+ const d=admDlg8||(admDlg8=novoDlg8('Administração'));d.textContent='';
+ d.append(mk8('h3',null,'Mudar tipo ou ofício de uma pessoa'));
+ const st=mk8('p','note');st.setAttribute('role','status');
+ const l=mk8('label',null,'Nome ou telefone');const q=document.createElement('input');q.type='text';q.maxLength=40;l.append(q);
+ const res=mk8('div');
+ const busca=async()=>{res.textContent='';st.style.color='';st.textContent='Buscando…';
+  const r=await MH_API.req('/admin/usuarios?q='+encodeURIComponent(q.value.trim()),{token:MH_API.admTk()});
+  if(!r.ok||!(r.j&&r.j.ok)){st.style.color='var(--red)';st.textContent=erro8(r);return}
+  st.textContent=r.j.itens.length?'':'Ninguém encontrado.';
+  r.j.itens.forEach(u=>{const row=mk8('div','v8card');row.append(mk8('b',null,u.nome),mk8('span','note',' · '+(u.tel||'')+' · '+(u.papel==='helper'?'Helper':'Cliente')+(u.oficio?' · '+u.oficio:'')));
+   const sel=document.createElement('select');sel.setAttribute('aria-label','Tipo da conta');[['helper','Helper'],['cliente','Cliente']].forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;if(v===u.papel)o.selected=true;sel.append(o)});
+   const of=document.createElement('input');of.type='text';of.maxLength=60;of.value=u.oficio||'';of.placeholder='Ofício (ex.: Pintor)';of.setAttribute('aria-label','Ofício');
+   row.append(sel,of,botao8('Salvar','cta2',async()=>{const x=await MH_API.req('/admin/usuario/mudar',{token:MH_API.admTk(),body:{tel:u.tel,papel:sel.value,oficio:of.value.trim()}});st.style.color=x.ok?'':'var(--red)';st.textContent=x.ok?'Pronto, salvo.':erro8(x);if(x.ok)carregaV8()}));res.append(row)})};
+ q.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();busca()}});
+ d.append(l,botao8('Buscar','cta2',busca),st,res,botao8('Fechar','more pa-close',()=>d.close()));if(!d.open)d.showModal()}
 
 
 function pessoa(nome){return (eu&&eu.nome===nome)?eu:(por(nome)||REAIS[nome])}

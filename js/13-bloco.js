@@ -111,7 +111,7 @@ DB.ctl=async function(cmd){
   const r=await A.req('/admin/ctl',{token:A.admTk(),body:{cmd}});
   if(r.ok&&r.j&&r.j.ok){seen.add(r.j.id);aplicar(cmd,Number(r.j.ts)||tsLocal());return 'todos'}
   if(r.status===401)A.setAdmTk('');
-  aplicar(cmd,tsLocal());diag('controle: '+((r.j&&r.j.erro)||r.status),true);return 'erro'}
+  window.MH_CTL_ERRO=(r.j&&r.j.erro)||('erro '+r.status);aplicar(cmd,tsLocal());diag('controle: '+((r.j&&r.j.erro)||r.status),true);return 'erro'}
  if(!DB.ctlPronto()){aplicar(cmd,tsLocal());return 'local'}
  try{const payload=JSON.stringify(Object.assign({n:rid('')},cmd,{t})),sig=await assinar(payload),id=rid('c');seen.add(id);
   const r=await ins(COL.msg,{_id:id,sala:'sala',autor:'ADM',papel:'cliente',oficio:'',texto:payload,categoria:sig,tipo:'ctl'});
