@@ -22,6 +22,7 @@ if(window.MH_API&&MH_API.on())MH_API.req('/config').then(r=>{if(!r.ok||!r.j)retu
   try{['duelo','enquete'].forEach(c=>{if(typeof r.j[c]==='string')localStorage.setItem(K+c,r.j[c])})}catch(e){}
   try{if(r.j.titulos){const o=JSON.parse(r.j.titulos);if(o&&typeof o==='object'){Object.keys(TIT).forEach(k=>delete TIT[k]);Object.assign(TIT,o);UI.online()}}}catch(e){}
   try{if(typeof r.j.ofi_cfg==='string'){JSON.parse(r.j.ofi_cfg);localStorage.setItem(K+'ofi_cfg',r.j.ofi_cfg);window.MH_OFI&&MH_OFI.desenha()}}catch(e){}
+  try{if(typeof r.j.verificados==='string'){const m=JSON.parse(r.j.verificados);if(m&&typeof m==='object')Object.keys(m).forEach(n=>{if(window.MH_VERIF)MH_VERIF(n,!!m[n])})}}catch(e){}
   try{if(typeof r.j.helpers_fora==='string'){const a=JSON.parse(r.j.helpers_fora);if(Array.isArray(a)){FORA.clear();a.forEach(x=>FORA.add(String(x)));try{localStorage.setItem(K+'helpers_fora',r.j.helpers_fora)}catch(e){}try{window.MH_profRefresh&&MH_profRefresh()}catch(e){}}}}catch(e){}
   try{if(typeof r.j.banidos==='string'){const a=JSON.parse(r.j.banidos);if(Array.isArray(a)){const me=UI.eu(),novo=new Set(a.map(String));[...banidos].forEach(n=>{if(!novo.has(n)){banidos.delete(n);UI.desbanir(n)}});novo.forEach(n=>{if(!banidos.has(n)&&!(me&&me.nome===n)){banidos.add(n);UI.banir(n)}});try{localStorage.setItem(K+'banidos',JSON.stringify([...banidos]))}catch(e){}}}}catch(e){}});
 
@@ -33,6 +34,12 @@ banidos.forEach(n=>UI.banir(n));
 /* helpers tirados da página de Profissionais (vale para todos quando o servidor guarda) */
 const FORA=new Set(store.get('helpers_fora',[]));window.MH_FORA=FORA;try{window.MH_profRefresh&&MH_profRefresh()}catch(e){}
 const salvaFora=()=>{store.set('helpers_fora',[...FORA]);try{window.MH_profRefresh&&MH_profRefresh()}catch(e){}};
+/* verificação vale para todos: guarda no servidor (mapa nome -> 1/0), como o helpers_fora */
+async function verifSrv(n,v){const A=window.MH_API;if(!(A&&A.on()&&A.admTk()))return false;
+ const g=await A.req('/config');let m={};try{if(g.ok&&g.j&&typeof g.j.verificados==='string')m=JSON.parse(g.j.verificados)||{}}catch(e){}
+ m[n]=v?1:0;const r=await A.req('/admin/config',{token:A.admTk(),body:{itens:{verificados:JSON.stringify(m)}}});
+ if(r.status===401)A.setAdmTk('');
+ if(r.ok&&r.j&&r.j.ok)return true;window.MH_CTL_ERRO=(r.j&&r.j.erro)||('erro '+r.status);return false}
 /* lixeira do ADM: guarda o que foi removido para dar para colocar de volta */
 const lixo=(tipo,rot,dados)=>{const l=store.get('lixeira',[]);l.unshift({id:Date.now()+Math.random().toString(36).slice(2,5),t:Date.now(),tipo,rot,dados});store.set('lixeira',l.slice(0,20))};
 const lugarAd=i=>{const c=i%8;return 'Vaga '+(i+1)+' · Página '+(Math.floor(i/8)+1)+' · '+(c<4?'Esquerda':'Direita')+' '+(c%4+1)};
@@ -520,7 +527,7 @@ window.MH_perfilAdm=function(pes,d){
   if(!souEu&&window.MH_FOTOVER){const FV=MH_FOTOVER,tem=!!FV.foto(n),vf=FV.ver(n);
     const rv=mk('div','aact adm-r1');rv.style.marginTop='8px';
     const bv=mk('button','go adm-vf',vf?'✖ Tirar verificação':'✔ Verificar pessoa');bv.type='button';bv.disabled=!vf&&!tem;
-    bv.onclick=async()=>{let r='local';try{r=await MH_DB.ctl({a:'verif',n,v:vf?0:1})}catch(x){r='erro'}msg.textContent=(vf?'Verificação removida de ':'Verificada: ')+n+'.'+(r==='todos'?' Vale para todos.':' Ficou só neste aparelho.');bv.disabled=true};
+    bv.onclick=async()=>{bv.disabled=true;msg.textContent='Salvando…';window.MH_CTL_ERRO='';let r='local',sv=false;try{r=await MH_DB.ctl({a:'verif',n,v:vf?0:1})}catch(x){r='erro'}try{sv=await verifSrv(n,vf?0:1)}catch(x){}const ok=r==='todos'||sv;const API=window.MH_API&&MH_API.on();msg.textContent=(vf?'Verificação removida de ':'Verificada: ')+n+'.'+(ok?' Vale para todos.':(API&&!MH_API.admTk()?' Ficou só neste aparelho: você não está logado como admin no servidor. Saia do modo adm e entre de novo.':' Ficou só neste aparelho: o servidor não aceitou ('+(window.MH_CTL_ERRO||'sem resposta')+').'))};
     rv.append(bv);box.append(rv);
     if(!tem&&!vf)box.append(mk('p','note','Sem foto no perfil: esta pessoa não pode ser verificada.'))}
   box.append(mk('h4',0,'Avaliações que '+n+' fez'));

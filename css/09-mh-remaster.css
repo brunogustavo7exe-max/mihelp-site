@@ -106,22 +106,24 @@ html:root:root:root:root body nav.nv.nv-s:not(.nv-aberto)>#navAjustes{display:no
 
 /* ===== Colunas de jornal: perfil + Caronas à esquerda, chat + Guia à direita ===== */
 .jcol{display:flex;flex-direction:column;gap:22px;min-width:0}
-.jcol>#vale,.jcol>#carona{margin-top:0}
+.jcol>#vale,.jcol>#carona,.jcol>#cheers{margin-top:0}
 :root[data-tema] .wrap>.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:22px;align-items:start}
 /* perfil minimizado OU chat ampliado: as posições mudam (chat em cima, Guia e Caronas lado a lado) */
 :root[data-tema] .wrap>.grid.perfil-fechado>.jcol,html.cw-open:root[data-tema] .wrap>.grid>.jcol{display:contents}
 :root[data-tema] .grid.perfil-fechado #cw{grid-column:1/-1;grid-row:1}
 :root[data-tema] .grid.perfil-fechado #vale{grid-column:1;grid-row:2}
 :root[data-tema] .grid.perfil-fechado #carona{grid-column:2;grid-row:2}
-html.cw-open:root[data-tema] .grid:not(.perfil-fechado) #cadWin{grid-column:1;grid-row:1/span 2}
+:root[data-tema] .grid.perfil-fechado #cheers{grid-column:1;grid-row:3}
+html.cw-open:root[data-tema] .grid:not(.perfil-fechado) #cadWin{grid-column:1;grid-row:1/span 3}
 html.cw-open:root[data-tema] .grid:not(.perfil-fechado) #vale{grid-column:2;grid-row:1}
-html.cw-open:root[data-tema] .grid:not(.perfil-fechado) #carona{grid-column:2;grid-row:2}
-html.modo-foco #vale,html.modo-foco #carona{display:none!important}
+html.cw-open:root[data-tema] .grid:not(.perfil-fechado) #carona{grid-column:2;grid-row:3}
+html.cw-open:root[data-tema] .grid:not(.perfil-fechado) #cheers{grid-column:2;grid-row:2}
+html.modo-foco #vale,html.modo-foco #carona,html.modo-foco #cheers{display:none!important}
 @media(max-width:860px){
  :root[data-tema] .wrap>.grid,:root[data-tema] .wrap>.grid.perfil-fechado{display:flex;flex-direction:column;gap:12px}
  :root[data-tema] .wrap>.grid>.jcol{display:contents}
- :root[data-tema] #cadWin{order:1}:root[data-tema] #cw{order:2}:root[data-tema] #vale{order:3}:root[data-tema] #carona{order:4}
- .jcol>#vale,.jcol>#carona{margin-top:20px}
+ :root[data-tema] #cadWin{order:1}:root[data-tema] #cw{order:2}:root[data-tema] #vale{order:3}:root[data-tema] #cheers{order:4}:root[data-tema] #carona{order:5}
+ .jcol>#vale,.jcol>#carona,.jcol>#cheers{margin-top:20px}
 }
 /* ===== Genérico: cabeçalho misto (Suporte, Mais informações e Ajustes como nos outros temas) ===== */
 :root[data-tema^=generico] :is(#saiba,#hoje,#tutorial,#guia-chat,#seguranca,#taxas,#duvidas,#apoie,#patrocinio,#quem,#privacidade).mh-ver{display:block!important;scroll-margin-top:16px}

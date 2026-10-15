@@ -66,8 +66,8 @@
   <nav class="mhi" id="mhInicio" aria-label="Atalhos principais">
     <button type="button" data-go="prof"><span>🔧</span>Achar profissional</button>
     <button type="button" data-go="vale"><span>🧭</span>Guia do Vale</button>
+    <button type="button" data-go="cheers"><span>🎉</span>Eventos</button>
     <button type="button" data-go="carona"><span>🚗</span>Caronas</button>
-    <button type="button" data-go="cheers"><span>🥂</span>Cheers</button>
     <button type="button" data-go="cw"><span>💬</span>Conversar</button>
   </nav>
   <div class="need" id="need" aria-label="Buscar por ofício">
@@ -128,17 +128,6 @@
     <p class="note">Carona é divisão de custos, não é serviço de transporte. Combine tudo no chat privado e avise alguém de confiança sobre a viagem.</p>
    </div></div>
   </section>
-  <section id="cheers" aria-labelledby="chl">
-  <h2 id="chl">Cheers: o que rola no Vale</h2>
-  <p class="lead">Eventos das cidades: música, feira, festa, culto, jogo. Qualquer pessoa pode divulgar, de graça.</p>
-  <div class="win"><div class="bar"><span class="t">cheers</span><i></i><i></i><i></i></div>
-   <div class="body">
-    <div class="vbar"><button type="button" id="eNovo" class="cta2">+ Divulgar evento</button></div>
-    <div id="eLista"></div>
-    <p class="note" id="eMsg" role="status"></p>
-    <p class="note">O MiHelp só divulga. Confirme dia, hora e local com quem organiza antes de ir.</p>
-   </div></div>
-  </section>
    </div>
    <div class="jcol" id="jcD">
     <section class="win" id="cw" aria-label="Sala de conversa">
@@ -178,6 +167,17 @@
     <div id="vLista"></div>
     <p class="note" id="vMsg" role="status"></p>
     <p class="note" id="vNota">Lugares com a <b>⭐ Estrela MiHelp</b> foram visitados pela nossa equipe. Qualquer pessoa pode indicar um lugar e ele aparece na hora.</p>
+   </div></div>
+  </section>
+  <section id="cheers" aria-labelledby="chl">
+  <h2 id="chl">Eventos do Vale 🎉</h2>
+  <p class="lead">Festas, shows e encontros das cidades. Divulgar o seu é grátis.</p>
+  <div class="win"><div class="bar"><span class="t">eventos</span><i></i><i></i><i></i></div>
+   <div class="body">
+    <div class="vbar"><button type="button" id="chNovo" class="cta2">+ Divulgar evento</button></div>
+    <div id="chLista"></div>
+    <p class="note" id="chMsg" role="status"></p>
+    <p class="note">Cada pessoa divulga o próprio evento e responde por ele. O MiHelp não vende ingresso e não cobra nada. O evento some da lista 6 horas depois de começar.</p>
    </div></div>
   </section>
    </div>
@@ -288,7 +288,7 @@
   <div class="win" style="margin-top:18px"><div class="bar"><span class="t">tudo-que-o-site-faz</span><i></i><i></i><i></i></div>
     <div class="body rules">
       <details><summary>🆕 Atalhos do início e filtros do Guia</summary>
-        <p><b>4 botões grandes no topo:</b> <b>Achar profissional</b>, <b>Guia do Vale</b>, <b>Caronas</b> e <b>Conversar</b>. Tocou, a página desce até a parte certa. Se o Guia ou as Caronas não estiverem disponíveis, o botão some.</p>
+        <p><b>Botões grandes no topo:</b> <b>Achar profissional</b>, <b>Guia do Vale</b>, <b>🎉 Eventos</b>, <b>Caronas</b> e <b>Conversar</b>. Tocou, a página desce até a parte certa. Se o Guia, os Eventos ou as Caronas não estiverem disponíveis, o botão some.</p>
         <p><b>No Guia do Vale:</b> use os botões <b>Todos</b>, <b>⭐ Estrela MiHelp</b> (só lugares que a MiHelp visitou) e <b>👍 Mais recomendados</b>. Quando tem lugares suficientes, o mais bem avaliado aparece no alto como <b>🏆 Destaque do Vale</b>.</p>
       </details>
       <details><summary>🆕 Meu painel do Helper</summary>
@@ -489,6 +489,43 @@
           <li><b>Salvei e não mudou nada.</b> Olhe a faixa de aviso: verde (✅) é sucesso, vermelha (❌) explica o erro.</li>
           <li><b>Preço diferente do cardápio.</b> A reserva não cobra nada. Cliente e profissional resolvem pessoalmente.</li>
         </ul></details>
+      <details><summary>🆕 Eventos das cidades</summary>
+        <p>Os <b>Eventos</b> ficam logo abaixo do Guia do Vale. É o quadro de avisos do que rola no Vale: música, feira, festa, culto, jogo. Tudo grátis.</p>
+        <p><b>Divulgar:</b> entre na conta, toque em <b>+ Divulgar evento</b> e preencha nome, dia, hora, local, detalhes e, se quiser, o WhatsApp. Aparece na hora, só na cidade escolhida. Cada pessoa pode ter até <b>8 eventos abertos</b>.</p>
+        <p><b>Quando some:</b> o evento sai da lista <b>6 horas depois de começar</b>. Quem criou pode apagar antes, em <b>Apagar meu evento</b>.</p>
+        <p><b>Cuidado:</b> o MiHelp só divulga. Não vende ingresso e não cobra nada. Confirme dia, hora e local com quem organiza antes de ir.</p></details>
+      <details><summary>🆕 Pix do coração: agradecer um Helper</summary>
+        <p><b>Se você é Helper:</b> abra <b>⚙ Meu espaço profissional</b> → <b>💛 Meu Pix do coração</b>, digite sua chave e toque em <b>Salvar meu Pix</b>. É opcional. Para tirar, toque em <b>Tirar meu Pix</b>. Dica: prefira e-mail ou chave aleatória e evite o CPF.</p>
+        <p><b>Se você é cliente:</b> abra o perfil do Helper e toque em <b>💛 Ver o Pix</b>. Só quem está logado vê. Depois toque em <b>Copiar</b> e pague no app do seu banco.</p>
+        <p><b>Importante:</b> é um agradecimento, sem obrigação. O MiHelp não cobra, não participa e não guarda esse dinheiro. Só Helpers podem colocar Pix.</p></details>
+      <details><summary>🆕 Investir em uma loja</summary>
+        <p><b>Quem tem uma loja:</b> em <b>Editar</b> → <b>➕ Mais informações</b>, marque <b>💰 Aceito conversar com quem quiser investir</b> e, se quiser, escreva uma frase sobre o que quer fazer crescer. Pode desmarcar quando quiser.</p>
+        <p><b>Quem quer investir:</b> em <b>Profissionais do Vale</b>, toque na aba <b>💰 Investir</b>. Só aparecem as lojas que marcaram. Abra o perfil e use o botão de conversa.</p>
+        <p><b>Regra de ouro:</b> o MiHelp só apresenta as duas pessoas. Não participa do negócio, não garante retorno e não guarda dinheiro. Quem investe e o dono combinam tudo entre eles. Peça tudo por escrito e desconfie de promessa de lucro fácil.</p></details>
+      <details><summary>🆕 Aparecer ou não: dono e equipe da loja</summary>
+        <p>Você escolhe o quanto aparece. Em <b>Criar meu negócio</b> (última tela) ou em <b>Editar</b>:</p>
+        <ul>
+          <li><b>Mostrar o meu nome como dono</b>: desmarcado (padrão nas lojas novas), o perfil não mostra quem é o dono. Você só registra a loja.</li>
+          <li><b>Mostrar a equipe no perfil da loja</b>: desmarcado, a equipe some do perfil e a loja não aparece no perfil dos Helpers que trabalham nela.</li>
+        </ul>
+        <p>Com as duas desmarcadas, o perfil mostra <b>só a loja, as avaliações e os comentários</b>. O que acontece com uma pessoa não vai para a loja, e o que acontece com a loja não vai para a pessoa.</p>
+        <p><b>Exceção:</b> loja com agenda ("Marcando horário") sempre mostra os profissionais, porque o cliente escolhe com quem marcar. Quem quer esconder a equipe usa a loja de "Conversa".</p>
+        <p>Cada pessoa da equipe continua decidindo se o próprio nome aparece (<b>Mostrar meu nome na equipe da loja</b>).</p></details>
+      <details><summary>🆕 Passar a loja para outro Helper</summary>
+        <p><b>Quando serve:</b> o dono saiu, vendeu o negócio, ou você criou a loja de uma empresa e agora quer que ela mesma administre.</p>
+        <ol class="steps">
+          <li><b>1. A pessoa precisa ser Helper</b>Ela cria a conta no MiHelp e, se for Cliente, vira Helper em <b>Cliente ou Helper</b>.</li>
+          <li><b>2. O dono oferece</b>Em <b>🏪 Meus estabelecimentos</b>, no cartão da loja, toque em <b>🔁 Passar a loja para outro Helper</b>, digite o telefone da pessoa e toque em <b>Oferecer a loja</b> (dois toques).</li>
+          <li><b>3. A pessoa aceita</b>Em <b>⚙ Meu espaço profissional</b> → <b>🔁 Lojas oferecidas a você</b>, toque em <b>Aceitar a loja</b> (ou <b>Recusar</b>).</li>
+          <li><b>4. Pronto</b>A loja passa a ser dela. As avaliações, os favoritos e a equipe ficam. Por padrão o nome do novo dono não aparece; ele muda em <b>Editar</b>.</li>
+        </ol>
+        <p><b>Mudou de ideia?</b> Enquanto a pessoa não aceitar, toque em <b>Cancelar transferência</b> no cartão da loja. Só pode haver uma oferta por loja.</p>
+        <p><b>Quem criou a loja para uma empresa:</b> crie, deixe dono e equipe ocultos e, quando a empresa tiver conta de Helper, ofereça a loja pelo telefone dela. O administrador do MiHelp também pode oferecer qualquer loja, pelo botão <b>🔁 Oferecer a um Helper (adm)</b> na página da loja.</p></details>
+      <details><summary>🆕 Diarista, faxineira e marido de aluguel</summary>
+        <p><b>🧰 Diarista:</b> quem trabalha por diária (dia todo ou meio período) em serviços gerais: ajudar em obra, mudança, capina, carregar peso, pequenos serviços. <b>Não é limpeza.</b></p>
+        <p><b>🧼 Faxineira:</b> limpeza de casa, apartamento e comércio. Quem faz limpeza escolhe este ofício.</p>
+        <p><b>🛠️ Marido de aluguel:</b> pequenos reparos e consertos de casa: trocar chuveiro ou torneira, regular porta, pendurar prateleira, montar móvel.</p>
+        <p>Para ver a explicação no app, abra <b>Do que você precisa?</b> → <b>Casa e jardim</b>, ou escolha o ofício em <b>Meu espaço profissional</b>.</p></details>
       <details><summary>Entrar na equipe de um estabelecimento</summary>
         <p><b>Se o dono convidou você:</b> o convite aparece em <b>Meu espaço profissional</b>, em "Convites para entrar em equipes". Marque (ou não) "Mostrar meu nome no perfil público da loja" e toque em <b>Aceitar</b> ou <b>Recusar</b>.</p>
         <p><b>Se você quer pedir para entrar:</b> abra o perfil da loja e toque em <b>🙋 Quero fazer parte</b>. Escolha a função e se quer aparecer. O dono precisa aprovar.</p>
@@ -500,7 +537,7 @@
           <li>É preciso estar logado.</li>
           <li>Cada conta avalia a mesma loja <b>uma vez</b>.</li>
           <li>O dono e quem trabalha na loja não podem avaliá-la.</li>
-          <li>A nota da loja aparece no cartão e no perfil. Na aba <b>Avaliações</b>, o público vê só as <b>estrelas</b> (quantas de cada nota). Os <b>comentários</b> ficam visíveis só para o dono da loja e para o administrador.</li>
+          <li>A nota da loja aparece no cartão e no perfil. Na aba <b>Avaliações</b> todo mundo vê as <b>estrelas</b> e os <b>comentários</b>, com o nome de quem escreveu. Pense bem antes de comentar.</li>
           <li>O administrador pode apagar uma avaliação abusiva.</li>
           <li>Avaliar um <b>Helper</b> continua como antes: pelo perfil dele, depois de conversar no privado.</li>
         </ul>
@@ -949,6 +986,7 @@
       <details><summary>Meus dados ficam protegidos?</summary><p>Quem trabalha só vê o necessário em cada etapa. Nome completo, foto nítida e contato só aparecem depois que o Helper aceita o pedido. Seguimos a LGPD.</p></details>
       <details><summary>Posso falar no privado com alguém do chat?</summary><p>Pode, depois de se cadastrar. É só clicar no nome da pessoa. No chat aparece apenas o primeiro nome e a inicial do segundo, e nada do seu perfil é compartilhado. Se vocês combinarem de trocar telefone, a escolha é de vocês, mas para ter histórico e mais segurança, feche o serviço pelo app. Você pode bloquear e denunciar qualquer conversa.</p></details>
       <details><summary>Sou MEI ou tenho empresa. Posso entrar?</summary><p>MEI se cadastra como Helper, do mesmo jeito que um autônomo. Empresas com equipe e folha de pagamento ficam para uma fase futura. Se você quer divulgar sua empresa, veja <a href="#apoie">Empresas e apoio</a>.</p></details>
+      <details><summary>Diarista, faxineira e marido de aluguel: qual a diferença?</summary><p><b>Diarista</b> trabalha por diária (dia todo ou meio período) em serviços gerais: ajudar em obra, mudança, capina, carregar peso. Não é limpeza. <b>Faxineira</b> faz a limpeza de casa, apartamento e comércio. <b>Marido de aluguel</b> faz pequenos reparos e consertos de casa: trocar chuveiro, regular porta, pendurar prateleira, montar móvel.</p></details>
       <details><summary>Quais serviços têm?</summary><p>Obras (pintura, pedreiro, encanador...), dia a dia (elétrica, diarista, ar-condicionado...) e mais trabalhos (babá, cuidador de idoso, fotógrafo, DJ...). Se o que você precisa não está na lista, a busca do app encontra.</p></details>
     </div></div>
 </section>
