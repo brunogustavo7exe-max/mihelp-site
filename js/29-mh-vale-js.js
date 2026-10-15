@@ -82,6 +82,30 @@ async function caronas(){
   ac.append(b);
   if(!x.meu&&A.admTk&&A.admTk()){const rm=mk('button',0,'🗑 Remover (adm)');rm.type='button';rm.onclick=async()=>{if(!confirm('Remover essa carona?'))return;const q=await A.req('/caronas/cancelar',{token:A.admTk(),body:{id:x.id}});if(q.ok&&q.j&&q.j.ok)caronas();else msgC('Não consegui remover agora.')};ac.append(rm)}
   c.append(ac);box.append(c)})}
+const msgE=t=>{$('eMsg').textContent=t||''};
+async function cheers(){
+ const box=$('eLista');box.textContent='Carregando…';
+ const r=await A.req('/eventos?cidade='+cid,{token:A.usrTk()});box.textContent='';
+ if(!r.ok){box.append(mk('p','note','Não consegui carregar agora. Tente de novo em instantes.'+dica(r)));return}
+ const l=r.j.itens||[];
+ if(!l.length){box.append(mk('p','note','Nenhum evento marcado por aqui. Sabe de algo? Toque em "Divulgar evento".'));return}
+ l.forEach(x=>{const c=mk('div','vcard');c.append(mk('b',0,'🥂 '+x.nome));
+  c.append(mk('span','vsub',fmt(x)+(x.local?' · '+x.local:'')));
+  if(x.descricao)c.append(mk('p','vdesc',x.descricao));
+  c.append(mk('span','vsub','Divulgado por: '+x.autor));
+  const ac=mk('div','vac');
+  if(x.contato)ac.append(link('💬 WhatsApp','https://wa.me/'+x.contato));
+  if(x.meu||(A.admTk&&A.admTk())){const rm=mk('button',0,x.meu?'Apagar meu evento':'🗑 Remover (adm)');rm.type='button';
+   rm.onclick=async()=>{if(!confirm('Apagar esse evento?'))return;const q=await A.req('/eventos/apagar',{token:x.meu?A.usrTk():A.admTk(),body:{id:x.id}});if(q.ok&&q.j&&q.j.ok)cheers();else msgE('Não consegui apagar agora.')};ac.append(rm)}
+  c.append(ac);box.append(c)})}
+function divulgar(){
+ if(!logado()){msgE('Entre na sua conta para divulgar um evento.');return}
+ const hoje=new Date().toISOString().slice(0,10);
+ form('Divulgar evento','Aparece na hora para todo mundo da cidade. O MiHelp só divulga: confirme os detalhes com quem organiza.',
+  [{k:'nome',l:'Nome do evento',max:60},{k:'data',l:'Dia',t:'date',min:hoje},{k:'hora',l:'Hora',t:'time'},{k:'local',l:'Onde (local ou endereço)',max:80},{k:'descricao',l:'Detalhes (até 300 letras)',t:'area',max:300},{k:'contato',l:'WhatsApp de quem organiza (opcional)',t:'tel',ph:'66 99999-9999',max:20}],
+  'Publicar evento',async o=>{const r=await A.req('/eventos',{token:A.usrTk(),body:Object.assign(o,{cidade:cid})});
+   if(r.ok&&r.j.ok){msgE('Evento publicado!');cheers();return ''}
+   return r.status===429?'Você já tem 8 eventos abertos.':r.status===401?'Entre na sua conta.':(r.j&&r.j.erro)||'Não consegui publicar agora.'})}
 function indicar(){
  if(!logado()){msg('Entre na sua conta para indicar um lugar.');return}
  form('Indicar um lugar','Qualquer pessoa pode indicar: o lugar aparece na hora. Se a equipe visitar, ele ganha a ⭐ estrela MiHelp.',
@@ -97,8 +121,8 @@ function oferecer(){
   'Publicar carona',async o=>{const r=await A.req('/caronas',{token:A.usrTk(),body:Object.assign(o,{cidade:cid})});
    if(r.ok&&r.j.ok){msgC('Carona publicada!');caronas();return ''}
    return r.status===429?'Você já tem 5 caronas abertas.':r.status===401?'Entre na sua conta.':(r.j&&r.j.erro)||'Não consegui publicar agora.'})}
-$('vCid').onchange=()=>{cid=$('vCid').value;try{localStorage.setItem('mh_cidade',cid)}catch(e){}guia()};
+$('vCid').onchange=()=>{cid=$('vCid').value;try{localStorage.setItem('mh_cidade',cid)}catch(e){}guia();cheers()};
 $('vCat').onchange=()=>{cat=$('vCat').value;guia()};
-$('vNovo').onclick=indicar;$('cNovo').onclick=oferecer;
-guia();caronas();
+$('vNovo').onclick=indicar;$('cNovo').onclick=oferecer;$('eNovo').onclick=divulgar;
+guia();caronas();cheers();
 })()}catch(e){console.error('MiHelp (vale):',e)}
