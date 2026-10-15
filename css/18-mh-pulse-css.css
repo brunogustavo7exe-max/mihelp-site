@@ -56,6 +56,8 @@
 .pulse-item b{font:800 20px var(--mono);color:var(--gold);line-height:1.1}
 .pulse-item span{font:600 11px var(--sans);color:var(--mute);line-height:1.25}
 .pulse-cta{justify-content:center}
+.pulse.pulse-vazio .pulse-item:not(.pulse-cta){display:none}
+.pulse.pulse-vazio{grid-template-columns:1fr}
 .pulse-share{
   border:1px solid var(--gold);background:var(--gold);color:#201804;
   border-radius:9px;padding:10px 8px;font:800 12px var(--sans);cursor:pointer;width:100%;

@@ -41,6 +41,9 @@ function pintarPulse(){
   cad.textContent=pega(STATS.cad,W.cad);
   help.textContent=pega(STATS.help,W.help);
   on.textContent=String(Math.max(nOn,0));
+  /* números pequenos passam sensação de vazio: só mostra os contadores a partir de PULSE_MIN cadastrados */
+  const PULSE_MIN=30,nCad=Number(cad.textContent);
+  const pl=cad.closest('.pulse');if(pl)pl.classList.toggle('pulse-vazio',!(nCad>=PULSE_MIN));
 }
 window.MH_pintarPulse=pintarPulse;
 async function carregarStats(){

@@ -1135,6 +1135,7 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 
 /* Pix automático: esconde o passo a passo manual (Discord, e-mail, resumo) */
 #dpix.pix-auto #dpkn,#dpix.pix-auto #dcopk,#dpix.pix-auto h4,#dpix.pix-auto .pixs,#dpix.pix-auto label[for=dpr],#dpix.pix-auto #dpr,#dpix.pix-auto #dcopr,#dpix.pix-auto #dpd,#dpix.pix-auto #dpm{display:none}
+#dpix.pix-falha #dpc,#dpix.pix-falha #dcopc,#dpix.pix-falha #dpq,#dpix.pix-falha p.note:not(#dps){display:none}
 #dps{font-weight:700;color:var(--gold2)}
 .adtop{display:none}
 @media(max-width:1199px){

@@ -34,7 +34,7 @@ g('dpr').value=o.resumo;
 g('dpe').textContent=o.extra||'';g('dpe').hidden=!o.extra;
 const mail='mailto:'+PIX.contato+'?subject='+encodeURIComponent(o.assunto)+'&body='+encodeURIComponent(o.resumo+'\n\n(anexe o comprovante do Pix)');g('dpm').onclick=()=>{window.location.href=mail};
 const pp=g('dpp');pp.hidden=!o.previa||!PREVIA;pp.onclick=()=>{o.previa();d.close()};
-d.classList.remove('pix-auto');g('dps').hidden=true;pararPoll();
+d.classList.remove('pix-auto','pix-falha');g('dps').hidden=true;pararPoll();
 d.showModal();
 if(o.api&&window.MH_API&&MH_API.on())pixAuto(o,d,g)}
 let pixPoll=null;
@@ -44,7 +44,7 @@ async function pixAuto(o,d,g){
 const A=window.MH_API,s=g('dps');
 s.hidden=false;s.textContent='Gerando o Pix...';d.classList.add('pix-auto');
 const r=await A.req('/pix',{body:o.api,ms:20000});
-if(!(r.ok&&r.j&&r.j.copiaecola)){d.classList.remove('pix-auto');s.textContent='Não consegui gerar o Pix automático. Use o código ou a chave abaixo e envie o comprovante.';return}
+if(!(r.ok&&r.j&&r.j.copiaecola)){d.classList.add('pix-falha');s.textContent='Não consegui gerar o Pix agora. Feche esta janela e tente de novo em alguns minutos.';return}
 g('dpc').value=r.j.copiaecola;
 {const q=g('dpq');if(r.j.qrBase64){q.src='data:image/png;base64,'+r.j.qrBase64;q.hidden=false}}
 g('dpv').textContent='R$ '+Number(r.j.valor).toFixed(2).replace('.',',');
@@ -1774,7 +1774,7 @@ document.getElementById('df').addEventListener('submit',e=>{e.preventDefault();
 const m=minutosAtuais(),p=precoAnuncio(m),nome=document.getElementById('dn').value.trim(),texto=document.getElementById('dx').value.trim(),link=document.getElementById('dl').value.trim(),vaga=cur,foto=imgData;
 const item={name:nome,text:texto,end:0,total:m*60000,tag:PREVIA?"prévia":"",img:foto};
 dlg.close();
-try{if(window.MH_DB&&MH_DB.ok)MH_DB.pedido({tipo:'outdoor',nome,texto,link,vaga:vaga+1,minutos:m,valor:p.final,imagem:foto||''}).then(()=>{msg.textContent='Pedido registrado. Seu outdoor entra no ar depois que o Pix for confirmado.'}).catch(()=>{msg.textContent='Não consegui registrar o pedido online. Envie o comprovante por e-mail que a gente coloca no ar.'})}catch(x){}
+try{if(window.MH_DB&&MH_DB.ok)MH_DB.pedido({tipo:'outdoor',nome,texto,link,vaga:vaga+1,minutos:m,valor:p.final,imagem:foto||''}).then(()=>{msg.textContent='Pedido registrado. Seu outdoor entra no ar depois que o Pix for confirmado.'}).catch(()=>{msg.textContent='Não consegui registrar o pedido online. Tente de novo em alguns minutos ou fale com a gente pelo Suporte.'})}catch(x){}
 abrirPix({titulo:'Outdoor digital — vaga '+(vaga+1),valor:p.final,
 resumo:'OUTDOOR DIGITAL MIHELP\nVaga: '+(vaga+1)+'\nTempo: '+fmtTempo(m)+'\nValor: R$ '+p.final+',00'+(p.pct?(' (de R$ '+p.cheio+' com '+(Math.round(p.pct*100))+'% off)'):'')+'\nNegócio: '+nome+'\nTexto: '+texto+'\nLink ou WhatsApp: '+(link||'-')+'\nImagem: '+(foto?'sim (anexar no e-mail)':'não'),
 assunto:'Outdoor digital MiHelp — '+nome,

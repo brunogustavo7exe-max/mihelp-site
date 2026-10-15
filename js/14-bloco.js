@@ -73,6 +73,31 @@ try{localStorage.removeItem('mh_sess');sessionStorage.removeItem('mh_sess');loca
 /* a "chave" que vai ao servidor é derivada no navegador (PBKDF2); a senha em si nunca sai daqui */
 const normalizaTel=v=>String(v||'').replace(/\D/g,'');
 const chaveDe=(ident,pw)=>hash(pw,new TextEncoder().encode('mihelp:'+String(ident).trim().replace(/\s+/g,' ').toLowerCase()));
+/* link de indicação (?ind=nome) fica guardado e vai junto no cadastro */
+(function(){try{var q=new URLSearchParams(location.search).get('ind');if(q)localStorage.setItem('mh_ind',q.slice(0,40))}catch(e){}})();
+/* esqueci minha senha: código por e-mail e nova senha */
+window.MH_recSenha=function(){
+  const A=window.MH_API;if(!A||!A.on()){alert('Sem conexão com o servidor.');return}
+  let d=document.getElementById('recDlg');if(d)d.remove();
+  d=document.createElement('dialog');d.id='recDlg';
+  d.innerHTML='<h3>Esqueci minha senha</h3><p class="note" id="recMsg">Digite o telefone da conta. Enviamos um código para o e-mail cadastrado.</p><div class="f"><label for="recTel">Telefone</label><input id="recTel" type="tel" inputmode="tel" autocomplete="tel"></div><div id="recP2" hidden><div class="f"><label for="recCod">Código de 6 números</label><input id="recCod" inputmode="numeric" maxlength="6"></div><div class="f"><label for="recSen">Nova senha</label><input id="recSen" type="password" maxlength="64" autocomplete="new-password" placeholder="Mínimo 6 caracteres"></div></div><div class="dbt"><button type="button" class="go" id="recOk">Enviar código</button><button type="button" class="cx" id="recX">Fechar</button></div>';
+  document.body.append(d);d.showModal();
+  const $=i=>document.getElementById(i),msg=t=>{$('recMsg').textContent=t};let passo=1;
+  $('recX').onclick=()=>d.close();
+  $('recOk').onclick=async()=>{const tel=normalizaTel($('recTel').value);if(tel.length<10){msg('Digite o telefone com DDD.');return}
+    $('recOk').disabled=true;
+    try{
+      if(passo===1){const r=await A.req('/conta/recuperar',{body:{tel}});
+        msg(r.ok?'Se o telefone tiver conta, enviamos um código para o e-mail cadastrado. Vale por 15 minutos. Confira também o spam.':'Não consegui enviar agora. Tente de novo em instantes.');
+        if(r.ok){passo=2;$('recP2').hidden=false;$('recOk').textContent='Trocar senha'}}
+      else{const cod=$('recCod').value.replace(/\D/g,''),pw=$('recSen').value;
+        if(cod.length!==6||pw.length<6){msg('Digite o código de 6 números e uma senha de pelo menos 6 caracteres.');return}
+        const r=await A.req('/conta/redefinir',{body:{tel,codigo:cod,chave:await chaveDe(tel,pw)}});
+        if(r.ok){msg('Senha trocada! Agora é só entrar com o telefone e a nova senha.');$('recOk').hidden=true}else msg('Código inválido ou vencido. Peça um novo código.')}
+    }catch(e){msg('Algo deu errado. Tente de novo.')}
+    finally{$('recOk').disabled=false}};
+};
+(function(){const pf=document.getElementById('pwf');if(pf&&!document.getElementById('esqSenha')){const p=document.createElement('p');p.className='note';p.innerHTML='<a href="#" id="esqSenha">Esqueci minha senha</a>';pf.after(p);p.querySelector('a').onclick=e=>{e.preventDefault();window.MH_recSenha()}}})();
 /* reentrar sem recarregar: usado pelo painel quando falta a sessão do servidor */
 window.MH_telDe=nome=>{try{const a=J('mh_acc',{})[String(nome||'').toLowerCase()];return a&&a.tel||''}catch(e){return ''}};
 window.MH_reentrar=async(tel0,pw)=>{const A=window.MH_API,tel=normalizaTel(tel0);
@@ -89,7 +114,7 @@ window.MH_conta={async criar(d,pw){
   a[d.nome.toLowerCase()]={nome:d.nome,role:d.role,work:d.work,tel:normalizaTel(d.tel),salt:b64(salt),hash:await hash(pw,salt)};
   S('mh_acc',a);guarda(d.nome);
   const A=window.MH_API;
-  if(A&&A.on()){try{const r=await A.req('/conta/criar',{body:{nome:d.nome,chave:await chaveDe(normalizaTel(d.tel),pw),papel:d.role,oficio:d.work,tel:normalizaTel(d.tel),email:d.em,cidade:d.cidade||((document.getElementById('cid')||{}).value)||''}});
+  if(A&&A.on()){try{const r=await A.req('/conta/criar',{body:{nome:d.nome,chave:await chaveDe(normalizaTel(d.tel),pw),papel:d.role,oficio:d.work,tel:normalizaTel(d.tel),email:d.em,indicador:(function(){try{return localStorage.getItem('mh_ind')||''}catch(e){return ''}})(),cidade:d.cidade||((document.getElementById('cid')||{}).value)||''}});
     if(r.ok&&r.j&&r.j.token){A.setUsrTk(r.j.token);window.MH_numChegou&&MH_numChegou(d.nome,r.j.numero)}
     else if(r.status===409&&window.MH_UI&&MH_UI.nota)MH_UI.nota('*** Esse telefone já tem conta. Para entrar nela, toque em "Já tenho conta". ***')}catch(e){}}}};
 {const kb=mk('label');kb.style.cssText='display:flex;gap:8px;align-items:center;margin-top:8px;cursor:pointer';const kc=mk('input');kc.type='checkbox';kc.id='mantem';kc.checked=localStorage.getItem('mh_keep')!=='0';kb.append(kc,document.createTextNode('Manter conectado neste aparelho'));$('pwf').append(kb)}
