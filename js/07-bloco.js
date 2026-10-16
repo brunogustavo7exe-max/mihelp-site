@@ -679,8 +679,7 @@ function pintaLoja8(d,L,aba,aviso){clearInterval(chatTimer8);d.textContent='';
  const ac=mk8('div','perfil-acoes');
  if(!L.logado)d.append(mk8('p','note','Entre na conta para favoritar, falar com a loja, avaliar ou pedir para fazer parte da equipe.'));
  else if(L.souDono)ac.append(botao8('⚙ Gerenciar minha loja','cta2 pa-main',()=>{d.close();abrirEspaco8('lojas')}));
- if(L.souDono||(window.MH_API&&MH_API.admTk&&MH_API.admTk()&&document.body.classList.contains('adm')))ac.append(botao8('📱 QR do totem','more pa-sec',()=>qrLoja8(L)));
- else{
+  else{
   if(!L.meuVinculo)ac.append(botao8('🙋 Quero fazer parte','more pa-sec',()=>formPedir8(d,L)));
   else if(L.meuVinculo.status==='pedido')d.append(mk8('p','note','Seu pedido para entrar na equipe está esperando o dono.'));
   else if(L.meuVinculo.status==='convidado')d.append(mk8('p','note','O dono convidou você. Responda em "Meu espaço profissional".'));
@@ -887,7 +886,7 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
    s.append(mk8('p','note','Você é Helper. Se parar de oferecer serviço, pode voltar a ser Cliente: o seu perfil de Helper fica guardado (só deixa de aparecer) e volta se você quiser.'));
    if(E.favoritosRecebidos>0)s.append(mk8('p','note','⭐ '+E.favoritosRecebidos+(E.favoritosRecebidos===1?' pessoa favoritou':' pessoas favoritaram')+' você.'));
    const sh=mk8('span','note');sh.setAttribute('role','status');
-   s.append(botao8('🔗 Compartilhar meu perfil','more',()=>compartilhar8(eu.nome+' no MiHelp',(eu.work||'Helper')+' · Barra do Garças e região',linkHelper8(eu.nome),m=>{sh.textContent=m;setTimeout(()=>sh.textContent='',2500)})),botao8('📱 QR do totem (meu perfil)','more',()=>qrHelper8(eu.nome,eu.work)),sh);
+   s.append(botao8('🔗 Compartilhar meu perfil','more',()=>compartilhar8(eu.nome+' no MiHelp',(eu.work||'Helper')+' · Barra do Garças e região',linkHelper8(eu.nome),m=>{sh.textContent=m;setTimeout(()=>sh.textContent='',2500)})),sh);
    s.append(botao2x8('Voltar a ser Cliente','more',async()=>{st.style.color='';st.textContent='Salvando…';const r=await chama8('/perfil/virar-cliente',{});
     if(r.ok&&r.j&&r.j.ok){st.textContent='Pronto. Atualizando a página…';reload('cliente','')}else{st.style.color='var(--red)';st.textContent=erro8(r)}}))}}
 
@@ -950,7 +949,7 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
   if(!E.lojas.length)s.append(mk8('p','note','Você ainda não criou nenhum. Barbearia, salão, loja de motos, oficina: crie e monte a sua equipe.'));
   E.lojas.forEach(L=>{
    const box=mk8('div','v8card');const row=mk8('div','v8row');row.append(mk8('b',null,L.nome),mk8('span','note',L.tipo+(CID8[L.cidade]?' · '+CID8[L.cidade]:'')));
-   const acts=mk8('div','v8acts');acts.append(botao8('💰 Serviços e preços','more',()=>formServicos8(d,E,L)),botao8('👁 Ver perfil','more',()=>{d.close();abrirLoja8(L.chave)}),botao8('✏️ Editar','more',()=>formLoja8(d,E,L)),botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',L.tipo,linkLoja8(L.chave),m=>{st.style.color='';st.textContent=m})),botao8('📱 QR do totem','more',()=>qrLoja8(L)),botao2x8('🗑 Apagar','more',()=>envia('/estabelecimentos/apagar',{chave:L.chave},'Estabelecimento apagado.')));
+   const acts=mk8('div','v8acts');acts.append(botao8('💰 Serviços e preços','more',()=>formServicos8(d,E,L)),botao8('👁 Ver perfil','more',()=>{d.close();abrirLoja8(L.chave)}),botao8('✏️ Editar','more',()=>formLoja8(d,E,L)),botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',L.tipo,linkLoja8(L.chave),m=>{st.style.color='';st.textContent=m})),botao2x8('🗑 Apagar','more',()=>envia('/estabelecimentos/apagar',{chave:L.chave},'Estabelecimento apagado.')));
    box.append(row,acts);if(L.favs>0)box.append(mk8('p','note','⭐ '+L.favs+(L.favs===1?' pessoa favoritou':' pessoas favoritaram')+' esta loja.'));
    box.append(mk8('h4',null,'Equipe'));
    if(!L.equipe.length)box.append(mk8('p','note','Ninguém na equipe ainda. Convide pelo telefone abaixo.'));
@@ -1311,7 +1310,6 @@ if(!meu){
  else d.append(mk('p','note','Cadastre-se para conversar e avaliar.'))
 }else d.append(mk('p','note','Assim as outras pessoas veem o seu perfil.'+(l.length?' Nesta prévia, as avaliações vêm de bots de demonstração.':' A média aparece depois das primeiras avaliações.')));
 if(pes.role==='helper'&&!pes.bot&&window.MH_API&&MH_API.on()){const sh=mk('button','more pa-sec','🔗 Compartilhar');sh.type='button';sh.onclick=()=>compartilhar8(pes.nome+' no MiHelp',(pes.work||'Helper')+' · Barra do Garças e região',linkHelper8(pes.nome),m=>{sh.textContent=m;setTimeout(()=>{sh.textContent='🔗 Compartilhar'},2500)});ac.append(sh)}
-if(pes.role==='helper'&&!pes.bot&&document.body.classList.contains('adm')){const qb=mk('button','more pa-sec','📱 QR do totem');qb.type='button';qb.onclick=()=>qrHelper8(pes.nome,pes.work);ac.append(qb)}
 const fc=mk('button','more pa-close','Fechar');fc.type='button';fc.onclick=()=>d.close();ac.append(fc);d.append(ac);
 if(window.MH_perfilAdm&&document.body.classList.contains('adm'))window.MH_perfilAdm(pes,d);
 d.showModal()}

@@ -238,6 +238,10 @@ dialog h3{margin:0 0 12px;font-size:20px}
 .mq{overflow:hidden;white-space:nowrap;border-bottom:1px solid var(--gold);background:#1b1608;color:var(--gold2);font:600 13px var(--mono);padding:7px 0}
 .mqi{display:inline-block;animation:mq 50s linear infinite}
 @keyframes mq{to{transform:translateX(-50%)}}
+.apoio-box{display:flex;flex-direction:column;gap:6px;align-items:flex-start;margin:10px 8px 8px;padding:12px;border:1px solid var(--gold,#f5c518);border-radius:12px;background:rgba(245,197,24,.08)}
+.apoio-box b{font-size:14px}.apoio-box span{font-size:13px;line-height:1.4;color:var(--mute)}.apoio-box .cta2{width:100%;min-height:40px}.apoio-box a{font-size:13px;font-weight:700}
+.apoio-lado{display:none}.apoio-vagas{margin:14px 0 0}
+@media(min-width:1200px){.apoio-lado{display:flex}.apoio-vagas{display:none}}
 .shell{max-width:1420px;margin:0 auto}
 .side{display:none}
 @media(min-width:1200px){

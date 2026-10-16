@@ -10,7 +10,7 @@ const K='mihelp_adm_v1:';
 const store={
   get(k,d){try{const v=localStorage.getItem(K+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
   set(k,v){let ok=false;try{localStorage.setItem(K+k,JSON.stringify(v));ok=true}catch(e){}
-    if((k==='meta'||k==='titulos'||k==='duelo'||k==='enquete'||k==='helpers_fora'||k==='banidos'||k==='ofi_cfg')&&window.MH_API&&MH_API.on()&&MH_API.admTk())pushCfg(k,v);return ok}
+    if((k==='meta'||k==='titulos'||k==='duelo'||k==='enquete'||k==='helpers_fora'||k==='banidos'||k==='ofi_cfg'||k==='textos')&&window.MH_API&&MH_API.on()&&MH_API.admTk())pushCfg(k,v);return ok}
 };
 /* meta e títulos também vão para o servidor, para todo mundo ver (não só este navegador) */
 const cfgPend={};let cfgT=null;
@@ -21,6 +21,7 @@ if(window.MH_API&&MH_API.on())MH_API.req('/config').then(r=>{if(!r.ok||!r.j)retu
   try{if(r.j.meta){const o=JSON.parse(r.j.meta);if(o&&o.alvo>0&&window.MH_aplicarMeta)MH_aplicarMeta(o)}}catch(e){}
   try{['duelo','enquete'].forEach(c=>{if(typeof r.j[c]==='string')localStorage.setItem(K+c,r.j[c])})}catch(e){}
   try{if(r.j.titulos){const o=JSON.parse(r.j.titulos);if(o&&typeof o==='object'){Object.keys(TIT).forEach(k=>delete TIT[k]);Object.assign(TIT,o);UI.online()}}}catch(e){}
+  try{if(typeof r.j.textos==='string'){const o=JSON.parse(r.j.textos);if(o&&typeof o==='object'){localStorage.setItem(K+'textos',r.j.textos);aplicaTextos(o)}}}catch(e){}
   try{if(typeof r.j.ofi_cfg==='string'){JSON.parse(r.j.ofi_cfg);localStorage.setItem(K+'ofi_cfg',r.j.ofi_cfg);window.MH_OFI&&MH_OFI.desenha()}}catch(e){}
   try{if(typeof r.j.verificados==='string'){const m=JSON.parse(r.j.verificados);if(m&&typeof m==='object')Object.keys(m).forEach(n=>{if(window.MH_VERIF)MH_VERIF(n,!!m[n])})}}catch(e){}
   try{if(typeof r.j.helpers_fora==='string'){const a=JSON.parse(r.j.helpers_fora);if(Array.isArray(a)){FORA.clear();a.forEach(x=>FORA.add(String(x)));try{localStorage.setItem(K+'helpers_fora',r.j.helpers_fora)}catch(e){}try{window.MH_profRefresh&&MH_profRefresh()}catch(e){}}}}catch(e){}
@@ -117,7 +118,7 @@ bar.append(chip,sair);document.body.append(bar);
 function chipUpd(){const n=abertas();chip.textContent='ADM'+(n?' · '+n:'')}
 let aba='ctl',aviso='',corpoEl=null;
 const ADM_T0=Date.now();
-const ABAS=[['ctl','Controle'],['sts','Status'],['sup','Suporte'],['ads','Anúncios'],['pes','Pessoas'],['ofi','Ofícios'],['lix','Removidos'],['pix','Pix'],['oc','Ocorrências'],['site','Meta e cargos'],['eu','Meu acesso'],['cfg','Ajustes']];
+const ABAS=[['ctl','Controle'],['sts','Status'],['sup','Suporte'],['ads','Anúncios'],['pes','Pessoas'],['ofi','Ofícios'],['lix','Removidos'],['pix','Pix'],['oc','Ocorrências'],['site','Meta e cargos'],['txt','Textos'],['eu','Meu acesso'],['cfg','Ajustes']];
 function say(t){aviso=t;desenhar()}
 function abrirPainel(){if(!logado())return abrirLogin();desenhar();if(!dlg.open)dlg.showModal()}
 function desenhar(){
@@ -128,7 +129,7 @@ function desenhar(){
   ABAS.forEach(([k,t])=>{const n=k==='oc'?abertas():0;const bt=mk('button',k===aba?'on':'',t+(n?' ('+n+')':''));bt.type='button';bt.setAttribute('role','tab');bt.setAttribute('aria-selected',String(k===aba));bt.onclick=()=>{aba=k;aviso='';desenhar()};tb.append(bt)});
   corpoEl=mk('div','abody');dlg.append(tb,corpoEl);
   if(aviso){const a=mk('p','aviso',aviso);a.setAttribute('role','status');corpoEl.append(a)}
-  ({sts:tSts,ctl:tCtl,sup:tSup,ads:tAds,pes:tPes,ofi:tOfi,lix:tLix,pix:tPix,oc:tOc,site:tSite,eu:tEu,cfg:tCfg})[aba](corpoEl);
+  ({sts:tSts,ctl:tCtl,sup:tSup,ads:tAds,pes:tPes,ofi:tOfi,lix:tLix,pix:tPix,oc:tOc,site:tSite,txt:tTxt,eu:tEu,cfg:tCfg})[aba](corpoEl);
   dlg.scrollTop=0;chipUpd()}
 
 window.MH_chamadoAdm=(quem,motivo)=>{OC.unshift({id:Date.now(),quem,motivo,origem:'chamado',quando:Date.now(),status:'aberta',nota:''});salvarOC();chipUpd()};
@@ -266,6 +267,22 @@ function tSup(b){
      .catch(()=>{box.textContent='';box.append(mk('p','note','As mensagens de todo mundo ficam na coleção Suporte, no CMS, onde só você pode abrir. Abaixo estão as enviadas deste aparelho.'));lista(loc(),'Nada enviado deste aparelho.')})}
   else{box.append(mk('p','note','Sem conexão com o banco agora. Abaixo estão as mensagens enviadas deste aparelho.'));lista(loc(),'Nada enviado deste aparelho.')}
 }
+/* ===== textos editáveis: qualquer elemento com data-txt="chave" data-txt-rot="Nome" aparece na aba Textos do painel ===== */
+const TXT_PADRAO={};
+function aplicaTextos(o){o=o||{};document.querySelectorAll('[data-txt]').forEach(e=>{const k=e.dataset.txt;if(!(k in TXT_PADRAO))TXT_PADRAO[k]=e.textContent;const v=typeof o[k]==='string'&&o[k].trim()?o[k]:TXT_PADRAO[k];if(e.textContent!==v)e.textContent=v})}
+try{aplicaTextos(store.get('textos',{}))}catch(e){}
+function tTxt(b){
+  b.append(mk('p','note','Textos do site que você pode mudar. Escreva, toque em Salvar e a mudança vale para todo mundo. Campo vazio volta ao texto original.'));
+  const cur=store.get('textos',{}),vistos=new Map();
+  document.querySelectorAll('[data-txt]').forEach(e=>{const k=e.dataset.txt;if(!vistos.has(k))vistos.set(k,e.dataset.txtRot||k)});
+  const f=mk('form'),cs=[];
+  vistos.forEach((rot,k)=>{const long=/texto/.test(k);const i=long?document.createElement('textarea'):inp('text',80);if(long){i.rows=3;i.maxLength=200}else i.maxLength=60;
+    i.value=typeof cur[k]==='string'?cur[k]:(TXT_PADRAO[k]||'');i.placeholder=TXT_PADRAO[k]||'';f.append(campo(rot,i));cs.push([k,i])});
+  const go=mk('button','go','Salvar textos');go.type='submit';f.append(go);
+  f.addEventListener('submit',e=>{e.preventDefault();const o={};cs.forEach(([k,i])=>{const v=i.value.trim().slice(0,200);if(v&&v!==TXT_PADRAO[k])o[k]=v});
+    store.set('textos',o);aplicaTextos(o);say('Textos salvos.')});
+  const rs=mk('button','cx','Voltar tudo ao original');rs.type='button';rs.onclick=()=>{store.set('textos',{});aplicaTextos({});say('Textos originais restaurados.')};
+  b.append(f,rs)}
 function tSite(b){
   const M=(window.MH_metaAtual&&MH_metaAtual())||{alvo:5000,arrecadado:0,usos:[]};
   b.append(mk('h4',0,'Meta de apoio'));
