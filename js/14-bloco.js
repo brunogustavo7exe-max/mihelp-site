@@ -116,10 +116,10 @@ window.MH_conta={async criar(d,pw){
   const A=window.MH_API;
   if(A&&A.on()){try{const r=await A.req('/conta/criar',{body:{nome:d.nome,chave:await chaveDe(normalizaTel(d.tel),pw),papel:d.role,oficio:d.work,tel:normalizaTel(d.tel),email:d.em,indicador:(function(){try{return localStorage.getItem('mh_ind')||''}catch(e){return ''}})(),cidade:d.cidade||((document.getElementById('cid')||{}).value)||''}});
     if(r.ok&&r.j&&r.j.token){A.setUsrTk(r.j.token);window.MH_numChegou&&MH_numChegou(d.nome,r.j.numero)}
-    else if(r.status===409&&window.MH_UI&&MH_UI.nota)MH_UI.nota('*** Esse telefone já tem conta. Para entrar nela, toque em "Já tenho conta". ***')}catch(e){}}}};
+    else if(r.status===409&&window.MH_UI&&MH_UI.nota)MH_UI.nota('*** Esse telefone já tem conta. Para entrar nela, toque em "Login". ***')}catch(e){}}}};
 {const kb=mk('label');kb.style.cssText='display:flex;gap:8px;align-items:center;margin-top:8px;cursor:pointer';const kc=mk('input');kc.type='checkbox';kc.id='mantem';kc.checked=localStorage.getItem('mh_keep')!=='0';kb.append(kc,document.createTextNode('Manter conectado neste aparelho'));$('pwf').append(kb)}
 let login=false;const f=$('f'),jt=$('jaTenho');
-const esconde=()=>[document.querySelector('#f .role'),$('trab'),$('t').closest('.f'),$('e').closest('.f'),document.querySelector('#f label.chk')];
+const esconde=()=>[document.querySelector('#f .role'),$('roleNote'),$('trab'),$('t').closest('.f'),$('e').closest('.f'),document.querySelector('#f label.chk')];
 function modo(on){login=on;esconde().forEach(e=>{if(e){if(on)e.style.setProperty('display','none','important');else e.style.removeProperty('display')}});if(on)$('trab').hidden=true;else if(typeof 0==='number'){const h=document.querySelector('input[name=r]:checked');$('trab').hidden=!(h&&h.value==='Helper')}
   $('pw').autocomplete=on?'current-password':'new-password';$('pwf').querySelector('small').style.display=on?'none':'block';
   const idLabel=$('n').closest('.f')?.querySelector('label');
@@ -128,6 +128,8 @@ function modo(on){login=on;esconde().forEach(e=>{if(e){if(on)e.style.setProperty
   $('btnCad').textContent=on?'Entrar':'Criar minha conta';jt.textContent=on?'Quero criar uma conta':'Já tenho conta: entrar';
   const er=$('ferr');if(er){er.style.display='none'}try{marca()}catch(x){}}
 jt.addEventListener('click',e=>{e.preventDefault();modo(!login)});
+{const rn=$('roleNote');const atual=()=>{const h=document.querySelector('input[name=r]:checked');if(!rn)return;rn.textContent='';const b=document.createElement('b');if(h&&h.value==='Helper'){b.textContent='Conta de Helper:';rn.append(b,document.createTextNode(' para profissionais, donos de empresas, prestadores de serviço e microempreendedores.'))}else{b.textContent='Conta de Cliente:';rn.append(b,document.createTextNode(' somente para quem busca serviços. Não serve para cadastrar empresa.'))}};
+ document.querySelectorAll('input[name=r]').forEach(x=>x.addEventListener('change',atual));atual()}
 const sgC=$('segCriar'),sgE=$('segEntrar'),pwH=$('pwHint'),pwE=$('pwEye'),API_ON=!!(window.MH_API&&MH_API.on()),HT=API_ON?'Mínimo 6 caracteres. Sua conta funciona em qualquer aparelho. Não use a senha de outros sites.':'Mínimo 6 caracteres. A conta fica salva neste aparelho. Não use a senha de outros sites.';
 function marca(){sgC.setAttribute('aria-pressed',String(!login));sgE.setAttribute('aria-pressed',String(login));
  $('pwf').querySelector('label').textContent='Senha';pwH.style.display='block';pwH.classList.remove('ok');
@@ -135,7 +137,7 @@ function marca(){sgC.setAttribute('aria-pressed',String(!login));sgE.setAttribut
 sgC.onclick=()=>{if(login)modo(false)};sgE.onclick=()=>{if(!login)modo(true)};
 pwE.onclick=()=>{const v=$('pw').type==='password';$('pw').type=v?'text':'password';pwE.textContent=v?'Ocultar':'Mostrar';pwE.setAttribute('aria-pressed',String(v));pwE.setAttribute('aria-label',v?'Ocultar senha':'Mostrar senha')};
 $('pw').addEventListener('input',()=>{if(login)return;const n=$('pw').value.length;pwH.classList.toggle('ok',n>=6);pwH.textContent=n>=6?'Senha boa. Anote para não esquecer.':HT});
-{const fe=document.getElementById('faqEntrar');if(fe&&API_ON){fe.textContent='';const b=document.createElement('b');b.textContent='Entrar de novo:';fe.append(b,document.createTextNode(' toque em "Já tenho conta", digite o telefone cadastrado e a senha e toque em Entrar. O telefone é o seu identificador de acesso.'))}}
+{const fe=document.getElementById('faqEntrar');if(fe&&API_ON){fe.textContent='';const b=document.createElement('b');b.textContent='Entrar de novo:';fe.append(b,document.createTextNode(' toque em "Login", digite o telefone cadastrado e a senha e toque em Entrar. O telefone é o seu identificador de acesso.'))}}
 const erro=m=>{const er=$('ferr');if(er){er.style.display='block';er.textContent=m}};
 async function entrar(){
   const ident=$('n').value.trim(),tel=normalizaTel(ident),pw=$('pw').value;

@@ -8,9 +8,9 @@ const CAT=[
  {id:'sabor',ic:'🍽️',nome:'Sabor aprovado',cor:'#d94141',txt:'Provado e aprovado pela equipe (restaurantes, lanchonetes, padarias).'},
  {id:'qualidade',ic:'💎',nome:'Qualidade aprovada',cor:'#0891b2',txt:'Serviço ou produto de qualidade, conferido pela equipe.'},
  {id:'confianca',ic:'🤝',nome:'Confiança comprovada',cor:'#2f6fe4',txt:'Cumpre o que combina. A equipe conferiu o trabalho.'},
- {id:'destaque',ic:'🏆',nome:'Destaque do mês',cor:'#ea6a0a',txt:'Escolhido como destaque do mês no Vale.'},
+ {id:'destaque',ic:'🏆',nome:'Destaque do mês',cor:'#ea6a0a',txt:'Escolhido como destaque do mês na região.'},
  {id:'parceiro',ic:'🤲',nome:'Parceiro do MiHelp',cor:'#9b51e0',txt:'Apoia o MiHelp e ajuda o projeto a crescer.'},
- {id:'pioneiro',ic:'🌱',nome:'Pioneiro do Vale',cor:'#6aa80f',txt:'Entrou no começo do MiHelp.'}];
+ {id:'pioneiro',ic:'🌱',nome:'Pioneiro',cor:'#6aa80f',txt:'Entrou no começo do MiHelp.'}];
 const POR={};CAT.forEach(c=>POR[c.id]=c);
 const KL='mihelp_selos_v1';
 let D={};try{D=JSON.parse(localStorage.getItem(KL)||'{}')||{}}catch(e){D={}}

@@ -31,7 +31,7 @@ try{
     const n=k++,H=pess().filter(p=>p.role==='helper'),A=pess(),t=n%4;
     if(t===0&&H.length){const h=H[Math.floor(n/4)%H.length];return {t:h.nome+' ficou disponível',s:h.work+' · toque para ver o perfil',u:h.nome}}
     if(t===1||t===3){const m=M[Math.floor(n/2)%M.length];return {t:'Nova missão: '+m.t,s:m.v+' · toque para ver na Guilda',go:()=>{const c=[...document.querySelectorAll('#gdList .gc')].find(c=>{const h=c.querySelector('h3');return h&&h.textContent===m.t});if(c){c.scrollIntoView({behavior:'smooth',block:'center'});c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),2500)}else rola('guilda')()}}}
-    if(t===2&&A.length&&n%8===2){const a=A[n%A.length];return {t:a.nome+' entrou na Sala do Vale',s:'toque para abrir o chat',go:rola('cw')}}
+    if(t===2&&A.length&&n%8===2){const a=A[n%A.length];return {t:a.nome+' entrou na Sala da Região',s:'toque para abrir o chat',go:rola('cw')}}
     return {t:'Vaga aberta no outdoor digital',s:'a partir de R$ 5 · toque para ver',go:rola('apoie')}}
   function add(d,novo){
     const e=evento(),row=document.createElement('button');row.type='button';row.className='ev'+(novo?' novo':'');

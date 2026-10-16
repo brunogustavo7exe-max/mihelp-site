@@ -168,7 +168,7 @@ async function lerNomes(){
   window.MH_FUND=fund;window.MH_HELPERS=hs.map(x=>({nome:String(x.nome),oficio:x.oficio||''}));try{window.MH_profRefresh&&MH_profRefresh()}catch(e){}
   {const of={};it.forEach(x0=>{String(x0.oficio||'').split(/[,;]+/).forEach(pt=>{const x={papel:x0.papel,oficio:pt};if(x.papel==='helper'&&x.oficio.trim()){const w=String(x.oficio).trim(),k=w.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(!k)return;(of[k]=of[k]||{nome:w,n:0}).n++}})});window.MH_OFICIOS=of}
   {const nn=new Set();it.forEach(x=>{if(x.nome)nn.add(String(x.nome).toLowerCase())});window.MH_STATS_WIX={cad:nn.size,help:hs.length};try{window.MH_pintarPulse&&MH_pintarPulse()}catch(e){}}
-  const ce=document.getElementById('contaPre'),k=DB.nomes.size;if(ce&&k>0){ce.hidden=false;ce.textContent='● '+k+(k===1?' pessoa já está':' pessoas já estão')+' na lista do Vale do Araguaia'}
+  const ce=document.getElementById('contaPre'),k=DB.nomes.size;if(ce&&k>0){ce.hidden=false;ce.textContent='● '+k+(k===1?' pessoa já está':' pessoas já estão')+' na lista de Barra do Garças e região'}
   const he=document.getElementById('helperSemana');if(he&&hs.length){const h=hs[Math.floor(Date.now()/604800000)%hs.length];he.hidden=false;he.textContent='⭐ Helper da semana: '+h.nome+(h.oficio?' · '+h.oficio:'')}}
  catch(e){diag('perfis: '+msgErro(e),true)}}
 

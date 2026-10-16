@@ -488,7 +488,7 @@ const apiBase8=()=>String((window.MH_CFG||{}).api||'').replace(/\/+$/,'');
 const siteBase8=()=>{try{const o=location.origin;if(/^https?:\/\//.test(o)&&!/localhost|127\.0\.0\.1/.test(o))return o+'/'}catch(e){}return 'https://www.dcastrolabs.com/'};
 const linkLoja8=c=>siteBase8()+'?loja='+encodeURIComponent(c);
 const linkHelper8=n=>siteBase8()+'?helper='+encodeURIComponent(n);
-async function compartilhar8(titulo,texto,url,aviso){
+async function compartilharSimples8(titulo,texto,url,aviso){
  const ok=m=>{if(aviso)aviso(m)};
  /* celular: menu de compartilhar (WhatsApp, Instagram…). Computador: só copia o link, porque o menu do Windows costuma falhar */
  let toque=false;try{toque=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent||'')}catch(e){}
@@ -496,14 +496,51 @@ async function compartilhar8(titulo,texto,url,aviso){
  try{await navigator.clipboard.writeText(url);ok('✅ Link copiado! Cole no WhatsApp ou no Instagram.');return}catch(e){}
  try{const t=document.createElement('textarea');t.value=url;t.style.cssText='position:fixed;left:-999px;top:0';document.body.append(t);t.select();const c=document.execCommand('copy');t.remove();if(c){ok('✅ Link copiado! Cole no WhatsApp ou no Instagram.');return}}catch(e){}
  try{window.prompt('Copie o link:',url)}catch(e){}}
+/* compartilhar perfil: abre direto o QR (como no Instagram) com baixar PNG, compartilhar e copiar link */
+function compartilhar8(titulo,texto,url,aviso){return qrCompartilhar8(titulo,texto,url)}
+async function qrCompartilhar8(titulo,texto,url){
+ const d=novoDlg8('Compartilhar perfil');d.textContent='';d.addEventListener('close',()=>d.remove());
+ d.append(mk8('h3',null,'Compartilhar perfil'),mk8('p','note','Gerando QR…'));d.showModal();
+ let qr;try{await carregaQR8();qr=qrcode(0,'H');qr.addData(url);qr.make()}catch(e){d.close();return compartilharSimples8(titulo,texto,url,()=>{})}
+ const n=qr.getModuleCount(),cel=Math.max(6,Math.floor(760/n)),real=cel*n,mg=60,W=real+mg*2,topo=170,rod=150,H=real+mg*2+topo+rod;
+ const cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+ g.fillStyle='#fff';g.fillRect(0,0,W,H);g.fillStyle='#111';g.fillRect(0,0,W,90);
+ g.fillStyle='#f5c518';g.font='bold 54px Arial,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('MiHelp',W/2,47);
+ g.fillStyle='#111';g.textBaseline='alphabetic';g.font='bold 40px Arial,sans-serif';
+ const ls=linhasTxt8(g,titulo,W-80).slice(0,2);let y=140;ls.forEach(l=>{g.fillText(l,W/2,y);y+=46});
+ const y0=Math.max(topo,y-10)+mg-20,H2=y0+real+mg+rod-40;if(H2>H){cv.height=H2;g.fillStyle='#fff';g.fillRect(0,0,W,H2);g.fillStyle='#111';g.fillRect(0,0,W,90);g.fillStyle='#f5c518';g.font='bold 54px Arial,sans-serif';g.textBaseline='middle';g.textAlign='center';g.fillText('MiHelp',W/2,47);g.fillStyle='#111';g.textBaseline='alphabetic';g.font='bold 40px Arial,sans-serif';y=140;ls.forEach(l=>{g.fillText(l,W/2,y);y+=46})}
+ g.fillStyle='#000';for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(qr.isDark(r,c))g.fillRect(mg+c*cel,y0+r*cel,cel,cel);
+ g.fillStyle='#444';g.font='30px Arial,sans-serif';g.fillText('Aponte a câmera do celular para abrir o perfil',W/2,y0+real+50);
+ g.font='24px Arial,sans-serif';g.fillStyle='#777';g.fillText(url.replace(/^https?:\/\//,'').slice(0,60),W/2,y0+real+90);
+ cv.style.cssText='width:100%;max-width:min(88vw,340px);height:auto;border:1px solid #ccc;border-radius:12px;background:#fff;display:block;margin:8px auto';
+ const arq='mihelp-'+String(titulo).toLowerCase().replace(/ no mihelp$/,'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'-qr';
+ const st=mk8('p','note','');st.setAttribute('role','status');
+ const aviso=m=>{st.textContent=m;setTimeout(()=>{if(st.textContent===m)st.textContent=''},3000)};
+ const blob=()=>new Promise(r=>cv.toBlob(r,'image/png'));
+ const copiar=async()=>{try{await navigator.clipboard.writeText(url);aviso('✅ Link copiado!');return}catch(e){}
+  try{const t=document.createElement('textarea');t.value=url;t.style.cssText='position:fixed;left:-999px;top:0';d.append(t);t.select();const c=document.execCommand('copy');t.remove();if(c){aviso('✅ Link copiado!');return}}catch(e){}
+  try{window.prompt('Copie o link:',url)}catch(e){}};
+ d.textContent='';d.append(mk8('h3',null,'Compartilhar perfil'),mk8('p','note','Mostre este QR para outra pessoa ler com a câmera, ou tire um print.'),cv);
+ const ac=mk8('div','v8acts');
+ ac.append(botao8('⬇ Baixar QR (PNG)','cta2',()=>{const a=document.createElement('a');a.download=arq+'.png';a.href=cv.toDataURL('image/png');document.body.append(a);a.click();a.remove();aviso('✅ QR baixado.')}),
+  botao8('📤 Compartilhar','more',async()=>{
+   try{const b=await blob();if(b&&navigator.canShare&&navigator.share){const f=new File([b],arq+'.png',{type:'image/png'});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],title:titulo,text:texto+(texto?' ':'')+url});return}}}catch(e){if(e&&e.name==='AbortError')return}
+   compartilharSimples8(titulo,texto,url,aviso)}),
+  botao8('🔗 Copiar link','more',copiar));
+ d.append(ac,st);
+ const ac2=mk8('div','v8acts');
+ ac2.append(botao8('🖨 Totem de avaliação','more',()=>{d.close();qrTotem8(titulo.replace(/ no MiHelp$/,''),'',url+(url.includes('?')?'&':'?')+'avaliar=1','totem-'+arq)}),botao8('Fechar','more',()=>d.close()));d.append(ac2)}
 /* favoritar Helper no servidor (o favorito local do site continua; isto deixa o Helper ver quantas pessoas o favoritaram) */
 function favSrv8(nome,on){if(!apiOn8()||!tk8())return;const h=(window.MH_PROS||[]).find(x=>x.nome===nome);if(!h||!h.uid)return;chama8('/favoritos',{alvo:'h:'+h.uid,on:!!on}).catch(()=>{})}
 /* link recebido (?loja=... ou ?helper=...): abre o perfil direto */
 function abrirLinkV8(){if(V8.linkFeito)return;let p;try{p=new URLSearchParams(location.search)}catch(e){return}
- const loja=p.get('loja'),hp=p.get('helper');if(!loja&&!hp)return;V8.linkFeito=true;
+ const loja=p.get('loja'),hp=p.get('helper'),av=p.get('avaliar')==='1';if(!loja&&!hp)return;V8.linkFeito=true;
  const alvo=document.getElementById('prof');
- if(loja&&/^[a-z0-9-]{4,70}$/.test(loja)){setTimeout(()=>{if(alvo)alvo.scrollIntoView();abrirLoja8(loja)},600)}
- else if(hp){let n=0;const t=setInterval(()=>{n++;const h=listaHelpers().find(x=>x.nome===hp);if(h){clearInterval(t);if(alvo)alvo.scrollIntoView();chamarHelper(h)}else if(n>20)clearInterval(t)},500)}}
+ if(loja&&/^[a-z0-9-]{4,70}$/.test(loja)){
+  if(av){try{sessionStorage.setItem('mh_aval_pend',loja)}catch(e){}}
+  setTimeout(()=>{if(alvo)alvo.scrollIntoView();abrirLoja8(loja,av?{avaliar:1}:null)},600)}
+ else if(hp){if(av){QRAV.add(hp);try{sessionStorage.setItem('mh_aval_pend_h',hp)}catch(e){}}
+  let n=0;const t=setInterval(()=>{n++;const h=listaHelpers().find(x=>x.nome===hp);if(h){clearInterval(t);if(alvo)alvo.scrollIntoView();chamarHelper(h);if(av)avaliarHelperDireto8(hp)}else if(n>20)clearInterval(t)},500)}}
 function listaHelpers(){const m=new Map();
  if(apiOn8()){(window.MH_PROS||[]).forEach(x=>{if(x&&x.nome)m.set(x.nome,{nome:x.nome,work:String(x.work||'').trim(),lojas:x.lojas||[]})})}
  else{(window.MH_HELPERS||[]).forEach(x=>{if(x&&x.nome)m.set(x.nome,{nome:x.nome,work:String(x.oficio||'').trim()})});
@@ -562,9 +599,9 @@ function desenharProf(){
   a.onclick=()=>{profPag--;desenharProf()};n2.onclick=()=>{profPag++;desenharProf()};pg.append(a,s,n2)}}
 document.addEventListener('mh-selos',()=>{try{desenharProf()}catch(e){}});
 function montaProf(){const need=document.getElementById('need');if(!need||document.getElementById('prof'))return;
- const s=document.createElement('section');s.id='prof';s.className='prof';s.setAttribute('aria-label','Profissionais do Vale');
- const h=mk8('h2','prof-t','Profissionais do Vale');
- const p=mk8('p','prof-s','Helpers e estabelecimentos do Vale. Toque em "Chamar" ou "Ver perfil".');
+ const s=document.createElement('section');s.id='prof';s.className='prof';s.setAttribute('aria-label','Profissionais da Região');
+ const h=mk8('h2','prof-t','Profissionais da Região');
+ const p=mk8('p','prof-s','Helpers e estabelecimentos da região. Toque em "Chamar" ou "Ver perfil".');
  const top=mk8('div','v8top');top.id='profTop';
  const i=document.createElement('input');i.type='search';i.id='profQ';i.placeholder='Buscar: nome ou ofício';i.setAttribute('aria-label','Buscar profissional');i.autocomplete='off';
  i.addEventListener('input',()=>{profQ=i.value;profPag=0;desenharProf()});
@@ -583,7 +620,8 @@ async function abrirLoja8(chave,opc){
  const d=lojaDlg8||(lojaDlg8=novoDlg8('Estabelecimento'));d.textContent='';d.append(mk8('p','note','Carregando…'));if(!d.open)d.showModal();
  const r=await chama8('/estabelecimentos/ver?chave='+encodeURIComponent(chave));
  if(!r.ok||!(r.j&&r.j.ok)){d.textContent='';d.append(mk8('p','note',erro8(r)),botao8('Fechar','more',()=>d.close()));return}
- if(opc&&opc.pro)r.j._pro=opc.pro;pintaLoja8(d,r.j,(opc&&opc.aba)||(r.j.modo==='agenda'&&(r.j.servicos||[]).length?'serv':(r.j.equipeOculta?'aval':'equipe')))}
+ if(opc&&opc.pro)r.j._pro=opc.pro;pintaLoja8(d,r.j,(opc&&opc.aba)||(r.j.modo==='agenda'&&(r.j.servicos||[]).length?'serv':(r.j.equipeOculta?'aval':'equipe')));
+ if(opc&&opc.avaliar)avaliarDireto8(d,r.j)}
 function horarioTxt8(h){if(!h||!Array.isArray(h.d))return[];const N=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];return [1,2,3,4,5,6,0].map(i=>N[i]+': '+((h.d[i]||[]).length?h.d[i].map(x=>x.replace('-','–')).join(' e '):'fechado'))}
 function pintaLoja8(d,L,aba,aviso){clearInterval(chatTimer8);d.textContent='';
  if(L.equipeOculta&&aba==='equipe')aba=(L.modo==='agenda'&&(L.servicos||[]).length)?'serv':'aval';
@@ -641,6 +679,7 @@ function pintaLoja8(d,L,aba,aviso){clearInterval(chatTimer8);d.textContent='';
  const ac=mk8('div','perfil-acoes');
  if(!L.logado)d.append(mk8('p','note','Entre na conta para favoritar, falar com a loja, avaliar ou pedir para fazer parte da equipe.'));
  else if(L.souDono)ac.append(botao8('⚙ Gerenciar minha loja','cta2 pa-main',()=>{d.close();abrirEspaco8('lojas')}));
+ if(L.souDono||(window.MH_API&&MH_API.admTk&&MH_API.admTk()&&document.body.classList.contains('adm')))ac.append(botao8('📱 QR do totem','more pa-sec',()=>qrLoja8(L)));
  else{
   if(!L.meuVinculo)ac.append(botao8('🙋 Quero fazer parte','more pa-sec',()=>formPedir8(d,L)));
   else if(L.meuVinculo.status==='pedido')d.append(mk8('p','note','Seu pedido para entrar na equipe está esperando o dono.'));
@@ -650,6 +689,59 @@ function pintaLoja8(d,L,aba,aviso){clearInterval(chatTimer8);d.textContent='';
  if(apiOn8()&&MH_API.admTk()&&document.body.classList.contains('adm'))ac.append(botao2x8('🗑 Apagar loja (adm)','more pa-sec',async()=>{const r=await MH_API.req('/estabelecimentos/apagar',{token:MH_API.admTk(),body:{chave:L.chave}});if(r.ok){d.close();carregaV8()}else pintaLoja8(d,L,aba,erro8(r))}));
  if(apiOn8()&&MH_API.admTk()&&document.body.classList.contains('adm'))ac.append(botao8('🔁 Oferecer a um Helper (adm)','more pa-sec',async()=>{const t=prompt('Telefone do Helper que vai ficar com a loja (ele precisa aceitar):');if(!t)return;const r=await MH_API.req('/estabelecimentos/transferir',{token:MH_API.admTk(),body:{chave:L.chave,tel:t}});pintaLoja8(d,L,aba,r.ok&&r.j&&r.j.ok?'Oferta enviada. Se o telefone for de um Helper, ele vê em "Meu espaço profissional".':erro8(r))}));
  ac.append(botao8('Fechar','more pa-close',()=>d.close()));d.append(ac)}
+/* ===== QR do totem: o QR abre a loja/Helper já na tela de avaliar ===== */
+const QRAV=new Set();
+function avaliarDireto8(d,L){
+ if(!L.logado){
+  pintaLoja8(d,L,'aval','Para avaliar, crie sua conta grátis (leva 1 minuto) ou entre. Depois a avaliação abre sozinha.');
+  const ac=d.querySelector('.perfil-acoes');
+  if(ac)ac.prepend(botao8('👤 Criar conta / Entrar','cta2 pa-main',()=>{d.close();const w=document.getElementById('cadWin');if(w){w.classList.remove('fechada');w.scrollIntoView({behavior:'smooth'})}}));
+  return}
+ try{sessionStorage.removeItem('mh_aval_pend')}catch(e){}
+ if(L.jaAvaliei){pintaLoja8(d,L,'aval','Você já avaliou esta loja. Obrigado!');return}
+ if(!L.podeAvaliar){pintaLoja8(d,L,'aval','Dono e equipe da loja não podem avaliar a própria loja.');return}
+ formAvalLoja8(d,L)}
+function avaliarHelperDireto8(nome){
+ if(!eu||!tk8())return;
+ if(eu.nome===nome)return;
+ try{sessionStorage.removeItem('mh_aval_pend_h')}catch(e){}
+ const pes=pessoa(nome);if(pes&&pfDlg&&pfDlg.open)formAval(pes)}
+/* depois de criar conta/entrar, a avaliação pendente abre sozinha */
+setInterval(()=>{try{
+ const c=sessionStorage.getItem('mh_aval_pend');
+ if(c&&window.MH_UI&&MH_UI.eu()&&tk8()&&!(espDlg8&&espDlg8.open)&&!(lojaDlg8&&lojaDlg8.open))abrirLoja8(c,{avaliar:1});
+ const h=sessionStorage.getItem('mh_aval_pend_h');
+ if(h&&eu&&tk8()&&!(pfDlg&&pfDlg.open)){QRAV.add(h);try{sessionStorage.removeItem('mh_aval_pend_h')}catch(e){}
+  if(eu.nome!==h){const x=listaHelpers().find(y=>y.nome===h)||{nome:h};chamarHelper(x);setTimeout(()=>avaliarHelperDireto8(h),300)}}
+}catch(e){}},2000);
+function carregaQR8(){return new Promise((ok,no)=>{if(window.qrcode)return ok();const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';sc.onload=()=>window.qrcode?ok():no();sc.onerror=no;document.head.append(sc)})}
+function linhasTxt8(g,t,w){const ps=String(t).split(' ');const out=[];let c='';ps.forEach(x=>{const n=c?c+' '+x:x;if(g.measureText(n).width>w&&c){out.push(c);c=x}else c=n});if(c)out.push(c);return out}
+async function qrTotem8(titulo,sub,url,arq){
+ const d=novoDlg8('QR do totem');d.textContent='';d.addEventListener('close',()=>d.remove());
+ d.append(mk8('h3',null,'QR do totem'),mk8('p','note','Gerando…'));d.showModal();
+ let qr;try{await carregaQR8();qr=qrcode(0,'H');qr.addData(url);qr.make()}catch(e){
+  d.textContent='';d.append(mk8('h3',null,'QR do totem'),mk8('p','note','Não consegui gerar agora (sem internet?). Tente de novo.'),botao8('Fechar','more',()=>d.close()));return}
+ const W=1000,H=1400,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+ g.fillStyle='#fff';g.fillRect(0,0,W,H);g.fillStyle='#111';g.fillRect(0,0,W,150);
+ g.fillStyle='#f5c518';g.font='bold 80px Arial,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('MiHelp',W/2,78);
+ g.fillStyle='#111';g.font='bold 62px Arial,sans-serif';g.textBaseline='alphabetic';
+ let y=250;linhasTxt8(g,'Avalie '+titulo,W-120).slice(0,2).forEach(l=>{g.fillText(l,W/2,y);y+=74});
+ g.font='40px Arial,sans-serif';g.fillStyle='#444';if(sub){g.fillText(String(sub).slice(0,48),W/2,y-4);y+=50}
+ const n=qr.getModuleCount(),tam=760,cel=Math.floor(tam/n),real=cel*n,x0=(W-real)/2,y0=Math.max(y+20,380);
+ g.fillStyle='#fff';g.fillRect(x0-30,y0-30,real+60,real+60);g.fillStyle='#000';
+ for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(qr.isDark(r,c))g.fillRect(x0+c*cel,y0+r*cel,cel,cel);
+ g.strokeStyle='#111';g.lineWidth=6;g.strokeRect(x0-30,y0-30,real+60,real+60);
+ const yb=y0+real+110;g.fillStyle='#111';g.font='bold 54px Arial,sans-serif';g.fillText('⭐ Aponte a câmera do celular',W/2,yb);
+ g.font='42px Arial,sans-serif';g.fillStyle='#444';g.fillText('e deixe sua avaliação e comentário',W/2,yb+60);
+ g.font='30px Arial,sans-serif';g.fillStyle='#777';g.fillText(url.replace(/^https?:\/\//,'').slice(0,60),W/2,H-50);
+ cv.style.cssText='width:100%;max-width:min(92vw,420px);height:auto;border:1px solid #ccc;border-radius:8px;background:#fff;display:block;margin:8px auto';
+ d.textContent='';d.append(mk8('h3',null,'QR do totem'),mk8('p','note','O QR já aparece aqui na tela: dá para só tirar um print do celular e mostrar. Para imprimir, use A5 ou A4 (QR com pelo menos 4 cm) e teste com o seu celular antes de colar.'),cv);
+ const ac=mk8('div','v8acts');
+ ac.append(botao8('⬇ Baixar PNG','cta2',()=>{const a=document.createElement('a');a.download=(arq||'totem')+'.png';a.href=cv.toDataURL('image/png');document.body.append(a);a.click();a.remove()}),
+  botao8('🖨 Imprimir','more',()=>{const w=window.open('','_blank');if(!w)return;w.document.write('<title>Totem</title><body style="margin:0;text-align:center"><img src="'+cv.toDataURL('image/png')+'" style="max-width:100%;max-height:100vh" onload="print()">');w.document.close()}),
+  botao8('Fechar','more',()=>d.close()));d.append(ac)}
+const qrLoja8=L=>qrTotem8(L.nome,L.tipo||'',linkLoja8(L.chave)+'&avaliar=1','totem-'+L.chave);
+const qrHelper8=(n,w)=>qrTotem8(n,w||'Helper','' +linkHelper8(n)+'&avaliar=1','totem-'+String(n).toLowerCase().replace(/[^a-z0-9]+/g,'-'));
 function formPedir8(d,L){d.textContent='';d.append(mk8('h3',null,'Quero fazer parte de '+L.nome));
  d.append(mk8('p','note','O dono precisa aprovar. Você escolhe se o seu nome aparece no perfil da loja.'));
  const l1=mk8('label',null,'Sua função na loja (opcional)');const f=document.createElement('input');f.type='text';f.maxLength=30;f.placeholder='Ex.: Barbeiro, Vendedor';l1.append(f);
@@ -787,7 +879,7 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
  {const s=sec('conta',helper?'Cliente ou Helper':'Minha conta','👤');
   if(!helper){
    s.append(mk8('p','note','Você é Cliente e pode continuar assim para sempre: não precisa fazer nada. Se quiser oferecer um serviço, vire Helper: é a mesma conta, com o mesmo telefone e senha.'));
-   const pk=pick8(E.catalogo);const l2=mk8('label','ck');const ck=document.createElement('input');ck.type='checkbox';ck.checked=true;l2.append(ck,mk8('span',null,'Aparecer em "Profissionais do Vale"'));
+   const pk=pick8(E.catalogo);const l2=mk8('label','ck');const ck=document.createElement('input');ck.type='checkbox';ck.checked=true;l2.append(ck,mk8('span',null,'Aparecer em "Profissionais da Região"'));
    s.append(pk.el,l2,botao8('Quero ser Helper','cta2',async()=>{const o=pk.valor();if(!o){st.style.color='var(--red)';st.textContent='Escolha o seu ofício.';return}
     st.style.color='';st.textContent='Salvando…';const r=await chama8('/perfil/virar-helper',{oficio:o,aparecer:ck.checked});
     if(r.ok&&r.j&&r.j.ok){st.textContent='Pronto! Agora você é Helper. Atualizando a página…';reload('helper',r.j.oficio||o)}else{st.style.color='var(--red)';st.textContent=erro8(r)}}))}
@@ -795,7 +887,7 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
    s.append(mk8('p','note','Você é Helper. Se parar de oferecer serviço, pode voltar a ser Cliente: o seu perfil de Helper fica guardado (só deixa de aparecer) e volta se você quiser.'));
    if(E.favoritosRecebidos>0)s.append(mk8('p','note','⭐ '+E.favoritosRecebidos+(E.favoritosRecebidos===1?' pessoa favoritou':' pessoas favoritaram')+' você.'));
    const sh=mk8('span','note');sh.setAttribute('role','status');
-   s.append(botao8('🔗 Compartilhar meu perfil','more',()=>compartilhar8(eu.nome+' no MiHelp',(eu.work||'Helper')+' · Vale do Araguaia',linkHelper8(eu.nome),m=>{sh.textContent=m;setTimeout(()=>sh.textContent='',2500)})),sh);
+   s.append(botao8('🔗 Compartilhar meu perfil','more',()=>compartilhar8(eu.nome+' no MiHelp',(eu.work||'Helper')+' · Barra do Garças e região',linkHelper8(eu.nome),m=>{sh.textContent=m;setTimeout(()=>sh.textContent='',2500)})),botao8('📱 QR do totem (meu perfil)','more',()=>qrHelper8(eu.nome,eu.work)),sh);
    s.append(botao2x8('Voltar a ser Cliente','more',async()=>{st.style.color='';st.textContent='Salvando…';const r=await chama8('/perfil/virar-cliente',{});
     if(r.ok&&r.j&&r.j.ok){st.textContent='Pronto. Atualizando a página…';reload('cliente','')}else{st.style.color='var(--red)';st.textContent=erro8(r)}}))}}
 
@@ -803,8 +895,8 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
  if(helper){
   {const s=sec('priv','Privacidade','🔒');
    const l=mk8('label','ck');const ck=document.createElement('input');ck.type='checkbox';ck.checked=!!E.aparecer;
-   ck.onchange=()=>envia('/perfil/privacidade',{aparecer:ck.checked},ck.checked?'Agora você aparece em "Profissionais do Vale".':'Você saiu da busca. Continua usando o app normalmente.');
-   l.append(ck,mk8('span',null,'Aparecer em "Profissionais do Vale"'));s.append(l);
+   ck.onchange=()=>envia('/perfil/privacidade',{aparecer:ck.checked},ck.checked?'Agora você aparece em "Profissionais da Região".':'Você saiu da busca. Continua usando o app normalmente.');
+   l.append(ck,mk8('span',null,'Aparecer em "Profissionais da Região"'));s.append(l);
    s.append(mk8('p','note','Desligado, ninguém acha você na busca. Você pode esconder só um ofício (abaixo) ou só uma loja (mais abaixo).'))}
   {const s=sec('pix','Pix do coração','💛');
    s.append(mk8('p','note','Opcional. Se colocar a sua chave Pix, quem estiver logado e gostar do seu trabalho pode te agradecer com um Pix. O MiHelp não cobra nem passa por esse dinheiro.'));
@@ -858,7 +950,7 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
   if(!E.lojas.length)s.append(mk8('p','note','Você ainda não criou nenhum. Barbearia, salão, loja de motos, oficina: crie e monte a sua equipe.'));
   E.lojas.forEach(L=>{
    const box=mk8('div','v8card');const row=mk8('div','v8row');row.append(mk8('b',null,L.nome),mk8('span','note',L.tipo+(CID8[L.cidade]?' · '+CID8[L.cidade]:'')));
-   const acts=mk8('div','v8acts');acts.append(botao8('💰 Serviços e preços','more',()=>formServicos8(d,E,L)),botao8('👁 Ver perfil','more',()=>{d.close();abrirLoja8(L.chave)}),botao8('✏️ Editar','more',()=>formLoja8(d,E,L)),botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',L.tipo,linkLoja8(L.chave),m=>{st.style.color='';st.textContent=m})),botao2x8('🗑 Apagar','more',()=>envia('/estabelecimentos/apagar',{chave:L.chave},'Estabelecimento apagado.')));
+   const acts=mk8('div','v8acts');acts.append(botao8('💰 Serviços e preços','more',()=>formServicos8(d,E,L)),botao8('👁 Ver perfil','more',()=>{d.close();abrirLoja8(L.chave)}),botao8('✏️ Editar','more',()=>formLoja8(d,E,L)),botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',L.tipo,linkLoja8(L.chave),m=>{st.style.color='';st.textContent=m})),botao8('📱 QR do totem','more',()=>qrLoja8(L)),botao2x8('🗑 Apagar','more',()=>envia('/estabelecimentos/apagar',{chave:L.chave},'Estabelecimento apagado.')));
    box.append(row,acts);if(L.favs>0)box.append(mk8('p','note','⭐ '+L.favs+(L.favs===1?' pessoa favoritou':' pessoas favoritaram')+' esta loja.'));
    box.append(mk8('h4',null,'Equipe'));
    if(!L.equipe.length)box.append(mk8('p','note','Ninguém na equipe ainda. Convide pelo telefone abaixo.'));
@@ -1184,7 +1276,7 @@ async function abrirAdmPessoas8(){
 function pessoa(nome){return (eu&&eu.nome===nome)?eu:(por(nome)||REAIS[nome])}
 function avaliar(alvo,nota_,txt){const l=AV[alvo.nome]=AV[alvo.nome]||[];const i=l.findIndex(x=>x[0]===eu.nome);const r=[eu.nome,nota_,txt];if(i>=0)l[i]=r;else l.push(r);try{if(window.MH_DB&&MH_DB.ok)MH_DB.avaliar(alvo.nome,eu.nome,nota_,txt)}catch(x){}}
 let pfDlg=null;
-function mhCtx(){return{eu:eu,espaco:abrirEspaco8,agenda:abrirAgenda8,horarios:abrirHorarios8,share:()=>compartilhar8(eu.nome+' no MiHelp',(eu.work||'Helper')+' · Vale do Araguaia',linkHelper8(eu.nome),m=>MH_PAINEL.toast(m))}}
+function mhCtx(){return{eu:eu,espaco:abrirEspaco8,agenda:abrirAgenda8,horarios:abrirHorarios8,share:()=>compartilhar8(eu.nome+' no MiHelp',(eu.work||'Helper')+' · Barra do Garças e região',linkHelper8(eu.nome),m=>MH_PAINEL.toast(m)),qr:()=>qrHelper8(eu.nome,eu.work)}}
 function abrirPerfil(nome,forca){
 const pes=pessoa(nome)||(forca?{nome,role:'helper',work:''}:null);if(!pes)return;fecharHover();
 if(!pfDlg){pfDlg=document.createElement('dialog');pfDlg.setAttribute('aria-label','Perfil');document.body.append(pfDlg);pfDlg.addEventListener('click',e=>{if(e.target===pfDlg)pfDlg.close()})}
@@ -1213,12 +1305,13 @@ if(!meu){
  const pv=mk('button','cta2 pa-main','💬 Falar no privado');pv.type='button';pv.onclick=()=>{d.close();abrirPrivado(pes.nome)};ac.append(pv);
  if(eu){const fv=mk('button','more pa-sec',ehFav(pes.nome)?'★ Nos favoritos':'☆ Favoritar');fv.type='button';fv.setAttribute('aria-pressed',String(ehFav(pes.nome)));
   fv.onclick=()=>{const on=togFav(pes.nome);try{favSrv8(pes.nome,on)}catch(x){}fv.textContent=on?'★ Nos favoritos':'☆ Favoritar';fv.setAttribute('aria-pressed',String(on))};ac.append(fv);
-  const can=conversou.has(pes.nome);
+  const can=conversou.has(pes.nome)||QRAV.has(pes.nome);
   const av=mk('button','more pa-sec','⭐ Avaliar');av.type='button';av.disabled=!can;av.onclick=()=>formAval(pes);ac.append(av);
   if(!can)d.append(mk('p','note','Para avaliar, converse com a pessoa no privado primeiro. Assim só avalia quem falou com ela.'))}
  else d.append(mk('p','note','Cadastre-se para conversar e avaliar.'))
 }else d.append(mk('p','note','Assim as outras pessoas veem o seu perfil.'+(l.length?' Nesta prévia, as avaliações vêm de bots de demonstração.':' A média aparece depois das primeiras avaliações.')));
-if(pes.role==='helper'&&!pes.bot&&window.MH_API&&MH_API.on()){const sh=mk('button','more pa-sec','🔗 Compartilhar');sh.type='button';sh.onclick=()=>compartilhar8(pes.nome+' no MiHelp',(pes.work||'Helper')+' · Vale do Araguaia',linkHelper8(pes.nome),m=>{sh.textContent=m;setTimeout(()=>{sh.textContent='🔗 Compartilhar'},2500)});ac.append(sh)}
+if(pes.role==='helper'&&!pes.bot&&window.MH_API&&MH_API.on()){const sh=mk('button','more pa-sec','🔗 Compartilhar');sh.type='button';sh.onclick=()=>compartilhar8(pes.nome+' no MiHelp',(pes.work||'Helper')+' · Barra do Garças e região',linkHelper8(pes.nome),m=>{sh.textContent=m;setTimeout(()=>{sh.textContent='🔗 Compartilhar'},2500)});ac.append(sh)}
+if(pes.role==='helper'&&!pes.bot&&document.body.classList.contains('adm')){const qb=mk('button','more pa-sec','📱 QR do totem');qb.type='button';qb.onclick=()=>qrHelper8(pes.nome,pes.work);ac.append(qb)}
 const fc=mk('button','more pa-close','Fechar');fc.type='button';fc.onclick=()=>d.close();ac.append(fc);d.append(ac);
 if(window.MH_perfilAdm&&document.body.classList.contains('adm'))window.MH_perfilAdm(pes,d);
 d.showModal()}
@@ -1419,7 +1512,7 @@ if(!eu){nota(painel[ativa]||painel.sala,'*** cadastre-se para responder ***');re
 respA={nome:b.dataset.rp,texto:b.dataset.tx};mostrarResp();$('m').focus()});
 $('rpX').addEventListener('click',()=>{respA=null;mostrarResp();$('m').focus()});
 const SALAS=[['sala','Geral','conversa livre e SOS. Para vender ou procurar serviço, use as outras salas.'],['r:classificados','Classificados','compra, venda e troca. Não pague antes de ver o item. Nada ilegal.'],['r:amizade','Amizade','bate-papo e conhecer gente. Sem oferta de serviço ou venda.'],['r:construcao','Construção e reformas','pedreiro, pintura, elétrica e orçamento. Combine o preço por escrito.'],['r:vagas','Vagas e bicos','diárias e trabalho temporário. Diga o que é, o valor e o dia.'],['r:cozinha','Cozinha','restaurantes, lanchonetes e padarias da cidade: cardápio do dia, promoção e horário. Uma publicação por vez, sem repetir a mesma mensagem.'],['r:doacao-moveis','Doação de móveis','só doação, de graça: móveis e eletrodomésticos. Diga o item, o estado e o bairro. Combine a retirada em local público.'],['r:doacao-pets','Doação de pets','adoção responsável: conte sobre o bichinho, vacinas e castração. Não é para vender animais. Combine a entrega em local público.'],['r:barra','Barra do Garças','conversa e avisos de Barra do Garças. Respeite os vizinhos e não repita a mesma mensagem.'],['r:pontal','Pontal do Araguaia','conversa e avisos de Pontal do Araguaia. Respeite os vizinhos.'],['r:aragarcas','Aragarças','conversa e avisos de Aragarças. Respeite os vizinhos.']];
-const SEMENTE={'r:classificados':[['Marcos P.','vendo uma bicicleta aro 26, pouco uso. Quem quiser, chama no privado'],['Ana C.','alguém tem berço para vender ou doar?']],'r:amizade':[['Duda L.','bom dia, Vale! Quem vai na praça no fim de semana?'],['Ana C.','eu vou! Levo o tereré']],'r:construcao':[['Marcos P.','alguém indica pedreiro para fazer um muro?'],['Carla M.','Trabalho com elétrica. Se precisar de ponto novo, me chama']],'r:vagas':[['Ana C.','preciso de diarista na terça, meio período'],['Marcos P.','ajudante de pedreiro, 3 diárias, aqui em Barra']]};
+const SEMENTE={'r:classificados':[['Marcos P.','vendo uma bicicleta aro 26, pouco uso. Quem quiser, chama no privado'],['Ana C.','alguém tem berço para vender ou doar?']],'r:amizade':[['Duda L.','bom dia, galera! Quem vai na praça no fim de semana?'],['Ana C.','eu vou! Levo o tereré']],'r:construcao':[['Marcos P.','alguém indica pedreiro para fazer um muro?'],['Carla M.','Trabalho com elétrica. Se precisar de ponto novo, me chama']],'r:vagas':[['Ana C.','preciso de diarista na terça, meio período'],['Marcos P.','ajudante de pedreiro, 3 diárias, aqui em Barra']]};
 function abrirSala(c){if(painel[c])return;const d=document.createElement('div');d.className='log';d.hidden=true;d.setAttribute('aria-live','polite');$('log').after(d);painel[c]=d;if(BOTS){nota(d,'*** sala de demonstração: quem tem a etiqueta bot é simulado ***');window._semBalao=1;(SEMENTE[c]||[]).forEach(([n,t])=>linha(d,por(n),t));window._semBalao=0}}
 SALAS.filter(x=>x[0]!=='sala').forEach(([k,n])=>{const b=document.createElement('button');b.type='button';b.dataset.r=k;b.textContent=n;b.onclick=()=>{abrirSala(k);mostrar(k)};$('rooms').append(b)});
 {const sl=document.createElement('select');sl.id='roomSel';sl.className='roomsel';sl.setAttribute('aria-label','Escolher sala');SALAS.forEach(([k,n])=>sl.append(new Option(n,k)));sl.onchange=()=>{const k=sl.value;if(k!=='sala')abrirSala(k);mostrar(k)};$('rooms').insertBefore(sl,$('rooms').querySelector('button[data-r]'));
@@ -1670,11 +1763,11 @@ const cont=[[0,8,document.getElementById('vgrid')],[0,4,document.getElementById(
 const mobMQ=matchMedia('(max-width:640px)');let pausaAte=0;
 const T0=Date.now(),ex=(n,t,min)=>({name:n,text:t,end:T0+min*60000,total:min*60000,tag:'exemplo'});
 let vs=new Array(PG*PER).fill(null),cur=0,imgData=null;
-if(EXEMPLOS){vs[0]=ex('Seu anúncio aqui','Exemplo de anúncio com o tempo contando.',45);vs[1]=ex('Sua marca no Vale','Anuncie por R$ 1 o minuto.',120);vs[4]=ex('Anúncio de exemplo','Texto de até 60 letras.',30);vs[6]=ex('Sua empresa aqui','Clique numa vaga aberta para anunciar.',90);vs[8]=ex('Vaga de exemplo','O anúncio entra depois do Pix.',60);vs[12]=ex('Padaria Exemplo','Pão quente toda hora.',25);vs[17]=ex('Oficina Exemplo','Revisão e troca de óleo.',70);vs[16]=ex('Mercado Exemplo','Ofertas da semana.',50)}
+if(EXEMPLOS){vs[0]=ex('Seu anúncio aqui','Exemplo de anúncio com o tempo contando.',45);vs[1]=ex('Sua marca na região','Anuncie por R$ 1 o minuto.',120);vs[4]=ex('Anúncio de exemplo','Texto de até 60 letras.',30);vs[6]=ex('Sua empresa aqui','Clique numa vaga aberta para anunciar.',90);vs[8]=ex('Vaga de exemplo','O anúncio entra depois do Pix.',60);vs[12]=ex('Padaria Exemplo','Pão quente toda hora.',25);vs[17]=ex('Oficina Exemplo','Revisão e troca de óleo.',70);vs[16]=ex('Mercado Exemplo','Ofertas da semana.',50)}
 const fmt=ms=>{const t=Math.max(0,Math.ceil(ms/1000)),h=Math.floor(t/3600),m=Math.floor(t%3600/60),x=t%60,p=v=>String(v).padStart(2,'0');return (h?h+':'+p(m):m)+':'+p(x)};
 function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 function slot(v,i){
-if(!v){const b=el('button','vg open');b.type='button';b.append(el('b',0,'Vaga aberta'),el('small',0,'A partir de R$ 5. Clique para anunciar'));b.onclick=()=>openD(i);return b}
+if(!v){const b=el('button','vg open');b.type='button';b.append(el('b',0,'Vaga aberta'),el('small',0,'A partir de R$ 5. Clique para anunciar'));b.onclick=()=>{window.MH_vagaEsc=i;window.MH_irTabela&&window.MH_irTabela(i)};return b}
 const d=el('div','vg');d.append(el('span','tg','Publicidade'+(v.tag?' · '+v.tag:'')));if(v.img){const im=el('img');im.src=v.img;im.alt='Imagem do anúncio de '+v.name;d.append(im)}d.append(el('b',0,v.name),el('span','tx',v.text));const tm=el('span','tm',fmt(v.end-Date.now()));tm.dataset.i=i;const pg=el('div','pgb'),bar=el('i');pg.append(bar);d.append(tm,pg);return d}
 const pontosEls=cont.map(([a,b,c])=>{const d=el('div','pgd');c.after(d);return d});
 function pontos(){pontosEls.forEach(d=>{d.textContent='';for(let q=0;PG>q;q++){const b=el('button',q===pag?'dtp on':'dtp');b.type='button';b.setAttribute('aria-label','Vagas, página '+(q+1)+' de '+PG);b.onclick=()=>{pag=q;build()};d.append(b)}})}
@@ -1754,6 +1847,7 @@ function tot(){
   document.getElementById('horasMenos').disabled=horasCustom<=MIN_H;
   document.getElementById('horasMais').disabled=horasCustom>=MAX_H;
 }
+window.MH_vaga={abrir:i=>openD(i),livre:p=>(p>=0&&!vs[p])?p:vs.findIndex(v=>!v)};
 function openD(i){
   cur=i;horasCustom=1;
   document.getElementById('df').reset();
@@ -1843,7 +1937,7 @@ function iniciarStickyAds(){
   if(!name||!text) return;
   const slides=[
     {name:'Vaga aberta',text:'Outdoor digital · a partir de R$ 5'},
-    {name:'Seu negócio no Vale',text:'Barra · Pontal · Aragarças · R$ 1/min'},
+    {name:'Seu negócio na região',text:'Barra · Pontal · Aragarças · R$ 1/min'},
     {name:'Pacote 24h com 35% off',text:'Anuncie o dia todo por R$ 936'},
     {name:'Vaga aberta',text:'Clique em Anunciar e escolha o tempo'}
   ];

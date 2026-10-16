@@ -8,7 +8,7 @@ const clicaDepois=(id,ms)=>setTimeout(()=>{const e=document.getElementById(id);i
 const ITENS=[
  {i:'💬',t:'Chat',ok:()=>!!document.getElementById('chatFab'),f:()=>document.getElementById('chatFab').click()},
  {i:'👤',t:'Minha conta',ok:()=>vivo('conta'),f:()=>dock('conta').click()},
- {i:'🧭',t:'Guia do Vale',ok:()=>vivo('guia'),f:()=>dock('guia').click()},
+ {i:'🧭',t:'Guia da Região',ok:()=>vivo('guia'),f:()=>dock('guia').click()},
  {i:'🎉',t:'Eventos',ok:()=>{const e=document.getElementById('cheers');return !!e&&!e.hidden},f:()=>document.getElementById('cheers').scrollIntoView({behavior:'smooth',block:'start'})},
  {i:'⭐',t:'Recomendar um lugar',ok:()=>vivo('guia')&&!!document.getElementById('vNovo'),f:()=>{dock('guia').click();clicaDepois('vNovo',700)}},
  {i:'🚗',t:'Caronas',ok:()=>vivo('carona'),f:()=>dock('carona').click()},

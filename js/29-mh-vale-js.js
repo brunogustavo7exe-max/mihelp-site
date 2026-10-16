@@ -87,7 +87,7 @@ function indicar(){
  form('Indicar um lugar','Qualquer pessoa pode indicar: o lugar aparece na hora. Se a equipe visitar, ele ganha a ⭐ estrela MiHelp.',
   [{k:'nome',l:'Nome do lugar',max:60},{k:'categoria',l:'Categoria',t:'select',o:CATS},{k:'bairro',l:'Bairro (opcional)',max:40},{k:'descricao',l:'Por que você recomenda? (até 300 letras)',t:'area',max:300},{k:'contato',l:'WhatsApp do lugar (opcional)',t:'tel',ph:'66 99999-9999',max:20},{k:'mapa',l:'Link do mapa (opcional)',ph:'https://maps.app.goo.gl/...',max:300}],
   'Enviar indicação',async o=>{const r=await A.req('/lugares',{token:A.usrTk(),body:Object.assign(o,{cidade:cid})});
-   if(r.ok&&r.j.ok){msg('Indicação publicada! Já aparece no Guia do Vale.');return ''}
+   if(r.ok&&r.j.ok){msg('Indicação publicada! Já aparece no Guia da Região.');return ''}
    return r.status===429?'Você já indicou muitos lugares hoje. Tente amanhã.':r.status===401?'Entre na sua conta.':(r.j&&r.j.erro)||'Não consegui enviar agora.'})}
 function oferecer(){
  if(!logado()){msgC('Entre na sua conta para oferecer uma carona.');return}

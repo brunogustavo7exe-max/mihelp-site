@@ -12,7 +12,7 @@ const med=['🥇','🥈','🥉'];
 function erro(r){return r.status===401?'Entre na sua conta para votar.':r.status===429?((r.j&&r.j.erro)||'Limite atingido.'):r.status===409?'Você já votou nessa cidade.':(r.j&&r.j.erro)||'Não consegui agora. Tente de novo.'}
 async function ler(){
  const r=await A.req('/cidades-pedidas',{token:A.usrTk()});const box=$('cpLista');box.textContent='';
- const at=mk('div','cp-r cp-on');at.append(mk('span',0,'Vale do Araguaia (MT/GO) · já ativo ✅'));box.append(at);
+ const at=mk('div','cp-r cp-on');at.append(mk('span',0,'Barra do Garças e região (MT/GO) · já ativo ✅'));box.append(at);
  if(!r.ok){box.append(mk('p','note','Não consegui carregar os pedidos agora.'));return}
  const l=r.j.itens||[];meus=r.j.meus||[];rest=typeof r.j.restantes==='number'?r.j.restantes:3;
  const max=Math.max(1,...l.map(x=>x.votos));

@@ -305,7 +305,7 @@ function tSite(b){
   const rm=mk('button','cp','Remover enquete');rm.type='button';rm.onclick=()=>salva('tirar');
   f.addEventListener('submit',e=>{e.preventDefault();salva('nova')});f.append(go,sv,rm);b.append(f);
   b.append(mk('p','note','Voto grátis, só para quem está logado, 1 voto por conta. Mudar a pergunta ou as opções sem "nova" mantém os votos antigos.'))}
-  b.append(mk('h4',0,'Guia do Vale'));
+  b.append(mk('h4',0,'Guia da Região'));
   {const box=mk('div'),AP=window.MH_API;b.append(box);
   if(!(AP&&AP.on()&&AP.admTk()))box.append(mk('p','note','Entre como adm (com a senha) para aprovar as indicações.'));
   else AP.req('/lugares?todos=1',{token:AP.admTk()}).then(r=>{
@@ -406,7 +406,7 @@ function tLix(b){
 // ---- aba Pessoas ----
 function tPes(b){
   b.append(mk('h4',0,'Página de helpers'));
-  b.append(mk('p','note','Excluir tira a pessoa da lista de Profissionais do Vale. Ela continua com a conta e no chat, e você pode recolocar quando quiser.'));
+  b.append(mk('p','note','Excluir tira a pessoa da lista de Profissionais da Região. Ela continua com a conta e no chat, e você pode recolocar quando quiser.'));
   {const hs=new Map();(window.MH_HELPERS||[]).forEach(x=>{if(x&&x.nome)hs.set(x.nome,x.oficio||'')});UI.pessoas().forEach(p=>{if(p.role==='helper'&&!hs.has(p.nome))hs.set(p.nome,p.work||'')});FORA.forEach(n=>{if(!hs.has(n))hs.set(n,'')});
    const q=inp('search',40,'Buscar helper por nome ou ofício');q.setAttribute('aria-label','Buscar helper');const lst=mk('div');b.append(q,lst);
    const desenha=()=>{lst.textContent='';const t=(q.value||'').toLowerCase();let c=0;
