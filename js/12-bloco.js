@@ -276,7 +276,9 @@ function tTxt(b){
   const cur=store.get('textos',{}),vistos=new Map();
   document.querySelectorAll('[data-txt]').forEach(e=>{const k=e.dataset.txt;if(!vistos.has(k))vistos.set(k,e.dataset.txtRot||k)});
   const f=mk('form'),cs=[];
-  vistos.forEach((rot,k)=>{const long=/texto/.test(k);const i=long?document.createElement('textarea'):inp('text',80);if(long){i.rows=3;i.maxLength=200}else i.maxLength=60;
+  vistos.forEach((rot,k)=>{
+    if(k.indexOf('apoio.')===0&&!f.querySelector('.gp-apoio')){const h=mk('h4','gp-apoio','💛 Caixinha de doação');f.append(h,mk('p','note','É o cartão "Ajude o MiHelp a crescer": aparece na lateral (tela grande) e embaixo das vagas (celular). Mude o título, o texto, o botão e o link.'))}
+    const long=/texto/.test(k);const i=long?document.createElement('textarea'):inp('text',80);if(long){i.rows=3;i.maxLength=200}else i.maxLength=(k==='apoio.titulo'?80:60);
     i.value=typeof cur[k]==='string'?cur[k]:(TXT_PADRAO[k]||'');i.placeholder=TXT_PADRAO[k]||'';f.append(campo(rot,i));cs.push([k,i])});
   const go=mk('button','go','Salvar textos');go.type='submit';f.append(go);
   f.addEventListener('submit',e=>{e.preventDefault();const o={};cs.forEach(([k,i])=>{const v=i.value.trim().slice(0,200);if(v&&v!==TXT_PADRAO[k])o[k]=v});

@@ -517,19 +517,28 @@ async function qrCompartilhar8(titulo,texto,url){
  const st=mk8('p','note','');st.setAttribute('role','status');
  const aviso=m=>{st.textContent=m;setTimeout(()=>{if(st.textContent===m)st.textContent=''},3000)};
  const blob=()=>new Promise(r=>cv.toBlob(r,'image/png'));
- const copiar=async()=>{try{await navigator.clipboard.writeText(url);aviso('✅ Link copiado!');return}catch(e){}
-  try{const t=document.createElement('textarea');t.value=url;t.style.cssText='position:fixed;left:-999px;top:0';d.append(t);t.select();const c=document.execCommand('copy');t.remove();if(c){aviso('✅ Link copiado!');return}}catch(e){}
+ const copiar=async()=>{try{await navigator.clipboard.writeText(url);aviso('✅ Link copiado!');return true}catch(e){}
+  try{const t=document.createElement('textarea');t.value=url;t.style.cssText='position:fixed;left:-999px;top:0';d.append(t);t.select();const c=document.execCommand('copy');t.remove();if(c){aviso('✅ Link copiado!');return true}}catch(e){}
   try{window.prompt('Copie o link:',url)}catch(e){}};
  d.textContent='';d.append(mk8('h3',null,'Compartilhar perfil'),mk8('p','note','Mostre este QR para outra pessoa ler com a câmera, ou tire um print.'),cv);
- const ac=mk8('div','v8acts');
- ac.append(botao8('⬇ Baixar QR (PNG)','cta2',()=>{const a=document.createElement('a');a.download=arq+'.png';a.href=cv.toDataURL('image/png');document.body.append(a);a.click();a.remove();aviso('✅ QR baixado.')}),
-  botao8('📤 Compartilhar','more',async()=>{
+ const IC={
+  dl:'<path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 20h14"/>',
+  sh:'<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/>',
+  ln:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  st:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>'};
+ const qb=(ic,txt,cls,fn)=>{const b=mk8('button','qb '+cls);b.type='button';
+  if(ic){const v=document.createElementNS('http://www.w3.org/2000/svg','svg');v.setAttribute('viewBox','0 0 24 24');v.setAttribute('aria-hidden','true');v.innerHTML=IC[ic];b.append(v)}
+  b.lab=mk8('span',null,txt);b.append(b.lab);b.onclick=fn;return b};
+ const flip=(b,txt)=>{const o=b.lab.textContent;b.lab.textContent=txt;b.classList.add('ok');setTimeout(()=>{b.lab.textContent=o;b.classList.remove('ok')},2000)};
+ const bx=mk8('div','qrb');
+ const bBaixar=qb('dl','Baixar QR (PNG)','main wide',()=>{const a=document.createElement('a');a.download=arq+'.png';a.href=cv.toDataURL('image/png');document.body.append(a);a.click();a.remove();aviso('✅ QR baixado.');flip(bBaixar,'QR baixado ✓')});
+ const bShare=qb('sh','Compartilhar','sec',async()=>{
    try{const b=await blob();if(b&&navigator.canShare&&navigator.share){const f=new File([b],arq+'.png',{type:'image/png'});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],title:titulo,text:texto+(texto?' ':'')+url});return}}}catch(e){if(e&&e.name==='AbortError')return}
-   compartilharSimples8(titulo,texto,url,aviso)}),
-  botao8('🔗 Copiar link','more',copiar));
- d.append(ac,st);
- const ac2=mk8('div','v8acts');
- ac2.append(botao8('🖨 Totem de avaliação','more',()=>{d.close();qrTotem8(titulo.replace(/ no MiHelp$/,''),'',url+(url.includes('?')?'&':'?')+'avaliar=1','totem-'+arq)}),botao8('Fechar','more',()=>d.close()));d.append(ac2)}
+   compartilharSimples8(titulo,texto,url,aviso)});
+ const bCopiar=qb('ln','Copiar link','sec',async()=>{if(await copiar())flip(bCopiar,'Link copiado ✓')});
+ const bTotem=qb('st','Totem de avaliação','sec wide',()=>{d.close();qrTotem8(titulo.replace(/ no MiHelp$/,''),'',url+(url.includes('?')?'&':'?')+'avaliar=1','totem-'+arq)});
+ const bFechar=qb(null,'Fechar','ghost wide',()=>d.close());
+ bx.append(bBaixar,bShare,bCopiar,bTotem,bFechar);d.append(bx,st)}
 /* favoritar Helper no servidor (o favorito local do site continua; isto deixa o Helper ver quantas pessoas o favoritaram) */
 function favSrv8(nome,on){if(!apiOn8()||!tk8())return;const h=(window.MH_PROS||[]).find(x=>x.nome===nome);if(!h||!h.uid)return;chama8('/favoritos',{alvo:'h:'+h.uid,on:!!on}).catch(()=>{})}
 /* link recebido (?loja=... ou ?helper=...): abre o perfil direto */

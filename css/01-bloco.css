@@ -241,6 +241,11 @@ dialog h3{margin:0 0 12px;font-size:20px}
 .apoio-box{display:flex;flex-direction:column;gap:6px;align-items:flex-start;margin:10px 8px 8px;padding:12px;border:1px solid var(--gold,#f5c518);border-radius:12px;background:rgba(245,197,24,.08)}
 .apoio-box b{font-size:14px}.apoio-box span{font-size:13px;line-height:1.4;color:var(--mute)}.apoio-box .cta2{width:100%;min-height:40px}.apoio-box a{font-size:13px;font-weight:700}
 .apoio-lado{display:none}.apoio-vagas{margin:14px 0 0}
+.apoio-box .cta2{margin-top:6px;min-height:46px;border-radius:999px;font-size:15px;font-weight:800;letter-spacing:.2px;box-shadow:0 6px 16px rgba(var(--gold-rgb,232,185,60),.25);transition:transform .12s,filter .12s}
+.apoio-box .cta2:hover{filter:brightness(1.08)}.apoio-box .cta2:active{transform:scale(.97)}
+.apoio-box a{display:flex;align-items:center;justify-content:center;width:100%;box-sizing:border-box;min-height:40px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--text);transition:border-color .12s}
+.apoio-box a::after{content:"→";margin-left:6px;transition:transform .12s}
+.apoio-box a:hover,.apoio-box a:focus-visible{border-color:var(--gold);outline:none}.apoio-box a:hover::after{transform:translateX(3px)}
 @media(min-width:1200px){.apoio-lado{display:flex}.apoio-vagas{display:none}}
 .shell{max-width:1420px;margin:0 auto}
 .side{display:none}
