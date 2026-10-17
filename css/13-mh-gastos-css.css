@@ -1,0 +1,20 @@
+
+#gastos .gtabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+#gastos .gtabs button{flex:1 1 130px;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--surf);color:var(--text);font:700 14px var(--sans);cursor:pointer}
+#gastos .gtabs button[aria-selected=true]{border-color:var(--gold);color:var(--gold2)}
+#gastos .gfil{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+#gastos .gfil button{min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surf);color:var(--read);font:700 13px var(--sans);cursor:pointer}
+#gastos .gfil button[aria-pressed=true]{background:var(--gold);color:#201804;border-color:var(--gold)}
+#gastos .gtot{margin:0 0 10px;font:700 14px var(--mono);color:var(--gold2)}
+#gastos .gp{border:1px solid var(--line);border-radius:12px;padding:12px;margin:0 0 8px;background:var(--surf)}
+#gastos .gp h3{margin:4px 0;font-size:16px}
+#gastos .gp .gm{display:flex;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--mute)}
+#gastos .gs{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;border:1px solid currentColor}
+#gastos .g-andamento{color:#F2C94C}#gastos .g-concluida{color:#6EC8AA}#gastos .g-planejada{color:#4F8EF7}#gastos .g-paralisada{color:var(--red)}
+#gastos .gv{font:800 18px var(--mono);color:var(--gold);margin:4px 0}
+#gastos .gl a{color:var(--gold2)}
+#gastos .gadm input,#gastos .gadm select{width:100%;box-sizing:border-box;margin:4px 0}
+#gastos .gadm{border:1px dashed var(--gold);border-radius:12px;padding:12px;margin:12px 0}
+#gastos .gof{margin:12px 0 0;font-size:13px;color:var(--mute)}
+#gastos .gof a{color:var(--gold2)}
+html.modo-foco #gastos{display:none!important}

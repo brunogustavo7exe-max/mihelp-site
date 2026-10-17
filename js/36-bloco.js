@@ -1,49 +1,56 @@
 
-/* ===== ajustes v14: máscara do telefone, aviso do Modo Foco, outdoor e títulos ===== */
+/* Selos MiHelp: o adm dá e tira selos de lojas e de pessoas. Ficam no servidor (chave "selos" da config) e valem para todo mundo. */
 try{(function(){
-const R=document.documentElement;
-/* telefone: (66) 99999-8888 */
-function mascara(v){let d=String(v).replace(/\D/g,'');if(d.length>11&&d.indexOf('55')===0)d=d.slice(2);d=d.slice(0,11);
- if(d.length<=2)return d.length?'('+d:'';if(d.length<=6)return '('+d.slice(0,2)+') '+d.slice(2);
- if(d.length<=10)return '('+d.slice(0,2)+') '+d.slice(2,6)+(d.length>6?'-'+d.slice(6):'');
- return '('+d.slice(0,2)+') '+d.slice(2,7)+'-'+d.slice(7)}
-document.addEventListener('input',function(e){const i=e.target;if(!i||i.tagName!=='INPUT'||i.type!=='tel')return;
- const antes=(i.dataset.dg||'');let dg=i.value.replace(/\D/g,'');
- if(e.inputType==='deleteContentBackward'&&dg===antes&&dg)dg=dg.slice(0,-1);
- i.dataset.dg=dg;i.value=mascara(dg);try{i.setSelectionRange(i.value.length,i.value.length)}catch(x){}});
-/* aviso do Modo Foco */
-let av=null,tm=0;
-function sairFoco(){const b=[...document.querySelectorAll('button')].find(x=>/Sair do modo foco/i.test(x.textContent));if(b)b.click();else{R.classList.remove('modo-foco');try{localStorage.setItem('mh_foco','0')}catch(e){}}esconde()}
-function esconde(){if(av)av.hidden=true}
-function aviso(txt,btn){if(!av){av=document.createElement('div');av.setAttribute('role','status');
- av.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:16px;z-index:99999;max-width:92vw;width:420px;background:#1b1230;color:#fff;border:2px solid #f5c542;border-radius:12px;padding:12px 14px;font:600 14px/1.4 system-ui,sans-serif;box-shadow:0 8px 30px #0008';
- document.body.append(av)}
- av.textContent='';const p=document.createElement('div');p.textContent=txt;av.append(p);
- if(btn){const b=document.createElement('button');b.type='button';b.textContent='Sair do Modo Foco';b.style.cssText='margin-top:8px;margin-right:8px;padding:8px 12px;border:0;border-radius:8px;background:#f5c542;color:#201804;font-weight:800;cursor:pointer';b.onclick=sairFoco;av.append(b)}
- const x=document.createElement('button');x.type='button';x.textContent='Fechar';x.style.cssText='margin-top:8px;padding:8px 12px;border:1px solid #fff6;border-radius:8px;background:transparent;color:#fff;cursor:pointer';x.onclick=esconde;av.append(x);
- av.hidden=false;clearTimeout(tm);tm=setTimeout(esconde,12000)}
-const MSG_FOCO='O Modo Foco está ligado: o site mostra só o seu perfil e o chat. Não está estragado! Para ver o resto, saia do Modo Foco.';
-window.MH_avisoFoco=()=>aviso(MSG_FOCO,true);
-new MutationObserver(()=>{if(R.classList.contains('modo-foco'))aviso(MSG_FOCO,true)}).observe(R,{attributes:true,attributeFilter:['class']});
-function visivel(e){return !!(e&&(e.offsetWidth||e.offsetHeight||e.getClientRects().length))}
-document.addEventListener('click',function(e){if(!R.classList.contains('modo-foco'))return;
- const a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;
- const h=a.getAttribute('href'),alvo=h&&h.length>1?document.getElementById(h.slice(1)):null;
- if(alvo&&!visivel(alvo)){e.preventDefault();e.stopPropagation();aviso(MSG_FOCO,true)}},true);
-try{if(R.classList.contains('modo-foco')&&!sessionStorage.getItem('mh_foco_av')){sessionStorage.setItem('mh_foco_av','1');setTimeout(()=>aviso(MSG_FOCO,true),900)}}catch(e){}
-/* outdoor: vaga aberta leva à tabela de preços; o botão abre a compra */
-window.MH_irTabela=function(i){const t=document.getElementById('tabelaOutdoor');
- if(!visivel(t)){window.MH_vaga&&window.MH_vaga.abrir(i);return}
- t.scrollIntoView({behavior:'smooth',block:'start'});const o=t.style.boxShadow;t.style.boxShadow='0 0 0 3px #ff4d97';setTimeout(()=>{t.style.boxShadow=o},2200);
- aviso('Veja os preços e, quando decidir, toque em "Quero um Outdoor Digital" para escolher o tempo e pagar.',false)};
-document.addEventListener('click',function(e){const c=e.target.closest&&e.target.closest('#ctaOutdoor');if(!c)return;e.preventDefault();
- if(R.classList.contains('modo-foco')){aviso(MSG_FOCO,true);return}
- if(R.classList.contains('sem-outdoor')){aviso('Os outdoors estão desligados nos Ajustes (⚙️). Ligue de novo para anunciar.',false);return}
- const v=window.MH_vaga;if(!v){aviso('Os outdoors ainda estão carregando. Tente de novo em alguns segundos.',false);return}
- const i=v.livre(window.MH_vagaEsc);if(i<0)aviso('Todas as vagas estão ocupadas agora. Volte daqui a pouco!',false);else v.abrir(i)});
-/* títulos das janelas sempre com iniciais maiúsculas (inclusive os que o JavaScript troca) */
-const PEQ={de:1,da:1,do:1,das:1,dos:1,e:1,o:1,a:1,para:1,no:1,na:1,em:1,ao:1};
-function tc(t){let n=0;return t.replace(/[A-Za-zÀ-ÿ0-9]+/g,w=>{const l=w.toLowerCase(),f=n++===0;if(l==='mihelp')return 'MiHelp';if(!f&&PEQ[l])return l;return /^[a-zà-ÿ]/.test(w)?w[0].toUpperCase()+w.slice(1):w})}
-function titulos(){document.querySelectorAll('.bar .t').forEach(e=>{const a=e.textContent,b=tc(a);if(a!==b&&/^[a-zà-ÿ]/.test(a))e.textContent=b})}
-titulos();new MutationObserver(titulos).observe(document.body,{childList:true,characterData:true,subtree:true});
-})()}catch(e){console.error('MiHelp (ajustes v14):',e)}
+const CAT=[
+ {id:'verificado',ic:'✔',nome:'Verificado MiHelp',cor:'#22a55a',txt:'A equipe do MiHelp confirmou que este negócio ou profissional existe e é quem diz ser.'},
+ {id:'estrela',ic:'⭐',nome:'Estrela MiHelp',cor:'#e0a100',txt:'Visitado pela equipe do MiHelp e aprovado.'},
+ {id:'obra',ic:'🏗️',nome:'Obra aprovada',cor:'#b4690e',txt:'Obras e reformas conferidas e aprovadas pela equipe (construtoras, empreiteiras, reformas).'},
+ {id:'sabor',ic:'🍽️',nome:'Sabor aprovado',cor:'#d94141',txt:'Provado e aprovado pela equipe (restaurantes, lanchonetes, padarias).'},
+ {id:'qualidade',ic:'💎',nome:'Qualidade aprovada',cor:'#0891b2',txt:'Serviço ou produto de qualidade, conferido pela equipe.'},
+ {id:'confianca',ic:'🤝',nome:'Confiança comprovada',cor:'#2f6fe4',txt:'Cumpre o que combina. A equipe conferiu o trabalho.'},
+ {id:'destaque',ic:'🏆',nome:'Destaque do mês',cor:'#ea6a0a',txt:'Escolhido como destaque do mês na região.'},
+ {id:'parceiro',ic:'🤲',nome:'Parceiro do MiHelp',cor:'#9b51e0',txt:'Apoia o MiHelp e ajuda o projeto a crescer.'},
+ {id:'pioneiro',ic:'🌱',nome:'Pioneiro',cor:'#6aa80f',txt:'Entrou no começo do MiHelp.'}];
+const POR={};CAT.forEach(c=>POR[c.id]=c);
+const KL='mihelp_selos_v1';
+let D={};try{D=JSON.parse(localStorage.getItem(KL)||'{}')||{}}catch(e){D={}}
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const api=()=>!!(window.MH_API&&MH_API.on());
+const adm=()=>!!(document.body&&document.body.classList.contains('adm')&&(!api()||MH_API.admTk()));
+const get=k=>{const l=Array.isArray(D[k])?D[k]:[];return CAT.filter(c=>l.includes(c.id))};
+const avisa=()=>{try{document.dispatchEvent(new Event('mh-selos'))}catch(e){}};
+function tile(c){const i=el('i','mhs-i',c.ic);i.style.setProperty('--c',c.cor);i.setAttribute('aria-hidden','true');return i}
+function mini(k,max){const l=get(k);if(!l.length)return null;max=max||4;const w=el('span','mhs-m');w.setAttribute('aria-label','Selos MiHelp: '+l.map(c=>c.nome).join(', '));
+ l.slice(0,max).forEach(c=>{const t=tile(c);t.title=c.nome;w.append(t)});if(l.length>max)w.append(el('small',null,'+'+(l.length-max)));return w}
+async function salva(){let ok=false;try{localStorage.setItem(KL,JSON.stringify(D))}catch(e){}
+ if(api()&&MH_API.admTk()){const r=await MH_API.req('/admin/config',{token:MH_API.admTk(),body:{itens:{selos:JSON.stringify(D)}}});ok=!!(r.ok&&r.j&&r.j.ok);if(r.status===401)MH_API.setAdmTk('')}
+ return ok}
+function editar(k,rot,pronto){
+ const d=document.createElement('dialog');d.className='v8dlg';d.setAttribute('aria-label','Selos');document.body.append(d);
+ const fecha=()=>{try{d.close()}catch(e){}d.remove()};d.addEventListener('click',e=>{if(e.target===d)fecha()});d.addEventListener('cancel',()=>setTimeout(()=>d.remove(),0));
+ const cur=get(k).map(c=>c.id),box=[];
+ d.append(el('h3',null,'🏅 Selos de '+rot),el('p','note','Marque os selos que essa página merece e toque em Salvar. Quem abrir a página vê os selos marcados.'));
+ CAT.forEach(c=>{const l=el('label','mhs-lin');const ck=document.createElement('input');ck.type='checkbox';ck.checked=cur.includes(c.id);box.push([c.id,ck]);
+  const tx=el('div');tx.append(el('b',null,c.nome),el('small',null,c.txt));l.append(ck,tile(c),tx);d.append(l)});
+ const st=el('p','note');st.setAttribute('role','status');d.append(st);
+ const ac=el('div','perfil-acoes');
+ const sv=el('button','cta2 pa-main','💾 Salvar selos');sv.type='button';
+ sv.onclick=async()=>{sv.disabled=true;st.style.color='';st.textContent='⏳ Salvando…';
+  const ids=box.filter(x=>x[1].checked).map(x=>x[0]);if(ids.length)D[k]=ids;else delete D[k];
+  const ok=await salva();avisa();if(pronto)pronto();
+  if(ok){st.textContent='✅ Selos salvos para todo mundo.';setTimeout(fecha,900)}
+  else{sv.disabled=false;st.style.color='var(--red)';st.textContent=api()?'⚠ Salvei só neste navegador: o servidor não aceitou. Confira se o Worker está com a atualização dos selos.':'⚠ Salvei só neste navegador (o site está sem servidor).'}};
+ const cn=el('button','more','Cancelar');cn.type='button';cn.onclick=fecha;ac.append(sv,cn);d.append(ac);d.showModal()}
+function bloco(k,rot){const l=get(k),a=adm();if(!l.length&&!a)return null;
+ const w=el('div','mhs-bloco');
+ const pinta=()=>{w.textContent='';const ls=get(k);
+  if(ls.length){w.append(el('h4',null,'Selos MiHelp'));const g=el('div','mhs-g'),dd=el('p','mhs-d');dd.hidden=true;dd.setAttribute('role','status');
+   ls.forEach(c=>{const b=el('button','mhs-b');b.type='button';b.append(tile(c),document.createTextNode(c.nome));b.setAttribute('aria-pressed','false');
+    b.onclick=()=>{const on=b.getAttribute('aria-pressed')==='true';g.querySelectorAll('.mhs-b').forEach(x=>x.setAttribute('aria-pressed','false'));if(on){dd.hidden=true}else{b.setAttribute('aria-pressed','true');dd.hidden=false;dd.textContent=c.nome+': '+c.txt}};g.append(b)});
+   w.append(g,dd)}
+  if(adm()){const b=el('button','more','🏅 '+(ls.length?'Editar selos':'Dar selos')+' (adm)');b.type='button';b.onclick=()=>editar(k,rot||'esta página',pinta);w.append(b)}};
+ pinta();return w}
+window.MH_SELOS={cat:CAT,get,mini,bloco,editar};
+/* lê os selos do servidor (todo mundo vê) */
+if(api())MH_API.req('/config').then(r=>{try{if(r.ok&&r.j&&typeof r.j.selos==='string'){const o=JSON.parse(r.j.selos);if(o&&typeof o==='object'){D=o;try{localStorage.setItem(KL,JSON.stringify(D))}catch(e){}avisa()}}}catch(e){}}).catch(()=>{});
+})()}catch(e){console.error('MiHelp (selos):',e)}

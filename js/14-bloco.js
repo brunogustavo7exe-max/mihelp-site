@@ -1,231 +1,262 @@
 
-try{
+/* ===== Camada de dados (Wix Headless). Só liga se window.MH_CFG.clientId estiver preenchido. ===== */
 (function(){
-const $=id=>document.getElementById(id);
-const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
-const fld=(l,el)=>{const d=mk('div','f');const lb=mk('label',0,l);if(el.id)lb.htmlFor=el.id;d.append(lb,el);return d};
-const J=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
-const S=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
-const b64=u=>btoa(String.fromCharCode(...u)),ub=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-/* PBKDF2-HMAC-SHA256 em JS puro (reserva quando crypto.subtle não existe, ex.: http://) */
-const mhPbkdf2=(function(){
-  const K=new Int32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
-  const IV=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
-  const W=new Int32Array(64);
-  function compress(h,w16){ /* h: Int32Array(8) estado; w16: Int32Array(16) bloco */
-    for(let i=0;i<16;i++)W[i]=w16[i];
-    for(let i=16;i<64;i++){
-      const a=W[i-15],b=W[i-2];
-      const s0=((a>>>7)|(a<<25))^((a>>>18)|(a<<14))^(a>>>3);
-      const s1=((b>>>17)|(b<<15))^((b>>>19)|(b<<13))^(b>>>10);
-      W[i]=(W[i-16]+s0+W[i-7]+s1)|0}
-    let a=h[0],b=h[1],c=h[2],d=h[3],e=h[4],f=h[5],g=h[6],hh=h[7];
-    for(let i=0;i<64;i++){
-      const S1=((e>>>6)|(e<<26))^((e>>>11)|(e<<21))^((e>>>25)|(e<<7));
-      const ch=(e&f)^(~e&g);
-      const t1=(hh+S1+ch+K[i]+W[i])|0;
-      const S0=((a>>>2)|(a<<30))^((a>>>13)|(a<<19))^((a>>>22)|(a<<10));
-      const mj=(a&b)^(a&c)^(b&c);
-      const t2=(S0+mj)|0;
-      hh=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0}
-    h[0]=(h[0]+a)|0;h[1]=(h[1]+b)|0;h[2]=(h[2]+c)|0;h[3]=(h[3]+d)|0;
-    h[4]=(h[4]+e)|0;h[5]=(h[5]+f)|0;h[6]=(h[6]+g)|0;h[7]=(h[7]+hh)|0}
-  function sha256(bytes){ /* bytes: Uint8Array -> Int32Array(8) */
-    const n=bytes.length,tot=((n+9+63)>>6)<<6,buf=new Uint8Array(tot);
-    buf.set(bytes);buf[n]=0x80;
-    const dv=new DataView(buf.buffer);dv.setUint32(tot-4,(n*8)>>>0);dv.setUint32(tot-8,Math.floor(n/0x20000000));
-    const h=Int32Array.from(IV),w=new Int32Array(16);
-    for(let o=0;o<tot;o+=64){for(let i=0;i<16;i++)w[i]=dv.getInt32(o+i*4);compress(h,w)}
-    return h}
-  const toBytes=h=>{const o=new Uint8Array(32),dv=new DataView(o.buffer);for(let i=0;i<8;i++)dv.setInt32(i*4,h[i]);return o};
-  return function(pw,salt,iter){
-    let key=pw;if(key.length>64)key=toBytes(sha256(key));
-    const ip=new Uint8Array(64),op=new Uint8Array(64);
-    for(let i=0;i<64;i++){const k=i<key.length?key[i]:0;ip[i]=k^0x36;op[i]=k^0x5c}
-    const st=p=>{const h=Int32Array.from(IV),w=new Int32Array(16),dv=new DataView(p.buffer);for(let i=0;i<16;i++)w[i]=dv.getInt32(i*4);compress(h,w);return h};
-    const si=st(ip),so=st(op);
-    /* HMAC(mensagem curta) a partir dos estados já calculados; len = 64 (pad) + 32 (mensagem) */
-    const w=new Int32Array(16),h=new Int32Array(8);
-    const hmac32=m=>{ /* m: Int32Array(8) -> Int32Array(8) */
-      h.set(si);for(let i=0;i<8;i++)w[i]=m[i];w[8]=0x80000000|0;for(let i=9;i<15;i++)w[i]=0;w[15]=(64+32)*8;compress(h,w);
-      const r=Int32Array.from(so);for(let i=0;i<8;i++)w[i]=h[i];w[8]=0x80000000|0;for(let i=9;i<15;i++)w[i]=0;w[15]=(64+32)*8;compress(r,w);return r};
-    /* U1 = HMAC(senha, salt || 0x00000001) */
-    const msg=new Uint8Array(salt.length+4);msg.set(salt);msg[salt.length+3]=1;
-    const full=new Uint8Array(64+msg.length);full.set(ip);full.set(msg,64);
-    const inner=sha256(full);
-    const o2=new Uint8Array(64+32);o2.set(op);o2.set(toBytes(inner),64);
-    let u=sha256(o2);const t=Int32Array.from(u);
-    for(let i=1;i<iter;i++){u=hmac32(u);for(let j=0;j<8;j++)t[j]^=u[j]}
-    return toBytes(t)}
-})();
+const CFG=window.MH_CFG||{};
+const CDNS=[['https://esm.sh/@wix/sdk','https://esm.sh/@wix/data'],['https://esm.run/@wix/sdk','https://esm.run/@wix/data'],['https://cdn.jsdelivr.net/npm/@wix/sdk/+esm','https://cdn.jsdelivr.net/npm/@wix/data/+esm'],['https://cdn.skypack.dev/@wix/sdk','https://cdn.skypack.dev/@wix/data']];
+const COL={pre:'PreCadastros',perf:'Perfis',msg:'Mensagens',av:'Avaliacoes',ped:'Pedidos',ad:'Anuncios',ap:'Apoiadores',den:'Denuncias',sup:'Suporte'};
+const DIAG=/[?&]diag\b/.test(location.search);
+const DB=window.MH_DB={ok:false,meu:'',nomes:new Set(),
+  tem(n){n=String(n||'').toLowerCase();return !!n&&n!==this.meu.toLowerCase()&&this.nomes.has(n)}};
+let client=null;
+const dt=v=>v instanceof Date?v:(v&&v.$date?new Date(v.$date):new Date(v));
+const rid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const q=c=>client.items.query(c);
+const ins=(c,o)=>client.items.insert(c,o);
+let painelDiag=null;
+function diag(t,ruim){try{console[ruim?'error':'log']('MiHelp banco:',t)}catch(e){}
+ if(!DIAG)return;
+ if(!painelDiag){painelDiag=document.createElement('pre');painelDiag.style.cssText='position:fixed;left:8px;bottom:8px;z-index:9999;max-width:92vw;max-height:60vh;overflow:auto;margin:0;padding:10px 12px;background:#000;color:#9fe;border:1px solid #E8B93C;border-radius:8px;font:12px/1.5 monospace;white-space:pre-wrap';document.body.append(painelDiag)}
+ painelDiag.textContent+=(ruim?'✗ ':'• ')+t+'\n'}
+window.MH_diag=diag;
+const msgErro=e=>{const t=String((e&&(e.message||e.details&&e.details.message))||e);
+ if(/not.?found|does not exist|doesn.t exist|WDE0025/i.test(t))return t+' → a coleção não existe ou o nome está diferente.';
+ if(/permission|not allowed|forbidden|403|unauthor|WDE0015/i.test(t))return t+' → falta liberar a permissão da coleção.';
+ return t};
 
-async function hash(pw,salt){const pb=new TextEncoder().encode(pw);
-  if(window.crypto&&crypto.subtle){try{const k=await crypto.subtle.importKey('raw',pb,'PBKDF2',false,['deriveBits']);
-    return b64(new Uint8Array(await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:120000,hash:'SHA-256'},k,256)))}catch(e){}}
-  await new Promise(r=>setTimeout(r,0));
-  return b64(mhPbkdf2(pb,salt,120000))}
-const sair=mk('button','exp','Sair');sair.id='sairBar';sair.type='button';sair.hidden=true;sair.setAttribute('aria-label','Sair da conta');
-{const cx=document.getElementById('cwExp');if(cx&&cx.parentNode)cx.parentNode.insertBefore(sair,cx);else document.body.append(sair)}
-function guarda(nome){try{localStorage.removeItem('mh_sess');sessionStorage.removeItem('mh_sess');const k=document.getElementById('mantem'),m=!k||k.checked;localStorage.setItem('mh_keep',m?'1':'0');(m?localStorage:sessionStorage).setItem('mh_sess',JSON.stringify(nome))}catch(e){}}
-let sairT=null;
-sair.onclick=()=>{if(!sair.dataset.c){sair.dataset.c='1';sair.textContent='Toque para sair';clearTimeout(sairT);sairT=setTimeout(()=>{delete sair.dataset.c;sair.textContent='Sair'},4000);return}
-try{localStorage.removeItem('mh_sess');sessionStorage.removeItem('mh_sess');localStorage.removeItem('mh_eu');sessionStorage.removeItem('mh_adm');localStorage.removeItem('mh_tk');sessionStorage.removeItem('mh_tk');sessionStorage.removeItem('mh_admtk')}catch(e){}location.reload()};
-/* a "chave" que vai ao servidor é derivada no navegador (PBKDF2); a senha em si nunca sai daqui */
-const normalizaTel=v=>String(v||'').replace(/\D/g,'');
-const chaveDe=(ident,pw)=>hash(pw,new TextEncoder().encode('mihelp:'+String(ident).trim().replace(/\s+/g,' ').toLowerCase()));
-/* link de indicação (?ind=nome) fica guardado e vai junto no cadastro */
-(function(){try{var q=new URLSearchParams(location.search).get('ind');if(q)localStorage.setItem('mh_ind',q.slice(0,40))}catch(e){}})();
-/* esqueci minha senha: código por e-mail e nova senha */
-window.MH_recSenha=function(){
-  const A=window.MH_API;if(!A||!A.on()){alert('Sem conexão com o servidor.');return}
-  let d=document.getElementById('recDlg');if(d)d.remove();
-  d=document.createElement('dialog');d.id='recDlg';
-  d.innerHTML='<h3>Esqueci minha senha</h3><p class="note" id="recMsg">Digite o telefone da conta. Enviamos um código para o e-mail cadastrado.</p><div class="f"><label for="recTel">Telefone</label><input id="recTel" type="tel" inputmode="tel" autocomplete="tel"></div><div id="recP2" hidden><div class="f"><label for="recCod">Código de 6 números</label><input id="recCod" inputmode="numeric" maxlength="6"></div><div class="f"><label for="recSen">Nova senha</label><input id="recSen" type="password" maxlength="64" autocomplete="new-password" placeholder="Mínimo 6 caracteres"></div></div><div class="dbt"><button type="button" class="go" id="recOk">Enviar código</button><button type="button" class="cx" id="recX">Fechar</button></div>';
-  document.body.append(d);d.showModal();
-  const $=i=>document.getElementById(i),msg=t=>{$('recMsg').textContent=t};let passo=1;
-  $('recX').onclick=()=>d.close();
-  $('recOk').onclick=async()=>{const tel=normalizaTel($('recTel').value);if(tel.length<10){msg('Digite o telefone com DDD.');return}
-    $('recOk').disabled=true;
-    try{
-      if(passo===1){const r=await A.req('/conta/recuperar',{body:{tel}});
-        msg(r.ok?'Se o telefone tiver conta, enviamos um código para o e-mail cadastrado. Vale por 15 minutos. Confira também o spam.':'Não consegui enviar agora. Tente de novo em instantes.');
-        if(r.ok){passo=2;$('recP2').hidden=false;$('recOk').textContent='Trocar senha'}}
-      else{const cod=$('recCod').value.replace(/\D/g,''),pw=$('recSen').value;
-        if(cod.length!==6||pw.length<6){msg('Digite o código de 6 números e uma senha de pelo menos 6 caracteres.');return}
-        const r=await A.req('/conta/redefinir',{body:{tel,codigo:cod,chave:await chaveDe(tel,pw)}});
-        if(r.ok){msg('Senha trocada! Agora é só entrar com o telefone e a nova senha.');$('recOk').hidden=true}else msg('Código inválido ou vencido. Peça um novo código.')}
-    }catch(e){msg('Algo deu errado. Tente de novo.')}
-    finally{$('recOk').disabled=false}};
-};
-(function(){const pf=document.getElementById('pwf');if(pf&&!document.getElementById('esqSenha')){const p=document.createElement('p');p.className='note';p.innerHTML='<a href="#" id="esqSenha">Esqueci minha senha</a>';pf.after(p);p.querySelector('a').onclick=e=>{e.preventDefault();window.MH_recSenha()}}})();
-/* reentrar sem recarregar: usado pelo painel quando falta a sessão do servidor */
-window.MH_telDe=nome=>{try{const a=J('mh_acc',{})[String(nome||'').toLowerCase()];return a&&a.tel||''}catch(e){return ''}};
-window.MH_reentrar=async(tel0,pw)=>{const A=window.MH_API,tel=normalizaTel(tel0);
-  if(!A||!A.on())return{ok:false,msg:'Sem conexão com o servidor.'};
-  if(!tel||tel.length<10||!pw)return{ok:false,msg:'Digite o telefone e a senha.'};
-  try{const contaLeg=Object.values(J('mh_acc',{})).find(x=>normalizaTel(x&&x.tel)===tel);
-   const r=await A.req('/conta/entrar',{body:{tel,chave:await chaveDe(tel,pw),chaveLegada:contaLeg?await chaveDe(contaLeg.nome,pw):'',identificador:tel}});
-   if(r.ok&&r.j&&r.j.token){A.setUsrTk(r.j.token);return{ok:true}}
-   if(r.status===401)return{ok:false,msg:'Telefone ou senha incorretos.'};
-   if(r.status===429)return{ok:false,msg:'Muitas tentativas. Espere 15 minutos e tente de novo.'};
-   return{ok:false,msg:'Não consegui entrar agora. Tente de novo.'}}catch(e){return{ok:false,msg:'Sem conexão. Tente de novo.'}}};
-window.MH_conta={async criar(d,pw){
-  const salt=crypto.getRandomValues(new Uint8Array(16)),a=J('mh_acc',{});
-  a[d.nome.toLowerCase()]={nome:d.nome,role:d.role,work:d.work,tel:normalizaTel(d.tel),salt:b64(salt),hash:await hash(pw,salt)};
-  S('mh_acc',a);guarda(d.nome);
-  const A=window.MH_API;
-  if(A&&A.on()){try{const r=await A.req('/conta/criar',{body:{nome:d.nome,chave:await chaveDe(normalizaTel(d.tel),pw),papel:d.role,oficio:d.work,tel:normalizaTel(d.tel),email:d.em,indicador:(function(){try{return localStorage.getItem('mh_ind')||''}catch(e){return ''}})(),cidade:d.cidade||((document.getElementById('cid')||{}).value)||''}});
-    if(r.ok&&r.j&&r.j.token){A.setUsrTk(r.j.token);window.MH_numChegou&&MH_numChegou(d.nome,r.j.numero)}
-    else if(r.status===409&&window.MH_UI&&MH_UI.nota)MH_UI.nota('*** Esse telefone já tem conta. Para entrar nela, toque em "Login". ***')}catch(e){}}}};
-{const kb=mk('label');kb.style.cssText='display:flex;gap:8px;align-items:center;margin-top:8px;cursor:pointer';const kc=mk('input');kc.type='checkbox';kc.id='mantem';kc.checked=localStorage.getItem('mh_keep')!=='0';kb.append(kc,document.createTextNode('Manter conectado neste aparelho'));$('pwf').append(kb)}
-let login=false;const f=$('f'),jt=$('jaTenho');
-const esconde=()=>[document.querySelector('#f .role'),$('roleNote'),$('trab'),$('t').closest('.f'),$('e').closest('.f'),document.querySelector('#f label.chk')];
-function modo(on){login=on;esconde().forEach(e=>{if(e){if(on)e.style.setProperty('display','none','important');else e.style.removeProperty('display')}});if(on)$('trab').hidden=true;else if(typeof 0==='number'){const h=document.querySelector('input[name=r]:checked');$('trab').hidden=!(h&&h.value==='Helper')}
-  $('pw').autocomplete=on?'current-password':'new-password';$('pwf').querySelector('small').style.display=on?'none':'block';
-  const idLabel=$('n').closest('.f')?.querySelector('label');
-  if(idLabel)idLabel.textContent=on?'Telefone':'Nome';
-  $('n').type=on?'tel':'text';$('n').inputMode=on?'numeric':'';$('n').autocomplete=on?'tel':'name';$('n').placeholder=on?'(66) 90000-0000':'';
-  $('btnCad').textContent=on?'Entrar':'Criar minha conta';jt.textContent=on?'Quero criar uma conta':'Já tenho conta: entrar';
-  const er=$('ferr');if(er){er.style.display='none'}try{marca()}catch(x){}}
-jt.addEventListener('click',e=>{e.preventDefault();modo(!login)});
-{const rn=$('roleNote');const atual=()=>{const h=document.querySelector('input[name=r]:checked');if(!rn)return;rn.textContent='';const b=document.createElement('b');if(h&&h.value==='Helper'){b.textContent='Conta de Helper:';rn.append(b,document.createTextNode(' para profissionais, donos de empresas, prestadores de serviço e microempreendedores.'))}else{b.textContent='Conta de Cliente:';rn.append(b,document.createTextNode(' somente para quem busca serviços. Não serve para cadastrar empresa.'))}};
- document.querySelectorAll('input[name=r]').forEach(x=>x.addEventListener('change',atual));atual()}
-const sgC=$('segCriar'),sgE=$('segEntrar'),pwH=$('pwHint'),pwE=$('pwEye'),API_ON=!!(window.MH_API&&MH_API.on()),HT=API_ON?'Mínimo 6 caracteres. Sua conta funciona em qualquer aparelho. Não use a senha de outros sites.':'Mínimo 6 caracteres. A conta fica salva neste aparelho. Não use a senha de outros sites.';
-function marca(){sgC.setAttribute('aria-pressed',String(!login));sgE.setAttribute('aria-pressed',String(login));
- $('pwf').querySelector('label').textContent='Senha';pwH.style.display='block';pwH.classList.remove('ok');
- pwH.textContent=login?(API_ON?'Use o telefone cadastrado e a mesma senha da sua conta.':'Use o telefone cadastrado neste aparelho.'):HT;{const cn=$('cadNota');if(cn)cn.style.display=login?'none':''}$('pw').placeholder=login?'Sua senha':'Mínimo 6 caracteres'}
-sgC.onclick=()=>{if(login)modo(false)};sgE.onclick=()=>{if(!login)modo(true)};
-pwE.onclick=()=>{const v=$('pw').type==='password';$('pw').type=v?'text':'password';pwE.textContent=v?'Ocultar':'Mostrar';pwE.setAttribute('aria-pressed',String(v));pwE.setAttribute('aria-label',v?'Ocultar senha':'Mostrar senha')};
-$('pw').addEventListener('input',()=>{if(login)return;const n=$('pw').value.length;pwH.classList.toggle('ok',n>=6);pwH.textContent=n>=6?'Senha boa. Anote para não esquecer.':HT});
-{const fe=document.getElementById('faqEntrar');if(fe&&API_ON){fe.textContent='';const b=document.createElement('b');b.textContent='Entrar de novo:';fe.append(b,document.createTextNode(' toque em "Login", digite o telefone cadastrado e a senha e toque em Entrar. O telefone é o seu identificador de acesso.'))}}
-const erro=m=>{const er=$('ferr');if(er){er.style.display='block';er.textContent=m}};
-async function entrar(){
-  const ident=$('n').value.trim(),tel=normalizaTel(ident),pw=$('pw').value;
-  if(!tel||tel.length<10||!pw)return erro('Digite seu telefone cadastrado e sua senha.');
-  const A=window.MH_API,on=!!(A&&A.on());let st=-1;
-  if(on){
-    /* Login principal por telefone. Se houver uma conta antiga salva neste aparelho,
-       enviamos também a chave legada derivada do nome para permitir a migração. */
-    const contasLeg=J('mh_acc',{});
-    const contaLeg=Object.values(contasLeg).find(x=>normalizaTel(x&&x.tel)===tel);
-    const r=await A.req('/conta/entrar',{body:{tel,chave:await chaveDe(tel,pw),chaveLegada:contaLeg?await chaveDe(contaLeg.nome,pw):'',identificador:tel}});st=r.status;
-    if(r.ok&&r.j&&r.j.token){A.setUsrTk(r.j.token);const c={nome:r.j.nome,role:r.j.papel==='helper'?'helper':'cliente',work:r.j.oficio||''};guarda(c.nome);MH_UI.entrarConta(c);window.MH_numChegou&&MH_numChegou(c.nome,r.j.numero);return}
-    if(st===401)return erro('Telefone ou senha incorretos.');
-    if(st===429)return erro('Muitas tentativas. Espere 15 minutos e tente de novo.')
-  }
-  /* Fallback local: procura a conta pelo telefone cadastrado. */
-  const contas=J('mh_acc',{});
-  const c=Object.values(contas).find(x=>normalizaTel(x&&x.tel)===tel);
-  await new Promise(r=>setTimeout(r,350));
-  if(!c||(await hash(pw,ub(c.salt)))!==c.hash)return erro(on?(st===0?'Sem conexão com o servidor. Tente de novo.':'Telefone ou senha incorretos.'):'Telefone ou senha incorretos.');
-  guarda(c.nome);
-  /* Conta antiga criada antes do login por telefone: se ainda não tiver tel, não dá para
-     migrar automaticamente sem conhecer o número. */
-  if(on&&st===404){try{const r=await A.req('/conta/criar',{body:{nome:c.nome,tel:tel,chave:await chaveDe(tel,pw),papel:c.role,oficio:c.work}});if(r.ok&&r.j&&r.j.token)A.setUsrTk(r.j.token)}catch(e){}}
-  MH_UI.entrarConta(c)
+DB.cadastrar=async function(d){
+ try{localStorage.setItem('mh_eu',JSON.stringify({nome:d.nome,role:d.role,work:d.work,tel:d.tel,em:d.em}))}catch(e){}
+ DB.meu=d.nome;if(!DB.ok)return;
+ const ops=[
+  ins(COL.pre,{nome:d.nome,papel:d.role,oficio:d.work||'',telefone:d.tel,email:d.em}),
+  ins(COL.perf,{nome:d.nome,papel:d.role,oficio:d.work||''}),
+  ins(COL.msg,{_id:rid('e'),sala:'sala',autor:d.nome,papel:d.role,oficio:d.work||'',texto:'',tipo:'entrada'})];
+ const r=await Promise.allSettled(ops);
+ r.forEach((x,i)=>{if(x.status==='rejected')diag('cadastro, passo '+(i+1)+': '+msgErro(x.reason),true)});
+ DB.nomes.add(d.nome.toLowerCase())};
+
+DB.virarHelper=async function(nome,work){if(!DB.ok)return;try{await ins(COL.perf,{nome:nome,papel:'helper',oficio:work||''})}catch(e){diag('virar helper: '+msgErro(e),true)}};
+DB.novoId=()=>rid('m');
+DB.enviar=async function(c,eu,texto,resp,extra){
+ if(!DB.ok)return;
+ const pub=(c==='sala'||String(c).indexOf('r:')===0);
+ const sala=pub?c:'pv:'+[eu.nome,c].sort().join('|');
+ const id=(extra&&extra.id)||rid('m');seen.add(id);
+ try{await ins(COL.msg,{_id:id,sala,autor:eu.nome,papel:eu.role,oficio:eu.work||'',texto:String(texto).slice(0,300),
+  tipo:(extra&&extra.tipo)||'msg',categoria:(extra&&extra.categoria)||(eu&&eu.adm?'adm':''),respNome:resp?resp.nome:'',respTexto:resp?String(resp.texto||'').slice(0,80):''})}
+ catch(e){diag('envio: '+msgErro(e),true);if(window.MH_RX)MH_RX.aviso('*** Não consegui enviar essa mensagem. Tente de novo em instantes. ***')}};
+
+DB.avaliar=async function(alvo,de,estrelas,texto){
+ if(!DB.ok)return;
+ try{await ins(COL.av,{alvo,de,estrelas,texto:String(texto||'').slice(0,140)})}catch(e){diag('avaliação: '+msgErro(e),true)}};
+
+DB.pedido=function(p){
+ if(!DB.ok)return Promise.reject(new Error('sem banco'));
+ return ins(COL.ped,Object.assign({status:'novo'},p))};
+
+DB.suporte=async function(r){
+ if(!DB.ok)throw new Error('sem banco');
+ await ins(COL.sup,{tipo:String(r.tipo||'').slice(0,30),texto:String(r.texto||'').slice(0,500),contato:String(r.contato||'').slice(0,80),autor:String(r.autor||'').slice(0,40),pagina:String(r.pagina||'').slice(0,80),aparelho:String(r.aparelho||'').slice(0,140)})};
+DB.lerSuporte=async function(){
+ if(!DB.ok)throw new Error('sem banco');
+ const r=await q(COL.sup).descending('_createdDate').limit(50).find();
+ return ((r&&r.items)||[]).map(x=>({quando:dt(x._createdDate).getTime(),tipo:x.tipo,texto:x.texto,contato:x.contato,autor:x.autor}))};
+DB.denuncia=async function(alvo){
+ if(!DB.ok)return;
+ const eu=window.MH_UI&&MH_UI.eu&&MH_UI.eu();
+ try{await ins(COL.den,{de:eu?eu.nome:'',alvo:String(alvo),motivo:'Denúncia feita no chat'})}catch(e){diag('denúncia: '+msgErro(e),true)}};
+
+const seen=new Set();let ultimo=null,falhas=0,avisou=false;
+/* ---- controle do administrador (mensagens assinadas) ---- */
+const KEYK='mihelp_ctlkey_v1';
+const b64=u=>btoa(String.fromCharCode.apply(null,Array.from(new Uint8Array(u))));
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const enc=s=>new TextEncoder().encode(s);
+const ALG={name:'ECDSA',namedCurve:'P-256'},SIG={name:'ECDSA',hash:'SHA-256'};
+const sub=()=>window.crypto&&crypto.subtle;
+const priv=()=>{try{return JSON.parse(localStorage.getItem(KEYK)||'null')}catch(e){return null}};
+const pubCfg=()=>{try{let j=CFG.adminPub;if(typeof j==='string')j=JSON.parse(j);return j&&j.x&&j.y?j:null}catch(e){return null}};
+let pubKey=null;
+async function pubDoSite(){if(pubKey)return pubKey;try{if(!pubCfg()&&window.MH_PUBP)await window.MH_PUBP}catch(e){}const j=pubCfg();if(!j||!sub())return null;pubKey=await sub().importKey('jwk',{kty:'EC',crv:'P-256',x:j.x,y:j.y,ext:true},ALG,false,['verify']);return pubKey}
+async function verificar(txt,sig){try{const k=await pubDoSite();if(!k)return false;return await sub().verify(SIG,k,unb64(sig),enc(txt))}catch(e){return false}}
+async function assinar(txt){const k=await sub().importKey('jwk',priv(),ALG,false,['sign']);return b64(await sub().sign(SIG,k,enc(txt)))}
+DB.chave={
+ existe:()=>!!priv(),
+ async gerar(){if(!sub())throw new Error('sem criptografia');const kp=await sub().generateKey(ALG,true,['sign','verify']);const j=await sub().exportKey('jwk',kp.privateKey);localStorage.setItem(KEYK,JSON.stringify(j))},
+ publica(){const j=priv();return j?{x:j.x,y:j.y}:null},
+ linha(){const p=this.publica();if(!p)return '';return "window.MH_CFG={clientId:'"+(CFG.clientId||'')+"',bots:"+(CFG.bots!==false)+",adminPub:{x:'"+p.x+"',y:'"+p.y+"'}};"},
+ ligada(){const p=this.publica(),s=pubCfg();return !!(p&&s&&s.x===p.x&&s.y===p.y)},
+ exportar:()=>localStorage.getItem(KEYK)||'',
+ importar(t){const j=JSON.parse(t);if(!j.d||!j.x||!j.y)throw new Error('chave inválida');localStorage.setItem(KEYK,JSON.stringify(j))}};
+DB.ctlPronto=()=>!!(DB.ok&&(DB.chave.ligada()||(window.MH_API&&MH_API.on()&&MH_API.admTk())));
+/* hora de referência quando o comando só vale neste aparelho: a da última mensagem do SERVIDOR, nunca o relógio do celular */
+const tsLocal=()=>window.MH_SRVT||1;
+let botsT=0;try{botsT=Number(localStorage.getItem('mh_botsT')||0)}catch(e){}
+function salvarFloor(){try{localStorage.setItem('mh_floor',JSON.stringify(window.MH_FLOOR))}catch(e){}}
+function aplicar(c,quando){const F=window.MH_FLOOR||(window.MH_FLOOR={}),FX=window.MH_FX||{};
+ if(c.a==='ad'||c.a==='adx'){const A=window.MH_ADS,i=Number(c.i);if(!A||!(i>=0&&i<A.total))return;
+  if(c.a==='adx'){const v=A.vs()[i];if(v&&v._ctl&&(v._q||0)<=quando)A.clear(i);return}
+  const m=Math.max(1,Math.min(10080,Number(c.m)||0)),fim=quando+m*60000;
+  if(fim<=Date.now()||quando<=(F.outdoor||0))return;
+  const v0=A.vs()[i];if(v0&&v0._ctl&&(v0._q||0)>quando)return;
+  A.put(i,{name:String(c.nome||'').slice(0,40),text:String(c.texto||'').slice(0,60),end:fim,total:m*60000,tag:c.tag||'',img:null,_ctl:1,_q:quando});return}
+ if(c.a==='verif'){if(window.MH_VERIF)MH_VERIF(c.n,!!c.v,quando);return}
+ if(c.a==='aviso'){if(window.MH_AVISO)MH_AVISO.set(c.v||'',Number(c.ate)||0,quando);return}
+ if(c.a==='bots'){if(quando>botsT){botsT=quando;try{localStorage.setItem('mh_botsT',String(quando))}catch(e){}if(FX.bots)FX.bots(!!c.v)}return}
+if(c.a==='apagar'){if(FX.apagarMsg)FX.apagarMsg(String(c.id||''));return}
+ if(c.a==='limpar'){const T=['sala','salas','guilda','outdoor'],al=c.alvo==='tudo'?T:[c.alvo];
+  al.forEach(a=>{if(T.indexOf(a)<0)return;if(quando>(F[a]||0)){F[a]=quando;if(FX.limpar)FX.limpar(a,quando)}});salvarFloor()}}
+DB.ctl=async function(cmd){
+ const t=Date.now(),A=window.MH_API;
+ if(A&&A.on()&&A.admTk()){
+  const r=await A.req('/admin/ctl',{token:A.admTk(),body:{cmd}});
+  if(r.ok&&r.j&&r.j.ok){seen.add(r.j.id);aplicar(cmd,Number(r.j.ts)||tsLocal());return 'todos'}
+  if(r.status===401)A.setAdmTk('');
+  window.MH_CTL_ERRO=(r.j&&r.j.erro)||('erro '+r.status);aplicar(cmd,tsLocal());diag('controle: '+((r.j&&r.j.erro)||r.status),true);return 'erro'}
+ if(!DB.ctlPronto()){aplicar(cmd,tsLocal());return 'local'}
+ try{const payload=JSON.stringify(Object.assign({n:rid('')},cmd,{t})),sig=await assinar(payload),id=rid('c');seen.add(id);
+  const r=await ins(COL.msg,{_id:id,sala:'sala',autor:'ADM',papel:'cliente',oficio:'',texto:payload,categoria:sig,tipo:'ctl'});
+  /* usa a hora do SERVIDOR (não a do relógio deste aparelho), senão o relógio errado esconde mensagens dos outros */
+  let ts=tsLocal();try{if(r&&r._createdDate){const z=dt(r._createdDate).getTime();if(z>0)ts=z}}catch(e){}
+  aplicar(cmd,ts);return 'todos'}
+ catch(e){aplicar(cmd,tsLocal());diag('controle: '+msgErro(e),true);return 'erro'}};
+async function tratarCtl(x){if(!(await verificar(x.texto,x.categoria)))return;let c;try{c=JSON.parse(x.texto)}catch(e){return}aplicar(c,dt(x._createdDate).getTime())}
+async function lerCtl(){try{const r=await q(COL.msg).eq('tipo','ctl').descending('_createdDate').limit(200).find();const it=((r&&r.items)||[]).slice().reverse();
+ for(const x of it){if(seen.has(x._id))continue;seen.add(x._id);await tratarCtl(x)}}catch(e){diag('controle: '+msgErro(e),true)}}
+
+async function poll(){
+ let b=q(COL.msg);
+ b=ultimo?b.ge('_createdDate',new Date(ultimo.getTime()-60000)).ascending('_createdDate').limit(100):b.descending('_createdDate').limit(60);
+ const r=await b.find();let it=(r&&r.items)||[];if(!ultimo)it=it.slice().reverse();let nov=0;const inicial=!ultimo;let ref=0;it.forEach(x=>{const z=dt(x._createdDate).getTime();if(z>ref)ref=z});
+ if(ref>0){if(ref>(window.MH_SRVT||0))window.MH_SRVT=ref;
+  /* conserta piso gravado com o relógio errado de um aparelho (maior que a última mensagem do servidor); os pisos de verdade voltam pelos comandos abaixo */
+  if(inicial){const F=window.MH_FLOOR;if(F){let m=0;for(const a in F)if(F[a]>ref+60000){F[a]=0;m=1}if(m)salvarFloor()}}}
+ for(const x of it){const d=dt(x._createdDate);if(!ultimo||d>ultimo)ultimo=d;
+  if(seen.has(x._id))continue;seen.add(x._id);nov++;
+  const ms=d.getTime();
+  if(x.tipo==='ctl'){await tratarCtl(x);continue}
+  if(x.tipo==='sos'&&inicial&&ref-ms>600000)continue;
+  if(window.MH_RX)MH_RX.msg(Object.assign({},x,{_quando:ms,_aoVivo:!inicial}))}
+ if(window.MH_RX)MH_RX.fim();return nov>=100?100:0}
+async function ciclo(){
+ try{let n;do{n=await poll()}while(n>=100);falhas=0;avisou=false}
+ catch(e){falhas++;diag('leitura das mensagens: '+msgErro(e),true);
+  if(falhas>=4&&!avisou&&window.MH_RX){avisou=true;MH_RX.aviso('*** Sem conexão com o banco no momento. O chat tenta voltar sozinho. ***')}}
+ setTimeout(ciclo,document.hidden?12000:3500)}
+
+let avN=-1,avUlt='';
+async function lerAv(){
+ try{const r=await q(COL.av).ascending('_createdDate').limit(1000).find(),it=(r&&r.items)||[];
+  const ult=it.length?it[it.length-1]._id:'';
+  if(it.length!==avN||ult!==avUlt){avN=it.length;avUlt=ult;if(window.MH_RX)MH_RX.avs(it)}}
+ catch(e){diag('avaliações: '+msgErro(e),true)}}
+async function lerAds(){
+ const T=v=>{if(v==null||v==='')return NaN;if(typeof v==='object'&&v.$date)v=v.$date;if(typeof v==='number')return v<1e12?v*1000:v;const n=Number(v);return Number.isFinite(n)&&String(v).trim()!==''?(n<1e12?n*1000:n):new Date(v).getTime()};
+ try{const r=await q(COL.ad).limit(100).find(),it=(r&&r.items)||[],ag=Date.now();
+  const l=[],mot={pendente:0,limpo:0,vencido:0};it.forEach(x=>{if(x.status==='pendente'){mot.pendente++;return}const i0=T(x.inicio),ini=Number.isFinite(i0)?i0:T(x._createdDate),mn=Number(x.minutos)||Number(x.min)||0,fv=T(x.validade!=null?x.validade:(x.fim!=null?x.fim:x.expira));let fim=Number.isFinite(fv)?fv:ini+mn*60000;if(ini<=((window.MH_FLOOR||{}).outdoor||0)){mot.limpo++;return}
+   if(fim>ag)l.push({vaga:x.vaga,nome:x.nome,texto:x.texto,minutos:mn||Math.max(1,Math.round((fim-ini)/60000)),imagem:x.imagemUrl||x.imagem,link:x.link||'',tag:x.status==='cortesia'?'cortesia':'',fim});else mot.vencido++});
+  if(DIAG)it.slice().sort((a,b)=>T(b._createdDate)-T(a._createdDate)).slice(0,3).forEach(x=>diag('amostra: vaga='+x.vaga+' min='+x.minutos+' inicio='+JSON.stringify(x.inicio)+' validade='+JSON.stringify(x.validade)+' restam='+Math.round((T(x.validade!=null?x.validade:x.fim)-Date.now())/60000)+'min status='+x.status+' criado='+JSON.stringify(x._createdDate)));
+  if(DIAG)diag('anúncios: '+it.length+' no banco · '+l.length+' no ar'+(l.length?' (vaga '+l.map(z=>z.vaga).join(', ')+')':'')+' · ignorados: '+mot.pendente+' pendentes, '+mot.limpo+' limpos pelo ADM, '+mot.vencido+' vencidos · tela pronta: '+(window.MH_RX?'sim':'NÃO'));
+  if(window.MH_RX)MH_RX.ads(l)}
+ catch(e){diag('anúncios: '+msgErro(e),true)}}
+async function lerAp(){
+ try{const r=await q(COL.ap).limit(100).find(),it=(r&&r.items)||[];
+  if(window.MH_RX)MH_RX.apoio(it.filter(x=>x.nome).map(x=>({nome:x.nome,valor:x.valor,mostrarValor:!(x.mostrarValor===false||x.mostrarValor==='false'||x.mostrarValor==='nao'||x.mostrarValor==='não')})))}
+ catch(e){diag('apoiadores: '+msgErro(e),true)}}
+async function lerNomes(){
+ try{const r=await q(COL.perf).ascending('_createdDate').limit(1000).find(),it=(r&&r.items)||[],hs=[],fund=new Set();
+  it.forEach(x=>{if(!x.nome)return;const n=String(x.nome);DB.nomes.add(n.toLowerCase());if(x.papel==='helper'){hs.push(x);if(fund.size<100)fund.add(n)}});
+  window.MH_FUND=fund;window.MH_HELPERS=hs.map(x=>({nome:String(x.nome),oficio:x.oficio||''}));try{window.MH_profRefresh&&MH_profRefresh()}catch(e){}
+  {const of={};it.forEach(x0=>{String(x0.oficio||'').split(/[,;]+/).forEach(pt=>{const x={papel:x0.papel,oficio:pt};if(x.papel==='helper'&&x.oficio.trim()){const w=String(x.oficio).trim(),k=w.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(!k)return;(of[k]=of[k]||{nome:w,n:0}).n++}})});window.MH_OFICIOS=of}
+  {const nn=new Set();it.forEach(x=>{if(x.nome)nn.add(String(x.nome).toLowerCase())});window.MH_STATS_WIX={cad:nn.size,help:hs.length};try{window.MH_pintarPulse&&MH_pintarPulse()}catch(e){}}
+  const ce=document.getElementById('contaPre'),k=DB.nomes.size;if(ce&&k>0){ce.hidden=false;ce.textContent='● '+k+(k===1?' pessoa já está':' pessoas já estão')+' na lista de Barra do Garças e região'}
+  const he=document.getElementById('helperSemana');if(he&&hs.length){const h=hs[Math.floor(Date.now()/604800000)%hs.length];he.hidden=false;he.textContent='⭐ Helper da semana: '+h.nome+(h.oficio?' · '+h.oficio:'')}}
+ catch(e){diag('perfis: '+msgErro(e),true)}}
+
+/* mural de recados (coleção Recados: alvo, de, texto) e frase do perfil (guardada em Mensagens, tipo "frase") */
+DB.recado=async function(alvo,de,texto){
+ if(!DB.ok)return;
+ try{await ins(COL.rec,{alvo:String(alvo),de:String(de),texto:String(texto).slice(0,100)})}
+ catch(e){diag('recado: '+msgErro(e),true);if(window.MH_RX)MH_RX.aviso('*** Não consegui enviar o recado. ***')}};
+DB.frase=async function(texto){
+ if(!DB.ok)return;const eu=window.MH_UI&&MH_UI.eu&&MH_UI.eu();if(!eu)return;
+ const id=rid('f');seen.add(id);
+ try{await ins(COL.msg,{_id:id,sala:'perfil',autor:eu.nome,papel:eu.role,oficio:eu.work||'',texto:String(texto||'').slice(0,60),tipo:'frase',categoria:'',respNome:'',respTexto:''})}
+ catch(e){diag('frase: '+msgErro(e),true)}};
+DB.foto=async function(url){
+ if(!DB.ok)return false;const eu=window.MH_UI&&MH_UI.eu&&MH_UI.eu();if(!eu)return false;
+ const id=rid('p');seen.add(id);
+ try{await ins(COL.msg,{_id:id,sala:'perfil',autor:eu.nome,papel:eu.role,oficio:eu.work||'',texto:String(url||'').slice(0,20000),tipo:'foto',categoria:'',respNome:'',respTexto:''});return true}
+ catch(e){diag('foto: '+msgErro(e),true);return false}};
+DB.portfoto=async function(slot,u){
+ if(!DB.ok)return;const eu=window.MH_UI&&MH_UI.eu&&MH_UI.eu();if(!eu)return;
+ const id=rid('q');seen.add(id);
+ try{await ins(COL.msg,{_id:id,sala:'perfil',autor:eu.nome,papel:eu.role,oficio:eu.work||'',texto:(Number(slot)+1)+'|'+String(u||'').slice(0,19000),tipo:'portfoto',categoria:'',respNome:'',respTexto:''})}
+ catch(e){diag('portfólio: '+msgErro(e),true)}};
+DB.contato=async function(o){
+ if(!DB.ok)return;const eu=window.MH_UI&&MH_UI.eu&&MH_UI.eu();if(!eu)return;
+ const id=rid('k');seen.add(id);
+ try{await ins(COL.msg,{_id:id,sala:'perfil',autor:eu.nome,papel:eu.role,oficio:eu.work||'',texto:JSON.stringify({ig:String(o.ig||''),wa:String(o.wa||''),mostrar:o.mostrar?1:0}).slice(0,200),tipo:'contato',categoria:'',respNome:'',respTexto:''})}
+ catch(e){diag('contatos: '+msgErro(e),true)}};
+/* o portfólio é lido só quando alguém abre aquele perfil (não pesa na entrada do site) */
+DB.portLer=async function(nome){
+ const r1=await q(COL.msg).eq('tipo','portfoto').eq('autor',nome).descending('_createdDate').limit(30).find();
+ ((r1&&r1.items)||[]).slice().reverse().forEach(x=>{if(window.MH_RX&&MH_RX.port)MH_RX.port('portfoto',x.autor,x.texto)});
+ const r2=await q(COL.msg).eq('tipo','contato').eq('autor',nome).descending('_createdDate').limit(1).find();
+ ((r2&&r2.items)||[]).forEach(x=>{if(window.MH_RX&&MH_RX.port)MH_RX.port('contato',x.autor,x.texto)})};
+async function lerFotos(){
+ try{const r=await q(COL.msg).eq('tipo','foto').descending('_createdDate').limit(150).find(),it=((r&&r.items)||[]).slice().reverse();
+  it.forEach(x=>{(window.MH_FOTO_PUB=window.MH_FOTO_PUB||{})[x.autor]=String(x.texto||'');if(window.MH_RX&&MH_RX.foto)MH_RX.foto(x.autor,x.texto)});window.MH_FOTOS_LIDAS=true}
+ catch(e){diag('fotos: '+msgErro(e),true)}}
+let recOff=false;
+async function lerRec(){
+ if(recOff)return;
+ try{const r=await q(COL.rec).ascending('_createdDate').limit(500).find(),it=(r&&r.items)||[];
+  if(window.MH_RX&&MH_RX.rec)MH_RX.rec(it.map(x=>({alvo:x.alvo,de:x.de,texto:x.texto,_quando:dt(x._createdDate).getTime()})))}
+ catch(e){recOff=true;diag('recados (crie a coleção Recados no CMS): '+msgErro(e),true)}}
+async function lerFrases(){
+ try{const r=await q(COL.msg).eq('tipo','frase').descending('_createdDate').limit(300).find(),it=((r&&r.items)||[]).slice().reverse();
+  it.forEach(x=>{if(window.MH_RX&&MH_RX.frase)MH_RX.frase(x.autor,x.texto)})}
+ catch(e){diag('frases: '+msgErro(e),true)}}
+async function testeCompleto(){
+ for(const k in COL){try{await q(COL[k]).limit(1).find();diag('ler '+COL[k]+': ok')}catch(e){diag('ler '+COL[k]+': '+msgErro(e),true)}}
+ diag('Fim do teste. Linhas com ✗ mostram o que falta arrumar.')}
+
+async function iniciar(){
+ try{const sv=JSON.parse(localStorage.getItem('mh_eu')||'null');
+  if(sv&&sv.nome){DB.meu=sv.nome;
+   const set=(id,v)=>{const e=document.getElementById(id);if(e&&v)e.value=v};
+   set('n',sv.nome);set('t',sv.tel);set('e',sv.em);set('w',sv.work);
+   if(sv.role==='helper'){const r=document.querySelector('input[name=r][value=Helper]');if(r){r.checked=true;r.dispatchEvent(new Event('change',{bubbles:true}))}}}}catch(e){}
+ if(!CFG.clientId){console.log('MiHelp: modo demonstração (sem Client ID).');return}
+ const conectar=async(n)=>{
+  let sdk,dat,ult;
+  for(const [a,b] of CDNS){const suf=n?(a.indexOf('?')<0?'?':'&')+'mh='+n:'';
+   try{[sdk,dat]=await Promise.all([import(a+suf),import(b+suf)]);diag('Módulos carregados de '+new URL(a).host);ult=null;break}catch(e){ult=e;diag('Falhou em '+new URL(a).host+': '+msgErro(e))}}
+  if(ult)throw ult;
+  client=sdk.createClient({auth:sdk.OAuthStrategy({clientId:CFG.clientId}),modules:{items:dat.items}});
+  await q(COL.perf).limit(1).find();
+  DB.ok=true;diag('Conectado ao Wix. Banco ligado.')};
+ const seguir=async()=>{
+  if(DIAG)testeCompleto();
+  await lerCtl();
+  lerNomes();lerAv();lerAds();lerAp();lerFrases();lerFotos();ciclo();
+  setInterval(lerAv,25000);setInterval(lerAds,20000);setInterval(lerAp,15000);setInterval(lerNomes,60000);setInterval(lerFrases,60000);setInterval(lerFotos,120000);
+  const antiga=window.MH_denuncia;window.MH_denuncia=n=>{try{antiga&&antiga(n)}catch(e){}DB.denuncia(n)}};
+ try{await conectar(0)}catch(e){
+  diag('NÃO conectou: '+msgErro(e),true);
+  const aviso=()=>window.MH_RX&&MH_RX.aviso('*** Sem conexão com o banco. Nada do que você fizer agora será salvo. Tentando de novo sozinho. ***');
+  setTimeout(aviso,1500);
+  /* celular com sinal fraco: continua tentando em vez de desistir */
+  let n=0,ocupado=false;const rep=setInterval(async()=>{
+   if(DB.ok){clearInterval(rep);return}
+   if(ocupado)return;ocupado=true;n++;
+   try{await conectar(n)}catch(e2){diag('Nova tentativa '+n+' falhou: '+msgErro(e2),true);ocupado=false;return}
+   clearInterval(rep);ocupado=false;
+   if(window.MH_RX)MH_RX.aviso('*** Conectado. O chat voltou. ***');
+   seguir()},15000);
+  return}
+ seguir();
+ setTimeout(function(){try{const n=window.MH_ADS?MH_ADS.vs().filter(Boolean).length:0;diag('RESUMO: '+n+' anúncio(s) no ar neste aparelho · banco '+(DB.ok?'conectado':'SEM conexão')+' · relógio do aparelho: '+(window.MH_SKEW_RAW==null?'não medido':(Math.abs(MH_SKEW_RAW)<120000?'certo':Math.round(Math.abs(MH_SKEW_RAW)/60000)+' min '+(MH_SKEW_RAW<0?'ADIANTADO':'ATRASADO')+' (corrigido pelo site)'))+(n?'':' · se o ADM publicou anúncio, ele NÃO está chegando aqui (veja as linhas acima: permissão da coleção Anuncios ou servidor)'),!n)}catch(e){}},9000);
 }
-const barra=ev=>{if(!login)return;ev.preventDefault();ev.stopImmediatePropagation();entrar()};
-f.addEventListener('click',ev=>{if(ev.target.closest('#btnCad'))barra(ev)},true);
-document.addEventListener('submit',ev=>{if(ev.target===f)barra(ev)},true);
-setTimeout(()=>{let n=null;try{n=JSON.parse(sessionStorage.getItem('mh_sess')||localStorage.getItem('mh_sess')||'null')}catch(e){}
-const acc=J('mh_acc',{});let c=n&&acc[String(n).toLowerCase()];
-if(!c&&!n&&localStorage.getItem('mh_keep')!=='0'){try{const o=JSON.parse(localStorage.getItem('mh_eu')||'null');if(o&&o.nome)c={nome:o.nome,role:o.role,work:o.work}}catch(e){}}
-if(c&&window.MH_UI)MH_UI.entrarConta(c);
-else if(!n&&window.MH_API&&MH_API.on()&&MH_API.usrTk()&&window.MH_UI){const A=MH_API;A.req('/conta/eu',{token:A.usrTk()}).then(r=>{
-  if(r.ok&&r.j&&r.j.ok){guarda(r.j.nome);MH_UI.entrarConta({nome:r.j.nome,role:r.j.papel==='helper'?'helper':'cliente',work:r.j.oficio||''});window.MH_numChegou&&MH_numChegou(r.j.nome,r.j.numero)}
-  else if(r.status===401)A.setUsrTk('')})}},400);
-let ultN=null;setInterval(()=>{const e=window.MH_UI&&MH_UI.eu&&MH_UI.eu();sair.hidden=!e;const nn=e?e.nome:null;if(nn!==ultN){ultN=nn;try{MH_UI.sos()}catch(x){}}},700);
-// temas (engrenagem): dourado, claro, miami, brasil, pôr do sol, terminal
-{const TM=[['escuro','🌙','Dourado','#15130F'],['claro','☀️','Claro','#F5EDD3'],['miami','🌴','Miami Neon','#120A1F'],['brasil','🇧🇷','Brasil','#07140D'],['araguaia','🌅','Pôr do sol','#1A0F1E'],['terminal','💻','Terminal','#050805'],['eclipse','🔮','Eclipse','#0E0716'],['cristal','💧','Cristal','#F5F6F8'],['generico','⬜','Genérico','#FFFFFF'],['generico-noturno','🌃','Genérico Noturno','#0F1115'],['voltagem','⚡','Voltagem','#0D0F12'],['sombra','🕶️','Sombra','#08080A']];
-const b=mk('button',0);b.id='temaBtn';b.type='button';document.body.append(b);
-const lab=mk('label'),sel=mk('select','musFx');lab.className='cfgvol';lab.title='Tema do site';sel.setAttribute('aria-label','Tema do site');
-TM.forEach(([id,em,nome])=>{const o=mk('option',0,em+' '+nome);o.value=id;sel.append(o)});lab.append('Tema ',sel);window.MH_TEMA_LABEL=lab;
-const ap=x=>{if(!TM.some(y=>y[0]===x))x='generico';const i=TM.findIndex(y=>y[0]===x),nx=TM[(i+1)%TM.length];document.documentElement.dataset.tema=x;b.textContent=TM[i][1];b.setAttribute('aria-label','Tema '+TM[i][2]+'. Trocar para '+nx[2]);b.title='Tema: '+TM[i][2];sel.value=x;const m=document.querySelector('meta[name=theme-color]');if(m)m.content=TM[i][3]};
-const salva=x=>{ap(x);try{localStorage.setItem('mh_tema',x)}catch(e){}try{window.MH_SOM&&MH_SOM.tocar('tema',150)}catch(e){}};
-ap(document.documentElement.dataset.tema);
-b.onclick=()=>{const i=TM.findIndex(y=>y[0]===document.documentElement.dataset.tema);salva(TM[(i+1)%TM.length][0])};
-sel.onchange=()=>salva(sel.value)}
-
-// Guilda: fazer chamado
-const gl=$('gdList');
-if(gl){
-  const box=mk('div','gnewb'),bt=mk('button','go','+ Fazer chamado na Guilda');bt.type='button';bt.setAttribute('aria-expanded','false');
-  const fm=mk('form','gnew');fm.hidden=true;
-  const g=mk('select');['TRABALHO','SERVIÇO','RECOMPENSA','ACHADOS E PERDIDOS'].forEach(x=>g.append(new Option(x,x)));
-  const t=mk('input');t.maxLength=60;t.required=true;const d=mk('textarea');d.rows=2;d.maxLength=160;d.required=true;const v=mk('input');v.maxLength=30;v.placeholder='Ex.: R$ 120 ou a combinar';
-  const ok=mk('button','go','Publicar chamado');ok.type='submit';
-  const msg=mk('p','note','Seu chamado fica salvo neste aparelho.');msg.setAttribute('role','status');
-  fm.append(fld('Tipo',g),fld('Título',t),fld('O que você precisa ou oferece',d),fld('Valor',v),ok,msg);box.append(bt,fm);gl.after(box);
-  bt.onclick=()=>{fm.hidden=!fm.hidden;bt.setAttribute('aria-expanded',String(!fm.hidden))};
-  const card=(m,meu)=>{const c=mk('div','gc meu-g');c.append(mk('div','gt',m.g),mk('h3',0,m.t),mk('p',0,m.d));
-    const r=mk('div','gm');r.append(mk('span','gv',m.v||'a combinar'));
-    const b=mk('button',0,meu?'Apagar':'Ver perfil de '+m.p);b.type='button';
-    if(meu)b.onclick=()=>{S('mh_guilda',J('mh_guilda',[]).filter(x=>x.id!==m.id));pinta()};else b.dataset.u=m.p;
-    r.append(b);c.append(r);return c};
-  function pinta(){gl.querySelectorAll('.meu-g').forEach(x=>x.remove());const eu=MH_UI.eu&&MH_UI.eu();
-    J('mh_guilda',[]).reverse().forEach(m=>gl.prepend(card(m,eu&&eu.nome===m.p)))}
-  fm.addEventListener('submit',e=>{e.preventDefault();const eu=MH_UI.eu&&MH_UI.eu();
-    if(!eu){msg.textContent='Cadastre-se ou entre na sua conta para fazer um chamado.';return}
-    const a=J('mh_guilda',[]);a.push({id:Date.now(),p:eu.nome,g:g.value,t:t.value.trim(),d:d.value.trim(),v:v.value.trim()});S('mh_guilda',a.slice(-30));
-    t.value=d.value=v.value='';msg.textContent='Chamado publicado na Guilda.';pinta()});
-  {const f=(window.MH_FLOOR||{}).guilda;if(f)S('mh_guilda',J('mh_guilda',[]).filter(x=>x.id>f))}
-  window.MH_guildaLimpar=function(t){gl.querySelectorAll('.gc:not(.meu-g)').forEach(x=>x.remove());if(window.MH_MISSOES)window.MH_MISSOES.length=0;S('mh_guilda',J('mh_guilda',[]).filter(x=>x.id>t));pinta()};
-  pinta();setInterval(pinta,4000);
-}
-
-// Chamar o ADM
-const q=document.querySelector('#quem .body');
-if(q){const b=mk('button','go','Chamar o administrador');b.type='button';b.style.marginTop='10px';q.append(b);
-  const dl=mk('dialog');dl.setAttribute('aria-label','Chamar o administrador');document.body.append(dl);
-  b.onclick=()=>{dl.textContent='';const eu=MH_UI.eu&&MH_UI.eu(),fm=mk('form');fm.append(mk('h3',0,'Chamar o administrador'));
-    const as=mk('input');as.maxLength=60;as.required=true;as.placeholder='Assunto';const ms=mk('textarea');ms.rows=4;ms.maxLength=400;ms.required=true;
-    ms.style.cssText='width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--text);font:inherit';
-    const dt=mk('div','dbt'),go=mk('button','go','Enviar');go.type='submit';const cx=mk('button','cx','Cancelar');cx.type='button';cx.onclick=()=>dl.close();dt.append(go,cx);
-    fm.append(fld('Assunto',as),fld('Mensagem',ms),mk('p','note','O chamado chega à administração por e-mail (seu aplicativo de e-mail vai abrir). Quem estiver no painel ADM neste navegador também o vê em Ocorrências.'),dt);
-    fm.onsubmit=e=>{e.preventDefault();const quem=eu?eu.nome:'Visitante';
-      try{window.MH_chamadoAdm&&MH_chamadoAdm(quem,as.value.trim()+': '+ms.value.trim())}catch(x){}
-      const mail=(window.MH_PIX&&MH_PIX.contato)||'';dl.close();
-      if(mail)location.href='mailto:'+mail+'?subject='+encodeURIComponent('Chamado MiHelp: '+as.value.trim())+'&body='+encodeURIComponent(ms.value.trim()+'\n\nDe: '+quem)};
-    dl.append(fm);dl.showModal()}}
+iniciar();
 })();
-}catch(e){console.error('MiHelp (conta, guilda, chamado):',e)}
