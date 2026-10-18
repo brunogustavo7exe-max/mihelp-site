@@ -51,7 +51,7 @@ async function carregarStats(){
     const A=window.MH_API;if(!A||!A.on()||STATS._404)return;
     const r=await A.req('/stats',{ms:8000});if(r.status===404)STATS._404=1;
     try{window.MH_diag&&MH_diag('worker /stats: '+(r.ok&&r.j&&r.j.ok?'ok':'HTTP '+r.status),!(r.ok&&r.j&&r.j.ok))}catch(e){}
-    if(r.ok&&r.j&&r.j.ok){STATS.cad=Number(r.j.cad)||0;STATS.help=Number(r.j.helpers)||0;pintarPulse();try{hydrateEu()}catch(e){}}else if(STATS.cad==null&&!STATS._r){STATS._r=1;setTimeout(function(){STATS._r=0;carregarStats()},8000)}
+    if(r.ok&&r.j&&r.j.ok){STATS.cad=Number(r.j.cad)||0;STATS.help=Number(r.j.lojas)||0;pintarPulse();try{hydrateEu()}catch(e){}}else if(STATS.cad==null&&!STATS._r){STATS._r=1;setTimeout(function(){STATS._r=0;carregarStats()},8000)}
   }catch(e){}
 }
 

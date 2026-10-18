@@ -128,7 +128,7 @@ function modo(on){login=on;esconde().forEach(e=>{if(e){if(on)e.style.setProperty
   $('btnCad').textContent=on?'Entrar':'Criar minha conta';jt.textContent=on?'Quero criar uma conta':'Já tenho conta: entrar';
   const er=$('ferr');if(er){er.style.display='none'}try{marca()}catch(x){}}
 jt.addEventListener('click',e=>{e.preventDefault();modo(!login)});
-{const rn=$('roleNote');const atual=()=>{const h=document.querySelector('input[name=r]:checked');if(!rn)return;rn.textContent='';const b=document.createElement('b');if(h&&h.value==='Helper'){b.textContent='Conta de Helper:';rn.append(b,document.createTextNode(' para profissionais, donos de empresas, prestadores de serviço e microempreendedores.'))}else{b.textContent='Conta de Cliente:';rn.append(b,document.createTextNode(' somente para quem busca serviços. Não serve para cadastrar empresa.'))}};
+{const rn=$('roleNote');const atual=()=>{const h=document.querySelector('input[name=r]:checked');if(!rn)return;rn.textContent='';const b=document.createElement('b');if(h&&h.value==='Helper'){b.textContent='É só criar a conta.';rn.append(b,document.createTextNode(' Todo mundo tem acesso ao painel profissional. Só aparece como profissional quem escolher um ofício ou tiver uma loja; para o resto, é uma conta comum. Quer criar ou receber uma loja? Faça a conta e abra Meu espaço profissional.'))}else{b.textContent='É só criar a conta.';rn.append(b,document.createTextNode(' Para buscar serviços não precisa escolher nada. Quer oferecer um serviço? Depois de entrar, abra Meu espaço profissional e toque em Quero ser Helper, na mesma conta.'))}};
  document.querySelectorAll('input[name=r]').forEach(x=>x.addEventListener('change',atual));atual()}
 const sgC=$('segCriar'),sgE=$('segEntrar'),pwH=$('pwHint'),pwE=$('pwEye'),API_ON=!!(window.MH_API&&MH_API.on()),HT=API_ON?'Mínimo 6 caracteres. Sua conta funciona em qualquer aparelho. Não use a senha de outros sites.':'Mínimo 6 caracteres. A conta fica salva neste aparelho. Não use a senha de outros sites.';
 function marca(){sgC.setAttribute('aria-pressed',String(!login));sgE.setAttribute('aria-pressed',String(login));
@@ -149,7 +149,7 @@ async function entrar(){
     const contasLeg=J('mh_acc',{});
     const contaLeg=Object.values(contasLeg).find(x=>normalizaTel(x&&x.tel)===tel);
     const r=await A.req('/conta/entrar',{body:{tel,chave:await chaveDe(tel,pw),chaveLegada:contaLeg?await chaveDe(contaLeg.nome,pw):'',identificador:tel}});st=r.status;
-    if(r.ok&&r.j&&r.j.token){A.setUsrTk(r.j.token);const c={nome:r.j.nome,role:r.j.papel==='helper'?'helper':'cliente',work:r.j.oficio||''};guarda(c.nome);MH_UI.entrarConta(c);window.MH_numChegou&&MH_numChegou(c.nome,r.j.numero);return}
+    if(r.ok&&r.j&&r.j.token){A.setUsrTk(r.j.token);const c={nome:r.j.nome,role:(r.j.papel==='helper'&&r.j.oficio)?'helper':'cliente',work:r.j.oficio||''};guarda(c.nome);MH_UI.entrarConta(c);window.MH_numChegou&&MH_numChegou(c.nome,r.j.numero);return}
     if(st===401)return erro('Telefone ou senha incorretos.');
     if(st===429)return erro('Muitas tentativas. Espere 15 minutos e tente de novo.')
   }
@@ -172,7 +172,7 @@ const acc=J('mh_acc',{});let c=n&&acc[String(n).toLowerCase()];
 if(!c&&!n&&localStorage.getItem('mh_keep')!=='0'){try{const o=JSON.parse(localStorage.getItem('mh_eu')||'null');if(o&&o.nome)c={nome:o.nome,role:o.role,work:o.work}}catch(e){}}
 if(c&&window.MH_UI)MH_UI.entrarConta(c);
 else if(!n&&window.MH_API&&MH_API.on()&&MH_API.usrTk()&&window.MH_UI){const A=MH_API;A.req('/conta/eu',{token:A.usrTk()}).then(r=>{
-  if(r.ok&&r.j&&r.j.ok){guarda(r.j.nome);MH_UI.entrarConta({nome:r.j.nome,role:r.j.papel==='helper'?'helper':'cliente',work:r.j.oficio||''});window.MH_numChegou&&MH_numChegou(r.j.nome,r.j.numero)}
+  if(r.ok&&r.j&&r.j.ok){guarda(r.j.nome);MH_UI.entrarConta({nome:r.j.nome,role:(r.j.papel==='helper'&&r.j.oficio)?'helper':'cliente',work:r.j.oficio||''});window.MH_numChegou&&MH_numChegou(r.j.nome,r.j.numero)}
   else if(r.status===401)A.setUsrTk('')})}},400);
 let ultN=null;setInterval(()=>{const e=window.MH_UI&&MH_UI.eu&&MH_UI.eu();sair.hidden=!e;const nn=e?e.nome:null;if(nn!==ultN){ultN=nn;try{MH_UI.sos()}catch(x){}}},700);
 // temas (engrenagem): dourado, claro, miami, brasil, pôr do sol, terminal
