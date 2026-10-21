@@ -69,6 +69,7 @@
     <button type="button" data-go="vale"><span>🧭</span>Guia da Região</button>
     <button type="button" data-go="cheers"><span>🎉</span>Eventos</button>
     <button type="button" data-go="carona"><span>🚗</span>Caronas</button>
+    <button type="button" data-go="classificados"><span>🛒</span>Classificados</button>
     <button type="button" data-go="cw"><span>💬</span>Conversar</button>
   </nav>
   <div class="need" id="need" aria-label="Buscar por ofício">
@@ -118,6 +119,7 @@
         </form>
       </div>
     </section>
+
   <section id="carona" aria-labelledby="cl">
   <h2 id="cl">Caronas da região</h2>
   <p class="lead">Caronas para dividir a viagem. Tudo grátis.</p>
@@ -129,28 +131,7 @@
     <p class="note">Carona é divisão de custos, não é serviço de transporte. Combine tudo no chat privado e avise alguém de confiança sobre a viagem.</p>
    </div></div>
   </section>
-  <section id="voz" aria-labelledby="vzh">
-  <h2 id="vzh">📢 Voz da Cidade</h2>
-  <p class="lead">Buraco, lixo, praça abandonada, semáforo quebrado: mostre o problema, o povo apoia e cobra. Crítica dura é permitida.</p>
-  <div class="win"><div class="bar"><span class="t">Voz da Cidade</span><i></i><i></i><i></i></div>
-   <div class="body">
-    <div class="vbar"><button type="button" id="vzNovo" class="cta2">+ Denunciar um problema</button></div>
-    <form id="vzForm" hidden>
-     <input id="vzTit" maxlength="80" placeholder="O que está errado? (ex.: Buraco na Av. Ministro João Alberto)" required>
-     <div class="vzrow"><select id="vzCat"></select><input id="vzBai" maxlength="40" placeholder="Bairro / rua" required><select id="vzUrg"><option value="1">Incomoda</option><option value="2">Perigoso</option><option value="3">Risco de acidente</option></select></div>
-     <textarea id="vzTxt" maxlength="600" rows="3" placeholder="Conte o que acontece, há quanto tempo e quem deveria resolver. Pode cobrar prefeito e vereador à vontade." required></textarea>
-     <div class="vzrow"><select id="vzTipo"><option value="opiniao">💬 Opinião</option><option value="fato">📎 Fato com prova (foto, documento ou link)</option></select><label class="vzfile">📷 Foto <input type="file" id="vzFoto" accept="image/*" hidden></label><label class="vzan"><input type="checkbox" id="vzNome"> Mostrar meu nome (se desmarcar, fica anônimo)</label></div>
-     <div class="vzrow"><button type="button" id="vzGeo" class="vzb">📍 Usar minha localização</button><span class="note" id="vzGeoSt">Use só quando estiver no local do problema.</span></div>
-     <img id="vzPrev" alt="" hidden>
-     <button type="submit" class="cta2">Publicar</button> <button type="button" id="vzCan" class="vzghost">Cancelar</button>
-    </form>
-    <div class="vzrow vzfilt"><select id="vzFc"></select><select id="vzOrd"><option value="top">Mais apoiados</option><option value="new">Mais recentes</option></select></div>
-    <div class="vzrow"><button type="button" id="vzAdmBtn" class="vzb" hidden>🛠 Moderar denúncias (adm)</button></div>
-    <div id="vzLista"></div>
-    <p class="note" id="vzMsg" role="status"></p>
-    <p class="note">Regras mínimas: critique o problema e quem governa, sem ameaça, sem divulgar endereço ou telefone de ninguém, sem conteúdo com crianças e sem ódio contra grupos. Acusar alguém de crime sem prova? Marque como Opinião. Só vira 🟢 Concluído quando a equipe MiHelp confere o local. O MiHelp é uma plataforma da comunidade, não um canal oficial da prefeitura.</p>
-   </div></div>
-  </section>
+  
    </div>
    <div class="jcol" id="jcD">
     <section class="win" id="cw" aria-label="Sala de conversa">
@@ -203,8 +184,51 @@
     <p class="note">Cada pessoa divulga o próprio evento e responde por ele. O MiHelp não vende ingresso e não cobra nada. O evento some da lista 6 horas depois de começar.</p>
    </div></div>
   </section>
+<section id="classificados" aria-labelledby="clsh">
+  <h2 id="clsh">🛒 Classificados</h2>
+  <p class="lead">Compre, venda, troque ou doe. Qualquer coisa, entre gente da região.</p>
+  <div id="clsBox"></div>
+</section>
+<section id="voz" aria-labelledby="vzh">
+  <h2 id="vzh">📢 Voz da Cidade</h2>
+  <p class="lead">Buraco, lixo, praça abandonada, semáforo quebrado: mostre o problema, o povo apoia e cobra. Crítica dura é permitida.</p>
+  <div class="win"><div class="bar"><span class="t">Voz da Cidade</span><i></i><i></i><i></i></div>
+   <div class="body">
+    <div class="vbar"><button type="button" id="vzNovo" class="cta2">+ Denunciar um problema</button></div>
+    <form id="vzForm" hidden>
+     <input id="vzTit" maxlength="80" placeholder="O que está errado? (ex.: Buraco na Av. Ministro João Alberto)" required>
+     <div class="vzrow"><select id="vzCat"></select><input id="vzBai" maxlength="40" placeholder="Bairro / rua" required><select id="vzUrg"><option value="1">Incomoda</option><option value="2">Perigoso</option><option value="3">Risco de acidente</option></select></div>
+     <textarea id="vzTxt" maxlength="600" rows="3" placeholder="Conte o que acontece, há quanto tempo e quem deveria resolver. Pode cobrar prefeito e vereador à vontade." required></textarea>
+     <div class="vzrow"><select id="vzTipo"><option value="opiniao">💬 Opinião</option><option value="fato">📎 Fato com prova (foto, documento ou link)</option></select><label class="vzfile">📷 Foto <input type="file" id="vzFoto" accept="image/*" hidden></label><label class="vzan"><input type="checkbox" id="vzNome"> Mostrar meu nome (se desmarcar, fica anônimo)</label></div>
+     <div class="vzrow"><button type="button" id="vzGeo" class="vzb">📍 Usar minha localização</button><span class="note" id="vzGeoSt">Use só quando estiver no local do problema.</span></div>
+     <img id="vzPrev" alt="" hidden>
+     <button type="submit" class="cta2">Publicar</button> <button type="button" id="vzCan" class="vzghost">Cancelar</button>
+    </form>
+    <div class="vzrow vzfilt"><select id="vzFc"></select><select id="vzOrd"><option value="top">Mais apoiados</option><option value="new">Mais recentes</option></select></div>
+    <div class="vzrow"><button type="button" id="vzAdmBtn" class="vzb" hidden>🛠 Moderar denúncias (adm)</button></div>
+    <div id="vzLista"></div>
+    <p class="note" id="vzMsg" role="status"></p>
+    <p class="note">Regras mínimas: critique o problema e quem governa, sem ameaça, sem divulgar endereço ou telefone de ninguém, sem conteúdo com crianças e sem ódio contra grupos. Acusar alguém de crime sem prova? Marque como Opinião. Só vira 🟢 Concluído quando a equipe MiHelp confere o local. O MiHelp é uma plataforma da comunidade, não um canal oficial da prefeitura.</p>
+   </div></div>
+  </section>
+<section id="gastos" aria-labelledby="gah" hidden>
+  <h2 id="gah">🏛️ Obras e gastos públicos</h2>
+  <p class="lead">Escolha a cidade e veja os projetos e gastos da prefeitura. Cada item mostra a fonte oficial para você conferir.</p>
+  <div class="win"><div class="bar"><span class="t">Obras e gastos públicos</span><i></i><i></i><i></i></div>
+   <div class="body">
+    <div class="gtabs" id="gaTabs" role="tablist" aria-label="Escolha a cidade"></div>
+    <div class="gfil" id="gaFil" role="group" aria-label="Filtrar por situação"></div>
+    <p class="gtot" id="gaTot"></p>
+    <div id="gaLista"></div>
+    <div id="gaAdm"></div>
+    <p class="note" id="gaMsg" role="status"></p>
+    <div class="gof" id="gaOf"></div>
+    <p class="note">Os dados vêm de fontes públicas oficiais, indicadas em cada item, e a equipe do MiHelp só confere e organiza. Podem estar desatualizados: confirme sempre no link da fonte. O MiHelp não faz acusação e não é canal oficial de nenhuma prefeitura. Viu algo errado? Fale com o Suporte.</p>
+   </div></div>
+</section>
    </div>
   </div>
+
   <section id="duelo" aria-labelledby="dlt">
   <h2 id="dlt">Cabo de guerra da torcida</h2>
   <p class="lead">Escolha um lado e puxe a corda. Cada real que você coloca empurra a barra para o seu lado. É uma brincadeira de torcida.</p>
@@ -240,21 +264,7 @@
 <!-- ===== GASTOS PÚBLICOS: cole este bloco INTEIRO no index.html, logo ANTES da linha <section id="instalar" aria-labelledby="inst"> ===== -->
 <link rel="stylesheet" href="css/13-mh-sem-escolha.css" id="mh-sem-escolha">
 <link rel="stylesheet" href="css/14-mh-gastos-css.css" id="mh-gastos-css">
-<section id="gastos" aria-labelledby="gah" hidden>
-  <h2 id="gah">🏛️ Obras e gastos públicos</h2>
-  <p class="lead">Escolha a cidade e veja os projetos e gastos da prefeitura. Cada item mostra a fonte oficial para você conferir.</p>
-  <div class="win"><div class="bar"><span class="t">Obras e gastos públicos</span><i></i><i></i><i></i></div>
-   <div class="body">
-    <div class="gtabs" id="gaTabs" role="tablist" aria-label="Escolha a cidade"></div>
-    <div class="gfil" id="gaFil" role="group" aria-label="Filtrar por situação"></div>
-    <p class="gtot" id="gaTot"></p>
-    <div id="gaLista"></div>
-    <div id="gaAdm"></div>
-    <p class="note" id="gaMsg" role="status"></p>
-    <div class="gof" id="gaOf"></div>
-    <p class="note">Os dados vêm de fontes públicas oficiais, indicadas em cada item, e a equipe do MiHelp só confere e organiza. Podem estar desatualizados: confirme sempre no link da fonte. O MiHelp não faz acusação e não é canal oficial de nenhuma prefeitura. Viu algo errado? Fale com o Suporte.</p>
-   </div></div>
-</section>
+
 <script src="js/07-mh-gastos-js.js" id="mh-gastos-js"></script>
 <!-- Opcional: no menu do topo (nav.nv), junto dos outros links, acrescente:  <a class="more" href="#gastos">🏛️ Obras e gastos</a>  -->
 <!-- ===== fim do bloco de gastos públicos ===== -->
@@ -1057,6 +1067,13 @@
 
 <link rel="stylesheet" href="css/19-mh-tema-som-fix.css" id="mh-tema-som-fix">
 <link rel="stylesheet" href="css/20-mh-pulse-css.css" id="mh-pulse-css">
+<script src="js/41-mh-classif-js.js" id="mh-classif-js"></script>
+
+<link rel="stylesheet" href="css/21-mh-escada-css.css" id="mh-escada-css">
+<script src="js/42-mh-escada-js.js" id="mh-escada-js"></script>
+<script src="js/43-mh-jornal-js.js" id="mh-jornal-js"></script>
+
+
 <nav id="dock" aria-label="Ações principais">
   <button type="button" data-dock="conta"><b>👤</b>Conta</button>
   <button type="button" data-dock="sala"><b>💬</b>Sala</button>
@@ -1064,6 +1081,6 @@
   <button type="button" data-dock="carona"><b>🚗</b>Carona</button>
   <button type="button" data-dock="anunciar"><b>📣</b>Anunciar</button>
 </nav>
-<script src="js/41-mh-pulse-js.js" id="mh-pulse-js"></script>
-<link rel="stylesheet" href="css/21-mh-v7-css.css" id="mh-v7-css">
-<script src="js/42-mh-v7-js.js" id="mh-v7-js"></script>
+<script src="js/44-mh-pulse-js.js" id="mh-pulse-js"></script>
+<link rel="stylesheet" href="css/22-mh-v7-css.css" id="mh-v7-css">
+<script src="js/45-mh-v7-js.js" id="mh-v7-js"></script>
