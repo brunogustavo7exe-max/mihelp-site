@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c0a10">
+<title>D'Castro Labs · Gestão</title>
+<style>
+:root{--bg:#0c0a10;--sf:#17121f;--sf2:#201829;--ln:#322745;--tx:#f3f0f8;--tx2:#a99fba;--cy:#37d8e6;--mg:#e04fb4;--go:#c9a54a;--ok:#4ade80;--wr:#fbbf24;--er:#f87171;--r:14px}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:radial-gradient(900px 480px at 88% -8%,#2b1654 0,transparent 62%),var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,select,a{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+.app{display:grid;grid-template-columns:252px 1fr;min-height:100vh}
+.side{background:linear-gradient(180deg,#140f1c,#0f0b15);border-right:1px solid var(--ln);padding:18px 12px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 16px;font-weight:700;letter-spacing:.2px}
+.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#4b2a8a,#1d1130);border:1px solid var(--go);display:grid;place-items:center;color:var(--go);font-weight:800}
+.brand small{display:block;color:var(--tx2);font-weight:400;font-size:12px}
+.grp{margin:14px 8px 6px;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--tx2)}
+.nav{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:8px 10px;border:0;border-radius:10px;background:transparent;text-align:left;cursor:pointer;color:var(--tx2)}
+.nav:hover{background:var(--sf2);color:var(--tx)}
+.nav[aria-current=page]{background:linear-gradient(90deg,rgba(55,216,230,.16),transparent);color:var(--tx);box-shadow:inset 3px 0 var(--cy)}
+.nav .ic{width:22px;text-align:center}
+.dot{margin-left:auto;font-size:10px;padding:1px 7px;border-radius:99px;border:1px solid var(--mg);color:var(--mg)}
+.main{min-width:0}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--ln);background:rgba(12,10,16,.8);backdrop-filter:blur(8px);position:sticky;top:0;z-index:5}
+.top .sp{flex:1}
+.btn{min-height:42px;padding:6px 14px;border-radius:10px;border:1px solid var(--ln);background:var(--sf);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--cy)}
+.btn.p{background:var(--cy);border-color:var(--cy);color:#06222a;font-weight:700}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.top select{min-height:42px;border-radius:10px;border:1px solid var(--ln);background:var(--sf);padding:0 10px;max-width:100%}
+#menu{display:none}
+.wrap{padding:22px 20px 60px;max-width:1100px}
+h1{margin:0 0 4px;font-size:24px}
+.sub{color:var(--tx2);margin:0 0 18px}
+.chip{display:inline-block;font-size:11px;padding:2px 9px;border-radius:99px;border:1px solid var(--ln);color:var(--tx2);vertical-align:middle}
+.chip.real{border-color:var(--cy);color:var(--cy)}
+.chip.demo{border-color:var(--mg);color:var(--mg)}
+.chip.ok{border-color:var(--ok);color:var(--ok)}.chip.wr{border-color:var(--wr);color:var(--wr)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+.card,.panel{background:var(--sf);border:1px solid var(--ln);border-radius:var(--r);padding:14px 16px}
+.card .l{color:var(--tx2);font-size:13px}
+.card .v{font-size:24px;font-weight:700;margin:2px 0}
+.card .s{color:var(--tx2);font-size:12px}
+.panel{margin-bottom:14px}
+.panel h2{margin:0 0 10px;font-size:15px;color:var(--tx)}
+.li{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--ln)}
+.li:first-of-type{border-top:0}
+.li .m{color:var(--tx2);font-size:13px}
+.bar{height:8px;border-radius:99px;background:var(--sf2);overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cy),var(--mg))}
+.empty{border:1px dashed var(--ln);border-radius:var(--r);padding:22px;text-align:center;color:var(--tx2)}
+.note{border-left:3px solid var(--go);padding:8px 12px;background:rgba(201,165,74,.07);border-radius:0 10px 10px 0;color:var(--tx2);font-size:13px;margin:10px 0}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.gate{min-height:100vh;display:grid;place-items:center;padding:20px;text-align:center}
+.gate .panel{max-width:420px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--sf2);border:1px solid var(--cy);padding:10px 16px;border-radius:12px;display:none;z-index:50}
+.scrim{display:none}
+@media(max-width:899px){
+ .app{grid-template-columns:1fr}
+ .side{position:fixed;inset:0 auto 0 0;width:280px;z-index:30;transform:translateX(-100%);transition:transform .2s}
+ .side.open{transform:none}
+ .scrim.on{display:block;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:20}
+ #menu{display:inline-flex}
+ .top{padding:10px 12px}.wrap{padding:16px 12px 60px}
+ .grid{grid-template-columns:1fr 1fr}.card .v{font-size:20px}
+}
+.fld{display:block;margin-bottom:10px;font-size:13px;color:var(--tx2)}
+.fld input,.fld select,.fld textarea,.acts input,.acts select{display:block;width:100%;margin-top:4px;min-height:42px;border-radius:10px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);padding:6px 10px;font:inherit}
+.acts input,.acts select{width:auto;margin:0;flex:1 1 160px}
+.err{color:var(--er);font-size:12px;display:block;min-height:0}
+.li .acts{margin:0}.tg{font-size:12px;color:var(--tx2)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toast" role="status"></div>
+<script>
+(function(){
+var API='https://mihelp-api.mihelpmarketing.workers.dev';
+var $=function(s){return document.querySelector(s)};
+function h(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function tk(){try{return localStorage.getItem('mh_tk')||sessionStorage.getItem('mh_tk')||''}catch(e){return ''}}
+function api(p){return fetch(API+p,{headers:{authorization:'Bearer '+tk()}}).then(function(r){return r.json().catch(function(){return{}}).then(function(j){return{ok:r.ok,status:r.status,j:j}})}).catch(function(){return{ok:false,status:0,j:{erro:'sem conexão'}}})}
+var R=function(v){return (Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})};
+var hhmm=function(m){m=Number(m)||0;return String(Math.floor(m/60)%24).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};
+function toast(t){var e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){e.style.display='none'},2600)}
+
+var S={lojas:[],cur:null,res:null,resErr:'',rs:null,nome:'',view:'visao'};
+var MODS=[
+ ['Principal',[['visao','◧','Visão geral','real'],['empresa','🏢','Minha empresa','real'],['equipe','👥','Equipe','real'],['clientes','🤝','Clientes','demo'],['servicos','🛠','Serviços e projetos','real'],['orcamentos','🧾','Orçamentos','demo'],['agenda','🗓','Agenda','real']]],
+ ['Operação',[['financeiro','💰','Financeiro','real'],['estoque','📦','Estoque','real'],['relatorios','📊','Relatórios','demo'],['automacoes','⚡','Automações','demo']]],
+ ['Workforce',[['meutrabalho','🧑‍💼','Meu Trabalho','demo'],['escalas','📅','Escalas e folgas','demo'],['ponto','⏱','Ponto digital','demo'],['avaliacoes','🔒','Avaliações privadas','demo'],['passaporte','🪪','Passaporte Profissional','demo']]],
+ ['Sistema',[['studio','🎛','Personalização (Studio)','demo'],['config','⚙','Configurações','real']]]
+];
+var PROTO={
+ clientes:['Clientes e fornecedores','Cadastro de clientes e fornecedores da empresa, com histórico de serviços e contatos.',['Ficha do cliente com histórico','Fornecedores e contatos','Vínculo com orçamentos e agenda'],'Precisa de coleção e rotas novas no Worker.'],
+ orcamentos:['Orçamentos','Criar, enviar e acompanhar orçamentos até virarem serviço ou venda.',['Itens e valores por orçamento','Status: pendente, aprovado, recusado','Conversão em serviço agendado'],'Precisa de coleção e rotas novas no Worker. O Painel Pro do MiHelp já guarda orçamentos do profissional, mas ainda não está ligado aqui.'],
+ relatorios:['Relatórios','Relatórios por período, a partir dos módulos ativos da empresa.',['Financeiro por mês','Estoque e giro','Equipe e agenda'],'Hoje só existe o resumo mensal em Financeiro.'],
+ automacoes:['Automações','Regras simples, como avisar estoque baixo ou lembrar um orçamento pendente.',['Gatilho e ação','Avisos para a equipe'],'Sem especificação e sem backend. Não será construído antes disso.'],
+ meutrabalho:['Meu Trabalho','Área do funcionário: jornada, escala, folgas, tarefas, comunicados e documentos, sem acessar o painel do patrão.',['Minha jornada e escala','Minhas folgas e solicitações','Minhas tarefas e comunicados','Documentos disponibilizados','Meu Passaporte Profissional'],'Precisa de vínculo funcionário-empresa com permissões próprias no Worker.'],
+ escalas:['Escalas, folgas e ausências','Calendário semanal com turnos, folgas, pedidos e aprovações, com aviso de conflito de horário.',['Programado, em andamento, concluído','Pendente, aprovado, recusado','Necessita de revisão','Histórico de decisões'],'Precisa de coleções de turnos e solicitações no Worker. As regras de jornada variam por categoria profissional e precisam ser definidas.'],
+ ponto:['Ponto digital','Registro de entrada, saída e intervalos, histórico e pedido de correção, para celular pessoal ou aparelho compartilhado.',['Entrada, saída e intervalos','Histórico e comprovantes','Pedido de correção'],'PROTÓTIPO. Não registra nada e não tem validade legal. O ponto eletrônico formal exige requisitos técnicos e legais próprios, e não há monitoramento contínuo.'],
+ avaliacoes:['Avaliações profissionais privadas','Avaliações internas da empresa, com critérios por função, resposta e contestação do trabalhador e registro de alterações.',['Critérios por função, sem nota única','Resposta e contestação','Acesso restrito','Janela de 18 meses para o indicador atual; o registro não é apagado'],'São independentes das avaliações públicas do MiHelp, que não alimentam este módulo. Precisa de backend com permissões e política de retenção.'],
+ passaporte:['Passaporte Profissional','Histórico profissional complementar do trabalhador: declarado por ele, confirmado por empresas, certificações e referências autorizadas.',['Declarado pelo profissional','Experiências confirmadas','Certificações e competências','Referências autorizadas'],'Não substitui a Carteira de Trabalho Digital nem documentos oficiais. Avaliações internas não entram automaticamente.'],
+ studio:['D’Castro Studio','Cada empresa escolhe os módulos e personaliza atalhos, cartões e aparência do painel.',['Ativar e desativar módulos','Organizar cartões e atalhos'],'Só a estrutura de navegação existe por enquanto.']
+};
+function loja(){return S.lojas.find(function(l){return l.chave===S.cur})||null}
+
+function gate(msg){var r=$('#root');r.textContent='';var g=h('div','gate'),p=h('div','panel');
+ p.append(h('h1',null,'D’Castro Labs'),h('p','sub',msg||'Entre no MiHelp para acessar o painel da sua empresa.'));
+ var a=h('a','btn p','Ir para o MiHelp');a.href='index.html';p.append(a);g.append(p);r.append(g)}
+
+function shell(){var r=$('#root');r.textContent='';var app=h('div','app');
+ var side=h('aside','side');side.id='side';
+ var b=h('div','brand');b.append(h('div','logo','D'));var bt=h('div',null,'D’Castro Labs');bt.append(h('small',null,'Gestão empresarial'));b.append(bt);side.append(b);
+ MODS.forEach(function(g){side.append(h('div','grp',g[0]));g[1].forEach(function(m){var n=h('button','nav');n.dataset.v=m[0];n.append(h('span','ic',m[1]),h('span',null,m[2]));if(m[3]==='demo')n.append(h('span','dot','protótipo'));n.onclick=function(){go(m[0]);$('#side').classList.remove('open');$('#scrim').classList.remove('on')};side.append(n)})});
+ var main=h('div','main');var top=h('div','top');
+ var mb=h('button','btn','☰');mb.id='menu';mb.setAttribute('aria-label','Abrir menu');mb.onclick=function(){$('#side').classList.add('open');$('#scrim').classList.add('on')};
+ var sel=h('select');sel.id='ws';sel.setAttribute('aria-label','Empresa ativa');
+ if(!S.lojas.length){sel.append(new Option('Nenhuma empresa','')) ;sel.disabled=true}
+ S.lojas.forEach(function(l){sel.append(new Option(l.nome,l.chave))});sel.value=S.cur||'';
+ sel.onchange=function(){S.cur=sel.value;try{sessionStorage.setItem('dl_loja',S.cur)}catch(e){}load().then(function(){go(S.view)})};
+ var bell=h('button','btn','🔔');bell.setAttribute('aria-label','Notificações');bell.onclick=function(){toast('Sem notificações. Este recurso ainda não está conectado.')};
+ var mi=h('a','btn','← MiHelp');mi.href='index.html';
+ var u=h('span','chip',S.nome||'Conta');
+ top.append(mb,sel,h('span','sp'),bell,mi,u);
+ var wrap=h('div','wrap');wrap.id='view';main.append(top,wrap);
+ var sc=h('div','scrim');sc.id='scrim';sc.onclick=function(){$('#side').classList.remove('open');sc.classList.remove('on')};
+ app.append(side,main);r.append(app,sc)}
+
+function load(){var l=loja();S.res=null;S.resErr='';if(!l)return Promise.resolve();if(l.vinc){S.resErr='disponível só para o dono da empresa';return Promise.resolve()}
+ return Promise.all([api('/gestao/resumo?chave='+encodeURIComponent(l.chave)),api('/reservas/minhas')]).then(function(a){
+  if(a[0].ok&&a[0].j&&a[0].j.ok)S.res=a[0].j;else S.resErr=(a[0].j&&a[0].j.erro)||'indisponível';
+  S.rs=a[1].ok&&a[1].j&&a[1].j.ok?a[1].j:null})}
+
+function card(l,v,s){var c=h('div','card');c.append(h('div','l',l),h('div','v',v),h('div','s',s||''));return c}
+function head(t,sub,kind){var d=h('div');var x=h('h1',null,t+' ');if(kind)x.append(h('span','chip '+kind,kind==='real'?'dados reais':'protótipo'));d.append(x,h('p','sub',sub||''));return d}
+function empty(t,btn){var e=h('div','empty',t);if(btn)e.append(h('div','acts')).lastChild.append(btn);return e}
+function lnk(t,href,p){var a=h('a','btn'+(p?' p':''),t);a.href=href;return a}
+function noLoja(v){v.append(head('Sem empresa ativa','Você ainda não tem um estabelecimento neste espaço.'),empty('Crie sua empresa no MiHelp em Meu painel › Minha loja e ela aparece aqui.',lnk('Abrir o MiHelp','index.html',1)))}
+function semRes(v){var e=empty('Não foi possível mostrar estes dados: '+S.resErr+'.');v.append(e)}
+
+var VIEWS={
+ visao:function(v){var l=loja();v.append(head('Visão geral',l?l.nome:'','real'));if(!l)return noLoja(v);
+  var g=h('div','grid');
+  if(S.res){var r=S.res.resumo,low=(S.res.produtos||[]).filter(function(p){return Number(p.min)>0&&Number(p.qtd)<=Number(p.min)});
+   g.append(card('Entradas do mês',R(r.entradas),S.res.mes),card('Saídas e gastos',R((r.saidas||0)+(r.gastos||0)),'inclui comissão: '+R(r.comissao)),card('Resultado estimado',R(r.resultado),'entradas menos custos lançados'),card('Entradas de hoje',R(r.hoje),S.res.hoje),card('Estoque baixo',String(low.length),low.length?'produtos no mínimo ou abaixo':'nenhum alerta'))}
+  var eq=(l.equipe||[]).filter(function(x){return x.status==='aceito'}).length;
+  g.append(card('Equipe aceita',String(eq),'além do dono'));
+  if(S.rs)g.append(card('Horários marcados',String((S.rs.comoHelper||[]).length),'comigo como profissional'));
+  g.append(card('Orçamentos pendentes','—','módulo em preparação'));
+  v.append(g);if(!S.res)semRes(v);
+  if(S.res){var p=h('div','panel');p.append(h('h2',null,'Entradas por forma de pagamento'));var f=S.res.resumo.porForma||{},tot=(f.dinheiro||0)+(f.pix||0)+(f.cartao||0);
+   [['Dinheiro','dinheiro'],['Pix','pix'],['Cartão','cartao']].forEach(function(k){var row=h('div','li'),a=h('span',null,k[0]),b=h('span','m',R(f[k[1]]));row.append(a,b);p.append(row);var bar=h('div','bar'),i=h('i');i.style.width=(tot?Math.round(100*(f[k[1]]||0)/tot):0)+'%';bar.append(i);p.append(bar)});v.append(p)}
+  var at=h('div','panel');at.append(h('h2',null,'Atalhos'));var ac=h('div','acts');[['financeiro','Financeiro'],['estoque','Estoque'],['equipe','Equipe'],['agenda','Agenda']].forEach(function(k){var b=h('button','btn',k[1]);b.onclick=function(){go(k[0])};ac.append(b)});at.append(ac);v.append(at)},
+ empresa:function(v){var l=loja();v.append(head('Minha empresa',l?l.nome:'','real'));if(!l)return noLoja(v);
+  var p=h('div','panel');[['Nome',l.nome],['Tipo',l.tipo],['Cidade',l.cidade],['Endereço',l.endereco||'—'],['Contato',l.contato||'—'],['Modo',l.modo==='agenda'?'Agenda com horários':'Conversa e contato'],['Favoritos',String(l.favs||0)],['Identificação do espaço',l.chave]].forEach(function(k){var r=h('div','li');r.append(h('span','m',k[0]),h('span',null,k[1]));p.append(r)});
+  var ac=h('div','acts');ac.append(lnk('Ver perfil público no MiHelp','index.html?loja='+encodeURIComponent(l.chave),1),lnk('Editar no MiHelp','index.html'));p.append(ac);
+  p.append(h('div','note','A edição completa (dados, logo, horário e serviços) continua no MiHelp, em Meu painel › Minha loja.'));v.append(p)},
+ equipe:function(v){var l=loja();v.append(head('Equipe',l?l.nome:'','real'));if(!l)return noLoja(v);
+  var p=h('div','panel');var eq=l.equipe||[];if(!eq.length)p.append(empty('Ninguém na equipe ainda.'));
+  eq.forEach(function(x){var r=h('div','li'),a=h('span',null,x.nome+(x.funcao?' · '+x.funcao:'')),b=h('span','m');b.append(h('span','chip '+(x.status==='aceito'?'ok':'wr'),x.status),document.createTextNode(' cargo: '+x.cargo));r.append(a,b);p.append(r)});
+  p.append(h('div','note','Convites, pedidos e cargos são geridos no MiHelp. O vínculo vale só com o aceite dos dois lados.'),lnk('Gerir equipe no MiHelp','index.html'));v.append(p)},
+ servicos:function(v){var l=loja();v.append(head('Serviços e projetos',l?l.nome:'','real'));if(!l)return noLoja(v);
+  var p=h('div','panel');var sv=l.servicos||[];if(!sv.length)p.append(empty('Nenhum serviço cadastrado. Cadastre no MiHelp para aceitar marcações.'));
+  sv.forEach(function(s){var r=h('div','li');r.append(h('span',null,s.nome),h('span','m',s.min+' min · '+R(s.valor)));p.append(r)});
+  p.append(h('div','note','Projetos e tarefas ainda não existem; aqui aparece o cardápio de serviços do perfil público.'));v.append(p)},
+ agenda:function(v){var l=loja();v.append(head('Agenda',l?l.nome:'','real'));if(!l)return noLoja(v);
+  var p=h('div','panel');p.append(h('h2',null,'Quem marcou comigo'));var a=S.rs?S.rs.comoHelper||[]:[];if(!S.rs)p.append(empty('Não foi possível carregar a agenda agora.'));else if(!a.length)p.append(empty('Nenhum horário marcado.'));
+  a.forEach(function(x){var r=h('div','li');r.append(h('span',null,x.dia.split('-').reverse().join('/')+' · '+hhmm(x.ini)+' · '+x.servico),h('span','m',x.clienteNome+' · '+x.estNome));p.append(r)});v.append(p)},
+ financeiro:function(v){var l=loja();v.append(head('Financeiro',l?l.nome:'','real'));if(!l)return noLoja(v);if(!S.res)return semRes(v);
+  var r=S.res.resumo,g=h('div','grid');g.append(card('Entradas',R(r.entradas),S.res.mes),card('Saídas',R(r.saidas)),card('Gastos fixos',R(r.gastos)),card('Comissão',R(r.comissao)),card('Resultado estimado',R(r.resultado)));v.append(g);
+  var p=h('div','panel');p.append(h('h2',null,'Últimas movimentações'));var m=(S.res.movs||[]).slice(0,15);if(!m.length)p.append(empty('Sem movimentações neste mês.'));
+  m.forEach(function(x){var q=h('div','li');q.append(h('span',null,(x.desc||(x.tipo==='saida'?'Saída':'Entrada'))+' · '+x.dia.split('-').reverse().join('/')),h('span','m',(x.tipo==='saida'?'− ':'+ ')+R(x.valor)+' · '+x.forma));p.append(q)});
+  p.append(h('div','note','Lançamentos, fechamento de caixa e comissão ainda são feitos no MiHelp. Este painel só mostra.'));v.append(p)},
+ estoque:function(v){var l=loja();v.append(head('Estoque',l?l.nome:'','real'));if(!l)return noLoja(v);if(!S.res)return semRes(v);
+  var p=h('div','panel');var pr=S.res.produtos||[];if(!pr.length)p.append(empty('Nenhum produto cadastrado.'));
+  pr.forEach(function(x){var low=Number(x.min)>0&&Number(x.qtd)<=Number(x.min),r=h('div','li');r.append(h('span',null,x.nome),(function(){var s=h('span','m',x.qtd+' un · venda '+R(x.venda)+' ');if(low)s.append(h('span','chip wr','estoque baixo'));return s})());p.append(r)});v.append(p)},
+ config:function(v){v.append(head('Configurações','Sessão e espaço de trabalho.','real'));var p=h('div','panel');
+  [['Conta',S.nome||'—'],['Empresa ativa',(loja()||{}).nome||'—'],['Empresas na conta',String(S.lojas.length)]].forEach(function(k){var r=h('div','li');r.append(h('span','m',k[0]),h('span',null,k[1]));p.append(r)});
+  p.append(h('div','note','Permissões são verificadas no servidor (Worker). Esta tela só guarda no navegador a empresa selecionada, nada sensível.'),lnk('Voltar ao MiHelp','index.html',1));v.append(p)}
+};
+function protoView(id,v){var d=PROTO[id];v.append(head(d[0],d[1],'demo'));var p=h('div','panel');p.append(h('h2',null,'O que este módulo terá'));d[2].forEach(function(t){var r=h('div','li');r.append(h('span',null,t));p.append(r)});
+ p.append(h('div','note',d[3]));
+ if(id==='ponto'){var a=h('div','acts');['Registrar entrada','Registrar saída'].forEach(function(t){var b=h('button','btn',t);b.disabled=true;a.append(b)});p.append(a)}
+ v.append(p);v.append(empty('Nenhum dado. Este módulo ainda não está conectado a um servidor.'))}
+
+function go(id){S.view=id;try{history.replaceState(null,'','#'+id)}catch(e){}
+ document.querySelectorAll('.nav').forEach(function(n){if(n.dataset.v===id)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')});
+ var v=$('#view');v.textContent='';(VIEWS[id]||function(x){protoView(id,x)})(v);window.scrollTo(0,0)}
+
+function boot(){
+ if(!tk())return gate();
+ var r=$('#root');r.append(h('div','gate','Carregando…'));
+ Promise.all([api('/perfil/meu'),api('/conta/eu')]).then(function(a){
+  if(a[0].status===401||a[1].status===401)return gate('Sua sessão venceu. Entre de novo no MiHelp.');
+  if(!a[0].ok)return gate('Não foi possível carregar agora: '+((a[0].j&&a[0].j.erro)||'sem conexão')+'.');
+  S.lojas=a[0].j.lojas||[];(a[0].j.vinculos||[]).forEach(function(x){if(x.status==='aceito'&&!S.lojas.some(function(l){return l.chave===x.est}))S.lojas.push({chave:x.est,nome:(x.estNome||x.est)+' (como funcionário)',vinc:1,equipe:[],servicos:[]})});S.nome=(a[1].j&&a[1].j.nome)||'';
+  var q=new URLSearchParams(location.search).get('loja')||(function(){try{return sessionStorage.getItem('dl_loja')}catch(e){return ''}})();
+  S.cur=((S.lojas.find(function(l){return l.chave===q})||S.lojas[0])||{}).chave||null;
+  shell();var h0=location.hash.slice(1);return load().then(function(){go(h0||'visao')})})}
+/* ===== WORKFORCE (protótipo local) =====
+ Dados em localStorage por empresa (dl_wf_v1:<chave>): só demonstração, sem sincronização, sem dado sensível.
+ Store é o ponto de troca por uma API real. Independente do MiHelp: avaliações públicas não entram aqui. */
+var WFV=['meutrabalho','ponto','avaliacoes','passaporte','config'];
+function wfPost(k,d,base){return fetch(API+'/wf/dados',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+tk()},body:JSON.stringify({chave:k,dados:d,base:base})}).then(function(r){return r.json().catch(function(){return{}}).then(function(j){return{ok:r.ok,j:j}})}).catch(function(){return{ok:false,j:{erro:'sem conexão'}}})}
+var Store={mem:{},q:Promise.resolve(),n:0,
+ cur:function(){return this.mem[S.cur]},
+ carregar:function(){var k=S.cur,m=this.mem;if(!k)return Promise.resolve();return api('/wf/dados?chave='+encodeURIComponent(k)).then(function(r){
+  if(r.ok&&r.j&&r.j.ok)m[k]={d:r.j.dados,ts:r.j.ts||0,papel:r.j.papel,me:r.j.me||'',membros:r.j.membros||[]};else m[k]={off:1,erro:(r.j&&r.j.erro)||'indisponível'}})},
+ get:function(){var c=this.cur();return JSON.parse(JSON.stringify((c&&c.d)||{v:1,seq:1,funcs:[],tarefas:[],marc:[],corr:[],avals:[],pass:[]}))},
+ set:function(d){var k=S.cur,c=this.cur(),self=this;if(!c||c.off)return false;c.d=d;self.n++;
+  self.q=self.q.then(function(){var m=self.mem[k];return wfPost(k,d,m.ts).then(function(r){
+   if(r.ok&&r.j.ok){m.ts=r.j.ts;if(m.papel!=='empregador')m.d=r.j.dados;if(k===S.cur&&WFV.indexOf(S.view)>-1&&!$('#view .fld')&&self.n===1)re()}
+   else{toast((r.j&&r.j.erro)||'Não foi possível salvar.');return self.carregar().then(function(){if(!$('#view .fld'))re()})}})}).then(function(){self.n--});return true}};
+function autor(){return S.nome||'Empregador'}
+var ROLE='empregador',ME='',FT='',BQ='';
+function re(){go(S.view)}
+function ymd(t){return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0')}
+function hoje(){return ymd(new Date())}
+function fd(s){return s.split('-').reverse().join('/')}
+function nid(d){return 'i'+(d.seq++)}
+function nomeF(d,id){var f=d.funcs.find(function(x){return x.id===id});return f?f.nome:'(removido)'}
+function btn(t,f,c){var b=h('button','btn'+(c?' '+c:''),t);b.onclick=f;return b}
+function save(d,m){if(Store.set(d)){if(m)toast(m);re()}}
+function show(x){var v=$('#view');v.textContent='';v.append(x);window.scrollTo(0,0)}
+function opts(a,first){var s=h('select');if(first)s.append(new Option(first,''));a.forEach(function(o){s.append(new Option(o[1],o[0]))});return s}
+function form(title,fs,ok,init){var p=h('div','panel');p.append(h('h2',null,title));var els={};
+ fs.forEach(function(f){var w=h('label','fld',f.l+(f.req?' *':'')),e=f.t==='select'?opts(f.o):f.t==='area'?h('textarea'):h('input');
+  if(f.t==='date'||f.t==='time')e.type=f.t;if(f.t==='area')e.rows=3;var iv=init&&init[f.k]!=null?init[f.k]:f.d;if(iv!=null)e.value=iv;else if(e.options&&e.options.length)e.selectedIndex=0;els[f.k]=e;f.er=h('span','err');w.append(e,f.er);p.append(w)});
+ var a=h('div','acts');a.append(btn('Salvar',function(){var vals={},bad=0;fs.forEach(function(f){var x=els[f.k].value.trim();f.er.textContent='';
+  if(f.req&&!x){f.er.textContent='Campo obrigatório.';bad=1}else if(f.min&&x.length<f.min){f.er.textContent='Escreva pelo menos '+f.min+' caracteres.';bad=1}vals[f.k]=x});if(!bad)ok(vals)},'p'),btn('Cancelar',re));
+ p.append(a);return p}
+function wfHead(v,t,sub,note){v.append(head(t,sub,'real'));var l=loja();if(!l){v.append(empty('Sem empresa ativa.'));return false}
+ var c=Store.cur();if(!c){v.append(empty('Carregando…'));Store.carregar().then(function(){if($('#view'))re()});return false}
+ if(c.off){v.append(empty('Não foi possível carregar: '+c.erro+'.'),btn('Tentar de novo',function(){delete Store.mem[S.cur];re()}));return false}
+ v.append(h('div','note',note));return roleBar(v)}
+function roleBar(v){var c=Store.cur(),d=Store.get(),p=h('div','panel');ROLE=c.papel==='empregador'?'empregador':'funcionario';ME=c.me;
+ var f=d.funcs.find(function(x){return x.id===ME});
+ p.append(h('div',null,ROLE==='empregador'?'Você está como empregador desta empresa.':'Você está como funcionário'+(f?': '+f.nome:'')+'.'),h('div','note','As permissões são verificadas pelo servidor, por empresa e papel. Os dados do Workforce ficam separados dos dados públicos do MiHelp.'));v.append(p);
+ if(ROLE==='funcionario'&&!ME){v.append(empty('Seu nome ainda não foi vinculado a um cadastro de funcionário. Peça ao empregador para vincular sua conta em Meu Trabalho.'));return false}return true}
+/* --- Meu Trabalho: funcionários e tarefas --- */
+var ST=[['fazer','A fazer'],['andamento','Em andamento'],['concluida','Concluída']];
+function funcForm(f){var d=Store.get();show(form(f?'Editar funcionário':'Novo funcionário',[{k:'nome',l:'Nome',req:1,min:2},{k:'cargo',l:'Cargo / função',req:1},{k:'depto',l:'Equipe ou departamento'},{k:'adm',l:'Admissão',t:'date'},{k:'quem',l:'Vincular a membro da equipe (para ele ver o próprio painel)',t:'select',o:[['','Sem conta vinculada']].concat((Store.cur().membros||[]).map(function(m){return [m.quem,m.nome]}))}],function(x){
+ if(f){Object.assign(d.funcs.find(function(y){return y.id===f.id}),x)}else d.funcs.push(Object.assign({id:nid(d)},x));save(d,'Funcionário salvo.')},f))}
+function funcPanel(v,d){var p=h('div','panel');p.append(h('h2',null,'Funcionários'));var bar=h('div','acts'),q=h('input'),so=opts([['nome','Ordenar por nome'],['cargo','Ordenar por cargo']]),box=h('div');
+ q.placeholder='Pesquisar nome, cargo ou equipe';q.value=BQ;q.setAttribute('aria-label','Pesquisar funcionários');so.setAttribute('aria-label','Ordenar');
+ function lista(){box.textContent='';var t=BQ.toLowerCase(),a=d.funcs.filter(function(f){return (f.nome+' '+f.cargo+' '+(f.depto||'')).toLowerCase().indexOf(t)>-1}).sort(function(x,y){return String(x[so.value]).localeCompare(String(y[so.value]),'pt')});
+  if(!a.length)box.append(empty(d.funcs.length?'Nada encontrado.':'Nenhum funcionário ainda. Use “Novo funcionário”.'));
+  a.forEach(function(f){var r=h('div','li'),s=h('span','acts'),n=d.tarefas.filter(function(t){return t.f===f.id&&t.st!=='concluida'}).length;
+   r.append(h('span',null,f.nome+' · '+f.cargo+(f.depto?' ('+f.depto+')':'')+' · '+n+' tarefa(s) aberta(s)'));
+   s.append(btn('Editar',function(){funcForm(f)}),btn('Excluir',function(){if(confirm('Excluir '+f.nome+'? As tarefas, marcações, pedidos e itens do passaporte deste funcionário também serão removidos. As avaliações ficam no histórico.')){
+    var k=function(x){return x.f!==f.id};d.funcs=d.funcs.filter(function(x){return x.id!==f.id});d.tarefas=d.tarefas.filter(k);d.marc=d.marc.filter(k);d.corr=d.corr.filter(k);d.pass=d.pass.filter(k);save(d,'Funcionário excluído.')}}));r.append(s);box.append(r)})}
+ q.oninput=function(){BQ=q.value;lista()};so.onchange=lista;bar.append(q,so,btn('+ Novo funcionário',function(){funcForm()},'p'));p.append(bar,box);lista();v.append(p)}
+function tarefaPanel(v,d,emp){var p=h('div','panel'),bar=h('div','acts'),f=opts(ST,'Todos os estados');p.append(h('h2',null,emp?'Tarefas':'Minhas tarefas'));
+ f.value=FT;f.setAttribute('aria-label','Filtrar por estado');f.onchange=function(){FT=f.value;re()};bar.append(f);
+ if(emp)bar.append(btn('+ Nova tarefa',function(){if(!d.funcs.length)return toast('Cadastre um funcionário primeiro.');
+  show(form('Nova tarefa',[{k:'t',l:'Título',req:1,min:3},{k:'f',l:'Responsável',t:'select',o:d.funcs.map(function(x){return [x.id,x.nome]})},{k:'prazo',l:'Prazo',t:'date'}],function(x){d.tarefas.push({id:nid(d),t:x.t,f:x.f,prazo:x.prazo,st:'fazer'});save(d,'Tarefa criada.')}))},'p'));
+ p.append(bar);var a=d.tarefas.filter(function(t){return (emp||t.f===ME)&&(!FT||t.st===FT)});if(!a.length)p.append(empty('Nenhuma tarefa neste filtro.'));
+ a.forEach(function(t){var r=h('div','li'),s=opts(ST),acts=h('span','acts');s.value=t.st;s.setAttribute('aria-label','Estado da tarefa');s.onchange=function(){t.st=s.value;save(d,'Estado atualizado.')};
+  r.append(h('span',null,t.t+(emp?' · '+nomeF(d,t.f):'')+(t.prazo?' · até '+fd(t.prazo):'')));acts.append(s);
+  if(emp)acts.append(btn('Excluir',function(){if(confirm('Excluir a tarefa “'+t.t+'”?')){d.tarefas=d.tarefas.filter(function(x){return x.id!==t.id});save(d,'Tarefa excluída.')}}));r.append(acts);p.append(r)});v.append(p)}
+VIEWS.meutrabalho=function(v){if(!wfHead(v,'Trabalho e equipes','Funcionários e tarefas por empresa.','Dados salvos no servidor, por empresa. Escalas e folgas seguem como protótipo. Não cadastre CPF, RG ou outros documentos pessoais nesta etapa.'))return;
+ var d=Store.get(),emp=ROLE==='empregador';if(emp)funcPanel(v,d);tarefaPanel(v,d,emp);};
+
+/* --- Ponto digital (simulado) --- */
+var TP=[['entrada','Entrada'],['saida_int','Saída para intervalo'],['retorno','Retorno do intervalo'],['saida_final','Saída final']],TN={};TP.forEach(function(t){TN[t[0]]=t[1]});
+function marcs(d,f,dia){return d.marc.filter(function(m){return m.f===f&&m.dia===dia}).sort(function(a,b){return a.hora<b.hora?-1:a.hora>b.hora?1:0})}
+function inc(ms,dia){var ok=TP.slice(0,ms.length).map(function(t){return t[0]}).join()===ms.map(function(m){return m.tipo}).join();if(!ok)return 'marcações fora de ordem';if(dia<hoje()&&ms.length<4)return 'jornada incompleta ('+ms.length+'/4)';return ''}
+VIEWS.ponto=function(v){if(!wfHead(v,'Ponto digital','Marcações simuladas, pedido de correção e aprovação.','Registro interno de marcações, sem homologação e sem validade legal por si só. A hora é registrada pelo servidor. O registro eletrônico de jornada exige validação técnica e jurídica (segurança, auditoria, privacidade/LGPD).'))return;
+ var d=Store.get(),emp=ROLE==='empregador',ids=emp?d.funcs.map(function(f){return f.id}):[ME];
+ if(!emp){var p=h('div','panel'),hj=marcs(d,ME,hoje()),a=h('div','acts');p.append(h('h2',null,'Hoje · '+fd(hoje())+' '),h('div','tg','A hora oficial da marcação é a do servidor.'));
+  TP.forEach(function(t,i){var b=btn(t[1],function(){var n=new Date();d.marc.push({id:nid(d),f:ME,dia:hoje(),hora:String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0'),tipo:t[0],sim:1});save(d,'Marcação registrada.')},i===hj.length?'p':'');b.disabled=i!==hj.length;a.append(b)});
+  p.append(a,btn('Pedir correção de marcação',function(){show(form('Pedido de correção',[{k:'dia',l:'Dia',t:'date',req:1,d:hoje()},{k:'tipo',l:'Marcação',t:'select',o:TP.map(function(t){return [t[0],t[1]]})},{k:'hora',l:'Hora correta',t:'time',req:1},{k:'motivo',l:'Motivo',t:'area',req:1,min:10}],function(x){
+   d.corr.push({id:nid(d),f:ME,dia:x.dia,tipo:x.tipo,hora:x.hora,motivo:x.motivo,st:'pendente',em:hoje()});save(d,'Pedido enviado ao responsável.')}))}));v.append(p)}
+ var H=h('div','panel'),dias={};H.append(h('h2',null,'Histórico e inconsistências'));
+ d.marc.forEach(function(m){if(ids.indexOf(m.f)>-1)dias[m.dia+'|'+m.f]=[m.dia,m.f]});var ks=Object.keys(dias).sort().reverse().slice(0,20);if(!ks.length)H.append(empty('Nenhuma marcação simulada ainda.'));
+ ks.forEach(function(k){var x=dias[k],ms=marcs(d,x[1],x[0]),i=inc(ms,x[0]),r=h('div','li');r.append(h('span',null,fd(x[0])+(emp?' · '+nomeF(d,x[1]):'')+' · '+ms.map(function(m){return m.hora+' '+TN[m.tipo]+(m.corr?' (corrigida)':'')}).join(' · ')),h('span','chip '+(i?'wr':'ok'),i||'consistente'));H.append(r)});v.append(H);
+ var C=h('div','panel');C.append(h('h2',null,'Pedidos de correção'));var cs=d.corr.filter(function(c){return ids.indexOf(c.f)>-1}).reverse();if(!cs.length)C.append(empty('Nenhum pedido.'));
+ cs.forEach(function(c){var r=h('div','li'),s=h('span','acts');r.append(h('span',null,fd(c.dia)+' · '+(emp?nomeF(d,c.f)+' · ':'')+TN[c.tipo]+' às '+c.hora+' · “'+c.motivo+'”'));s.append(h('span','chip '+(c.st==='aprovada'?'ok':c.st==='rejeitada'?'demo':'wr'),c.st));
+  if(emp&&c.st==='pendente'){s.append(btn('Aprovar',function(){d.marc.push({id:nid(d),f:c.f,dia:c.dia,hora:c.hora,tipo:c.tipo,sim:1,corr:1});c.st='aprovada';c.por=autor();save(d,'Ajuste aprovado.')}),btn('Rejeitar',function(){c.st='rejeitada';c.por=autor();save(d,'Ajuste rejeitado.')}))}r.append(s);C.append(r)});v.append(C)};
+
+/* --- Avaliações privadas (regra dos 18 meses) --- */
+var CR=['Qualidade do trabalho','Pontualidade','Trabalho em equipe'];
+function ativa(dia){var c=new Date();c.setHours(0,0,0,0);c.setMonth(c.getMonth()-18);return new Date(dia+'T00:00:00')>c}
+VIEWS.avaliacoes=function(v){if(!wfHead(v,'Avaliações profissionais privadas','Uso interno da empresa, separado das avaliações públicas do MiHelp.','Sem nota pública e sem compartilhamento com outras empresas. Depois de 18 meses a avaliação sai do indicador ativo, mas continua no histórico; certificados, competências e experiências não são afetados.'))return;
+ var d=Store.get(),emp=ROLE==='empregador',L=d.avals.filter(function(a){return emp||a.f===ME}).sort(function(a,b){return a.dia<b.dia?1:-1});
+ if(emp)v.append(btn('+ Nova avaliação',function(){if(!d.funcs.length)return toast('Cadastre um funcionário em Meu Trabalho.');
+  var fs=[{k:'f',l:'Funcionário',t:'select',o:d.funcs.map(function(x){return [x.id,x.nome]})},{k:'dia',l:'Data da avaliação',t:'date',req:1,d:hoje()}];CR.forEach(function(c,i){fs.push({k:'n'+i,l:c+' (1 a 5)',t:'select',o:[[5,'5'],[4,'4'],[3,'3'],[2,'2'],[1,'1']]})});fs.push({k:'just',l:'Justificativa',t:'area',req:1,min:10});
+  show(form('Nova avaliação',fs,function(x){d.avals.push({id:nid(d),f:x.f,dia:x.dia,notas:CR.map(function(c,i){return +x['n'+i]}),just:x.just,por:autor(),resp:[],hist:[]});save(d,'Avaliação registrada.')}))},'p'));
+ var I=h('div','panel');I.append(h('h2',null,'Indicador ativo (últimos 18 meses)'));var fs=emp?d.funcs:d.funcs.filter(function(f){return f.id===ME}),any=0;
+ fs.forEach(function(f){var all=L.filter(function(a){return a.f===f.id});if(!all.length)return;any=1;var at=all.filter(function(a){return ativa(a.dia)}),m=at.length?(at.reduce(function(s,a){return s+a.notas.reduce(function(x,y){return x+y},0)/a.notas.length},0)/at.length).toFixed(1):'—';
+  var r=h('div','li');r.append(h('span',null,f.nome),h('span','m',at.length+' ativa(s) de '+all.length+' no histórico · média '+m));I.append(r)});if(!any)I.append(empty('Sem avaliações.'));v.append(I);
+ var Hh=h('div','panel');Hh.append(h('h2',null,'Histórico completo'));if(!L.length)Hh.append(empty('Nenhuma avaliação registrada.'));
+ L.forEach(function(a){var at=ativa(a.dia),r=h('div','li'),b=h('div'),s=h('span','acts');
+  b.append(h('div',null,fd(a.dia)+' · '+nomeF(d,a.f)+' · '+a.por+' '),h('div','m',CR.map(function(c,i){return c+': '+a.notas[i]}).join(' · ')),h('div','m','Justificativa: '+a.just));
+  a.resp.forEach(function(x){b.append(h('div','m','Manifestação do funcionário ('+fd(x.em)+'): '+x.t))});if(a.hist.length)b.append(h('div','m',a.hist.length+' alteração(ões) registrada(s); última em '+fd(a.hist[a.hist.length-1].em)));
+  s.append(h('span','chip '+(at?'ok':'wr'),at?'conta no indicador':'fora do indicador (continua no histórico)'));
+  if(emp)s.append(btn('Editar justificativa',function(){show(form('Editar justificativa',[{k:'just',l:'Justificativa',t:'area',req:1,min:10}],function(x){a.hist.push({em:hoje(),por:autor(),antes:a.just});a.just=x.just;save(d,'Alteração registrada no histórico.')},a))}));
+  else s.append(btn('Manifestar-me',function(){show(form('Minha manifestação',[{k:'t',l:'Texto',t:'area',req:1,min:5}],function(x){a.resp.push({em:hoje(),t:x.t});save(d,'Manifestação registrada.')}))}));
+  r.append(b,s);Hh.append(r)});v.append(Hh)};
+
+/* --- Passaporte Profissional (declarado e controlado pelo profissional) --- */
+var TPS=[['exp','Experiência'],['comp','Competência'],['cert','Certificado ou curso'],['proj','Projeto'],['rec','Reconhecimento']],TPN={};TPS.forEach(function(t){TPN[t[0]]=t[1]});
+VIEWS.passaporte=function(v){if(!wfHead(v,'Passaporte Profissional','Histórico complementar, declarado pelo profissional.','Não substitui a Carteira de Trabalho Digital nem documentos oficiais. Avaliações internas e comentários privados nunca aparecem aqui. Referências verificadas dependem de backend com fluxo autorizado.'))return;
+ var d=Store.get(),emp=ROLE==='empregador',P=h('div','panel');
+ if(!emp)v.append(btn('+ Novo item',function(){show(form('Novo item do passaporte',[{k:'tipo',l:'Tipo',t:'select',o:TPS},{k:'t',l:'Título',req:1,min:3},{k:'ano',l:'Ano'}],function(x){d.pass.push({id:nid(d),f:ME,tipo:x.tipo,t:x.t,ano:x.ano,share:0,decl:1});save(d,'Item adicionado.')}))},'p'));
+ P.append(h('h2',null,emp?'Itens que os profissionais escolheram compartilhar':'Meus itens'));var a=d.pass.filter(function(i){return emp?i.share:i.f===ME});if(!a.length)P.append(empty(emp?'Nada compartilhado.':'Nenhum item ainda.'));
+ a.forEach(function(i){var r=h('div','li'),s=h('span','acts');r.append(h('span',null,(emp?nomeF(d,i.f)+' · ':'')+TPN[i.tipo]+' · '+i.t+(i.ano?' ('+i.ano+')':'')),s);s.append(h('span','chip','declarado pelo profissional'));
+  if(!emp){var c=h('label','tg'),k=h('input');k.type='checkbox';k.checked=!!i.share;k.onchange=function(){i.share=k.checked?1:0;save(d)};c.append(k,document.createTextNode(' compartilhar'));s.append(c,btn('Excluir',function(){if(confirm('Excluir este item?')){d.pass=d.pass.filter(function(x){return x.id!==i.id});save(d,'Item excluído.')}}))}P.append(r)});v.append(P)};
+
+var go0=go;go=function(id){var l=loja();if(l&&l.vinc&&WFV.indexOf(id)<0)id='meutrabalho';if(WFV.indexOf(id)>-1&&id!=='config'&&S.view!==id&&!Store.n)delete Store.mem[S.cur];return go0(id)};
+
+boot();
+})();
+</script>
+</body>
+</html>

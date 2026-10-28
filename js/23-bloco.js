@@ -1,62 +1,35 @@
 
-/* Janelas: todas fecham (botão vermelho da barra), menos os letreiros do topo. O menu do cabeçalho traz de volta. */
+/* Tetris */
 try{(function(){
-const $=id=>document.getElementById(id);
-const ok=w=>!w.closest('aside.side')&&!w.closest('dialog')&&w.id!=='cw';
-const wins=[...document.querySelectorAll('.win')].filter(ok);
-const toast=document.createElement('div');toast.className='xtoast';toast.setAttribute('role','status');toast.hidden=true;document.body.append(toast);
-let tt=0;
-function aviso(t){toast.textContent=t;toast.hidden=false;clearTimeout(tt);tt=setTimeout(()=>{toast.hidden=true},4000)}
-const KJ='mh_janelas';
-const chave=w=>{const t=w.querySelector(':scope>.bar .t');return t?t.textContent.trim():''};
-const lembra=w=>w.id!=='cadWin'&&w.id!=='cw'; /* cadastro e chat sempre voltam abertos */
-function salva(){try{localStorage.setItem(KJ,JSON.stringify(wins.filter(w=>lembra(w)&&w.classList.contains('fechada')).map(chave)))}catch(e){}}
-function atualiza(){document.querySelectorAll('section').forEach(s=>{const ws=[...s.querySelectorAll('.win')];s.classList.toggle('sec-vazia',ws.length>0&&ws.every(w=>w.classList.contains('fechada')))});salva()}
-function fechar(w){
-  if(w.id==='cadWin'&&$('reg')&&$('reg').classList.contains('meu-perfil'))return; /* logado: o perfil já tem o próprio fechar */
-  if(w.id==='cw'&&w.classList.contains('full')){const x=$('cwExp');if(x)x.click()}
-  w.classList.add('fechada');atualiza();
-  aviso('Janela fechada. Para abrir de novo, use o menu lá no topo do site.')}
-function abrirConta(){const gr=document.querySelector('.grid'),q=$('perfSq');
-  if(gr&&gr.classList.contains('perfil-fechado')){if(q&&!q.hidden)q.click();else gr.classList.remove('perfil-fechado')}
-  const w=$('cadWin');if(w)w.classList.remove('fechada');atualiza()}
-window.MH_abrirConta=abrirConta;
-function abrir(id){
-  if(id==='cadWin')abrirConta();
-  const el=$(id);if(!el)return;
-  let ws;
-  if(el.matches('.win'))ws=[el];else if(el.closest('.win'))ws=[el.closest('.win')];else ws=[...el.querySelectorAll('.win')];
-  ws.forEach(w=>w.classList.remove('fechada'));atualiza()}
-wins.forEach(w=>{
-  const is=w.querySelectorAll(':scope>.bar i');if(!is.length)return;
-  const x=is[is.length-1];x.classList.add('xw');x.setAttribute('role','button');x.tabIndex=0;x.setAttribute('aria-label','Fechar janela');x.title='Fechar (reabre pelo menu do topo)';
-  x.addEventListener('click',e=>{e.stopPropagation();fechar(w)});
-  x.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fechar(w)}})});
-/* menu do cabeçalho e links internos reabrem a janela de destino */
-document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-go]');if(a)abrir(a.dataset.go)},true);
-const fab=$('chatFab');if(fab)fab.addEventListener('click',()=>abrir('cw'),true);
-/* qualquer rolagem até algo dentro de uma janela fechada (ex.: Guilda, Ao vivo) abre a janela */
-const si=Element.prototype.scrollIntoView;
-Element.prototype.scrollIntoView=function(){
-  try{const w=this.closest&&this.closest('.win.fechada');if(w){w.classList.remove('fechada');atualiza()}
-  const s=this.closest&&this.closest('section.sec-vazia');if(s){s.querySelectorAll('.win').forEach(x=>x.classList.remove('fechada'));atualiza()}}catch(e){}
-  return si.apply(this,arguments)};
-window.MH_JAN={
-  /* 1º toque: janelas de informação · 2º: Guilda e Fliperama · 3º: Enquete e Cabo de guerra. Cada toque fecha o próximo grupo que ainda estiver aberto. */
-  fecharTodas(){
-    const G3=['duelo','enquete'],G2=['guilda','fliperama'];
-    const nivel=w=>{if(w.id==='cadWin'||w.id==='vagas'||chave(w)==='publicidade')return 0;const sc=w.closest('section[id]'),id=sc?sc.id:'';if(id==='vale'||id==='carona')return 0;return G3.includes(id)?3:G2.includes(id)?2:1};
-    const msgs={1:'Janelas de informação fechadas. Toque de novo para fechar Guilda e Fliperama.',2:'Guilda e Fliperama fechados. Toque de novo para fechar Enquete e Cabo de guerra.',3:'Enquete e Cabo de guerra fechados. Use \"Abrir tudo\" para voltar.'};
-    for(const n of [1,2,3]){
-      const ab=wins.filter(w=>nivel(w)===n&&!w.classList.contains('fechada')&&!w.closest('[hidden]'));
-      if(ab.length){ab.forEach(w=>w.classList.add('fechada'));atualiza();aviso(msgs[n]);return}}
-    aviso('Já está tudo fechado. Use \"Abrir tudo\" na engrenagem.')},
-  abrirTodas(){
-    wins.forEach(w=>w.classList.remove('fechada'));atualiza();
-    const q=$('perfSq');if(q&&!q.hidden)q.click();
-    aviso('Janelas abertas de novo.')}};
-try{const sv=JSON.parse(localStorage.getItem(KJ)||'[]')||[];
-  if(sv.length){wins.forEach(w=>{if(lembra(w)&&sv.indexOf(chave(w))>=0)w.classList.add('fechada')});atualiza();
-    setTimeout(()=>aviso('Você deixou janelas fechadas. Use "Abrir tudo" na engrenagem ou o menu do topo.'),800)}}catch(e){}
-const mm=window.MH_missao;if(mm)window.MH_missao=function(){abrir('cw');return mm.apply(this,arguments)};
-})()}catch(e){console.error('MiHelp (janelas fecháveis):',e)}
+const F=window.MH_FLIP;if(!F)return;
+const A=F.api,g=A.g,CS=17,BX=20,BY=10;
+const PC=[
+ {m:[[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],c:'#8FD3E0'},{m:[[1,1],[1,1]],c:'#F0CD70'},
+ {m:[[0,1,0],[1,1,1],[0,0,0]],c:'#B58AD9'},{m:[[0,1,1],[1,1,0],[0,0,0]],c:'#7FC98B'},
+ {m:[[1,1,0],[0,1,1],[0,0,0]],c:'#D97757'},{m:[[1,0,0],[1,1,1],[0,0,0]],c:'#6F8FE0'},{m:[[0,0,1],[1,1,1],[0,0,0]],c:'#E8B93C'}];
+let bd,cur,nx,sac,ln,lv,acc,pk,dir,das;
+function sorteia(){if(!sac.length){sac=[0,1,2,3,4,5,6];for(let i=6;i>0;i--){const j=Math.floor(Math.random()*(i+1));[sac[i],sac[j]]=[sac[j],sac[i]]}}return sac.pop()}
+function cabe(m,x,y){for(let j=0;j<m.length;j++)for(let i=0;i<m[j].length;i++)if(m[j][i]){const a=x+i,b=y+j;if(a<0||a>9||b>19||(b>=0&&bd[b][a]))return false}return true}
+function nova(){const k=nx;nx=sorteia();cur={m:PC[k].m,c:PC[k].c,x:Math.floor((10-PC[k].m[0].length)/2),y:0};if(!cabe(cur.m,cur.x,cur.y))return A.fim()}
+function gira(){const r=cur.m[0].map((_,i)=>cur.m.map(w=>w[i]).reverse());for(const o of[0,-1,1,-2,2])if(cabe(r,cur.x+o,cur.y)){cur.m=r;cur.x+=o;A.S('tick',30);return}}
+function trava(){cur.m.forEach((r,j)=>r.forEach((v,i)=>{if(v&&cur.y+j>=0)bd[cur.y+j][cur.x+i]=cur.c}));
+  let n=0;for(let y=19;y>=0;y--)if(bd[y].every(v=>v)){bd.splice(y,1);bd.unshift(Array(10).fill(0));n++;y++}
+  if(n){ln+=n;lv=1+Math.floor(ln/10);A.add([0,100,300,500,800][n]*lv);A.S(n>3?'ok':'coin',100)}else A.S('tick',30);
+  acc=0;return nova()}
+function ini(){bd=Array.from({length:20},()=>Array(10).fill(0));ln=0;lv=1;acc=0;sac=[];pk={};dir=0;das=0;nx=sorteia();nova()}
+function up(dt){const K=A.K,eU=K.U&&!pk.U,eF=K.F&&!pk.F,d=(K.L?-1:0)+(K.R?1:0);pk={U:K.U,F:K.F};
+  if(d!==dir){dir=d;das=0;if(d&&cabe(cur.m,cur.x+d,cur.y))cur.x+=d}
+  else if(d){das+=dt;if(das>.17){das-=.05;if(cabe(cur.m,cur.x+d,cur.y))cur.x+=d}}
+  if(eU)gira();
+  if(eF){let n=0;while(cabe(cur.m,cur.x,cur.y+1)){cur.y++;n++}A.add(2*n);return trava()}
+  acc+=dt;const iv=K.D?.04:Math.max(.08,.8-(lv-1)*.07);
+  while(acc>=iv){acc-=iv;if(cabe(cur.m,cur.x,cur.y+1)){cur.y++;if(K.D)A.add(1)}else return trava()}}
+function cel(x,y,c,a){g.globalAlpha=a||1;g.fillStyle=c;g.fillRect(BX+x*CS+1,BY+y*CS+1,CS-2,CS-2);g.globalAlpha=1}
+function des(){g.textAlign='left';g.strokeStyle='#332D20';g.lineWidth=1;g.strokeRect(BX-1,BY-1,10*CS+2,20*CS+2);
+  bd.forEach((r,y)=>r.forEach((c,x)=>{if(c)cel(x,y,c)}));
+  let gy=cur.y;while(cabe(cur.m,cur.x,gy+1))gy++;
+  cur.m.forEach((r,j)=>r.forEach((v,i)=>{if(v){cel(cur.x+i,gy+j,cur.c,.25);cel(cur.x+i,cur.y+j,cur.c)}}));
+  g.fillStyle=A.OURO2;g.font='600 12px IBM Plex Mono,monospace';g.fillText('PRÓXIMA',218,28);g.fillText('NÍVEL '+lv,218,130);g.fillText('LINHAS '+ln,218,150);
+  PC[nx].m.forEach((r,j)=>r.forEach((v,i)=>{if(v){g.fillStyle=PC[nx].c;g.fillRect(222+i*13,40+j*13,12,12)}}))}
+F.reg('tetris',{nome:'TETRIS',dica:'◀ ▶ mover, ▲ girar, ▼ descer rápido, espaço ou ⤓ derruba a peça. Complete linhas.',pad:'LRUDF',lbl:{U:'⟳',F:'⤓'},ini,up,des,hud:()=>' · Nível '+lv});
+})()}catch(e){console.error('MiHelp (tetris):',e)}
