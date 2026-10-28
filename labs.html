@@ -98,14 +98,16 @@ var API='https://mihelp-api.mihelpmarketing.workers.dev';
 var $=function(s){return document.querySelector(s)};
 function h(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 function tk(){try{return localStorage.getItem('mh_tk')||sessionStorage.getItem('mh_tk')||''}catch(e){return ''}}
-function api(p){return fetch(API+p,{headers:{authorization:'Bearer '+tk()}}).then(function(r){return r.json().catch(function(){return{}}).then(function(j){return{ok:r.ok,status:r.status,j:j}})}).catch(function(){return{ok:false,status:0,j:{erro:'sem conexão'}}})}
+function expira(){if(S.exp)return;S.exp=1;gate('Sua sessão terminou. Entre de novo no MiHelp.')}
+window.addEventListener('storage',function(e){if(e.key==='mh_tk'&&!tk())expira()});
+function api(p){return fetch(API+p,{headers:{authorization:'Bearer '+tk()}}).then(function(r){if(r.status===401&&S.boot)expira();return r.json().catch(function(){return{}}).then(function(j){return{ok:r.ok,status:r.status,j:j}})}).catch(function(){return{ok:false,status:0,j:{erro:'sem conexão'}}})}
 var R=function(v){return (Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})};
 var hhmm=function(m){m=Number(m)||0;return String(Math.floor(m/60)%24).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};
 function toast(t){var e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){e.style.display='none'},2600)}
 
 var S={lojas:[],cur:null,res:null,resErr:'',rs:null,nome:'',view:'visao'};
 var MODS=[
- ['Principal',[['visao','◧','Visão geral','real'],['empresa','🏢','Minha empresa','real'],['equipe','👥','Equipe','real'],['clientes','🤝','Clientes','demo'],['servicos','🛠','Serviços e projetos','real'],['orcamentos','🧾','Orçamentos e trabalhos','real'],['agenda','🗓','Agenda','real']]],
+ ['Principal',[['visao','◧','Visão geral','real'],['empresa','🏢','Minha empresa','real'],['equipe','👥','Equipe','real'],['clientes','🤝','Clientes','real'],['servicos','🛠','Serviços e projetos','real'],['orcamentos','🧾','Orçamentos e trabalhos','real'],['agenda','🗓','Agenda','real']]],
  ['Operação',[['financeiro','💰','Financeiro','real'],['estoque','📦','Estoque','real'],['relatorios','📊','Relatórios','demo'],['automacoes','⚡','Automações','demo']]],
  ['Workforce',[['meutrabalho','🧑‍💼','Meu Trabalho','demo'],['escalas','📅','Escalas e folgas','demo'],['ponto','⏱','Ponto digital','demo'],['avaliacoes','🔒','Avaliações privadas','demo'],['passaporte','🪪','Passaporte Profissional','demo']]],
  ['Sistema',[['studio','🎛','Personalização (Studio)','demo'],['config','⚙','Configurações','real']]]
@@ -138,7 +140,7 @@ function shell(){var r=$('#root');r.textContent='';var app=h('div','app');
  S.lojas.forEach(function(l){sel.append(new Option(l.nome,l.chave))});sel.value=S.cur||'';
  sel.onchange=function(){S.cur=sel.value;try{sessionStorage.setItem('dl_loja',S.cur)}catch(e){}load().then(function(){go(S.view)})};
  var bell=h('button','btn','🔔');bell.setAttribute('aria-label','Notificações');bell.onclick=function(){toast('Sem notificações. Este recurso ainda não está conectado.')};
- var mi=h('a','btn','← MiHelp');mi.href='index.html';
+ var mi=h('a','btn','← MiHelp');mi.href='index.html';nova(mi);
  var u=h('span','chip',S.nome||'Conta');
  top.append(mb,sel,h('span','sp'),bell,mi,u);
  var wrap=h('div','wrap');wrap.id='view';main.append(top,wrap);
@@ -153,7 +155,8 @@ function load(){var l=loja();S.res=null;S.resErr='';if(!l)return Promise.resolve
 function card(l,v,s){var c=h('div','card');c.append(h('div','l',l),h('div','v',v),h('div','s',s||''));return c}
 function head(t,sub,kind){var d=h('div');var x=h('h1',null,t+' ');if(kind)x.append(h('span','chip '+kind,kind==='real'?'dados reais':'protótipo'));d.append(x,h('p','sub',sub||''));return d}
 function empty(t,btn){var e=h('div','empty',t);if(btn)e.append(h('div','acts')).lastChild.append(btn);return e}
-function lnk(t,href,p){var a=h('a','btn'+(p?' p':''),t);a.href=href;return a}
+function nova(a){a.target='_blank';a.onclick=function(e){var w=null;try{w=window.open(a.href,'_blank')}catch(x){}if(w){e.preventDefault();try{w.opener=null}catch(x){}}};return a}
+function lnk(t,href,p){var a=h('a','btn'+(p?' p':''),t);a.href=href;return nova(a)}
 function noLoja(v){v.append(head('Sem empresa ativa','Você ainda não tem um estabelecimento neste espaço.'),empty('Crie sua empresa no MiHelp em Meu painel › Minha loja e ela aparece aqui.',lnk('Abrir o MiHelp','index.html',1)))}
 function semRes(v){var e=empty('Não foi possível mostrar estes dados: '+S.resErr+'.');v.append(e)}
 
@@ -214,10 +217,9 @@ function boot(){
   S.lojas=a[0].j.lojas||[];(a[0].j.vinculos||[]).forEach(function(x){if(x.status==='aceito'&&!S.lojas.some(function(l){return l.chave===x.est}))S.lojas.push({chave:x.est,nome:(x.estNome||x.est)+' (como funcionário)',vinc:1,equipe:[],servicos:[]})});S.nome=(a[1].j&&a[1].j.nome)||'';
   var q=new URLSearchParams(location.search).get('loja')||(function(){try{return sessionStorage.getItem('dl_loja')}catch(e){return ''}})();
   S.cur=((S.lojas.find(function(l){return l.chave===q})||S.lojas[0])||{}).chave||null;
-  shell();var h0=location.hash.slice(1);return load().then(function(){go(h0||'visao')})})}
-/* ===== WORKFORCE (protótipo local) =====
- Dados em localStorage por empresa (dl_wf_v1:<chave>): só demonstração, sem sincronização, sem dado sensível.
- Store é o ponto de troca por uma API real. Independente do MiHelp: avaliações públicas não entram aqui. */
+  S.boot=1;shell();var h0=location.hash.slice(1);return load().then(function(){go(h0||'visao')})})}
+/* ===== WORKFORCE =====
+ Dados salvos no servidor (/wf/dados), um bloco por empresa. Escalas continuam protótipo. O servidor decide o papel (empregador/funcionário). Independente do MiHelp: avaliações públicas não entram aqui. */
 var WFV=['meutrabalho','ponto','avaliacoes','passaporte','config'];
 function wfPost(k,d,base){return fetch(API+'/wf/dados',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+tk()},body:JSON.stringify({chave:k,dados:d,base:base})}).then(function(r){return r.json().catch(function(){return{}}).then(function(j){return{ok:r.ok,j:j}})}).catch(function(){return{ok:false,j:{erro:'sem conexão'}}})}
 var Store={mem:{},q:Promise.resolve(),n:0,
@@ -333,10 +335,10 @@ var botao2x8=function(txt,cls,fn){var t=0;var b=botao8(txt,cls,function(){if(!t)
 function campo8(rot,tipo,attrs){var l=h('label',null,rot);var i=document.createElement(tipo==='select'?'select':'input');if(tipo!=='select')i.type=tipo||'text';Object.assign(i,attrs||{});l.append(i);return{l:l,i:i}}
 var rs8=function(v){return 'R$ '+(Number(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})};
 var dtG8=function(s){return String(s||'').split('-').reverse().join('/')};
-var num8=function(v){var s=String(v==null?'':v).trim();if(s.indexOf(',')>-1)s=s.replace(/\./g,'').replace(',','.');return Number(s)||0};
+var num8=function(v){var s=String(v==null?'':v).trim().replace(/^R\$\s*/,'');if(s.indexOf(',')>-1)s=s.replace(/\./g,'').replace(',','.');else if(/^\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,'');return Number(s)||0};
 function linkHelper8(n){return new URL('index.html',location.href).href+'?helper='+encodeURIComponent(n)}
 function chama8(path,body){var o={headers:{authorization:'Bearer '+tk()}};if(body!==undefined){o.method='POST';o.headers['content-type']='application/json';o.body=JSON.stringify(body)}
- return fetch(API+path,o).then(function(r){return r.json().catch(function(){return{}}).then(function(j){return{ok:r.ok,status:r.status,j:j}})}).catch(function(){return{ok:false,status:0,j:{erro:'sem conexão'}}})}
+ return fetch(API+path,o).then(function(r){if(r.status===401)expira();return r.json().catch(function(){return{}}).then(function(j){return{ok:r.ok,status:r.status,j:j}})}).catch(function(){return{ok:false,status:0,j:{erro:'sem conexão'}}})}
 /* ===== v19: Painel Pro — clientes, orçamentos, trabalhos, recibos, cobrança e metas (feito para quem trabalha por conta própria) ===== */
 const PRO8={d:null,sync:null,tab:'hoje',sel:null,f:'todos',cliPre:null,pre:null};
 const STS8=[['orc','📝 Orçamento'],['apr','✅ Aprovado'],['and','🔨 Em andamento'],['con','🏁 Concluído'],['rec','❌ Recusado']];
@@ -470,7 +472,10 @@ function proTrabDet8(box,d,id){const D=PRO8.d,re=()=>proPinta8(d),novo=id==='nov
   const pg=mk8('div','v8card');pg.append(mk8('h4',null,'💵 Pagamentos recebidos'));if(!(t.pagtos||[]).length)pg.append(mk8('p','note','Nenhum pagamento ainda. Registre a entrada assim que receber.'));
   (t.pagtos||[]).forEach((p,k)=>{const r=mk8('div','v8row');r.append(mk8('span',null,dtG8(p.d)+' · '+rs8(p.v)+(p.forma?' · '+p.forma:'')),botao8('🧾 Recibo','more',()=>{imprime8('Recibo',reciboHtml8({num:'',de:c?c.nome:'',v:p.v,ref:t.titulo,forma:p.forma,d:p.d}))}),botao2x8('🗑','more',()=>{t.pagtos.splice(k,1);proSalva8();pinta()}));pg.append(r)});
   const pv=campo8('Valor recebido (R$)','text',{inputMode:'decimal',placeholder:tSaldo8(t)?String(tSaldo8(t)).replace('.',','):''}),pd=campo8('Dia','date',{value:iso8()}),pf=campo8('Forma','select');['Pix','Dinheiro','Cartão','Transferência'].forEach(x=>pf.i.add(new Option(x,x)));
-  pg.append(pv.l,pd.l,pf.l,botao8('💾 Registrar pagamento','cta2',()=>{const v=num8(pv.i.value)||tSaldo8(t);if(!(v>0)){st.style.color='var(--er)';st.textContent='Coloque o valor recebido.';return}(t.pagtos=t.pagtos||[]).push({d:pd.i.value||iso8(),v,forma:pf.i.value});if(t.st==='orc')t.st='apr';proSalva8();pinta()}));corpo.append(pg);
+  pg.append(pv.l,pd.l,pf.l,botao8('💾 Registrar pagamento','cta2',()=>{const v=num8(pv.i.value)||tSaldo8(t);if(!(v>0)){st.style.color='var(--er)';st.textContent='Coloque o valor recebido.';return}
+    if(v>tSaldo8(t)+0.005){st.style.color='var(--er)';st.textContent='O valor é maior que o que falta receber ('+rs8(tSaldo8(t))+'). Confira ou ajuste o total do trabalho.';return}
+    if((t.pagtos||[]).some(function(p){return p.d===(pd.i.value||iso8())&&Math.abs(p.v-v)<0.005})&&!confirm('Já existe um pagamento igual neste dia. Registrar de novo?'))return;
+    (t.pagtos=t.pagtos||[]).push({d:pd.i.value||iso8(),v,forma:pf.i.value});if(t.st==='orc')t.st='apr';proSalva8();pinta()}));corpo.append(pg);
   /* gastos do trabalho */
   const dp=mk8('div','v8card');dp.append(mk8('h4',null,'🧾 Gastos deste trabalho'),mk8('p','note','Material, ajudante, transporte. É o que mostra o lucro de verdade.'));
   (t.desp||[]).forEach((p,k)=>{const r=mk8('div','v8row');r.append(mk8('span',null,dtG8(p.d)+' · '+p.t+' · '+rs8(p.v)),botao2x8('🗑','more',()=>{t.desp.splice(k,1);proSalva8();pinta()}));dp.append(r)});
@@ -512,7 +517,7 @@ function proCalc8(box,d){const D=PRO8.d,C=D.cfg.calc=D.cfg.calc||{};
   out.append(mk8('h4',null,'Seu mínimo'),linProp8('Precisa faturar no mês',rs8(preciso)),linProp8('Horas que realmente vendem',horas.toFixed(0)+' h'),linProp8('Valor mínimo da hora',rs8(vh)),linProp8('Valor mínimo da diária',rs8(vh*hh)),mk8('p','note','Cobrar menos que isso é prejuízo. Cobrar mais é lucro.'))};
  [ga,di,ho,oc,cu,im].forEach(x=>{x.i.oninput=calc;box.append(x.l)});box.append(out,botao8('💾 Guardar estes números','more',()=>{calc();proSalva8()}));calc();
  const sv=mk8('div','v8card');sv.append(mk8('h4',null,'🧮 Orçar um serviço'));
- const hs=campo8('Horas de trabalho','number',{min:0,step:'any',value:4}),mt=campo8('Material que você vai comprar (R$)','text',{inputMode:'decimal',value:''}),mg=campo8('Margem sobre o material (%)','number',{min:0,max:100,value:20}),res=mk8('p');res.style.fontWeight='800';
+ const hs=campo8('Horas de trabalho','number',{min:0,step:'any',value:4}),mt=campo8('Material que você vai comprar (R$)','text',{inputMode:'decimal',value:''}),mg=campo8('Acréscimo sobre o material (%)','number',{min:0,max:100,value:20}),res=mk8('p');res.style.fontWeight='800';
  const c2=()=>{const vh=+C.vh||0,tot=(+hs.i.value||0)*vh+num8(mt.i.value)*(1+(+mg.i.value||0)/100);res.textContent=vh?'Preço sugerido: '+rs8(tot):'Preencha o quadro de cima primeiro.';return tot};
  [hs,mt,mg].forEach(x=>{x.i.oninput=c2;sv.append(x.l)});sv.append(res,botao8('➕ Criar orçamento com esse valor','cta2',()=>{const vh=+C.vh||0;if(!vh)return;const it=[{t:'Mão de obra',q:+hs.i.value||1,v:Math.round(vh*100)/100}];const m=num8(mt.i.value)*(1+(+mg.i.value||0)/100);if(m>0)it.push({t:'Material',q:1,v:Math.round(m*100)/100});PRO8.pre={itens:it};PRO8.tab='trab';PRO8.sel='novo';re2()}));box.append(sv);c2();
  function re2(){proPinta8(d)}}
@@ -541,8 +546,11 @@ function proBackup8(box,d){const D=PRO8.d,st=mk8('p','note');
  const fi=document.createElement('input');fi.type='file';fi.accept='application/json,.json';fi.hidden=true;fi.onchange=async()=>{const f=fi.files[0];if(!f)return;try{const x=JSON.parse(await f.text());if(!x||!Array.isArray(x.trab)||!Array.isArray(x.clientes))throw 0;PRO8.d=proNorm8(x);proSalva8();st.textContent='✅ Backup restaurado.'}catch(e){st.style.color='var(--er)';st.textContent='Esse arquivo não é um backup do Painel Pro.'}};
  box.append(botao8('⬆️ Restaurar um backup','more',()=>fi.click()),fi,st)}
 
+VIEWS.clientes=function(v){v.append(head('Clientes','Clientes do profissional, ligados aos orçamentos e trabalhos.','real'));
+  v.append(h('div','note','Os clientes ficam na sua conta (mesmos dados de Orçamentos e trabalhos), não por empresa. Fornecedores ainda não existem.'));
+  var box=h('div','pro8');box.append(h('p','note','Carregando…'));v.append(box);PRO8.tab='cli';PRO8.sel=null;abrirPro8(box)};
 VIEWS.orcamentos=function(v){v.append(head('Orçamentos e trabalhos','Clientes, orçamentos, trabalhos, recibos e metas do profissional.','real'));
- var box=h('div','pro8');box.append(h('p','note','Carregando…'));v.append(box);abrirPro8(box)};
+ var box=h('div','pro8');box.append(h('p','note','Carregando…'));v.append(box);if(PRO8.tab==='cli')PRO8.tab='hoje';abrirPro8(box)};
 
 var go0=go;go=function(id){var l=loja();if(l&&l.vinc&&WFV.indexOf(id)<0)id='meutrabalho';if(WFV.indexOf(id)>-1&&id!=='config'&&S.view!==id&&!Store.n)delete Store.mem[S.cur];return go0(id)};
 
