@@ -565,8 +565,47 @@ VIEWS.servicos=function(v){var l=loja();v.append(head('Serviços e preços',l?l.
  function pinta(){box.textContent='';lista(box,'Nenhum serviço ainda.',L);L.forEach(function(s,i){var r=h('div','li'),n=fl('Serviço','text',{maxLength:50,value:s.nome}),m=fl('Minutos','number',{min:10,max:480,value:s.min}),vl=fl('Valor (R$)','text',{inputMode:'decimal',value:String(s.valor||'').replace('.',',')}),x=h('button','btn','Remover');
   n.i.oninput=function(){s.nome=n.i.value};m.i.oninput=function(){s.min=+m.i.value};vl.i.oninput=function(){s.valor=num8(vl.i.value)};x.onclick=function(){L.splice(i,1);pinta()};r.append(n.l,m.l,vl.l,x);box.append(r)})}
  pinta();var a=h('div','acts'),ad=h('button','btn','+ Serviço'),sv=h('button','btn p','Salvar serviços');ad.onclick=function(){L.push({nome:'',min:30,valor:0});pinta()};
- sv.onclick=function(){var ok=L.filter(function(s){return String(s.nome).trim().length>=2});sv.disabled=true;acao('/estabelecimentos/servicos',{chave:l.chave,servicos:ok},'Serviços salvos.').then(function(){sv.disabled=false})};
+ sv.onclick=function(){var ok=L.filter(function(s){return String(s.nome).trim().length>=2});sv.disabled=true;
+  chama8('/estabelecimentos/servicos',{chave:l.chave,servicos:ok}).then(function(r){
+   if(!(r.ok&&r.j&&r.j.ok)){toast((r.j&&r.j.erro)||'Não foi possível.');sv.disabled=false;return}
+   var prox=(ok.length&&l.modo!=='agenda')?chama8('/estabelecimentos/editar',corpoLoja(l,{modo:'agenda'})):Promise.resolve();
+   return prox.then(function(){toast(ok.length?'Serviços salvos. Já aparecem no perfil do MiHelp.':'Serviços salvos.');return refresh().then(load).then(re)}).then(function(){sv.disabled=false})})};
  a.append(ad,sv);p.append(a,er);v.append(p)};
+
+/* ===== Minha empresa editável: o mesmo cadastro do perfil público do MiHelp ===== */
+function corpoLoja(l,o){var b={chave:l.chave,nome:l.nome,tipo:l.tipo,cidade:l.cidade,endereco:l.endereco||'',mapa:l.mapa||'',contato:l.contato||'',modo:l.modo||'contato',descricao:l.descricao||'',chat:l.chat!==0,horario:l.horario||{p:0,d:[[],[],[],[],[],[],[]]},donoVisivel:!!l.donoVisivel,equipeVisivel:l.equipeVisivel!==0,invest:!!l.invest,investTxt:(l.invest&&l.invest!=='Aceito conversar com quem quiser investir.')?l.invest:''};return Object.assign(b,o||{})}
+function logoR(f){return new Promise(function(ok,err){if(!f||!/^image\//.test(f.type))return err(new Error('Escolha uma imagem.'));var u=URL.createObjectURL(f),im=new Image();
+ im.onload=function(){try{var S0=128,c=document.createElement('canvas');c.width=c.height=S0;var g=c.getContext('2d'),m=Math.min(im.width,im.height),sx=(im.width-m)/2,sy=(im.height-m)/2;g.fillStyle='#fff';g.fillRect(0,0,S0,S0);g.drawImage(im,sx,sy,m,m,0,0,S0,S0);URL.revokeObjectURL(u);
+  var q=.7,r=c.toDataURL('image/jpeg',q);while(r.length>19000&&q>.25){q-=.08;r=c.toDataURL('image/jpeg',q)}
+  r.length<=20000?ok(r):err(new Error('Imagem complexa demais. Tente outra.'))}catch(e){err(e)}};
+ im.onerror=function(){URL.revokeObjectURL(u);err(new Error('Não consegui abrir essa imagem.'))};im.src=u})}
+function horEd(hv){var w=h('div'),N=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],linhas=[];
+ var pk=document.createElement('input');pk.type='checkbox';pk.checked=!!(hv&&hv.p);var pl=h('label','tg');pl.append(pk,document.createTextNode(' Fechado temporariamente (férias, reforma…)'));w.append(pl);
+ [1,2,3,4,5,6,0].forEach(function(i){var r=h('div'),cb=document.createElement('input'),ins=[],fx=(hv&&hv.d&&hv.d[i])||[];cb.type='checkbox';cb.checked=fx.length>0;cb.setAttribute('aria-label',N[i]+' aberto');
+  for(var k=0;k<4;k++){var t=document.createElement('input');t.type='time';t.style.cssText='background:#0b0a14;color:#fff;border:1px solid #3a3550;border-radius:8px;padding:6px';var f=fx[k>>1];if(f)t.value=f.split('-')[k%2];ins.push(t)}
+  var nm=h('b',null,N[i]);nm.style.minWidth='78px';r.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:8px 0';
+  r.append(cb,nm,ins[0],h('span',null,'às'),ins[1],h('span',null,'e'),ins[2],h('span',null,'às'),ins[3]);w.append(r);linhas.push({i:i,cb:cb,ins:ins})});
+ w.append(btn('Copiar a segunda para todos os dias',function(){var m=linhas.filter(function(l){return l.i===1})[0];linhas.forEach(function(l){l.cb.checked=m.cb.checked;l.ins.forEach(function(t,k){t.value=m.ins[k].value})})}));
+ w.append(h('div','note','Quem fecha de madrugada usa 18:00 às 02:00. Deixe a 2ª faixa vazia se não tiver pausa.'));
+ return{el:w,valor:function(){var d=[[],[],[],[],[],[],[]];linhas.forEach(function(l){if(!l.cb.checked)return;var a=[];if(l.ins[0].value&&l.ins[1].value)a.push(l.ins[0].value+'-'+l.ins[1].value);if(l.ins[2].value&&l.ins[3].value)a.push(l.ins[2].value+'-'+l.ins[3].value);d[l.i]=a});return{p:pk.checked?1:0,d:d}}}}
+function ck(txt,val){var l=h('label','tg'),c=document.createElement('input');c.type='checkbox';c.checked=val;l.append(c,document.createTextNode(' '+txt));return{l:l,c:c}}
+VIEWS.empresa=function(v){var l=loja();v.append(head('Minha empresa',l?l.nome:'','real'));if(!l)return noLoja(v);
+ if(l.vinc)return v.append(empty('Só o dono edita os dados da empresa.'));
+ var p=h('div','panel'),er=h('span','err'),cids=S.cat.cidades||{},tipos=(S.cat.tipos||[]).slice();if(l.tipo&&tipos.indexOf(l.tipo)<0)tipos.unshift(l.tipo);
+ var nome=fl('Nome da empresa','text',{maxLength:60,value:l.nome||''}),tp=sel(tipos.map(function(t){return[t,t]}),l.tipo),
+  cd=sel(Object.keys(cids).map(function(k){return[k,cids[k]]}),l.cidade),
+  md=sel([['contato','Conversa (botão Chamar)'],['agenda','Marcando horário (cliente escolhe dia e hora)']],l.modo||'contato'),
+  end=fl('Endereço','text',{maxLength:100,value:l.endereco||''}),mapa=fl('Link do mapa','text',{maxLength:300,value:l.mapa||''}),
+  wa=fl('WhatsApp da empresa','tel',{maxLength:20,value:l.contato||''}),ds=fl('Descrição curta','text',{maxLength:200,value:l.descricao||''}),
+  lf=document.createElement('input'),logo,hed=horEd(l.horario),
+  kc=ck('Receber conversas de clientes no perfil (chat de atendimento)',l.chat!==0),kd=ck('Mostrar meu nome como dono no perfil',!!l.donoVisivel),ke=ck('Mostrar a equipe no perfil (loja com agenda sempre mostra)',l.equipeVisivel!==0);
+ lf.type='file';lf.accept='image/*';lf.onchange=function(){var f=lf.files[0];if(!f)return;logoR(f).then(function(r){logo=r;er.style.color='';er.textContent='Logo pronto. Toque em Salvar.'}).catch(function(e){logo=undefined;er.textContent=e.message||'Não consegui usar a imagem.'})};
+ p.append(nome.l,lab('Tipo de negócio',tp),lab('Cidade',cd),lab('Como o cliente fala com vocês',md),end.l,mapa.l,wa.l,ds.l,lab('Logo (opcional)',lf),h('h2',null,'Horário de funcionamento'),hed.el,kc.l,kd.l,ke.l);
+ var ac=h('div','acts'),sv=h('button','btn p','Salvar empresa');
+ sv.onclick=function(){er.style.color='';er.textContent='';if(nome.i.value.trim().length<3){er.textContent='Escreva o nome (mínimo 3 letras).';return}
+  var b=corpoLoja(l,{nome:nome.i.value.trim(),tipo:tp.value,cidade:cd.value,modo:md.value,endereco:end.i.value.trim(),mapa:mapa.i.value.trim(),contato:wa.i.value,descricao:ds.i.value.trim(),horario:hed.valor(),chat:kc.c.checked,donoVisivel:kd.c.checked,equipeVisivel:ke.c.checked});
+  if(logo!==undefined)b.logo=logo;sv.disabled=true;acao('/estabelecimentos/editar',b,'Empresa atualizada. O perfil do MiHelp já mostra.').then(function(){sv.disabled=false})};
+ ac.append(sv,lnk('Ver perfil público no MiHelp','index.html?loja='+encodeURIComponent(l.chave),1));p.append(ac,er,h('div','note','Código da empresa: '+l.chave+'. A foto de perfil de cada pessoa da equipe continua sendo do MiHelp.'));v.append(p)};
 VIEWS.equipe=function(v){var l=loja();v.append(head('Equipe',l?l.nome:'','real'));
  (S.conv||[]).forEach(function(c){var p=h('div','panel'),r=h('div','li'),pb=document.createElement('input');pb.type='checkbox';var q=h('label','tg');q.append(pb,document.createTextNode(' mostrar meu nome no perfil público'));
   r.append(h('span',null,'Convite de '+c.estNome+(c.funcao?' · '+c.funcao:'')),q,btn('Aceitar',function(){acao('/equipe/responder',{id:c.id,aceitar:true,publico:pb.checked},'Convite aceito.')},'p'),btn('Recusar',function(){acao('/equipe/responder',{id:c.id,aceitar:false},'Convite recusado.')}));p.append(r);v.append(p)});
