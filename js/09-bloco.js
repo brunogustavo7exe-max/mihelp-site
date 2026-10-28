@@ -958,25 +958,9 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
   if(!E.lojas.length)s.append(mk8('p','note','Você ainda não criou nenhum. Barbearia, salão, loja de motos, oficina: crie e monte a sua equipe.'));
   E.lojas.forEach(L=>{
    const box=mk8('div','v8card');const row=mk8('div','v8row');row.append(mk8('b',null,L.nome),mk8('span','note',L.tipo+(CID8[L.cidade]?' · '+CID8[L.cidade]:'')));
-   const acts=mk8('div','v8acts');acts.append(botao8('📊 Gestão da loja','cta2',()=>formGestao8(d,E,L)),botao8('💰 Serviços e preços','more',()=>formServicos8(d,E,L)),botao8('👁 Ver perfil','more',()=>{d.close();abrirLoja8(L.chave)}),botao8('✏️ Editar','more',()=>formLoja8(d,E,L)),botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',L.tipo,linkLoja8(L.chave),m=>{st.style.color='';st.textContent=m})),botao2x8('🗑 Apagar','more',()=>envia('/estabelecimentos/apagar',{chave:L.chave},'Estabelecimento apagado.')));
+   const acts=mk8('div','v8acts');acts.append(botao8('👁 Ver perfil','more',()=>{d.close();abrirLoja8(L.chave)}),botao8('✏️ Editar','more',()=>formLoja8(d,E,L)),botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',L.tipo,linkLoja8(L.chave),m=>{st.style.color='';st.textContent=m})),botao2x8('🗑 Apagar','more',()=>envia('/estabelecimentos/apagar',{chave:L.chave},'Estabelecimento apagado.')));
    box.append(row,acts);if(L.favs>0)box.append(mk8('p','note','⭐ '+L.favs+(L.favs===1?' pessoa favoritou':' pessoas favoritaram')+' esta loja.'));
-   box.append(mk8('h4',null,'Equipe'));
-   if(!L.equipe.length)box.append(mk8('p','note','Ninguém na equipe ainda. Convide pelo telefone abaixo.'));
-   L.equipe.forEach(m=>{const r2=mk8('div','v8row');const rot=m.status==='aceito'?'na equipe'+(m.publico?'':' (oculto no perfil público)'):m.status==='pedido'?'pediu para entrar':'convite enviado, esperando aceite';
-    r2.append(mk8('span',null,m.nome+(m.funcao?' · '+m.funcao:'')+(m.eu?' (você)':'')+' — '+rot));
-    if(m.status==='pedido')r2.append(botao8('Aprovar','cta2',()=>envia('/equipe/responder',{id:m.id,aceitar:true},'Pessoa aprovada.')),botao8('Recusar','more',()=>envia('/equipe/responder',{id:m.id,aceitar:false},'Pedido recusado.')));
-    else{
-     if(m.status==='aceito'&&!m.eu){const sel=document.createElement('select');sel.setAttribute('aria-label','Cargo de '+m.nome);[['nenhum','Sem acesso ao chat'],['atendente','Atendente (clientes + equipe)'],['interno','Só chat da equipe'],['gestor','Gestor (caixa, estoque e gastos)']].forEach(([v,t])=>sel.add(new Option(t,v)));sel.value=m.cargo||'nenhum';const sv=botao8('💾 Salvar cargo','cta2',()=>envia('/equipe/cargo',{id:m.id,cargo:sel.value},'Cargo de '+m.nome+' salvo.'));sv.hidden=true;sel.onchange=()=>{sv.hidden=sel.value===(m.cargo||'nenhum')};r2.append(sel,sv)}
-     r2.append(botao2x8('Remover','more',()=>envia('/equipe/remover',{id:m.id},'Removido.')))}
-    box.append(r2)});
-   const cv=mk8('div');cv.hidden=true;const l1=mk8('label',null,'Telefone da pessoa');const tel=document.createElement('input');tel.type='text';tel.inputMode='tel';tel.placeholder='(66) 99999-9999';tel.maxLength=20;l1.append(tel);
-   const l2=mk8('label',null,'Função da pessoa (se quiser)');const fn=document.createElement('input');fn.type='text';fn.maxLength=30;fn.placeholder='Ex.: Barbeiro, Vendedor';l2.append(fn);
-   cv.append(l1,l2,botao8('Enviar convite','cta2',()=>envia('/equipe/convidar',{chave:L.chave,tel:tel.value,funcao:fn.value.trim()},'Se esse telefone tiver conta no MiHelp, o convite aparece para a pessoa. Ela decide se aceita e se o nome dela aparece.')));
-   box.append(botao8('➕ Chamar alguém para a equipe','more',()=>{cv.hidden=!cv.hidden}),cv);
-   if(L.transferindoPara)box.append(mk8('p','note','🔁 Oferta de transferência enviada para '+L.transferindoPara+'. Esperando a resposta.'),botao8('Cancelar transferência','more',()=>envia('/estabelecimentos/transferir/responder',{id:L.transferId,aceitar:false},'Transferência cancelada.')));
-   else{const tv=mk8('div');tv.hidden=true;const t1=mk8('label',null,'Telefone do novo dono (precisa ser Helper)');const ti=document.createElement('input');ti.type='text';ti.inputMode='tel';ti.maxLength=20;ti.placeholder='(66) 99999-9999';t1.append(ti);
-    tv.append(mk8('p','note','A pessoa precisa aceitar. Quando aceitar, a loja passa a ser dela e você deixa de ser o dono. A equipe, as avaliações e os favoritos ficam na loja. Sai da loja quem era só o dono.'),t1,botao2x8('Oferecer a loja','cta2',()=>envia('/estabelecimentos/transferir',{chave:L.chave,tel:ti.value},'Se esse telefone for de um Helper, a oferta aparece para a pessoa. Ela decide se aceita.')));
-    box.append(botao8('🔁 Passar a loja para outra pessoa','more',()=>{tv.hidden=!tv.hidden}),tv)}
+   
    s.append(box)});
   if(E.lojas.length<3)s.append(botao8('➕ Criar meu negócio','cta2 v8go',()=>criarLoja8(d,E)))}
  {const cur=ESPV&&secs.find(x=>x.id===ESPV);
@@ -1394,7 +1378,7 @@ function criarLoja8(d,E){
    const ok=botao8('✅ Criar meu negócio','cta2 v8go',async()=>{if(S.envio)return;S.envio=true;ok.disabled=true;st.style.color='';st.textContent='Criando…';
     const body={nome:S.nome,tipo:S.tipo,cidade:S.cidade,endereco:'',mapa:'',contato:'',modo:S.modo,descricao:'',chat:true,horario:horarioEditor8(null).valor(),atende:S.atende,funcao:'',donoVisivel:S.donoVisivel,invest:S.invest,equipeVisivel:S.equipeVisivel};
     const r2=await chama8('/estabelecimentos',body);
-    if(r2.ok&&r2.j&&r2.j.ok){carregaV8();const r3=await chama8('/perfil/meu');if(r3.ok&&r3.j&&r3.j.ok){const nl=(r3.j.lojas||[]).find(x=>x.chave===r2.j.chave);if(S.modo==='agenda'&&nl)formServicos8(d,r3.j,nl,'✅ Negócio criado! Agora cadastre os serviços para o cliente poder reservar.');else pintaEspaco8(d,r3.j,'Pronto! Seu negócio foi criado. Agora chame a sua equipe.')}else abrirEspaco8()}
+    if(r2.ok&&r2.j&&r2.j.ok){carregaV8();const r3=await chama8('/perfil/meu');if(r3.ok&&r3.j&&r3.j.ok){const nl=(r3.j.lojas||[]).find(x=>x.chave===r2.j.chave);pintaEspaco8(d,r3.j,'Pronto! Seu negócio foi criado. Serviços, equipe, caixa e estoque você gerencia no D’Castro Labs.')}else abrirEspaco8()}
     else{S.envio=false;ok.disabled=false;st.style.color='var(--red)';st.textContent=erro8(r2)}});
    d.append(ok)}
   if(S.n!==1||true)d.append(volta)}

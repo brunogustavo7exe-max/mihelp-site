@@ -98,16 +98,16 @@ var API='https://mihelp-api.mihelpmarketing.workers.dev';
 var $=function(s){return document.querySelector(s)};
 function h(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 function tk(){try{return localStorage.getItem('mh_tk')||sessionStorage.getItem('mh_tk')||''}catch(e){return ''}}
-function expira(){if(S.exp)return;S.exp=1;gate('Sua sessão terminou. Entre de novo no MiHelp.')}
+function expira(){if(S.exp)return;S.exp=1;gate('Sua sessão terminou. Entre de novo.')}
 window.addEventListener('storage',function(e){if(e.key==='mh_tk'&&!tk())expira()});
 function api(p){return fetch(API+p,{headers:{authorization:'Bearer '+tk()}}).then(function(r){if(r.status===401&&S.boot)expira();return r.json().catch(function(){return{}}).then(function(j){return{ok:r.ok,status:r.status,j:j}})}).catch(function(){return{ok:false,status:0,j:{erro:'sem conexão'}}})}
 var R=function(v){return (Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})};
 var hhmm=function(m){m=Number(m)||0;return String(Math.floor(m/60)%24).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};
 function toast(t){var e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){e.style.display='none'},2600)}
 
-var S={lojas:[],cur:null,res:null,resErr:'',rs:null,nome:'',view:'visao'};
+var S={cat:{tipos:[],cidades:{}},conv:[],transf:[],lojas:[],cur:null,res:null,resErr:'',rs:null,nome:'',view:'visao'};
 var MODS=[
- ['Principal',[['visao','◧','Visão geral','real'],['empresa','🏢','Minha empresa','real'],['equipe','👥','Equipe','real'],['clientes','🤝','Clientes','real'],['servicos','🛠','Serviços e projetos','real'],['orcamentos','🧾','Orçamentos e trabalhos','real'],['agenda','🗓','Agenda','real']]],
+ ['Principal',[['visao','◧','Visão geral','real'],['empresa','🏢','Minha empresa','real'],['equipe','👥','Equipe','real'],['clientes','🤝','Clientes','real'],['servicos','🛠','Serviços e preços','real'],['orcamentos','🧾','Orçamentos e trabalhos','real'],['agenda','🗓','Agenda','real']]],
  ['Operação',[['financeiro','💰','Financeiro','real'],['estoque','📦','Estoque','real'],['relatorios','📊','Relatórios','demo'],['automacoes','⚡','Automações','demo']]],
  ['Workforce',[['meutrabalho','🧑‍💼','Meu Trabalho','demo'],['escalas','📅','Escalas e folgas','demo'],['ponto','⏱','Ponto digital','demo'],['avaliacoes','🔒','Avaliações privadas','demo'],['passaporte','🪪','Passaporte Profissional','demo']]],
  ['Sistema',[['studio','🎛','Personalização (Studio)','demo'],['config','⚙','Configurações','real']]]
@@ -125,10 +125,6 @@ var PROTO={
 };
 function loja(){return S.lojas.find(function(l){return l.chave===S.cur})||null}
 
-function gate(msg){var r=$('#root');r.textContent='';var g=h('div','gate'),p=h('div','panel');
- p.append(h('h1',null,'D’Castro Labs'),h('p','sub',msg||'Entre no MiHelp para acessar o painel da sua empresa.'));
- var a=h('a','btn p','Ir para o MiHelp');a.href='index.html';p.append(a);g.append(p);r.append(g)}
-
 function shell(){var r=$('#root');r.textContent='';var app=h('div','app');
  var side=h('aside','side');side.id='side';
  var b=h('div','brand');b.append(h('div','logo','D'));var bt=h('div',null,'D’Castro Labs');bt.append(h('small',null,'Gestão empresarial'));b.append(bt);side.append(b);
@@ -141,8 +137,8 @@ function shell(){var r=$('#root');r.textContent='';var app=h('div','app');
  sel.onchange=function(){S.cur=sel.value;try{sessionStorage.setItem('dl_loja',S.cur)}catch(e){}load().then(function(){go(S.view)})};
  var bell=h('button','btn','🔔');bell.setAttribute('aria-label','Notificações');bell.onclick=function(){toast('Sem notificações. Este recurso ainda não está conectado.')};
  var mi=h('a','btn','← MiHelp');mi.href='index.html';nova(mi);
- var u=h('span','chip',S.nome||'Conta');
- top.append(mb,sel,h('span','sp'),bell,mi,u);
+ var u=h('span','chip',S.nome||'Conta'),so=h('button','btn','Sair');so.onclick=sair;
+ top.append(mb,sel,h('span','sp'),bell,mi,u,so);
  var wrap=h('div','wrap');wrap.id='view';main.append(top,wrap);
  var sc=h('div','scrim');sc.id='scrim';sc.onclick=function(){$('#side').classList.remove('open');sc.classList.remove('on')};
  app.append(side,main);r.append(app,sc)}
@@ -157,7 +153,6 @@ function head(t,sub,kind){var d=h('div');var x=h('h1',null,t+' ');if(kind)x.appe
 function empty(t,btn){var e=h('div','empty',t);if(btn)e.append(h('div','acts')).lastChild.append(btn);return e}
 function nova(a){a.target='_blank';a.onclick=function(e){var w=null;try{w=window.open(a.href,'_blank')}catch(x){}if(w){e.preventDefault();try{w.opener=null}catch(x){}}};return a}
 function lnk(t,href,p){var a=h('a','btn'+(p?' p':''),t);a.href=href;return nova(a)}
-function noLoja(v){v.append(head('Sem empresa ativa','Você ainda não tem um estabelecimento neste espaço.'),empty('Crie sua empresa no MiHelp em Meu painel › Minha loja e ela aparece aqui.',lnk('Abrir o MiHelp','index.html',1)))}
 function semRes(v){var e=empty('Não foi possível mostrar estes dados: '+S.resErr+'.');v.append(e)}
 
 var VIEWS={
@@ -175,26 +170,10 @@ var VIEWS={
  empresa:function(v){var l=loja();v.append(head('Minha empresa',l?l.nome:'','real'));if(!l)return noLoja(v);
   var p=h('div','panel');[['Nome',l.nome],['Tipo',l.tipo],['Cidade',l.cidade],['Endereço',l.endereco||'—'],['Contato',l.contato||'—'],['Modo',l.modo==='agenda'?'Agenda com horários':'Conversa e contato'],['Favoritos',String(l.favs||0)],['Identificação do espaço',l.chave]].forEach(function(k){var r=h('div','li');r.append(h('span','m',k[0]),h('span',null,k[1]));p.append(r)});
   var ac=h('div','acts');ac.append(lnk('Ver perfil público no MiHelp','index.html?loja='+encodeURIComponent(l.chave),1),lnk('Editar no MiHelp','index.html'));p.append(ac);
-  p.append(h('div','note','A edição completa (dados, logo, horário e serviços) continua no MiHelp, em Meu painel › Minha loja.'));v.append(p)},
- equipe:function(v){var l=loja();v.append(head('Equipe',l?l.nome:'','real'));if(!l)return noLoja(v);
-  var p=h('div','panel');var eq=l.equipe||[];if(!eq.length)p.append(empty('Ninguém na equipe ainda.'));
-  eq.forEach(function(x){var r=h('div','li'),a=h('span',null,x.nome+(x.funcao?' · '+x.funcao:'')),b=h('span','m');b.append(h('span','chip '+(x.status==='aceito'?'ok':'wr'),x.status),document.createTextNode(' cargo: '+x.cargo));r.append(a,b);p.append(r)});
-  p.append(h('div','note','Convites, pedidos e cargos são geridos no MiHelp. O vínculo vale só com o aceite dos dois lados.'),lnk('Gerir equipe no MiHelp','index.html'));v.append(p)},
- servicos:function(v){var l=loja();v.append(head('Serviços e projetos',l?l.nome:'','real'));if(!l)return noLoja(v);
-  var p=h('div','panel');var sv=l.servicos||[];if(!sv.length)p.append(empty('Nenhum serviço cadastrado. Cadastre no MiHelp para aceitar marcações.'));
-  sv.forEach(function(s){var r=h('div','li');r.append(h('span',null,s.nome),h('span','m',s.min+' min · '+R(s.valor)));p.append(r)});
-  p.append(h('div','note','Projetos e tarefas ainda não existem; aqui aparece o cardápio de serviços do perfil público.'));v.append(p)},
+  p.append(h('div','note','O perfil público (foto, WhatsApp, localização e horário) é editado no MiHelp, a vitrine. Caixa, estoque, serviços e equipe ficam aqui no Labs.'));v.append(p)},
  agenda:function(v){var l=loja();v.append(head('Agenda',l?l.nome:'','real'));if(!l)return noLoja(v);
   var p=h('div','panel');p.append(h('h2',null,'Quem marcou comigo'));var a=S.rs?S.rs.comoHelper||[]:[];if(!S.rs)p.append(empty('Não foi possível carregar a agenda agora.'));else if(!a.length)p.append(empty('Nenhum horário marcado.'));
   a.forEach(function(x){var r=h('div','li');r.append(h('span',null,x.dia.split('-').reverse().join('/')+' · '+hhmm(x.ini)+' · '+x.servico),h('span','m',x.clienteNome+' · '+x.estNome));p.append(r)});v.append(p)},
- financeiro:function(v){var l=loja();v.append(head('Financeiro',l?l.nome:'','real'));if(!l)return noLoja(v);if(!S.res)return semRes(v);
-  var r=S.res.resumo,g=h('div','grid');g.append(card('Entradas',R(r.entradas),S.res.mes),card('Saídas',R(r.saidas)),card('Gastos fixos',R(r.gastos)),card('Comissão',R(r.comissao)),card('Resultado estimado',R(r.resultado)));v.append(g);
-  var p=h('div','panel');p.append(h('h2',null,'Últimas movimentações'));var m=(S.res.movs||[]).slice(0,15);if(!m.length)p.append(empty('Sem movimentações neste mês.'));
-  m.forEach(function(x){var q=h('div','li');q.append(h('span',null,(x.desc||(x.tipo==='saida'?'Saída':'Entrada'))+' · '+x.dia.split('-').reverse().join('/')),h('span','m',(x.tipo==='saida'?'− ':'+ ')+R(x.valor)+' · '+x.forma));p.append(q)});
-  p.append(h('div','note','Lançamentos, fechamento de caixa e comissão ainda são feitos no MiHelp. Este painel só mostra.'));v.append(p)},
- estoque:function(v){var l=loja();v.append(head('Estoque',l?l.nome:'','real'));if(!l)return noLoja(v);if(!S.res)return semRes(v);
-  var p=h('div','panel');var pr=S.res.produtos||[];if(!pr.length)p.append(empty('Nenhum produto cadastrado.'));
-  pr.forEach(function(x){var low=Number(x.min)>0&&Number(x.qtd)<=Number(x.min),r=h('div','li');r.append(h('span',null,x.nome),(function(){var s=h('span','m',x.qtd+' un · venda '+R(x.venda)+' ');if(low)s.append(h('span','chip wr','estoque baixo'));return s})());p.append(r)});v.append(p)},
  config:function(v){v.append(head('Configurações','Sessão e espaço de trabalho.','real'));var p=h('div','panel');
   [['Conta',S.nome||'—'],['Empresa ativa',(loja()||{}).nome||'—'],['Empresas na conta',String(S.lojas.length)]].forEach(function(k){var r=h('div','li');r.append(h('span','m',k[0]),h('span',null,k[1]));p.append(r)});
   p.append(h('div','note','Permissões são verificadas no servidor (Worker). Esta tela só guarda no navegador a empresa selecionada, nada sensível.'),lnk('Voltar ao MiHelp','index.html',1));v.append(p)}
@@ -212,9 +191,9 @@ function boot(){
  if(!tk())return gate();
  var r=$('#root');r.append(h('div','gate','Carregando…'));
  Promise.all([api('/perfil/meu'),api('/conta/eu')]).then(function(a){
-  if(a[0].status===401||a[1].status===401)return gate('Sua sessão venceu. Entre de novo no MiHelp.');
+  if(a[0].status===401||a[1].status===401)return gate('Sua sessão terminou. Entre de novo.');
   if(!a[0].ok)return gate('Não foi possível carregar agora: '+((a[0].j&&a[0].j.erro)||'sem conexão')+'.');
-  S.lojas=a[0].j.lojas||[];(a[0].j.vinculos||[]).forEach(function(x){if(x.status==='aceito'&&!S.lojas.some(function(l){return l.chave===x.est}))S.lojas.push({chave:x.est,nome:(x.estNome||x.est)+' (como funcionário)',vinc:1,equipe:[],servicos:[]})});S.nome=(a[1].j&&a[1].j.nome)||'';
+  S.lojas=a[0].j.lojas||[];S.conv=a[0].j.convites||[];S.transf=a[0].j.transferencias||[];S.cat={tipos:a[0].j.tipos||[],cidades:a[0].j.cidades||{}};(a[0].j.vinculos||[]).forEach(function(x){if(x.status==='aceito'&&!S.lojas.some(function(l){return l.chave===x.est}))S.lojas.push({chave:x.est,nome:(x.estNome||x.est)+' (como funcionário)',vinc:1,equipe:[],servicos:[]})});S.nome=(a[1].j&&a[1].j.nome)||'';
   var q=new URLSearchParams(location.search).get('loja')||(function(){try{return sessionStorage.getItem('dl_loja')}catch(e){return ''}})();
   S.cur=((S.lojas.find(function(l){return l.chave===q})||S.lojas[0])||{}).chave||null;
   S.boot=1;shell();var h0=location.hash.slice(1);return load().then(function(){go(h0||'visao')})})}
@@ -551,6 +530,92 @@ VIEWS.clientes=function(v){v.append(head('Clientes','Clientes do profissional, l
   var box=h('div','pro8');box.append(h('p','note','Carregando…'));v.append(box);PRO8.tab='cli';PRO8.sel=null;abrirPro8(box)};
 VIEWS.orcamentos=function(v){v.append(head('Orçamentos e trabalhos','Clientes, orçamentos, trabalhos, recibos e metas do profissional.','real'));
  var box=h('div','pro8');box.append(h('p','note','Carregando…'));v.append(box);if(PRO8.tab==='cli')PRO8.tab='hoje';abrirPro8(box)};
+
+/* ===== Labs independente do MiHelp: login, empresa, caixa, estoque, serviços e equipe (rotas do Worker v20) ===== */
+function fl(r,t,a){var l=h('label','fld',r),i=document.createElement('input');i.type=t||'text';Object.assign(i,a||{});l.append(i);return{l:l,i:i}}
+function sel(o,v){var s=document.createElement('select');o.forEach(function(x){s.append(new Option(x[1],x[0]))});if(v!=null)s.value=v;return s}
+function lab(r,e){var l=h('label','fld',r);l.append(e);return l}
+function pst(p,b){return fetch(API+p,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)}).then(function(r){return r.json().catch(function(){return{}}).then(function(j){return{ok:r.ok,status:r.status,j:j}})}).catch(function(){return{ok:false,status:0,j:{}}})}
+async function chaveDe(id,pw){var te=new TextEncoder(),k=await crypto.subtle.importKey('raw',te.encode(pw),'PBKDF2',false,['deriveBits']);var b=new Uint8Array(await crypto.subtle.deriveBits({name:'PBKDF2',salt:te.encode('mihelp:'+String(id).trim().replace(/\s+/g,' ').toLowerCase()),iterations:120000,hash:'SHA-256'},k,256));return btoa(String.fromCharCode.apply(null,b))}
+function gate(msg){var r=$('#root');r.textContent='';var g=h('div','gate'),p=h('div','panel'),novo=false,box=h('div');
+ p.append(h('h1',null,'D’Castro Labs'),h('p','sub',msg||'Entre com o telefone e a senha da sua conta.'),box);g.append(p);r.append(g);
+ function pinta(){box.textContent='';var nm=fl('Seu nome','text',{maxLength:40,autocomplete:'name'}),tl=fl('Telefone com DDD','tel',{maxLength:16,autocomplete:'tel'}),pw=fl('Senha','password',{autocomplete:novo?'new-password':'current-password'}),mt=h('label','tg'),ck=document.createElement('input'),er=h('span','err'),b=h('button','btn p',novo?'Criar conta':'Entrar'),t=h('button','btn',novo?'Já tenho conta':'Criar conta');
+  ck.type='checkbox';ck.checked=true;mt.append(ck,document.createTextNode(' Manter conectado neste aparelho'));
+  b.style.width=t.style.width='100%';t.style.marginTop='8px';
+  b.onclick=async function(){er.textContent='';var tel=String(tl.i.value).replace(/\D/g,'');
+   if(tel.length<10||!pw.i.value||(novo&&nm.i.value.trim().length<2)){er.textContent='Preencha '+(novo?'nome, ':'')+'telefone com DDD e senha.';return}
+   if(!(window.crypto&&crypto.subtle)){er.textContent='Este navegador não deixa entrar aqui (precisa de https).';return}
+   b.disabled=true;er.textContent='Entrando…';var ch=await chaveDe(tel,pw.i.value);
+   var x=novo?await pst('/conta/criar',{nome:nm.i.value.trim(),tel:tel,chave:ch,papel:'helper'}):await pst('/conta/entrar',{tel:tel,chave:ch,identificador:tel});b.disabled=false;
+   if(x.ok&&x.j&&x.j.token){try{localStorage.setItem('mh_keep',ck.checked?'1':'0');localStorage.removeItem('mh_tk');sessionStorage.removeItem('mh_tk');(ck.checked?localStorage:sessionStorage).setItem('mh_tk',x.j.token)}catch(e){}S.exp=0;S.boot=0;boot();return}
+   er.textContent=x.status===401?'Telefone ou senha incorretos.':x.status===404?'Não achei conta com esse telefone. Toque em “Criar conta”.':x.status===409?'Esse telefone já tem conta. Toque em “Já tenho conta”.':x.status===429?'Muitas tentativas. Espere 15 minutos.':'Não consegui agora. Tente de novo.'};
+  t.onclick=function(){novo=!novo;pinta()};if(novo)box.append(nm.l);box.append(tl.l,pw.l,mt,er,b,t)}
+ pinta()}
+function sair(){try{localStorage.removeItem('mh_tk');sessionStorage.removeItem('mh_tk')}catch(e){}S.exp=1;gate('Você saiu. Entre de novo quando quiser.')}
+function refresh(){return api('/perfil/meu').then(function(r){if(r.ok&&r.j){S.lojas=(r.j.lojas||[]).concat(S.lojas.filter(function(x){return x.vinc}));S.conv=r.j.convites||[];S.transf=r.j.transferencias||[];S.cat={tipos:r.j.tipos||[],cidades:r.j.cidades||{}}}})}
+function acao(p,b,m){return chama8(p,b).then(function(r){if(r.ok&&r.j&&r.j.ok){toast(m||'Feito.');return refresh().then(load).then(re)}toast((r.j&&r.j.erro)||'Não foi possível.')})}
+function noLoja(v){v.append(head('Crie sua empresa','Cadastre o negócio para usar caixa, estoque, serviços e equipe.'));
+ var p=h('div','panel'),nm=fl('Nome da empresa','text',{maxLength:60}),tp=sel((S.cat.tipos||[]).map(function(t){return[t,t]})),cd=sel(Object.keys(S.cat.cidades||{}).map(function(k){return[k,S.cat.cidades[k]]})),er=h('span','err'),b=h('button','btn p','Criar empresa');
+ b.onclick=function(){if(nm.i.value.trim().length<3){er.textContent='Escreva o nome (mínimo 3 letras).';return}b.disabled=true;chama8('/estabelecimentos',{nome:nm.i.value.trim(),tipo:tp.value,cidade:cd.value,modo:'contato',atende:true,funcao:'Dono'}).then(function(r){b.disabled=false;if(r.ok&&r.j&&r.j.ok){S.cur=r.j.chave;try{sessionStorage.setItem('dl_loja',S.cur)}catch(e){}refresh().then(function(){shell();return load()}).then(function(){go('visao')})}else er.textContent=(r.j&&r.j.erro)||'Não foi possível criar agora.'})};
+ p.append(nm.l,lab('Tipo de negócio',tp),lab('Cidade',cd),er,b,h('div','note','O perfil público (foto, WhatsApp, localização) você completa depois no MiHelp, a vitrine.'));v.append(p)}
+function lista(p,vazio,a){if(!a.length)p.append(empty(vazio))}
+VIEWS.servicos=function(v){var l=loja();v.append(head('Serviços e preços',l?l.nome:'','real'));if(!l)return noLoja(v);if(l.vinc)return v.append(empty('Só o dono gerencia os serviços.'));
+ var L=(l.servicos||[]).map(function(s){return{nome:s.nome,min:s.min,valor:s.valor}}),p=h('div','panel'),box=h('div'),er=h('span','err');
+ p.append(h('div','note','Esses serviços aparecem no perfil público e permitem ao cliente reservar horário. Duração de 10 a 480 min.'),box);
+ function pinta(){box.textContent='';lista(box,'Nenhum serviço ainda.',L);L.forEach(function(s,i){var r=h('div','li'),n=fl('Serviço','text',{maxLength:50,value:s.nome}),m=fl('Minutos','number',{min:10,max:480,value:s.min}),vl=fl('Valor (R$)','text',{inputMode:'decimal',value:String(s.valor||'').replace('.',',')}),x=h('button','btn','Remover');
+  n.i.oninput=function(){s.nome=n.i.value};m.i.oninput=function(){s.min=+m.i.value};vl.i.oninput=function(){s.valor=num8(vl.i.value)};x.onclick=function(){L.splice(i,1);pinta()};r.append(n.l,m.l,vl.l,x);box.append(r)})}
+ pinta();var a=h('div','acts'),ad=h('button','btn','+ Serviço'),sv=h('button','btn p','Salvar serviços');ad.onclick=function(){L.push({nome:'',min:30,valor:0});pinta()};
+ sv.onclick=function(){var ok=L.filter(function(s){return String(s.nome).trim().length>=2});sv.disabled=true;acao('/estabelecimentos/servicos',{chave:l.chave,servicos:ok},'Serviços salvos.').then(function(){sv.disabled=false})};
+ a.append(ad,sv);p.append(a,er);v.append(p)};
+VIEWS.equipe=function(v){var l=loja();v.append(head('Equipe',l?l.nome:'','real'));
+ (S.conv||[]).forEach(function(c){var p=h('div','panel'),r=h('div','li'),pb=document.createElement('input');pb.type='checkbox';var q=h('label','tg');q.append(pb,document.createTextNode(' mostrar meu nome no perfil público'));
+  r.append(h('span',null,'Convite de '+c.estNome+(c.funcao?' · '+c.funcao:'')),q,btn('Aceitar',function(){acao('/equipe/responder',{id:c.id,aceitar:true,publico:pb.checked},'Convite aceito.')},'p'),btn('Recusar',function(){acao('/equipe/responder',{id:c.id,aceitar:false},'Convite recusado.')}));p.append(r);v.append(p)});
+ (S.transf||[]).forEach(function(c){var p=h('div','panel'),r=h('div','li');r.append(h('span',null,c.estNome+' foi oferecida a você'),btn('Aceitar',function(){acao('/estabelecimentos/transferir/responder',{id:c.id,aceitar:true},'Agora a loja é sua.')},'p'),btn('Recusar',function(){acao('/estabelecimentos/transferir/responder',{id:c.id,aceitar:false},'Oferta recusada.')}));p.append(r);v.append(p)});
+ if(!l)return noLoja(v);if(l.vinc)return v.append(empty('Só o dono gerencia a equipe.'));
+ var p=h('div','panel');p.append(h('h2',null,'Membros'));lista(p,'Ninguém na equipe ainda.',l.equipe||[]);
+ (l.equipe||[]).forEach(function(m){var r=h('div','li'),s=h('span','acts'),rot=m.status==='aceito'?'na equipe'+(m.publico?'':' (oculto no perfil)'):m.status==='pedido'?'pediu para entrar':'convite enviado';
+  r.append(h('span',null,m.nome+(m.funcao?' · '+m.funcao:'')+(m.eu?' (você)':'')+' — '+rot));
+  if(m.status==='pedido')s.append(btn('Aprovar',function(){acao('/equipe/responder',{id:m.id,aceitar:true},'Aprovado.')},'p'),btn('Recusar',function(){acao('/equipe/responder',{id:m.id,aceitar:false},'Recusado.')}));
+  else{if(m.status==='aceito'&&!m.eu){var c=sel(CARGOS,m.cargo||'nenhum');c.setAttribute('aria-label','Cargo de '+m.nome);s.append(c,btn('Salvar cargo',function(){acao('/equipe/cargo',{id:m.id,cargo:c.value},'Cargo salvo.')}))}
+   if(!m.eu||m.status!=='aceito')s.append(botao2x8('Remover','',function(){acao('/equipe/remover',{id:m.id},'Removido.')}))}
+  r.append(s);p.append(r)});v.append(p);
+ var c=h('div','panel'),tl=fl('Telefone da pessoa (com DDD)','tel',{maxLength:16}),fn=fl('Função (opcional)','text',{maxLength:30});c.append(h('h2',null,'Chamar alguém'),tl.l,fn.l,btn('Enviar convite',function(){acao('/equipe/convidar',{chave:l.chave,tel:tl.i.value,funcao:fn.i.value.trim()},'Se o telefone tiver conta, o convite aparece para a pessoa.')},'p'));v.append(c);
+ var t=h('div','panel'),tt=fl('Telefone de quem vai ficar com a loja','tel',{maxLength:16});t.append(h('h2',null,'Passar a loja para outra pessoa'));
+ if(l.transferindoPara)t.append(h('div','note','Oferta enviada para '+l.transferindoPara+'. Esperando resposta.'),btn('Cancelar oferta',function(){acao('/estabelecimentos/transferir/responder',{id:l.transferId,aceitar:false},'Oferta cancelada.')}));
+ else t.append(h('div','note','A pessoa precisa aceitar. Você deixa de ser dono.'),tt.l,botao2x8('Oferecer a loja','',function(){acao('/estabelecimentos/transferir',{chave:l.chave,tel:tt.i.value},'Se o telefone for de um Helper, a oferta aparece para ele.')}));v.append(t)};
+var CARGOS=[['nenhum','Sem acesso ao chat'],['atendente','Atendente (clientes + equipe)'],['interno','Só chat da equipe'],['gestor','Gestor (caixa, estoque e gastos)']];
+VIEWS.estoque=function(v){var l=loja();v.append(head('Estoque',l?l.nome:'','real'));if(!l)return noLoja(v);if(!S.res)return semRes(v);
+ var pr=S.res.produtos||[],ed=S.ped&&pr.find(function(x){return x.id===S.ped})||null,p=h('div','panel'),er=h('span','err');
+ var n=fl('Produto','text',{maxLength:60,value:ed?ed.nome:''}),q=fl('Quantidade','number',{min:0,value:ed?ed.qtd:0}),c=fl('Custo (R$)','text',{inputMode:'decimal',value:ed?String(ed.custo||'').replace('.',','):''}),vd=fl('Venda (R$)','text',{inputMode:'decimal',value:ed?String(ed.venda||'').replace('.',','):''}),m=fl('Avisar quando chegar em','number',{min:0,value:ed?ed.min:0});
+ p.append(h('h2',null,ed?'Editar produto':'Novo produto'),n.l,q.l,c.l,vd.l,m.l,er);
+ var a=h('div','acts'),sv=btn(ed?'Salvar':'Adicionar',function(){if(n.i.value.trim().length<2){er.textContent='Escreva o nome.';return}sv.disabled=true;S.ped=null;acao('/gestao/produto',{chave:l.chave,id:ed?ed.id:undefined,nome:n.i.value,qtd:q.i.value,custo:num8(c.i.value),venda:num8(vd.i.value),min:m.i.value},'Produto salvo.').then(function(){sv.disabled=false})},'p');a.append(sv);
+ if(ed)a.append(btn('Cancelar',function(){S.ped=null;re()}));p.append(a);v.append(p);
+ var L=h('div','panel');L.append(h('h2',null,'Produtos ('+pr.length+')'));lista(L,'Nenhum produto cadastrado.',pr);
+ pr.forEach(function(x){var low=Number(x.min)>0&&Number(x.qtd)<=Number(x.min),mg=x.venda>0?Math.round(100*(x.venda-x.custo)/x.venda)+'% de margem':'',r=h('div','li'),s=h('span','acts');
+  r.append(h('span',null,x.nome+' · '+x.qtd+' un · venda '+R(x.venda)+(x.custo?' · custo '+R(x.custo):'')+(mg?' · '+mg:'')+(low?' · estoque baixo':'')));
+  s.append(btn('−1',function(){acao('/gestao/ajuste',{chave:l.chave,id:x.id,delta:-1})}),btn('+1',function(){acao('/gestao/ajuste',{chave:l.chave,id:x.id,delta:1})}),btn('Editar',function(){S.ped=x.id;re()}),botao2x8('Apagar','',function(){acao('/gestao/apagar',{chave:l.chave,id:x.id},'Produto apagado.')}));r.append(s);L.append(r)});v.append(L)};
+VIEWS.financeiro=function(v){var l=loja();v.append(head('Financeiro',l?l.nome:'','real'));if(!l)return noLoja(v);if(l.vinc)return semRes(v);
+ var box=h('div');v.append(box);box.append(h('p','sub','Carregando…'));
+ api('/gestao/resumo?chave='+encodeURIComponent(l.chave)+(S.mes?'&mes='+S.mes:'')).then(function(r){box.textContent='';
+  if(!(r.ok&&r.j&&r.j.ok))return box.append(empty('Não foi possível carregar: '+((r.j&&r.j.erro)||'indisponível')+'.'));
+  var G=r.j,x=G.resumo,ck=l.chave,mi=fl('Mês','month',{value:G.mes});mi.i.onchange=function(){if(mi.i.value){S.mes=mi.i.value;re()}};box.append(mi.l);
+  var g=h('div','grid');g.append(card('Entradas',R(x.entradas),G.mes),card('Saídas',R(x.saidas)),card('Gastos',R(x.gastos)),card('Comissão',R(x.comissao)),card('Resultado',R(x.resultado),'entradas − saídas − gastos − comissão'),card('Hoje',R(x.hoje),G.hoje));box.append(g);
+  var p=h('div','panel'),tp=sel([['entrada','Entrada (venda)'],['saida','Saída']]),vl=fl('Valor (R$)','text',{inputMode:'decimal'}),fp=sel([['dinheiro','Dinheiro'],['pix','Pix'],['cartao','Cartão']]),ds=fl('Descrição','text',{maxLength:80}),dt=fl('Dia','date',{value:G.hoje}),
+   pf=sel([['','Sem comissão']].concat(G.equipe.map(function(e){return[e.quem,e.nome]}))),pd=sel([['','Sem produto']].concat(G.produtos.map(function(q){return[q.id,q.nome+' ('+q.qtd+' un)']}))),qt=fl('Quantidade','number',{min:1,value:1}),er=h('span','err'),en=h('div');
+  en.append(lab('Profissional (comissão)',pf),lab('Produto vendido (baixa o estoque)',pd),qt.l);tp.onchange=function(){en.hidden=tp.value==='saida'};
+  var b=btn('Lançar',function(){var e=tp.value==='entrada',n=num8(vl.i.value);if(!(n>0)&&!(e&&pd.value)){er.textContent='Informe o valor ou escolha um produto.';return}b.disabled=true;
+   acao('/gestao/mov',{chave:ck,tipo:tp.value,valor:n,forma:fp.value,desc:ds.i.value,dia:dt.i.value,prof:e?pf.value:'',itens:e&&pd.value?[{id:pd.value,qtd:+qt.i.value||1}]:[]},'Lançado.').then(function(){b.disabled=false})},'p');
+  p.append(h('h2',null,'Lançar no caixa'),lab('Tipo',tp),vl.l,lab('Forma',fp),ds.l,dt.l,en,er,b);box.append(p);
+  var P=h('div','panel');P.append(h('h2',null,'Movimentações do mês'));lista(P,'Sem movimentações neste mês.',G.movs);
+  G.movs.slice(0,30).forEach(function(m){var r=h('div','li');r.append(h('span',null,(m.desc||(m.tipo==='saida'?'Saída':'Entrada'))+' · '+dtG8(m.dia)),h('span','m',(m.tipo==='saida'?'− ':'+ ')+R(m.valor)+' · '+m.forma),botao2x8('Apagar','',function(){acao('/gestao/apagar',{chave:ck,id:m.id},'Apagado.')}));P.append(r)});box.append(P);
+  var gp=h('div','panel'),cs=sel(G.cats.map(function(c){return[c,c]})),gn=fl('Ou uma categoria nova','text',{maxLength:40}),gv=fl('Valor (R$)','text',{inputMode:'decimal'}),gd=fl('Descrição','text',{maxLength:80}),gt=fl('Dia','date',{value:G.hoje}),ge=h('span','err');
+  gp.append(h('h2',null,'Gastos da empresa'),lab('Categoria',cs),gn.l,gv.l,gd.l,gt.l,ge,btn('Salvar gasto',function(){var n=num8(gv.i.value);if(!(n>0)){ge.textContent='Informe o valor.';return}
+   var nova=gn.i.value.trim(),go2=function(){acao('/gestao/gasto',{chave:ck,cat:nova.length>=2?nova:cs.value,valor:n,desc:gd.i.value,dia:gt.i.value},'Gasto lançado.')};go2()},'p'));
+  G.gastos.slice(0,30).forEach(function(m){var r=h('div','li');r.append(h('span',null,m.cat+(m.desc?' · '+m.desc:'')+' · '+dtG8(m.dia)),h('span','m',R(m.valor)),botao2x8('Apagar','',function(){acao('/gestao/apagar',{chave:ck,id:m.id},'Apagado.')}));gp.append(r)});box.append(gp);
+  var fc=h('div','panel'),ct=fl('Dinheiro contado na gaveta (opcional)','text',{inputMode:'decimal'});fc.append(h('h2',null,'Fechar o caixa de hoje'),h('div','note','Guarda os totais do dia (inclui vendas e saídas lançadas hoje).'),ct.l,btn('Fechar caixa',function(){acao('/gestao/fechar',{chave:ck,dia:G.hoje,contado:ct.i.value===''?'':num8(ct.i.value)},'Caixa fechado.')},'p'));
+  G.fechamentos.forEach(function(f){var r=h('div','li');r.append(h('span',null,dtG8(f.dia)+' · entrou '+R(f.entradas)+' · saiu '+R(f.saidas)),h('span','m','saldo '+R(f.saldo)+(f.contado!=null?' · gaveta '+R(f.contado):'')));fc.append(r)});box.append(fc);
+  if(G.dono&&G.equipe.length){var cm=h('div','panel'),ins={};cm.append(h('h2',null,'Comissão (% sobre as entradas de cada pessoa)'));G.equipe.forEach(function(e){var f=fl(e.nome,'number',{min:0,max:100,value:G.com[e.quem]||0});ins[e.quem]=f.i;cm.append(f.l)});
+   cm.append(btn('Salvar comissões',function(){var com={};for(var k in ins)com[k]=+ins[k].value||0;acao('/gestao/cfg',{chave:ck,com:com},'Comissões salvas.')},'p'));box.append(cm)}})};
 
 var go0=go;go=function(id){var l=loja();if(l&&l.vinc&&WFV.indexOf(id)<0)id='meutrabalho';if(WFV.indexOf(id)>-1&&id!=='config'&&S.view!==id&&!Store.n)delete Store.mem[S.cur];return go0(id)};
 
