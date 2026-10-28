@@ -164,10 +164,10 @@ function nomeCurto(t){const p=t.replace(/[^A-Za-zÀ-ÿ ]/g,' ').trim().split(/\s
 function trabCurto(t){const x=t.replace(/[^A-Za-zÀ-ÿ ,\-]/g,' ').replace(/\s*,\s*/g,', ').replace(/(,\s*){2,}/g,', ').replace(/\s+/g,' ').replace(/^[,\s]+|[,\s]+$/g,'').slice(0,60);return x?x.charAt(0).toUpperCase()+x.slice(1):''}
 function rolar(el){el.scrollTop=el.scrollHeight}
 function nota(pane,t){const p=document.createElement('p');p.className='s';p.textContent=t;pane.append(p);rolar(pane)}
-function papelTxt(p){return p.adm?(p.role==='helper'?'Administrador · Helper · '+p.work:'Administrador'):(p.role==='helper'?'Helper · '+p.work:'Cliente')}
+function papelTxt(p){return p.adm?(p.role==='helper'?'Administrador · Helper'+(p.work?' · '+p.work:''):'Administrador'):(p.role==='helper'?'Helper'+(p.work?' · '+p.work:''):'Cliente')}
 function etiqueta(pes){const f=document.createDocumentFragment();
 if(pes.adm){const s=document.createElement('span');s.className='tag adm';s.textContent='ADM';f.append(s)}
-if(pes.role==='helper'){const s=document.createElement('span');s.className='tag h';s.textContent=pes.work;f.append(s)}
+if(pes.role==='helper'&&pes.work){const s=document.createElement('span');s.className='tag h';s.textContent=pes.work;f.append(s)}
 if(pes.role==='helper'&&window.MH_FUND&&window.MH_FUND.has(pes.nome)){const s=document.createElement('span');s.className='tag f';s.textContent='🏅 Fundador';f.append(s)}
 if(pes.bot){const s=document.createElement('span');s.className='tag b';s.textContent='bot';f.append(s)}
 const tt=(window.MH_TITULOS||{})[pes.nome];if(tt&&!(pes.adm&&tt==='ADM')){const s=document.createElement('span');s.className='tag t';s.textContent=tt;f.append(s)}

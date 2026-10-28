@@ -149,7 +149,7 @@ async function entrar(){
     const contasLeg=J('mh_acc',{});
     const contaLeg=Object.values(contasLeg).find(x=>normalizaTel(x&&x.tel)===tel);
     const r=await A.req('/conta/entrar',{body:{tel,chave:await chaveDe(tel,pw),chaveLegada:contaLeg?await chaveDe(contaLeg.nome,pw):'',identificador:tel}});st=r.status;
-    if(r.ok&&r.j&&r.j.token){A.setUsrTk(r.j.token);const c={nome:r.j.nome,role:(r.j.papel==='helper'&&r.j.oficio)?'helper':'cliente',work:r.j.oficio||''};guarda(c.nome);MH_UI.entrarConta(c);window.MH_numChegou&&MH_numChegou(c.nome,r.j.numero);return}
+    if(r.ok&&r.j&&r.j.token){A.setUsrTk(r.j.token);const c={nome:r.j.nome,role:'helper',work:r.j.oficio||''};guarda(c.nome);MH_UI.entrarConta(c);window.MH_numChegou&&MH_numChegou(c.nome,r.j.numero);return}
     if(st===401)return erro('Telefone ou senha incorretos.');
     if(st===429)return erro('Muitas tentativas. Espere 15 minutos e tente de novo.')
   }
@@ -172,7 +172,7 @@ const acc=J('mh_acc',{});let c=n&&acc[String(n).toLowerCase()];
 if(!c&&!n&&localStorage.getItem('mh_keep')!=='0'){try{const o=JSON.parse(localStorage.getItem('mh_eu')||'null');if(o&&o.nome)c={nome:o.nome,role:o.role,work:o.work}}catch(e){}}
 if(c&&window.MH_UI)MH_UI.entrarConta(c);
 else if(!n&&window.MH_API&&MH_API.on()&&MH_API.usrTk()&&window.MH_UI){const A=MH_API;A.req('/conta/eu',{token:A.usrTk()}).then(r=>{
-  if(r.ok&&r.j&&r.j.ok){guarda(r.j.nome);MH_UI.entrarConta({nome:r.j.nome,role:(r.j.papel==='helper'&&r.j.oficio)?'helper':'cliente',work:r.j.oficio||''});window.MH_numChegou&&MH_numChegou(r.j.nome,r.j.numero)}
+  if(r.ok&&r.j&&r.j.ok){guarda(r.j.nome);MH_UI.entrarConta({nome:r.j.nome,role:'helper',work:r.j.oficio||''});window.MH_numChegou&&MH_numChegou(r.j.nome,r.j.numero)}
   else if(r.status===401)A.setUsrTk('')})}},400);
 let ultN=null;setInterval(()=>{const e=window.MH_UI&&MH_UI.eu&&MH_UI.eu();sair.hidden=!e;const nn=e?e.nome:null;if(nn!==ultN){ultN=nn;try{MH_UI.sos()}catch(x){}}},700);
 // temas (engrenagem): dourado, claro, miami, brasil, pôr do sol, terminal

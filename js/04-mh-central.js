@@ -25,7 +25,8 @@ window.MH_CENTRAL=async function(ctx){
  function cur(){return lojas.find(function(l){return sel?l.chave===sel.value:true})||null}
 
  var f=document.createElement('div');f.className='mc-a';
- var lb=document.createElement('a');lb.className='mc-b mc-p';lb.target='_blank';lb.rel='noopener';lb.textContent='Abrir no D\u2019Castro Labs';
+ var lb=document.createElement('a');lb.className='mc-b mc-p';lb.target='_blank';lb.textContent='Abrir no D\u2019Castro Labs';
+ lb.onclick=function(e){var w=null;try{w=window.open(lb.href,'_blank')}catch(x){}if(w){e.preventDefault();try{w.opener=null}catch(x){}}};
  var pb=document.createElement('button');pb.type='button';pb.textContent='Perfil público';
  var c=document.createElement('button');c.type='button';c.textContent='Fechar';
  function atualiza(){var l=cur();lb.href='labs.html'+(l?'?loja='+encodeURIComponent(l.chave):'');pb.disabled=!l}
