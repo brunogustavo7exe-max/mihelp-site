@@ -445,7 +445,7 @@ function tPes(b){
   const setTit=(n,v)=>{v=v.trim().slice(0,20);if(v)TIT[n]=v;else{if(TIT[n])lixo('titulo','Título de '+n+': '+TIT[n],{n,t:TIT[n]});delete TIT[n]}store.set('titulos',TIT);UI.online();say(v?'Título de '+n+': '+v+'.':'Título de '+n+' removido.')};
   nomes.forEach(n=>{
     const p=pess.find(x=>x.nome===n),r=mk('div','arow'),info=mk('div','ainfo');
-    info.append(mk('b',0,n+(banidos.has(n)?'  (banido)':'')),mk('span',0,p?(p.role==='helper'?'Helper'+(p.work?' · '+p.work:''):'Cliente')+(p.bot?' · bot':''):'não está na sala agora'));
+    info.append(mk('b',0,n+(banidos.has(n)?'  (banido)':'')),mk('span',0,p?(p.role==='helper'?'Helper'+(p.work?' · '+p.work:''):'Membro')+(p.bot?' · bot':''):'não está na sala agora'));
     const t=inp('text',20,'Título');t.setAttribute('list','admTit');t.value=TIT[n]||'';t.setAttribute('aria-label','Título de '+n);
     const sv=mk('button','cp','Salvar');sv.type='button';sv.onclick=()=>setTit(n,t.value);
     const ac=mk('div','aact');ac.append(t,sv);
