@@ -259,7 +259,7 @@ function toast(t){var e=$('#toast');e.textContent=t;e.style.display='block';clea
 var S={cat:{tipos:[],cidades:{}},conv:[],transf:[],lojas:[],cur:null,res:null,resErr:'',rs:null,nome:'',view:'visao'};
 var MODS=[
  ['Principal',[['visao','◧','Visão geral','real'],['empresa','🏢','Minha empresa','real'],['equipe','👥','Equipe','real'],['clientes','🤝','Clientes','real'],['servicos','🛠','Serviços e preços','real'],['orcamentos','🧾','Orçamentos e trabalhos','real'],['agenda','🗓','Agenda','real']]],
- ['Operação',[['financeiro','💰','Financeiro','real'],['estoque','📦','Estoque','real'],['relatorios','📊','Relatórios','demo'],['automacoes','⚡','Automações','demo']]],
+ ['Operação',[['financeiro','💰','Financeiro','real'],['estoque','📦','Estoque','real'],['relatorios','📊','Relatórios','real'],['automacoes','⚡','Automações','demo']]],
  ['Workforce',[['meutrabalho','🧑‍💼','Meu Trabalho','beta'],['escalas','📅','Escalas e folgas','demo'],['ponto','⏱','Ponto digital','demo'],['avaliacoes','🔒','Avaliações privadas','beta'],['passaporte','🪪','Passaporte Profissional','beta']]],
  ['Sistema',[['studio','🎛','Personalização (Studio)','beta'],['config','⚙','Configurações','real']]]
 ];
@@ -992,7 +992,7 @@ VIEWS.financeiro=function(v){var l=loja();v.append(head('Financeiro',l?l.nome:''
 /* ===== Catálogo de módulos e personalização por atividade (rotas /org/config do Worker v21) =====
    Ativar ou ocultar um módulo só muda o que aparece na navegação. Quem pode usar o quê é decidido pelo servidor, por papel. */
 var ATIV={geral:['Geral / outro',['servicos','orcamentos','agenda','financeiro','estoque','clientes']],autonomo:['Profissional autônomo',['clientes','orcamentos','agenda','financeiro']],construcao:['Construção e reformas',['clientes','orcamentos','servicos','financeiro','estoque','equipe']],beleza:['Beleza e estética',['agenda','servicos','clientes','financeiro','estoque','equipe']],comercio:['Comércio e varejo',['estoque','financeiro','clientes','equipe']],oficina:['Oficina e manutenção',['orcamentos','clientes','estoque','financeiro','agenda']],alimentacao:['Alimentação (restaurante, lanchonete)',['estoque','financeiro','equipe','clientes']],saude:['Saúde e bem-estar',['agenda','clientes','servicos','financeiro']],escritorio:['Escritório e serviços',['clientes','orcamentos','agenda','financeiro','equipe']]};
-var MCAT={visao:{e:'real',core:1,dep:[]},studio:{e:'real',core:1,dep:[]},config:{e:'real',core:1,dep:[]},empresa:{e:'real',dep:[]},equipe:{e:'real',dep:['empresa']},clientes:{e:'parcial',dep:[]},servicos:{e:'real',dep:['empresa']},orcamentos:{e:'real',dep:['clientes']},agenda:{e:'real',dep:['servicos']},financeiro:{e:'real',dep:['empresa']},estoque:{e:'real',dep:['empresa']},relatorios:{e:'proto',dep:['financeiro','estoque']},automacoes:{e:'proto',dep:[]},meutrabalho:{e:'parcial',dep:['equipe']},escalas:{e:'proto',dep:['meutrabalho']},ponto:{e:'parcial',dep:['meutrabalho']},avaliacoes:{e:'parcial',dep:['meutrabalho']},passaporte:{e:'parcial',dep:['meutrabalho']}};
+var MCAT={visao:{e:'real',core:1,dep:[]},studio:{e:'real',core:1,dep:[]},config:{e:'real',core:1,dep:[]},empresa:{e:'real',dep:[]},equipe:{e:'real',dep:['empresa']},clientes:{e:'parcial',dep:[]},servicos:{e:'real',dep:['empresa']},orcamentos:{e:'real',dep:['clientes']},agenda:{e:'real',dep:['servicos']},financeiro:{e:'real',dep:['empresa']},estoque:{e:'real',dep:['empresa']},relatorios:{e:'real',dep:['financeiro','estoque']},automacoes:{e:'proto',dep:[]},meutrabalho:{e:'parcial',dep:['equipe']},escalas:{e:'proto',dep:['meutrabalho']},ponto:{e:'parcial',dep:['meutrabalho']},avaliacoes:{e:'parcial',dep:['meutrabalho']},passaporte:{e:'parcial',dep:['meutrabalho']}};
 function modNome(id){var n=id;MODS.forEach(function(g){g[1].forEach(function(m){if(m[0]===id)n=m[2]})});return n}
 function atalhosAtiv(){var a=ATIV[((S.cfg||{}).ativ||{}).p];if(!a)return[['financeiro','Financeiro'],['estoque','Estoque'],['equipe','Equipe'],['agenda','Agenda'],['servicos','Serviços'],['orcamentos','Orçamentos']];return a[1].slice(0,6).map(function(m){return[m,modNome(m)]})}
 function modOculto(id){var l=loja();if(l&&l.vinc)return !(WFV.indexOf(id)>-1||id==='financeiro'||(l.gestor&&id==='estoque'));var m=S.cfg&&S.cfg.mods;return !!(m&&m[id]===0&&!(MCAT[id]&&MCAT[id].core))}
@@ -1072,6 +1072,122 @@ VIEWS.financeiro=function(v){var l=loja(),semEmp=!l||(l.vinc&&!l.gestor);if(!S.f
  v.append(bar);return S.fctx==='pessoal'?finPessoal(v):fin0(v)};
 
 var go0=go;go=function(id){var l=loja();if(l&&l.vinc&&WFV.indexOf(id)<0&&id!=='financeiro'&&!(l.gestor&&id==='estoque'))id='meutrabalho';if(WFV.indexOf(id)>-1&&id!=='config'&&S.view!==id&&!Store.n)delete Store.mem[S.cur];return go0(id)};
+
+/* ===== v23: Primeiros passos (Visão geral) e Relatórios reais =====
+   Só leem dados que o Labs já carrega (nenhuma rota nova no Worker). Quem pode ver o quê continua sendo decidido pelo servidor. */
+function passosIni(l){
+ var pr=(typeof PRO8!=='undefined'&&PRO8.d)||null,res=S.res,cfg=S.cfg;
+ var hor=!!(l.horario&&l.horario.d&&l.horario.d.some(function(d){return d&&d.length}));
+ var eq=(l.equipe||[]).some(function(x){return x.status==='aceito'});
+ return [
+  {id:'perfil',t:'Completar o perfil público (endereço e WhatsApp)',ok:!!(l.endereco&&l.contato),go:'empresa'},
+  {id:'horario',t:'Definir o horário de funcionamento',ok:hor,go:'empresa'},
+  {id:'serv',t:'Cadastrar o primeiro serviço',ok:(l.servicos||[]).length>0,go:'servicos'},
+  {id:'equipe',t:'Chamar alguém para a equipe',ok:eq,go:'equipe'},
+  {id:'prod',t:'Cadastrar o primeiro produto no estoque',ok:res?(res.produtos||[]).length>0:null,go:'estoque'},
+  {id:'caixa',t:'Lançar uma entrada ou saída no caixa deste mês',ok:res?((res.movs||[]).length>0||(res.gastos||[]).length>0):null,go:'financeiro'},
+  {id:'cli',t:'Cadastrar o primeiro cliente',ok:pr?(pr.clientes||[]).length>0:null,go:'clientes'},
+  {id:'orc',t:'Fazer o primeiro orçamento',ok:pr?(pr.trab||[]).length>0:null,go:'orcamentos'},
+  {id:'ativ',t:'Escolher a atividade da empresa (personalização)',ok:cfg?!!(cfg.ativ&&cfg.ativ.p):null,go:'studio'}
+ ]}
+function painelPassos(l){
+ var L=passosIni(l).filter(function(p){return !modOculto(p.go)}),key='dl_pp_'+l.chave;
+ try{if(localStorage.getItem(key)==='1')return null}catch(e){}
+ var feitos=L.filter(function(p){return p.ok===true}),aberto=L.filter(function(p){return p.ok!==true});
+ if(!L.length||!aberto.length)return null;
+ var oc=btn('Ocultar',function(){try{localStorage.setItem(key,'1')}catch(e){}re()}),p=painel('Primeiros passos',oc),bar=h('div','bar'),i=h('i'),pend=L.some(function(x){return x.ok===null});
+ i.style.width=Math.round(100*feitos.length/L.length)+'%';bar.append(i);
+ p.append(h('div','m',feitos.length+' de '+L.length+' passos feitos'+(pend?' · alguns não puderam ser verificados agora':'')),bar);
+ L.forEach(function(s){var r=h('div','li'),t=h('span',s.ok===true?'m':null,(s.ok===true?'✓ ':s.ok===null?'… ':'○ ')+s.t);
+  t.setAttribute('aria-label',(s.ok===true?'Feito: ':s.ok===null?'Não verificado: ':'Pendente: ')+s.t);r.append(t);
+  if(s.ok!==true)r.append(btn('Abrir',function(){go(s.go)}));p.append(r)});
+ return p}
+var visao1=VIEWS.visao;
+VIEWS.visao=function(v){visao1(v);var l=loja();if(!l||l.vinc)return;var pp=painelPassos(l);if(pp&&v.children.length>1)v.insertBefore(pp,v.children[1])};
+
+/* ----- Relatórios ----- */
+var RP={mes:''};
+function brNum(n){return String(Math.round((Number(n)||0)*100)/100).replace('.',',')}
+function pctVar(cur,prev){cur=Number(cur)||0;prev=Number(prev)||0;return prev>0?Math.round((cur-prev)/prev*100):null}
+function somaPor(arr,kf,vf){var m={};(arr||[]).forEach(function(x){var k=kf(x)||'Sem categoria';m[k]=(m[k]||0)+(Number(vf(x))||0)});return m}
+function csvLinhas(cab,rows){return [cab.join(';')].concat(rows.map(function(r){return r.map(csvC).join(';')}))}
+function estoqueRel(prod){var un=0,custo=0,venda=0,sem=[],baixo=[];(prod||[]).forEach(function(p){var q=Number(p.qtd)||0;un+=q;custo+=q*(Number(p.custo)||0);venda+=q*(Number(p.venda)||0);if(!(Number(p.custo)>0)||!(Number(p.venda)>0))sem.push(p);if(Number(p.min)>0&&q<=Number(p.min))baixo.push(p)});return{n:(prod||[]).length,un:un,custo:custo,venda:venda,sem:sem,baixo:baixo}}
+function trabRel(D,mes){var T=D.trab||[],por={};STS8.forEach(function(s){por[s[0]]={n:0,total:0}});
+ T.forEach(function(t){var o=por[t.st]||(por[t.st]={n:0,total:0});o.n++;o.total+=tTotal8(t)});
+ var inMes=function(p){return String(p.d).slice(0,7)===mes};
+ return{n:T.length,por:por,
+  recMes:soma8(T,function(t){return soma8((t.pagtos||[]).filter(inMes),function(p){return p.v})}),
+  despMes:soma8(T,function(t){return soma8((t.desp||[]).filter(inMes),function(p){return p.v})}),
+  aReceber:soma8(T.filter(function(t){return ['apr','and','con'].indexOf(t.st)>-1}),tSaldo8)}}
+function tarefasRel(d,hj){var ab=0,conc=0,at=[],por={};(d.tarefas||[]).forEach(function(t){var k=nomeF(d,t.f);por[k]=por[k]||{ab:0,at:0};
+ if(t.st==='concluida'){conc++}else{ab++;por[k].ab++;if(t.prazo&&t.prazo<hj){at.push(t);por[k].at++}}});return{ab:ab,conc:conc,at:at,por:por,total:(d.tarefas||[]).length}}
+function linhaCmp(rot,a,b,inv){var r=h('div','li');r.append(h('span',null,rot),h('span','m',R(a)+(b==null?'':' · mês anterior '+R(b))));if(b!=null)r.append(delta(a,b,inv));return r}
+function aviso(p,txt){p.append(h('div','note',txt))}
+
+VIEWS.relatorios=function(v){var l=loja();v.append(head('Relatórios',l?l.nome:'','real'));if(!l)return noLoja(v);
+ if(l.vinc&&!l.gestor)return v.append(empty('Só o dono ou o gestor vê os relatórios da empresa.'));
+ var box=h('div'),q='/gestao/resumo?chave='+encodeURIComponent(l.chave);v.append(box);box.append(h('p','sub','Carregando…'));
+ api(q+(RP.mes?'&mes='+encodeURIComponent(RP.mes):'')).then(function(r){if(!box.isConnected)return;
+  if(!(r.ok&&r.j&&r.j.ok)){box.textContent='';return box.append(empty('Não foi possível carregar: '+((r.j&&r.j.erro)||'indisponível')+'.'))}
+  var G=r.j;RP.mes=G.mes;
+  return Promise.all([api(q+'&mes='+encodeURIComponent(mesAnt(G.mes))),PRO8.d?Promise.resolve(PRO8.d):proCarrega8().catch(function(){return null}),Store.cur()?Promise.resolve():Store.carregar().catch(function(){})]).then(function(a){
+   if(!box.isConnected)return;var P=a[0].ok&&a[0].j&&a[0].j.ok?a[0].j:null;box.textContent='';relMonta(box,G,P)})})};
+
+function relMonta(box,G,P){
+ var x=G.resumo,px=P?P.resumo:null,mi=fl('Mês','month',{value:G.mes});mi.i.onchange=function(){if(mi.i.value){RP.mes=mi.i.value;re()}};box.append(mi.l);
+ box.append(h('div','note','Os números vêm do que foi lançado em Financeiro e Estoque. Não são saldo bancário. Valores combinados em orçamentos ficam separados do que foi recebido.'));
+ if(!px)box.append(h('div','note','Não consegui carregar o mês anterior. A comparação foi omitida.'));
+ /* A. resultado */
+ var linhas=[['Entradas','entradas',0],['Saídas','saidas',1],['Gastos','gastos',1],['Comissão','comissao',1],['Resultado','resultado',0]];
+ var A=painel('Resultado de '+G.mes,btn('Exportar CSV',function(){baixaCsv('resultado-'+G.mes+'.csv',csvLinhas(['indicador','mes','valor','mes_anterior','valor_anterior'],linhas.map(function(k){return [k[0],G.mes,brNum(x[k[1]]),px?P.mes:'',px?brNum(px[k[1]]):'']})))}));
+ linhas.forEach(function(k){A.append(linhaCmp(k[0],x[k[1]],px?px[k[1]]:null,k[2]))});
+ var f=x.porForma||{},tot=(f.dinheiro||0)+(f.pix||0)+(f.cartao||0);
+ A.append(h('h2',null,'Entradas por forma de pagamento'));
+ [['Dinheiro','dinheiro'],['Pix','pix'],['Cartão','cartao']].forEach(function(k){var r=h('div','li');r.append(h('span',null,k[0]),h('span','m',R(f[k[1]])+(tot?' · '+Math.round(100*(f[k[1]]||0)/tot)+'%':'')));A.append(r)});
+ var sEnt=0;(G.movs||[]).forEach(function(m){if(m.tipo==='entrada')sEnt+=Number(m.valor)||0});
+ if((G.movs||[]).length&&Math.abs(sEnt-(x.entradas||0))>0.005)aviso(A,'Atenção: as movimentações recebidas somam '+R(sEnt)+', mas o resumo do servidor mostra '+R(x.entradas)+' de entradas. O detalhamento pode estar incompleto.');
+ box.append(A);
+ /* B. gastos por categoria */
+ var cur=somaPor(G.gastos,function(g){return g.cat},function(g){return g.valor}),prv=P?somaPor(P.gastos,function(g){return g.cat},function(g){return g.valor}):null,keys=Object.keys(cur);
+ if(prv)Object.keys(prv).forEach(function(k){if(keys.indexOf(k)<0)keys.push(k)});keys.sort(function(a,b){return (cur[b]||0)-(cur[a]||0)});
+ var B=painel('Gastos por categoria',btn('Exportar CSV',function(){baixaCsv('gastos-categoria-'+G.mes+'.csv',csvLinhas(['categoria','mes','valor','mes_anterior','valor_anterior'],keys.map(function(k){return [k,G.mes,brNum(cur[k]||0),prv?P.mes:'',prv?brNum(prv[k]||0):'']})))}));
+ if(!keys.length)B.append(empty('Nenhum gasto lançado neste mês nem no anterior.'));
+ keys.forEach(function(k){var a=cur[k]||0,b=prv?(prv[k]||0):null,r=linhaCmp(k,a,b,1),pc=b!=null?pctVar(a,b):null;if(pc!=null&&pc>=50&&a-b>=100)r.append(h('span','chip wr','subiu bastante'));B.append(r)});
+ var sg=0;Object.keys(cur).forEach(function(k){sg+=cur[k]});
+ if(Math.abs(sg-(x.gastos||0))>0.005)aviso(B,'Atenção: as categorias somam '+R(sg)+', mas o resumo do servidor mostra '+R(x.gastos)+' de gastos. O detalhamento pode estar incompleto.');
+ box.append(B);
+ /* C. estoque */
+ var E=estoqueRel(G.produtos);
+ var C=painel('Estoque (posição de agora)',btn('Exportar CSV',function(){baixaCsv('estoque.csv',csvLinhas(['produto','quantidade','custo','venda','minimo','valor_a_custo'],(G.produtos||[]).map(function(p){return [p.nome,p.qtd,brNum(p.custo),brNum(p.venda),p.min,brNum((Number(p.qtd)||0)*(Number(p.custo)||0))]})))}));
+ if(!E.n)C.append(empty('Nenhum produto cadastrado.'));
+ else{[['Produtos cadastrados',String(E.n)],['Unidades em estoque',String(E.un)],['Valor do estoque a preço de custo',R(E.custo)],['Valor de venda potencial (não é receita)',R(E.venda)]].forEach(function(k){var r=h('div','li');r.append(h('span',null,k[0]),h('span','m',k[1]));C.append(r)});
+  C.append(h('h2',null,'Precisam de reposição ('+E.baixo.length+')'));if(!E.baixo.length)C.append(h('div','m','Nenhum produto no mínimo ou abaixo.'));
+  E.baixo.forEach(function(p){var r=h('div','li');r.append(h('span',null,p.nome),h('span','m',p.qtd+' un (mínimo '+p.min+')'));C.append(r)});
+  if(E.sem.length)aviso(C,E.sem.length+' produto(s) sem custo ou sem preço de venda, então o valor total do estoque está subestimado: '+E.sem.slice(0,5).map(function(p){return p.nome}).join(', ')+(E.sem.length>5?'…':'')+'.');
+  if(G.mes!==ymd(new Date()).slice(0,7))aviso(C,'O estoque mostra a posição atual, não a de '+G.mes+'.')}
+ box.append(C);
+ /* D. trabalhos (conta do usuário) */
+ var D=PRO8.d;
+ var T=painel('Orçamentos e trabalhos (da sua conta, não só desta empresa)',D?btn('Exportar CSV',function(){baixaCsv('trabalhos.csv',csvLinhas(['numero','data','cliente','trabalho','situacao','total','recebido','gastos'],(D.trab||[]).map(function(t){var c=(D.clientes||[]).find(function(y){return y.id===t.cli});return [t.num,t.criado,c?c.nome:'',t.titulo,stNome8(t.st).replace(/^\S+\s/,''),brNum(tTotal8(t)),brNum(tRec8(t)),brNum(tCusto8(t))]})))}):null);
+ if(!D)T.append(empty('Não foi possível carregar os trabalhos agora.'));
+ else if(!D.trab.length)T.append(empty('Nenhum orçamento ou trabalho ainda.'));
+ else{var W=trabRel(D,G.mes);STS8.forEach(function(s){var o=W.por[s[0]]||{n:0,total:0},r=h('div','li');r.append(h('span',null,s[1]+' · '+o.n),h('span','m','valor combinado '+R(o.total)));T.append(r)});
+  [['Recebido em '+G.mes,R(W.recMes)],['Gastos lançados nos trabalhos em '+G.mes,R(W.despMes)],['Ainda a receber (aprovados, em andamento e concluídos)',R(W.aReceber)]].forEach(function(k){var r=h('div','li');r.append(h('span',null,k[0]),h('span','m',k[1]));T.append(r)});
+  aviso(T,'Valor combinado é o total dos orçamentos e não é dinheiro recebido. Estes valores não entram no resultado do caixa acima.')}
+ box.append(T);
+ /* E. equipe e tarefas */
+ var cs=Store.cur(),K=painel('Tarefas da equipe');
+ if(!cs||cs.off)K.append(empty('Não foi possível carregar as tarefas agora.'));
+ else{var d=Store.get(),W2=tarefasRel(d,hoje());
+  if(!W2.total)K.append(empty('Nenhuma tarefa criada ainda.'));
+  else{[['Abertas',String(W2.ab)],['Atrasadas (prazo vencido e não concluídas)',String(W2.at.length)],['Concluídas (total, sem data de conclusão)',String(W2.conc)]].forEach(function(k){var r=h('div','li');r.append(h('span',null,k[0]),h('span','m',k[1]));K.append(r)});
+   Object.keys(W2.por).sort().forEach(function(k){var o=W2.por[k];if(!o.ab)return;var r=h('div','li');r.append(h('span',null,k),h('span','m',o.ab+' aberta(s)'+(o.at?' · '+o.at+' atrasada(s)':'')));K.append(r)})}
+  aviso(K,'Ponto digital e escalas ainda são protótipo e não entram nos relatórios. Horas trabalhadas e custo de mão de obra só serão calculados quando o ponto for real.')}
+ box.append(K);
+ /* critérios */
+ var Q=painel('Como calculamos');
+ ['Entradas, saídas, gastos e comissão: soma dos lançamentos do mês feitos em Financeiro. Resultado = entradas − saídas − gastos − comissão.','Variação: comparação com o mês anterior; só mostra percentual quando o mês anterior teve movimento.','Subiu bastante: categoria com alta de 50% ou mais e pelo menos R$ 100 a mais.','Estoque: quantidade × custo atual de cada produto; é a posição de agora, não do mês escolhido.','Trabalhos: dados da sua conta (Orçamentos e trabalhos), separados do caixa da empresa.','Tarefas atrasadas: prazo anterior a hoje e estado diferente de concluída.'].forEach(function(t){Q.append(h('div','li',t))});
+ box.append(Q)}
 
 boot();
 })();
