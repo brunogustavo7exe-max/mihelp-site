@@ -735,15 +735,30 @@ function logoR(f){return new Promise(function(ok,err){if(!f||!/^image\//.test(f.
   var q=.7,r=c.toDataURL('image/jpeg',q);while(r.length>19000&&q>.25){q-=.08;r=c.toDataURL('image/jpeg',q)}
   r.length<=20000?ok(r):err(new Error('Imagem complexa demais. Tente outra.'))}catch(e){err(e)}};
  im.onerror=function(){URL.revokeObjectURL(u);err(new Error('Não consegui abrir essa imagem.'))};im.src=u})}
-function horEd(hv){var w=h('div'),N=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],linhas=[];
+function horEd(hv){var w=h('div'),NM=['dom','seg','ter','qua','qui','sex','sáb'],NL=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],ORD=[1,2,3,4,5,6,0],fx=(hv&&hv.d)||[],dias=[],custom=0,pdIn={};
+ function tin(v){var t=document.createElement('input');t.type='time';t.value=v||'';return t}
+ function cmp(t,rot,i){var l=h('label',null,rot);l.append(i);return l}
+ ORD.forEach(function(i){if((fx[i]||[]).length)dias.push(i)});
+ var f0=dias.length?fx[dias[0]]:[],iv0=f0.length===2;
+ dias.forEach(function(i){if(JSON.stringify(fx[i])!==JSON.stringify(f0))custom=1});
  var pk=document.createElement('input');pk.type='checkbox';pk.checked=!!(hv&&hv.p);var pl=h('label','tg');pl.append(pk,document.createTextNode(' Fechado temporariamente (férias, reforma…)'));w.append(pl);
- [1,2,3,4,5,6,0].forEach(function(i){var r=h('div'),cb=document.createElement('input'),ins=[],fx=(hv&&hv.d&&hv.d[i])||[];cb.type='checkbox';cb.checked=fx.length>0;cb.setAttribute('aria-label',N[i]+' aberto');
-  for(var k=0;k<4;k++){var t=document.createElement('input');t.type='time';t.style.cssText='background:#0b0a14;color:#fff;border:1px solid #3a3550;border-radius:8px;padding:6px';var f=fx[k>>1];if(f)t.value=f.split('-')[k%2];ins.push(t)}
-  var nm=h('b',null,N[i]);nm.style.minWidth='78px';r.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:8px 0';
-  r.append(cb,nm,ins[0],h('span',null,'às'),ins[1],h('span',null,'e'),ins[2],h('span',null,'às'),ins[3]);w.append(r);linhas.push({i:i,cb:cb,ins:ins})});
- w.append(btn('Copiar a segunda para todos os dias',function(){var m=linhas.filter(function(l){return l.i===1})[0];linhas.forEach(function(l){l.cb.checked=m.cb.checked;l.ins.forEach(function(t,k){t.value=m.ins[k].value})})}));
- w.append(h('div','note','Quem fecha de madrugada usa 18:00 às 02:00. Deixe a 2ª faixa vazia se não tiver pausa.'));
- return{el:w,valor:function(){var d=[[],[],[],[],[],[],[]];linhas.forEach(function(l){if(!l.cb.checked)return;var a=[];if(l.ins[0].value&&l.ins[1].value)a.push(l.ins[0].value+'-'+l.ins[1].value);if(l.ins[2].value&&l.ins[3].value)a.push(l.ins[2].value+'-'+l.ins[3].value);d[l.i]=a});return{p:pk.checked?1:0,d:d}}}}
+ var g=h('div','dgrid'),pills={};
+ ORD.forEach(function(i){var b=h('button','dpill',NM[i]);b.type='button';b.title=NL[i];b.style.cssText='width:52px;font-size:13px';b.setAttribute('aria-label',NL[i]+' aberto');b.setAttribute('aria-pressed',String(dias.indexOf(i)>-1));
+  b.onclick=function(){var k=dias.indexOf(i);if(k>-1)dias.splice(k,1);else dias.push(i);b.setAttribute('aria-pressed',String(dias.indexOf(i)>-1));pinta()};pills[i]=b;g.append(b)});
+ w.append(h('div','note','Toque nos dias em que a empresa abre.'),g);
+ var x1=tin(f0.length?f0[0].split('-')[0]:'08:00'),x2=tin(f0.length?f0[f0.length-1].split('-')[1]:'18:00'),p1=tin(iv0?f0[0].split('-')[1]:'12:00'),p2=tin(iv0?f0[1].split('-')[0]:'13:00');
+ var ivk=document.createElement('input');ivk.type='checkbox';ivk.checked=iv0;var ivl=h('label','tg');ivl.append(ivk,document.createTextNode(' Fecha para o almoço (intervalo)'));
+ var sh=h('div'),r1=h('div','tin'),r2=h('div','tin');r1.append(cmp(0,'Abre',x1),cmp(0,'Fecha',x2));r2.append(cmp(0,'Sai para o intervalo',p1),cmp(0,'Volta',p2));r2.style.marginTop='8px';
+ sh.append(r1,ivl,r2);
+ var pd=h('div');
+ ORD.forEach(function(i){var a=(fx[i]||[]),ins=[0,1,2,3].map(function(k){return tin(a[k>>1]?a[k>>1].split('-')[k%2]:'')}),r=h('div','tin');r.style.cssText='margin:8px 0;align-items:center';
+  var nm=h('b',null,NL[i]);nm.style.minWidth='78px';r.append(nm,cmp(0,'Abre',ins[0]),cmp(0,'Fecha',ins[1]),cmp(0,'2ª faixa: abre',ins[2]),cmp(0,'fecha',ins[3]));pdIn[i]={r:r,ins:ins};pd.append(r)});
+ var tg=btn('',function(){if(!custom){var s=sharedR();ORD.forEach(function(i){var a=pdIn[i].ins;if(!a[0].value&&!a[1].value){a[0].value=s[0]?s[0].split('-')[0]:'';a[1].value=s[0]?s[0].split('-')[1]:'';a[2].value=s[1]?s[1].split('-')[0]:'';a[3].value=s[1]?s[1].split('-')[1]:''}})}custom=custom?0:1;pinta()});
+ function sharedR(){var a=x1.value,b=x2.value;if(!a||!b)return[];if(ivk.checked&&p1.value&&p2.value)return[a+'-'+p1.value,p2.value+'-'+b];return[a+'-'+b]}
+ function pinta(){sh.style.display=custom?'none':'';r2.style.display=ivk.checked?'':'none';pd.style.display=custom?'':'none';
+  ORD.forEach(function(i){pdIn[i].r.style.display=dias.indexOf(i)>-1?'':'none'});tg.textContent=custom?'Usar o mesmo horário em todos os dias':'Horário diferente em algum dia';tg.style.display=dias.length?'':'none'}
+ ivk.onchange=pinta;w.append(sh,pd,tg,h('div','note','Quem fecha de madrugada usa, por exemplo, abre 18:00 e fecha 02:00.'));pinta();
+ return{el:w,valor:function(){var d=[[],[],[],[],[],[],[]],s=sharedR();dias.forEach(function(i){if(!custom){d[i]=s.slice();return}var a=pdIn[i].ins,o=[];if(a[0].value&&a[1].value)o.push(a[0].value+'-'+a[1].value);if(a[2].value&&a[3].value)o.push(a[2].value+'-'+a[3].value);d[i]=o});return{p:pk.checked?1:0,d:d}}}}
 function ck(txt,val){var l=h('label','tg'),c=document.createElement('input');c.type='checkbox';c.checked=val;l.append(c,document.createTextNode(' '+txt));return{l:l,c:c}}
 VIEWS.empresa=function(v){var l=loja();v.append(head('Minha empresa',l?l.nome:'','real'));if(!l)return noLoja(v);
  if(l.vinc)return v.append(empty('Só o dono edita os dados da empresa.'));
@@ -1200,12 +1215,20 @@ function formT(l,J,t){var o=[['','Turno aberto (qualquer um da equipe pode pegar
  var p=form(t.id?'Editar turno':'Novo turno',[{k:'quem',l:'Quem trabalha',t:'select',o:o},{k:'dia',l:'Dia',t:'date',req:1},{k:'ini',l:'Entrada',t:'time',req:1,d:'08:00'},{k:'fim',l:'Saída',t:'time',req:1,d:'17:00'},{k:'cargo',l:'Função (ex.: servente, repositor)'},{k:'local',l:'Local (ex.: obra Centro, loja 2)'},{k:'obs',l:'Observação'}],function(x){x.chave=l.chave;x.acao='salvar';if(t.id)x.id=t.id;x.pub=t.pub?1:0;pj('/esc/turno',x).then(function(r){if(r.ok){toast('Turno salvo.');re()}else toast(r.j.erro||'Não foi possível salvar.')})},t);
  if(t.id)p.append(btn('Excluir turno',function(){if(confirm('Excluir este turno?'))pj('/esc/turno',{chave:l.chave,acao:'apagar',id:t.id}).then(function(){re()})}));show(p)}
 function pegar(l,t){if(confirm('Pegar o turno de '+fd(t.dia)+', '+t.ini+'–'+t.fim+'?'))pj('/esc/pegar',{chave:l.chave,id:t.id}).then(function(r){toast(r.ok?'Turno seu!':r.j.erro||'Não foi possível pegar.');re()})}
+var FOTOS={},FOTOS_DE='';
+function fotosEq(k){if(FOTOS_DE===k)return Promise.resolve();return api('/eq/fotos?chave='+encodeURIComponent(k)).then(function(r){FOTOS=r.ok&&r.j&&r.j.ok?r.j.fotos||{}:{};FOTOS_DE=k})}
+function avFoto(n,src){if(!src)return avatar(n);var a=h('img','av');a.src=src;a.alt='Foto de '+n;a.style.objectFit='cover';return a}
+function rotulo(p,tot){var w=h('div');w.style.cssText='display:flex;align-items:center;gap:8px;min-width:0';
+ if(!p.quem){w.append(h('span',null,p.nome));return w}
+ var t=h('span',null,p.nome+' · '+hh(tot));t.style.cssText='min-width:0;overflow-wrap:anywhere';
+ var a=h('a','ib','↗');a.href='index.html?helper='+encodeURIComponent(p.nome);a.target='_blank';a.rel='noopener';a.title='Ver perfil no MiHelp';a.setAttribute('aria-label','Ver perfil de '+p.nome+' no MiHelp');a.style.cssText='text-decoration:none;flex:none';
+ w.append(avFoto(p.nome,FOTOS[p.quem]),t,a);return w}
 VIEWS.escalas=function(v){
  v.append(head('Escalas','Monte os turnos da semana, deixe turnos abertos para a equipe pegar e publique quando estiver pronto.','real'));
  var l=loja();if(!l){v.append(empty('Sem empresa ativa.'));return}
  if(!EW)EW=segunda();
  var box=h('div','panel');box.append(h('div','note','Carregando…'));v.append(box);
- api('/esc/semana?chave='+encodeURIComponent(l.chave)+'&ini='+EW).then(function(r){
+ Promise.all([api('/esc/semana?chave='+encodeURIComponent(l.chave)+'&ini='+EW),fotosEq(l.chave)]).then(function(rr){var r=rr[0];
   box.textContent='';
   if(!r.ok||!r.j.ok){box.append(empty('Não foi possível carregar: '+((r.j&&r.j.erro)||'erro')+'.'));return}
   var J=r.j,dono=J.papel==='dono',ts=J.turnos,mb=J.membros,bar=h('div','acts');
@@ -1216,11 +1239,11 @@ VIEWS.escalas=function(v){
    lst.forEach(function(t){var b=h('button','btn',t.ini+'–'+t.fim+(t.cargo?' · '+t.cargo:'')+(t.local?' @ '+t.local:'')+(dono&&!t.pub?' (rascunho)':''));b.style.cssText='font-size:12px;text-align:left;white-space:normal';
     b.onclick=function(){if(dono)formT(l,J,t);else if(!t.quem)pegar(l,t)};c.append(b)});
    if(dono){var a=h('button','btn','+');a.setAttribute('aria-label','Novo turno');a.onclick=function(){formT(l,J,{dia:dia,quem:quem||''})};c.append(a)}return c}
-  var g=h('div'),i;g.style.cssText='display:grid;grid-template-columns:130px repeat(7,minmax(120px,1fr));gap:4px;overflow-x:auto;margin-top:10px';g.append(h('div'));
+  var g=h('div'),i;g.style.cssText='display:grid;grid-template-columns:190px repeat(7,minmax(120px,1fr));gap:4px;overflow-x:auto;margin-top:10px';g.append(h('div'));
   for(i=0;i<7;i++){var dd=addD(EW,i);g.append(h('div','m',DSEM[i]+' '+dd.slice(8)+'/'+dd.slice(5,7)))}
-  var linhas=dono?[{quem:'',nome:'Turnos abertos'}].concat(mb):[{quem:J.eu,nome:'Meus turnos'},{quem:'',nome:'Turnos abertos'}];
+  var linhas=dono?[{quem:'',nome:'Turnos abertos'}].concat(mb):[{quem:J.eu,nome:(mb[0]||{}).nome||'Eu'},{quem:'',nome:'Turnos abertos'}];
   linhas.forEach(function(p){var tot=0,mine=ts.filter(function(t){return t.quem===p.quem});mine.forEach(function(t){tot+=durT(t)});
-   g.append(h('div',null,p.nome+(p.quem?' · '+hh(tot):'')));
+   g.append(rotulo(p,tot));
    for(var k=0;k<7;k++){var d2=addD(EW,k);g.append(cel(mine.filter(function(t){return t.dia===d2}),d2,p.quem))}});
   box.append(g);
   box.append(h('div','note',dono?'Toque em “+” para criar um turno. Turno sem pessoa fica aberto para a equipe pegar. Rascunhos só aparecem para a equipe depois de “Publicar semana”.':'Toque em um turno aberto para pegá-lo. Só aparecem turnos já publicados.'))})};
