@@ -265,6 +265,7 @@ html{color-scheme:dark}
 .fs-done{text-align:center;padding:16px 4px}.fs-done .troco{font-size:clamp(36px,5vw,60px);font-weight:800;color:var(--ok)}
 .fs-keys{padding:8px 18px;border-top:1px solid var(--ln);color:var(--tx2);font-size:13px;background:var(--sf)}
 #toast{z-index:9500}
+.fs-open{margin-left:auto}
 @media(max-width:900px){.fs-body{grid-template-columns:1fr;overflow:auto}.fs-title span{display:none}}
 </style>
 </head>
@@ -1312,7 +1313,7 @@ VIEWS.chat=function(v){
   var box=h('div');v.append(box);box.append(h('p','sub','Carregando…'));
   function carrega(){return api('/pdv/estado?chave='+encodeURIComponent(l.chave)).then(function(r){if(!(r.ok&&r.j&&r.j.ok)){box.textContent='';box.append(empty('Não foi possível abrir: '+((r.j&&r.j.erro)||'indisponível')+'. Se aparecer "rota não encontrada", o Worker v25 ainda não foi publicado.'));return}PD.E=r.j;desenha()})}
   function desenha(){var E=PD.E,ab=[['visao','Visão geral'],['pdv','Frente de caixa'],['caixa','Caixa'],['hist','Histórico'],['vale','Vale-funcionário']];if(E.nivel==='dono')ab.push(['perm','Permissões']);ab.push(['integ','Integrações e fiscal']);
-   box.textContent='';var t=h('div','acts');ab.forEach(function(a){t.append(btn(a[1],function(){PD.tab=a[0];desenha()},PD.tab===a[0]?'p':''))});box.append(t);var c=h('div');box.append(c);
+   box.textContent='';var t=h('div','acts');ab.forEach(function(a){t.append(btn(a[1],function(){PD.tab=a[0];desenha()},PD.tab===a[0]?'p':''))});if(E.perms.indexOf('vender')>-1){var fo=btn('Modo caixa em tela cheia',function(){if(!PD.E.caixa){PD.tab='caixa';desenha();toast('Abra o caixa para usar o modo caixa.');return}modoCaixa()},'p fs-open');fo.title='Tela cheia para atender: só passar os produtos e receber';t.append(fo)}box.append(t);var c=h('div');box.append(c);
    ({visao:aVisao,pdv:aPdv,caixa:aCaixa,hist:aHist,vale:aVale,perm:aPerm,integ:aInteg}[PD.tab]||aVisao)(c,E)}
   function sem(c,p){if(PD.E.perms.indexOf(p)<0){c.append(empty('Você não tem permissão para esta área. Peça ao dono da empresa.'));return true}}
   function aVisao(c,E){var cx=E.caixa,rs=cx&&cx.resumo,g=h('div','grid');
@@ -1331,7 +1332,7 @@ VIEWS.chat=function(v){
    var bf=btn('Fechar caixa',function(){if(!confirm('Fechar o caixa? Depois não dá para lançar neste caixa.'))return;bf.disabled=true;pdPost('/pdv/caixa',{chave:l.chave,acao:'fechar',contado:ct.i.value,just:js.i.value,rid:uid8()},'Caixa fechado.').then(function(r){bf.disabled=false;if(r)carrega()})},'p');f.append(ct.l,df,js.l,bf);c.append(f)}
   function totais(E){var b=0;PD.cart.forEach(function(i){b+=i.qtd*i.venda});var d=Math.min(b,Math.max(0,num8(PD.desc)));return{bruto:b,desc:d,total:Math.round((b-d)*100)/100}}
   function aPdv(c,E){if(sem(c,'vender'))return;if(!E.caixa){c.append(empty('Abra o caixa para vender.',btn('Abrir caixa',function(){PD.tab='caixa';desenha()},'p')));return}
-   var W=h('div','grid2'),esq=painel('Produtos'),dir=painel('Venda atual');c.append(btn('Modo caixa em tela cheia',function(){modoCaixa()},'p'));W.append(esq,dir);c.append(W);
+   var W=h('div','grid2'),esq=painel('Produtos'),dir=painel('Venda atual');W.append(esq,dir);c.append(W);
    var bq=fl('Buscar produto (nome ou código) — F2','search',{value:PD.q,autofocus:true}),lista=h('div');esq.append(bq.l,lista);
    function add(p){var i=PD.cart.find(function(x){return x.id===p.id});if(i){if(i.qtd+1>p.qtd)return toast('Estoque insuficiente de '+p.nome+' (tem '+p.qtd+').');i.qtd++}else{if(p.qtd<1)return toast(p.nome+' sem estoque.');PD.cart.push({id:p.id,nome:p.nome,venda:p.venda,qtd:1,max:p.qtd})}PD.rid=PD.rid;mostra()}
    function filtra(){PD.q=bq.i.value;var q=PD.q.trim().toLowerCase();lista.textContent='';var l2=E.produtos.filter(function(p){return !q||p.nome.toLowerCase().indexOf(q)>-1||p.id===PD.q.trim()}).slice(0,30);if(!l2.length)lista.append(h('p','sub','Nenhum produto. O catálogo atual não tem código de barras: busque pelo nome ou id.'));l2.forEach(function(p){var r=h('div','li');r.append(h('span',null,p.nome+' · '+R(p.venda)+' · '+p.qtd+' un'));var s=h('span','acts');s.append(btn('Adicionar',function(){add(p)}));r.append(s);lista.append(r)})}
