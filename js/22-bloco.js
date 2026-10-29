@@ -22,7 +22,7 @@ function upT(dt){const K=A.K;
       if(dx<dy)bo.vx*=-1;else bo.vy*=-1;tj.splice(i,1);A.add(10+(4-b.r)*5);A.S('coin',30);break}}
   if(!tj.length){lv++;tijolos();bola();A.S('ok',500)}
   if(bo.y>W+8){vd--;A.S('boom',80);if(vd<=0)return A.fim();bola()}}
-function dT(){tj.forEach(b=>{g.fillStyle=['#D97757','#E8B93C','#F0CD70','#C9A24A','#A79C82'][b.r];g.fillRect(b.x,b.y,b.w,b.h)});
+function dT(){tj.forEach(b=>{g.fillStyle=['#f87171','#2ea8ff','#8fd8ff','#C9A24A','#8ea0bd'][b.r];g.fillRect(b.x,b.y,b.w,b.h)});
   g.fillStyle=A.OURO2;g.fillRect(pa.x-pa.w/2,344,pa.w,8);g.beginPath();g.arc(bo.x,bo.y,5,0,7);g.fill()}
 
 /* Pong contra o computador */
@@ -38,7 +38,7 @@ function upP(dt){const K=A.K,H=28;
   if(pb.vx>0&&pb.x>=W-22&&pb.x<=W-10&&Math.abs(pb.y-cp)<=H+5){pb.vx=-Math.abs(pb.vx)*1.03;pb.vy=lim(pb.vy+(pb.y-cp)*4,-260,260);A.S('tick',30)}
   if(pb.x<-10){pv--;A.S('boom',80);if(pv<=0)return A.fim();saque(1)}
   if(pb.x>W+10){A.add(30);A.S('ok',200);saque(-1)}}
-function dP(){g.fillStyle='#332D20';for(let y=0;y<W;y+=20)g.fillRect(W/2-1,y,2,10);
+function dP(){g.fillStyle='#1b2a47';for(let y=0;y<W;y+=20)g.fillRect(W/2-1,y,2,10);
   g.fillStyle=A.OURO2;g.fillRect(10,pj-28,8,56);g.fillRect(W-18,cp-28,8,56);g.fillRect(pb.x-4,pb.y-4,8,8)}
 
 F.reg('tijolos',{nome:'TIJOLOS',dica:'Setas ou arraste na tela para mover a barra. Quebre todos os tijolos.',pad:'LR',ini:iniT,up:upT,des:dT,hud:()=>vt(vd)});

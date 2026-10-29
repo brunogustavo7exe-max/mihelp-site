@@ -15,7 +15,7 @@ const ins=(c,o)=>client.items.insert(c,o);
 let painelDiag=null;
 function diag(t,ruim){try{console[ruim?'error':'log']('MiHelp banco:',t)}catch(e){}
  if(!DIAG)return;
- if(!painelDiag){painelDiag=document.createElement('pre');painelDiag.style.cssText='position:fixed;left:8px;bottom:8px;z-index:9999;max-width:92vw;max-height:60vh;overflow:auto;margin:0;padding:10px 12px;background:#000;color:#9fe;border:1px solid #E8B93C;border-radius:8px;font:12px/1.5 monospace;white-space:pre-wrap';document.body.append(painelDiag)}
+ if(!painelDiag){painelDiag=document.createElement('pre');painelDiag.style.cssText='position:fixed;left:8px;bottom:8px;z-index:9999;max-width:92vw;max-height:60vh;overflow:auto;margin:0;padding:10px 12px;background:#000;color:#9fe;border:1px solid #2ea8ff;border-radius:8px;font:12px/1.5 monospace;white-space:pre-wrap';document.body.append(painelDiag)}
  painelDiag.textContent+=(ruim?'✗ ':'• ')+t+'\n'}
 window.MH_diag=diag;
 const msgErro=e=>{const t=String((e&&(e.message||e.details&&e.details.message))||e);

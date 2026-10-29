@@ -1,7 +1,7 @@
 
 try{(function(){
 const $=id=>document.getElementById(id),cv=$('flCv');if(!cv)return;
-const g=cv.getContext('2d'),W=360,OURO='#E8B93C',OURO2='#F0CD70',FUNDO='#0D0C09';
+const g=cv.getContext('2d'),W=360,OURO='#2ea8ff',OURO2='#8fd8ff',FUNDO='#04070f';
 const S=(n,t)=>{try{window.MH_SOM&&MH_SOM.tocar(n,t)}catch(e){}};
 const NOME={cobra:'COBRINHA',aster:'ASTEROIDS'};
 const DICA={cobra:'Coma as bolinhas sem bater em você. Setas, WASD ou deslize na tela.',aster:'Setas: girar e acelerar. Espaço ou 🔥: atirar. Destrua as pedras.'};
@@ -22,7 +22,7 @@ function upCobra(dt){acc+=dt;while(acc>=vel){acc-=vel;dir=nd;
   sn.unshift(h);
   if(h.x===food.x&&h.y===food.y){pts+=10;S('coin',30);vel=Math.max(.06,vel-.003);food=comida();hud()}else sn.pop()}}
 function dCobra(){sn.forEach((s,i)=>{g.fillStyle=i?OURO:OURO2;g.fillRect(s.x*C+1,s.y*C+1,C-2,C-2)});
-  g.fillStyle='#D97757';g.beginPath();g.arc(food.x*C+C/2,food.y*C+C/2,C/2-3,0,7);g.fill()}
+  g.fillStyle='#f87171';g.beginPath();g.arc(food.x*C+C/2,food.y*C+C/2,C/2-3,0,7);g.fill()}
 
 /* Asteroids */
 function pedra(x,y,t){const a=rnd(0,6.283),v=rnd(30,60)*(4-t)*.6+20+nivel*4;
@@ -51,7 +51,7 @@ function dAster(){g.strokeStyle=OURO;g.lineWidth=2;
   g.fillStyle=OURO2;bl.forEach(b=>g.fillRect(b.x-1.5,b.y-1.5,3,3));
   if(inv>0&&Math.floor(inv*8)%2)return;
   g.save();g.translate(sh.x,sh.y);g.rotate(sh.a);g.strokeStyle=OURO2;g.beginPath();g.moveTo(12,0);g.lineTo(-9,-7);g.lineTo(-5,0);g.lineTo(-9,7);g.closePath();g.stroke();
-  if(K.U&&est==='jogando'){g.strokeStyle='#D97757';g.beginPath();g.moveTo(-6,-3);g.lineTo(-14-Math.random()*5,0);g.lineTo(-6,3);g.stroke()}
+  if(K.U&&est==='jogando'){g.strokeStyle='#f87171';g.beginPath();g.moveTo(-6,-3);g.lineTo(-14-Math.random()*5,0);g.lineTo(-6,3);g.stroke()}
   g.restore()}
 
 /* Tela, estado e interface */

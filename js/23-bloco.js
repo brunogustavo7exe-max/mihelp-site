@@ -4,9 +4,9 @@ try{(function(){
 const F=window.MH_FLIP;if(!F)return;
 const A=F.api,g=A.g,CS=17,BX=20,BY=10;
 const PC=[
- {m:[[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],c:'#8FD3E0'},{m:[[1,1],[1,1]],c:'#F0CD70'},
+ {m:[[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],c:'#8FD3E0'},{m:[[1,1],[1,1]],c:'#8fd8ff'},
  {m:[[0,1,0],[1,1,1],[0,0,0]],c:'#B58AD9'},{m:[[0,1,1],[1,1,0],[0,0,0]],c:'#7FC98B'},
- {m:[[1,1,0],[0,1,1],[0,0,0]],c:'#D97757'},{m:[[1,0,0],[1,1,1],[0,0,0]],c:'#6F8FE0'},{m:[[0,0,1],[1,1,1],[0,0,0]],c:'#E8B93C'}];
+ {m:[[1,1,0],[0,1,1],[0,0,0]],c:'#f87171'},{m:[[1,0,0],[1,1,1],[0,0,0]],c:'#6F8FE0'},{m:[[0,0,1],[1,1,1],[0,0,0]],c:'#2ea8ff'}];
 let bd,cur,nx,sac,ln,lv,acc,pk,dir,das;
 function sorteia(){if(!sac.length){sac=[0,1,2,3,4,5,6];for(let i=6;i>0;i--){const j=Math.floor(Math.random()*(i+1));[sac[i],sac[j]]=[sac[j],sac[i]]}}return sac.pop()}
 function cabe(m,x,y){for(let j=0;j<m.length;j++)for(let i=0;i<m[j].length;i++)if(m[j][i]){const a=x+i,b=y+j;if(a<0||a>9||b>19||(b>=0&&bd[b][a]))return false}return true}
@@ -25,7 +25,7 @@ function up(dt){const K=A.K,eU=K.U&&!pk.U,eF=K.F&&!pk.F,d=(K.L?-1:0)+(K.R?1:0);p
   acc+=dt;const iv=K.D?.04:Math.max(.08,.8-(lv-1)*.07);
   while(acc>=iv){acc-=iv;if(cabe(cur.m,cur.x,cur.y+1)){cur.y++;if(K.D)A.add(1)}else return trava()}}
 function cel(x,y,c,a){g.globalAlpha=a||1;g.fillStyle=c;g.fillRect(BX+x*CS+1,BY+y*CS+1,CS-2,CS-2);g.globalAlpha=1}
-function des(){g.textAlign='left';g.strokeStyle='#332D20';g.lineWidth=1;g.strokeRect(BX-1,BY-1,10*CS+2,20*CS+2);
+function des(){g.textAlign='left';g.strokeStyle='#1b2a47';g.lineWidth=1;g.strokeRect(BX-1,BY-1,10*CS+2,20*CS+2);
   bd.forEach((r,y)=>r.forEach((c,x)=>{if(c)cel(x,y,c)}));
   let gy=cur.y;while(cabe(cur.m,cur.x,gy+1))gy++;
   cur.m.forEach((r,j)=>r.forEach((v,i)=>{if(v){cel(cur.x+i,gy+j,cur.c,.25);cel(cur.x+i,cur.y+j,cur.c)}}));

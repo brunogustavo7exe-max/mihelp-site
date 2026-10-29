@@ -298,7 +298,7 @@ function tSite(b){
   b.append(f);
   b.append(mk('h4',0,'Cabo de guerra'));
   {const cur=Object.assign({id:'cidades',titulo:'Qual cidade puxa mais forte?'},store.get('duelo',{}));
-  cur.a=Object.assign({nome:'Barra do Garças',sigla:'MT',cor:'#E8B93C'},cur.a);cur.b=Object.assign({nome:'Aragarças',sigla:'GO',cor:'#4F8EF7'},cur.b);
+  cur.a=Object.assign({nome:'Barra do Garças',sigla:'MT',cor:'#2ea8ff'},cur.a);cur.b=Object.assign({nome:'Aragarças',sigla:'GO',cor:'#4F8EF7'},cur.b);
   const tt=inp('text',80),an=inp('text',40),as=inp('text',4),ac=inp('color'),bn=inp('text',40),bs=inp('text',4),bc=inp('color');
   tt.value=cur.titulo;an.value=cur.a.nome;as.value=cur.a.sigla;ac.value=cur.a.cor;bn.value=cur.b.nome;bs.value=cur.b.sigla;bc.value=cur.b.cor;
   const f=mk('form');f.append(campo('Título',tt),campo('Lado A: nome',an),campo('Lado A: sigla',as),campo('Lado A: cor',ac),campo('Lado B: nome',bn),campo('Lado B: sigla',bs),campo('Lado B: cor',bc));

@@ -1,7 +1,7 @@
 
 try{(function(){
 const DUELOS={
- cidades:{titulo:'Qual cidade puxa mais forte?',a:{nome:'Barra do Garças',sigla:'MT',cor:'#E8B93C'},b:{nome:'Aragarças',sigla:'GO',cor:'#4F8EF7'}}
+ cidades:{titulo:'Qual cidade puxa mais forte?',a:{nome:'Barra do Garças',sigla:'MT',cor:'#2ea8ff'},b:{nome:'Aragarças',sigla:'GO',cor:'#4F8EF7'}}
  /* Para outro duelo, acrescente uma entrada aqui (ex.: futebol:{titulo,a:{nome,sigla,cor},b:{...}}) e mude ATIVO. */
 };
 let ATIVO='cidades',D=DUELOS[ATIVO];

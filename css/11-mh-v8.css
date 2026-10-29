@@ -42,11 +42,6 @@ dialog.v8dlg{width:min(94vw,560px)}
 
 .v8status{font-weight:800;margin:4px 0}
 .v8status.on{color:#4ade80}.v8status.off{color:#f87171}
-.v8chat{height:min(46vh,380px);overflow-y:auto;border:1px solid var(--line);border-radius:12px;padding:10px;margin:8px 0;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
-.v8msg{max-width:85%;padding:8px 10px;border-radius:12px;background:var(--surf);border:1px solid var(--line);display:flex;flex-direction:column;gap:2px;align-self:flex-start;overflow-wrap:anywhere}
-.v8msg.eu{align-self:flex-end;border-color:var(--gold)}
-.v8msg.loja{background:rgba(232,185,60,.12)}
-.v8msg b{font-size:12px;color:var(--gold2)}.v8msg small{font-size:11px;color:var(--mute);align-self:flex-end}
 .v8hor{margin:6px 0}
 .v8hrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0;font-size:13px}
 .v8hrow b{min-width:68px}

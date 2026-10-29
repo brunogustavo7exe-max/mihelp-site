@@ -634,7 +634,7 @@ async function abrirLoja8(chave,opc){
  if(opc&&opc.pro)r.j._pro=opc.pro;pintaLoja8(d,r.j,(opc&&opc.aba)||(r.j.modo==='agenda'&&(r.j.servicos||[]).length?'serv':(r.j.equipeOculta?'aval':'equipe')));
  if(opc&&opc.avaliar)avaliarDireto8(d,r.j)}
 function horarioTxt8(h){if(!h||!Array.isArray(h.d))return[];const N=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];return [1,2,3,4,5,6,0].map(i=>N[i]+': '+((h.d[i]||[]).length?h.d[i].map(x=>x.replace('-','–')).join(' e '):'fechado'))}
-function pintaLoja8(d,L,aba,aviso){clearInterval(chatTimer8);d.textContent='';
+function pintaLoja8(d,L,aba,aviso){d.textContent='';
  if(L.equipeOculta&&aba==='equipe')aba=(L.modo==='agenda'&&(L.servicos||[]).length)?'serv':'aval';
  const top=mk8('div','v8head');top.append(avatarLoja8(L,64));
  const hd=mk8('div');hd.append(mk8('h3',null,L.nome),mk8('p','note',(L.tipo||'')+(CID8[L.cidade]?' · '+CID8[L.cidade]:'')));top.append(hd);d.append(top);
@@ -655,12 +655,6 @@ function pintaLoja8(d,L,aba,aviso){clearInterval(chatTimer8);d.textContent='';
  lk.append(botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',(L.tipo||'')+(L.statusTxt?' · '+L.statusTxt:''),linkLoja8(L.chave),m=>{stt.textContent=m;setTimeout(()=>stt.textContent='',2500)})),stt);
  if(L.logado&&!L.souDono)lk.append(botao8(L.favoritada?'★ Nos favoritos':'☆ Favoritar','more',async()=>{const on=!L.favoritada;const r=await chama8('/favoritos',{alvo:'l:'+L.chave,on});if(r.ok&&r.j&&r.j.ok){L.favoritada=on;if(on)V8.fav.lojas.add(L.chave);else V8.fav.lojas.delete(L.chave);pintaLoja8(d,L,aba);refreshProf()}else pintaLoja8(d,L,aba,erro8(r))}));
  d.append(lk);
- /* chat da loja */
- if(L.logado&&L.chat){const ch=mk8('div','v8row');
-  if(L.acesso&&L.acesso.atend)ch.append(botao8('📥 Atendimento (clientes)','cta2',()=>abrirThreads8(d,L)));
-  else ch.append(botao8('💬 Falar com a loja','cta2',()=>abrirChat8(d,L,'meu','Conversa com '+L.nome,()=>pintaLoja8(d,L,aba))));
-  if(L.acesso&&L.acesso.interno)ch.append(botao8('🔒 Chat da equipe','more',()=>abrirChat8(d,L,'i','Chat da equipe',()=>pintaLoja8(d,L,aba))));
-  d.append(ch)}
  const tabs=mk8('div','v8tabs');
  ((L.modo==='agenda'&&((L.servicos||[]).length||L.souDono)?[['serv','Serviços ('+(L.servicos||[]).length+')']]:[]).concat(L.equipeOculta?[]:[['equipe','Equipe ('+L.totalEquipe+')']]).concat([['aval','Avaliações ('+L.n+')']])).forEach(([k,t])=>{const b=mk8('button',null,t);b.type='button';b.setAttribute('aria-selected',String(aba===k));b.onclick=()=>pintaLoja8(d,L,k);tabs.append(b)});
  d.append(tabs);
@@ -778,34 +772,6 @@ function formAvalLoja8(d,L){d.textContent='';d.append(mk8('h3',null,'Avaliar '+L
   botao8('Voltar','more',()=>pintaLoja8(d,L,'equipe')));
  d.append(row,lb,mk8('p','note','O seu comentário e o seu nome aparecem para todo mundo no perfil da loja.'),st,ac)}
 
-/* ===== v9: chat da loja (clientes <-> equipe) e chat interno ===== */
-let chatTimer8=0;
-function abrirChat8(d,L,canal,rot,voltar){clearInterval(chatTimer8);d.textContent='';
- const cab=mk8('div','v8row');cab.append(botao8('← Voltar','more',()=>{clearInterval(chatTimer8);voltar()}),mk8('b',null,rot));d.append(cab);
- const box=mk8('div','v8chat');box.setAttribute('aria-live','polite');d.append(box);
- const st=mk8('p','note');st.setAttribute('role','status');
- if(canal==='meu')st.textContent='A loja responde aqui. Ainda não há aviso no celular: volte mais tarde para ver a resposta.';
- let desde=0;const vistos=new Set();
- const pinta=its=>{its.forEach(m=>{if(vistos.has(m.id))return;vistos.add(m.id);if(m.ts>desde)desde=m.ts;
-  const b=mk8('div','v8msg'+(m.mine?' eu':'')+(m.loja?' loja':''));b.append(mk8('b',null,(m.loja?'🏪 ':'')+m.nome),mk8('span',null,m.texto),mk8('small',null,new Date(m.ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})));box.append(b)});box.scrollTop=box.scrollHeight};
- const busca=async()=>{if(!d.open){clearInterval(chatTimer8);return}
-  const r=await chama8('/loja/chat?chave='+encodeURIComponent(L.chave)+'&canal='+encodeURIComponent(canal)+'&desde='+desde);
-  if(r.ok&&r.j&&r.j.ok)pinta(r.j.itens);else if(r.status===403||r.status===404){st.style.color='var(--red)';st.textContent=erro8(r);clearInterval(chatTimer8)}};
- const f=mk8('div','v8row');const i=document.createElement('input');i.type='text';i.maxLength=500;i.placeholder='Escreva a mensagem';i.setAttribute('aria-label','Mensagem');i.style.flex='1';
- const env=async()=>{const t=i.value.trim();if(!t)return;i.value='';st.style.color='';
-  const r=await chama8('/loja/chat',{chave:L.chave,canal,texto:t});if(r.ok&&r.j&&r.j.ok){st.textContent='';busca()}else{i.value=t;st.style.color='var(--red)';st.textContent=erro8(r)}};
- i.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();env()}});
- f.append(i,botao8('Enviar','cta2',env));d.append(f,st);
- busca();chatTimer8=setInterval(()=>{if(!document.hidden)busca()},4000);setTimeout(()=>{try{i.focus()}catch(e){}},50)}
-async function abrirThreads8(d,L){clearInterval(chatTimer8);d.textContent='';d.append(mk8('h3',null,'Atendimento · '+L.nome),mk8('p','note','Carregando…'));
- const r=await chama8('/loja/chat/threads?chave='+encodeURIComponent(L.chave));
- d.textContent='';d.append(mk8('h3',null,'Atendimento · '+L.nome));
- if(!r.ok||!(r.j&&r.j.ok)){d.append(mk8('p','note',erro8(r)))}
- else if(!r.j.itens.length)d.append(mk8('p','note','Nenhum cliente falou com a loja nos últimos 30 dias.'));
- else r.j.itens.forEach(t=>{const c=mk8('div','pcard');const inf=mk8('div','pinfo');
-  inf.append(mk8('b',null,t.cliente),mk8('span','pw',(t.daLoja?'Você/equipe: ':'')+t.texto),mk8('span','pe',new Date(t.ultimo).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+(t.daLoja?'':' · aguardando resposta')));
-  c.append(inf,botao8('Abrir','pcall',()=>abrirChat8(d,L,t.canal,t.cliente,()=>abrirThreads8(d,L))));d.append(c)});
- d.append(botao8('← Voltar à loja','more',()=>abrirLoja8(L.chave)))}
 /* editor de horário (7 dias, até 2 faixas por dia) */
 function horarioEditor8(h){const w=mk8('div','v8hor');const N=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
  const pausa=mk8('label','ck');const pk=document.createElement('input');pk.type='checkbox';pk.checked=!!(h&&h.p);pausa.append(pk,mk8('span',null,'Fechado temporariamente (férias, reforma...)'));w.append(pausa);
@@ -1409,7 +1375,6 @@ function formLoja8(d,E,L){d.textContent='';d.append(mk8('h3',null,L?'Editar '+L.
  const desc=campo('Descrição curta (opcional)','text',200,L&&L.descricao,'Horário, especialidades…');
  const lf=mk8('label',null,'Logo (opcional)');const fi=document.createElement('input');fi.type='file';fi.accept='image/*';lf.append(fi);det.append(lf);
  let logo;fi.onchange=async()=>{const f=fi.files[0];if(!f)return;try{logo=await logoRedim8(f);st.style.color='';st.textContent='Logo pronto.'}catch(e){logo=undefined;st.style.color='var(--red)';st.textContent=e.message||'Não consegui usar a imagem.'}};
- const chatCk=mk8('label','ck');const chatIn=document.createElement('input');chatIn.type='checkbox';chatIn.checked=L?L.chat!==0:true;chatCk.append(chatIn,mk8('span',null,'Receber conversas de clientes no perfil da loja (chat de atendimento)'));det.append(chatCk);
  const donoCk=mk8('label','ck');const donoIn=document.createElement('input');donoIn.type='checkbox';donoIn.checked=L?!!L.donoVisivel:false;donoCk.append(donoIn,mk8('span',null,'Mostrar o meu nome como dono no perfil da loja'));det.append(donoCk);
  const eqCk=mk8('label','ck');const eqIn=document.createElement('input');eqIn.type='checkbox';eqIn.checked=L?L.equipeVisivel!==0:true;eqCk.append(eqIn,mk8('span',null,'Mostrar a equipe no perfil da loja (só lojas de conversa; loja com agenda sempre mostra)'));det.append(eqCk);
  const invCk=mk8('label','ck');const invIn=document.createElement('input');invIn.type='checkbox';invIn.checked=!!(L&&L.invest);invCk.append(invIn,mk8('span',null,'Aceito conversar com quem quiser investir'));det.append(invCk);
@@ -1420,7 +1385,7 @@ function formLoja8(d,E,L){d.textContent='';d.append(mk8('h3',null,L?'Editar '+L.
  d.append(st);
  const ac=mk8('div','perfil-acoes');
  ac.append(botao8('Salvar','cta2 pa-main',async()=>{st.style.color='';st.textContent='Salvando…';
-  const body={nome:nome.value.trim(),tipo:tipo.value,cidade:cid.value,endereco:end.value.trim(),mapa:mapa.value.trim(),contato:wa.value,modo:modo.value,descricao:desc.value.trim(),chat:chatIn.checked,horario:hed.valor(),donoVisivel:donoIn.checked,equipeVisivel:eqIn.checked,invest:invIn.checked,investTxt:invT.value.trim()};
+  const body={nome:nome.value.trim(),tipo:tipo.value,cidade:cid.value,endereco:end.value.trim(),mapa:mapa.value.trim(),contato:wa.value,modo:modo.value,descricao:desc.value.trim(),horario:hed.valor(),donoVisivel:donoIn.checked,equipeVisivel:eqIn.checked,invest:invIn.checked,investTxt:invT.value.trim()};
   if(logo!==undefined)body.logo=logo;
   if(L)body.chave=L.chave;else{body.atende=atende.checked;body.funcao=fun.value.trim()}
   const r=await chama8(L?'/estabelecimentos/editar':'/estabelecimentos',body);

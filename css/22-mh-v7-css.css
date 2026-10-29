@@ -24,7 +24,7 @@ dialog#valeDlg label{display:block;margin:8px 0 2px;font-size:14px}dialog#valeDl
 .tg-tit{margin:0 0 10px;font-size:16px}
 .tg-names{display:flex;justify-content:space-between;gap:8px;font-size:14px;margin-bottom:6px}
 .tg-bar{position:relative;height:28px;border-radius:14px;overflow:hidden;background:#4F8EF7;border:1px solid var(--line)}
-.tg-a{position:absolute;left:0;top:0;bottom:0;width:50%;background:#E8B93C;transition:width .6s ease}
+.tg-a{position:absolute;left:0;top:0;bottom:0;width:50%;background:#2ea8ff;transition:width .6s ease}
 .tg-knot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;transition:left .6s ease;filter:drop-shadow(0 1px 2px #000)}
 .tg-vals{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12.5px;margin:6px 0 12px;color:var(--mute)}
 .tg-amt{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
@@ -34,7 +34,7 @@ dialog#valeDlg label{display:block;margin:8px 0 2px;font-size:14px}dialog#valeDl
 .tg-out input{width:72px;background:var(--deep);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;min-height:40px}
 .tg-go{display:flex;gap:10px}
 .tg-btn{flex:1;border:0;border-radius:10px;padding:12px 8px;font:inherit;font-weight:700;cursor:pointer;color:#111;min-height:46px}
-#tgGoA{background:#E8B93C}#tgGoB{background:#4F8EF7}
+#tgGoA{background:#2ea8ff}#tgGoB{background:#4F8EF7}
 .tg-btn:disabled{opacity:.5;cursor:default}
 .tg-ult{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mute);margin-top:10px}
 @media(prefers-reduced-motion:reduce){.tg-a,.tg-knot{transition:none}}

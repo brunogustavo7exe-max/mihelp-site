@@ -15,6 +15,6 @@
   #mhMenuLst[hidden]{display:none}
   #mhMenuLst button{border:1px solid var(--line);background:var(--surf);color:var(--text);border-radius:999px;padding:10px 16px;font:700 14px var(--sans);cursor:pointer;white-space:nowrap;box-shadow:0 6px 16px rgba(0,0,0,.4);animation:mhMn .16s ease-out both}
   #mhMenuLst button b{margin-right:8px;font-size:16px}
-  #mhMenuLst button:active{border-color:var(--gold);background:rgba(232,185,60,.14)}
+  #mhMenuLst button:active{border-color:var(--gold);background:rgba(46,168,255,.14)}
   @keyframes mhMn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 }

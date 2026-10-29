@@ -176,7 +176,7 @@ else if(!n&&window.MH_API&&MH_API.on()&&MH_API.usrTk()&&window.MH_UI){const A=MH
   else if(r.status===401)A.setUsrTk('')})}},400);
 let ultN=null;setInterval(()=>{const e=window.MH_UI&&MH_UI.eu&&MH_UI.eu();sair.hidden=!e;const nn=e?e.nome:null;if(nn!==ultN){ultN=nn;try{MH_UI.sos()}catch(x){}}},700);
 // temas (engrenagem): dourado, claro, miami, brasil, pôr do sol, terminal
-{const TM=[['escuro','🌙','Dourado','#15130F'],['claro','☀️','Claro','#F5EDD3'],['miami','🌴','Miami Neon','#120A1F'],['brasil','🇧🇷','Brasil','#07140D'],['araguaia','🌅','Pôr do sol','#1A0F1E'],['terminal','💻','Terminal','#050805'],['eclipse','🔮','Eclipse','#0E0716'],['cristal','💧','Cristal','#F5F6F8'],['generico','⬜','Genérico','#FFFFFF'],['generico-noturno','🌃','Genérico Noturno','#0F1115'],['voltagem','⚡','Voltagem','#0D0F12'],['sombra','🕶️','Sombra','#08080A']];
+{const TM=[['escuro','🌙','Dourado','#05070d'],['claro','☀️','Claro','#F5EDD3'],['miami','🌴','Miami Neon','#120A1F'],['brasil','🇧🇷','Brasil','#07140D'],['araguaia','🌅','Pôr do sol','#1A0F1E'],['terminal','💻','Terminal','#050805'],['eclipse','🔮','Eclipse','#0E0716'],['cristal','💧','Cristal','#F5F6F8'],['generico','⬜','Genérico','#FFFFFF'],['generico-noturno','🌃','Genérico Noturno','#0F1115'],['voltagem','⚡','Voltagem','#0D0F12'],['sombra','🕶️','Sombra','#08080A']];
 const b=mk('button',0);b.id='temaBtn';b.type='button';document.body.append(b);
 const lab=mk('label'),sel=mk('select','musFx');lab.className='cfgvol';lab.title='Tema do site';sel.setAttribute('aria-label','Tema do site');
 TM.forEach(([id,em,nome])=>{const o=mk('option',0,em+' '+nome);o.value=id;sel.append(o)});lab.append('Tema ',sel);window.MH_TEMA_LABEL=lab;

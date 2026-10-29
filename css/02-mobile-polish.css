@@ -13,8 +13,8 @@
   body{
     overflow-x:hidden;overflow-x:clip;
     background-image:
-      radial-gradient(520px 260px at 50% 0,#2a2210 0,transparent 72%),
-      linear-gradient(180deg,#0d0c09 0%,#11100d 38%,#0d0c09 100%);
+      radial-gradient(520px 260px at 50% 0,#0e1a33 0,transparent 72%),
+      linear-gradient(180deg,#04070f 0%,#11100d 38%,#04070f 100%);
   }
 
   /* Barras do topo: menos altura, mais cara de aplicativo */
@@ -114,11 +114,11 @@
     position:relative;
     margin:0 0 26px;
     padding:17px 16px 17px 18px;
-    border:1px solid rgba(232,185,60,.20);
+    border:1px solid rgba(46,168,255,.20);
     border-left:3px solid var(--gold);
     border-radius:14px;
     background:
-      linear-gradient(135deg,rgba(232,185,60,.075),rgba(255,255,255,.018) 55%,rgba(0,0,0,.10));
+      linear-gradient(135deg,rgba(46,168,255,.075),rgba(255,255,255,.018) 55%,rgba(0,0,0,.10));
     box-shadow:0 12px 28px rgba(0,0,0,.24);
     font-size:14px;
     line-height:1.65;
