@@ -31,3 +31,14 @@ button.vg.open small{font:500 13px var(--sans);color:var(--mute)}
 button.vg.open:hover,button.vg.open:focus-visible{background:linear-gradient(180deg,rgba(var(--gold-rgb),.16),rgba(var(--gold-rgb),.05));border-style:solid;border-color:var(--gold);box-shadow:0 0 18px rgba(var(--gold-rgb),.3);transform:translateY(-1px)}
 .steps li,.tb td,.live .ev,.live button.ev,.arow,#admDlg h4,#admDlg .arow,.gnew{border-bottom-style:solid;border-bottom-color:rgba(var(--gold-rgb),.14)}
 .gnew,.admbox,#admDlg .admbox,dialog[aria-label="Perfil"] .admbox h4:not(:first-child){border-top-style:solid;border-top-color:rgba(var(--gold-rgb),.2)}
+
+/* selos: pequenos, legíveis, sem brilho */
+.lj-chip.lj-on{color:#4ade80;border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.1)}
+.mhs-bloco{padding:8px 10px}
+.mhs-g{gap:6px}
+.mhs-b{padding:2px 10px 2px 3px;gap:6px;font:600 12px var(--sans);background:var(--surf);border:1px solid var(--line);box-shadow:none}
+.mhs-b:hover,.mhs-b[aria-pressed=true]{border-color:var(--c);box-shadow:none;transform:none}
+.mhs-i{width:20px;height:20px;font-size:11px;background:var(--c);box-shadow:none;text-shadow:none}
+.mhs-m .mhs-i{width:18px;height:18px;font-size:10px;box-shadow:none}
+/* campo de digitar e escolher (tipo de negócio) */
+.v8res .mhp-big{border-width:1px;font-size:14px;padding:10px 12px}

@@ -266,6 +266,10 @@ html{color-scheme:dark}
 .fs-keys{padding:8px 18px;border-top:1px solid var(--ln);color:var(--tx2);font-size:13px;background:var(--sf)}
 #toast{z-index:9500}
 @media(max-width:900px){.fs-body{grid-template-columns:1fr;overflow:auto}.fs-title span{display:none}}
+
+.cbw{position:relative}.cbl{display:flex;flex-direction:column;gap:2px;margin-top:4px;background:var(--sf2);border:1px solid var(--ln);border-radius:10px;padding:4px;max-height:260px;overflow:auto}
+.cbl button{text-align:left;font:inherit;color:var(--tx);background:transparent;border:0;border-radius:8px;padding:10px 12px;cursor:pointer}.cbl button:hover{background:rgba(46,168,255,.14)}
+.cbl p{margin:0;padding:8px 12px;color:var(--tx2);font-size:13px}.cbok{display:block;margin-top:4px;color:var(--ok)}
 </style>
 <style id="dc-by-css">.dcby{display:flex;justify-content:center;margin:20px 0 4px}.dcby img{display:block;width:170px;max-width:75%;height:auto;filter:drop-shadow(0 0 14px rgba(46,168,255,.18))}.side-by{margin:24px 0 8px}</style>
 <style id="emp-css">
@@ -851,10 +855,23 @@ function prevEmpresa(){
   else pn.textContent='☆☆☆☆☆ · ainda sem avaliação';
   b.append(pn);box.append(tg,h('div','pvband'),hd,b)}
  return{el:box,up:function(x){st.x=x;pinta()},dados:function(d){Object.assign(ctx,d);pinta()}}}
+function comboTipoL(tipos,ini){
+ var lst=tipos.indexOf('Outro')<0?tipos.concat(['Outro']):tipos,val=ini||'';
+ var n2=function(x){return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()};
+ var w=h('div','cbw'),q=document.createElement('input');q.type='text';q.autocomplete='off';q.placeholder='Digite: lanchonete, mecânica, salão…';q.value=val;q.setAttribute('aria-label','Tipo de negócio');
+ var res=h('div','cbl');res.hidden=true;var ok=h('small','cbok',val?'✅ '+val:'Digite e toque na opção da lista.');
+ function pick(t){val=t;q.value=t;res.hidden=true;res.textContent='';ok.textContent='✅ '+t;q.dispatchEvent(new Event('input',{bubbles:true}))}
+ q.addEventListener('input',function(){var k=n2(q.value).trim();if(val&&n2(val)!==k){val='';ok.textContent='Digite e toque na opção da lista.'}
+  res.textContent='';if(!k||val){res.hidden=true;return}
+  var m=lst.filter(function(t){return n2(t).indexOf(k)>=0}).sort(function(a,b){return (n2(a).indexOf(k)===0?0:1)-(n2(b).indexOf(k)===0?0:1)}).slice(0,8);
+  m.forEach(function(t){var b=h('button',null,t);b.type='button';b.addEventListener('mousedown',function(e){e.preventDefault()});b.onclick=function(){pick(t)};res.append(b)});
+  if(!m.length)res.append(h('p','note','Nada com esse nome. Use "Outro".'));res.hidden=false});
+ q.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();var b=res.querySelector('button');if(b)b.click()}});
+ w.append(q,res,ok);Object.defineProperty(w,'value',{get:function(){return val}});return w}
 function formEmpresa(v,l,op){op=op||{};var novo=!l,extra=novo&&S.lojas.length>0;
  var er=h('span','err'),cids=S.cat.cidades||{},tipos=(S.cat.tipos||[]).slice();if(l&&l.tipo&&tipos.indexOf(l.tipo)<0)tipos.unshift(l.tipo);
  var nome=fl('Nome da empresa','text',{maxLength:60,value:l?l.nome||'':'',placeholder:'Ex.: Lanchonete do Zé'}),
-  tp=sel(tipos.map(function(t){return[t,t]}),l?l.tipo:tipos[0]),cd=sel(Object.keys(cids).map(function(k){return[k,cids[k]]}),l?l.cidade:Object.keys(cids)[0]),
+  tp=comboTipoL(tipos,l?l.tipo:''),cd=sel(Object.keys(cids).map(function(k){return[k,cids[k]]}),l?l.cidade:Object.keys(cids)[0]),
   md=sel([['contato','Conversa (botão Chamar)'],['agenda','Marcando horário (cliente escolhe dia e hora)']],l&&l.modo||'contato'),
   end=fl('Endereço','text',{maxLength:100,value:l&&l.endereco||''}),mapa=fl('Link do mapa','text',{maxLength:300,value:l&&l.mapa||''}),
   wa=fl('WhatsApp da empresa','tel',{maxLength:20,value:l&&l.contato||'',placeholder:'(66) 99999-9999'}),ds=fl('Descrição curta','text',{maxLength:200,value:l&&l.descricao||''}),
@@ -877,6 +894,7 @@ function formEmpresa(v,l,op){op=op||{};var novo=!l,extra=novo&&S.lojas.length>0;
  else p.append(h('div','note',extra?'Cada empresa tem caixa, estoque, equipe e perfil próprios. Depois de criar, você troca de empresa no seletor do alto.':'Você completa endereço, serviços e equipe quando quiser.'));
  sv.onclick=function(){er.style.color='';er.textContent='';var x=vals();
   if(x.nome.length<3){er.textContent='Escreva o nome (mínimo 3 letras).';return}
+  if(!x.tipo){er.textContent='Digite o tipo de negócio e toque numa opção da lista (ou "Outro").';return}
   if(!novo){var b=corpoLoja(l,x);if(logo!==undefined)b.logo=logo;sv.disabled=true;acao('/estabelecimentos/editar',b,'Empresa atualizada. O perfil do MiHelp já mostra.').then(function(){sv.disabled=false});return}
   sv.disabled=true;er.textContent='Criando…';
   chama8('/estabelecimentos',{nome:x.nome,tipo:x.tipo,cidade:x.cidade,endereco:x.endereco,mapa:x.mapa,contato:x.contato,modo:x.modo,descricao:x.descricao,chat:x.chat,horario:x.horario,atende:true,funcao:'Dono',donoVisivel:x.donoVisivel,invest:false,equipeVisivel:x.equipeVisivel}).then(function(r){

@@ -153,6 +153,14 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
 .hts{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}.hts input{padding:7px 8px}
 .hrow.off .hts{display:none}.hfech{color:var(--mu);font-size:13px}
 @media (max-width:800px){.nv{white-space:normal;line-height:1.15;padding:9px 2px;font-size:12px;text-align:center}}
+
+/* digitar e escolher */
+.cbx{position:fixed;z-index:9999;background:var(--sf2);border:1px solid var(--ln);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.35);max-height:260px;overflow:auto;padding:4px}
+.cbx button{display:block;width:100%;text-align:left;font:inherit;color:var(--tx);background:transparent;border:0;border-radius:8px;padding:10px 12px;cursor:pointer}
+.cbx button:hover,.cbx button.on{background:var(--acb)}
+.cbx p{margin:0;padding:10px 12px;color:var(--mu);font-size:13px}
+.cbok{color:var(--ok);font-size:12px;margin-top:4px;display:block}
+.loc{margin-top:6px}
 </style>
 </head>
 <body>
@@ -340,7 +348,7 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
     visao: 'pedidos', tela: 'perfil',
     menu: [], pedidos: [], config: null,
     carrinho: {},                                                     // { idProduto: quantidade }
-    cliente: { nome: '', tel: '', tipo: 'entrega', end: '', pag: 'Pix', obs: '', erro: '' },
+    cliente: Object.assign({ nome: '', tel: '', tipo: 'entrega', end: '', pag: 'Pix', obs: '', erro: '' }, (() => { try { const x = JSON.parse(localStorage.getItem('mesa_cliente_v1') || '{}'); return { nome: String(x.nome || ''), tel: String(x.tel || ''), end: String(x.end || '') }; } catch (e) { return {}; } })()),
     detalhe: null, editor: null, retorno: null, restaurar: null, focarModal: false, ultimoPedido: 0,
     novos: new Set(), resetarRolagem: false, loja: null,
   };
@@ -604,8 +612,9 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
       },
       async ecoCriar() {
         const f = eco.form, c = estado.config, cat = eco.st.cat || { tipos: [], cidades: {} };
-        const tipo = f.tipo || (cat.tipos.includes('Restaurante') ? 'Restaurante' : cat.tipos[0] || 'Outro'), cidade = f.cidade || Object.keys(cat.cidades)[0] || 'barra-do-garcas';
+        const tipo = f.tipo || '', cidade = f.cidade || Object.keys(cat.cidades)[0] || 'barra-do-garcas';
         if (c.nome.trim().length < 3) { eco.st.erro = 'Dê um nome ao estabelecimento (aba Cardápio) com pelo menos 3 letras.'; return; }
+        if (!tipo || !(cat.tipos.includes(tipo) || tipo === 'Outro')) { eco.st.erro = 'Digite o tipo de negócio e toque numa opção da lista (ou "Outro").'; return; }
         eco.st.erro = 'Criando a loja…'; renderizar();
         const r = await eco.req('/estabelecimentos', { nome: c.nome.trim(), tipo, cidade, descricao: c.descricao.trim(), modo: 'contato', atende: true, funcao: 'Dono' });
         if (!(r.ok && r.j && r.j.ok)) { eco.st.erro = eco.erro(r); return; }
@@ -746,12 +755,13 @@ ${n ? `<div class="bar"><button class="btn pri full" data-a="tela" data-s="carri
       const linhas = linhasCarrinho();
       h = `<button class="back" data-a="tela" data-s="perfil">‹ Cardápio</button><h3>Seu pedido</h3>${linhas.length ? linhas.map((l) => `<div class="it"><div class="g"><b>${esc(l.item.nome)}</b>${l.extras.length ? `<div class="mu sm">+ ${l.extras.map((a) => esc(a.nome)).join(', ')}</div>` : ''}${l.obs ? `<div class="note">“${esc(l.obs)}”</div>` : ''}<div class="pv">${Money.formatar(l.unitario * l.qtd)}</div></div>${passo(l.chave)}</div>`).join('') + `<div class="tl"><span>Subtotal</span><b>${Money.formatar(sub)}</b></div><div class="bar"><button class="btn pri full" data-a="tela" data-s="dados">Continuar</button></div>` : '<p class="mu">Seu carrinho está vazio.</p>'}`;
     } else if (estado.tela === 'dados') {
-      const taxa = taxaPara(c.tipo), local = c.tipo === 'entrega' ? 'entrega' : 'retirada';
+      const taxa = taxaPara(c.tipo), local = c.tipo === 'entrega' ? 'entrega' : 'retirada', conhecido = c.nome.trim() && c.tel.replace(/\D/g, '').length >= 10 && !c.trocar;
       h = `<button class="back" data-a="tela" data-s="carrinho">‹ Carrinho</button><h3>Seus dados</h3>
 <div class="seg"><button class="${c.tipo === 'entrega' ? 'on' : ''}" data-a="tipo" data-t="entrega">Entrega</button><button class="${c.tipo === 'retirada' ? 'on' : ''}" data-a="tipo" data-t="retirada">Retirar no local</button></div>
-<label class="f">Nome<input data-f="nome" value="${esc(c.nome)}" autocomplete="name"></label>
+${conhecido ? `<p class="mu sm">Pedindo como <b>${esc(c.nome)}</b> · ${esc(c.tel)} <button class="btn" data-a="trocarDados">Trocar</button></p>` : `<label class="f">Nome<input data-f="nome" value="${esc(c.nome)}" autocomplete="name"></label>
 <label class="f">Telefone com DDD<input data-f="tel" value="${esc(c.tel)}" inputmode="tel" autocomplete="tel"></label>
-${c.tipo === 'entrega' ? `<label class="f">Endereço de entrega<input data-f="end" value="${esc(c.end)}"></label>` : ''}
+<p class="mu sm">Não precisa de cadastro para pedir.</p>`}
+${c.tipo === 'entrega' ? `<label class="f">Endereço de entrega<input data-f="end" value="${esc(c.end)}"></label><button class="btn loc" data-a="localizacao">📍 Usar minha localização</button>` : ''}
 <label class="f">Pagamento<select data-f="pag">${['Pix', 'Cartão na ' + local, 'Dinheiro'].map((p) => `<option${c.pag === p ? ' selected' : ''}>${p}</option>`).join('')}</select></label>
 <label class="f">Observação<input data-f="obs" value="${esc(c.obs)}" placeholder="Ex.: sem cebola"></label>
 <div class="tl"><span>Subtotal</span><span>${Money.formatar(sub)}</span></div>${taxa ? `<div class="tl"><span>Taxa de entrega</span><span>${Money.formatar(taxa)}</span></div>` : ''}<div class="tl big"><span>Total</span><b>${Money.formatar(sub + taxa)}</b></div>
@@ -797,7 +807,7 @@ ${antigos ? `<div class="acts"><button class="btn" data-a="ecoAntigos">Enviar ${
     const lista = s.lojas.length ? s.lojas.map((l) => `<div class="row"><div class="g"><b>${esc(l.nome)}</b><div class="mu sm">${esc(l.tipo || '')}</div></div><button class="btn pri" data-a="ecoUsar" data-k="${esc(l.chave)}">Usar esta loja</button><button class="btn" data-a="ecoApagar" data-k="${esc(l.chave)}" style="color:#f87171">Apagar</button></div>`).join('') : '<p class="mu sm">Você ainda não tem loja no MiHelp.</p>';
     return topo + `<section class="mc"><h2>Sua loja</h2>${aviso1}${lista}</section>
 <section class="mc"><h2>Criar a loja a partir do MESA</h2><p class="mu sm">Usa o nome e a descrição da aba Cardápio. Ela já nasce no MiHelp e no DOMIN.</p>
-<label class="f">Tipo<select data-ef="tipo">${cat.tipos.map((t) => `<option${(eco.form.tipo || 'Restaurante') === t ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>
+<label class="f">Tipo (digite e escolha)<input data-ef="tipo" data-combo='${esc(JSON.stringify(cat.tipos.concat(cat.tipos.includes('Outro') ? [] : ['Outro'])))}' value="${esc(eco.form.tipo || '')}" placeholder="Ex.: lanchonete, pizzaria…" autocomplete="off"></label>
 <label class="f">Cidade<select data-ef="cidade">${Object.entries(cat.cidades).map(([k, v]) => `<option value="${esc(k)}"${eco.form.cidade === k ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
 <div class="acts"><button class="btn pri" data-a="ecoCriar">Criar e conectar</button><button class="btn" data-a="ecoSair">Sair da conta</button></div></section>`;
   }
@@ -857,7 +867,6 @@ ${antigos ? `<div class="acts"><button class="btn" data-a="ecoAntigos">Enviar ${
     const L = estado.loja, cat = eco.st.cat;
     const tipos = (cat && cat.tipos.length ? cat.tipos : ['Lanchonete', 'Restaurante']).slice(), cidades = Object.assign({}, CIDADES_PADRAO, cat ? cat.cidades : {});
     if (L.tipo && !tipos.includes(L.tipo)) tipos.unshift(L.tipo);
-    if (!L.tipo) L.tipo = tipos.includes('Lanchonete') ? 'Lanchonete' : tipos[0];
     if (!L.cidade || !cidades[L.cidade]) L.cidade = Object.keys(cidades)[0];
     const linhas = ORDEM_DIAS.map((i) => {
       const r = L.h[i], t = (k, j) => `<input type="time" data-hf="${i},${k},${j}" value="${esc(r.f[k][j])}" aria-label="${DIAS[i]}, ${k ? '2ª' : '1ª'} faixa, ${j ? 'fecha' : 'abre'}">`;
@@ -866,7 +875,7 @@ ${antigos ? `<div class="acts"><button class="btn" data-a="ecoAntigos">Enviar ${
     return `<header class="top"><div><h1>Estabelecimento</h1><p class="mu">Os dados da sua loja. Ao salvar, eles vão sozinhos para a página da loja no MiHelp.</p></div></header>
 ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
 <label class="f">Nome da loja<input data-l="nome" value="${esc(L.nome)}" placeholder="Ex.: Lanchonete do Zé" maxlength="60"></label>
-<div class="g2"><label class="f">Tipo de negócio<select data-l="tipo">${tipos.map((t) => `<option${t === L.tipo ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>
+<div class="g2"><label class="f">Tipo de negócio (digite e escolha)<input data-l="tipo" data-combo='${esc(JSON.stringify(tipos.concat(tipos.includes('Outro') ? [] : ['Outro'])))}' value="${esc(L.tipo || '')}" placeholder="Ex.: lanchonete, pizzaria…" autocomplete="off"></label>
 <label class="f">Cidade<select data-l="cidade">${Object.entries(cidades).map(([k, v]) => `<option value="${esc(k)}"${k === L.cidade ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select></label></div>
 <label class="f">WhatsApp<input data-l="contato" value="${esc(L.contato)}" type="tel" inputmode="tel" placeholder="(66) 99999-9999" maxlength="20"></label></section>
 <section class="mc"><h2>Horário de funcionamento</h2>
@@ -948,6 +957,7 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
       const L = estado.loja, c = estado.config; if (!L) return false;
       const nome = L.nome.trim(), dig = String(L.contato).replace(/\D/g, '');
       if (nome.length < 3) { aviso('Dê um nome à loja, com pelo menos 3 letras.'); return false; }
+      { const lt = (eco.st.cat && eco.st.cat.tipos) || []; if (!L.tipo || (lt.length && L.tipo !== c.tipo && L.tipo !== 'Outro' && !lt.includes(L.tipo))) { aviso('Digite o tipo de negócio e toque numa opção da lista (ou "Outro").'); return false; } }
       if (dig && (dig.length < 10 || dig.length > 13)) { aviso('WhatsApp: informe com DDD, por exemplo (66) 99999-9999.'); return false; }
       const hr = horarioDoRascunho(L); if (hr.erro) { aviso(hr.erro); return false; }
       c.nome = nome; c.tipo = L.tipo; c.cidade = L.cidade; c.contato = dig; c.horario = { d: hr.d };
@@ -1029,6 +1039,15 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
       const l = estado.carrinho[t.dataset.id]; if (l) l.qtd++;
     },
     menos(t) { const l = estado.carrinho[t.dataset.id]; if (!l) return; l.qtd--; if (l.qtd <= 0) delete estado.carrinho[t.dataset.id]; },
+    trocarDados() { estado.cliente.trocar = true; },
+    localizacao() {
+      const c = estado.cliente;
+      if (!navigator.geolocation) { aviso('Seu aparelho não deixa usar a localização. Escreva o endereço.'); return false; }
+      return new Promise((ok) => navigator.geolocation.getCurrentPosition(
+        (p) => { const g = p.coords.latitude.toFixed(5) + ',' + p.coords.longitude.toFixed(5); c.end = (c.end.trim() ? c.end.trim() + ' · ' : '') + 'Localização: https://maps.google.com/?q=' + g; aviso('Localização adicionada.'); ok(true); },
+        () => { aviso('Não consegui pegar a localização. Escreva o endereço.'); ok(false); },
+        { enableHighAccuracy: true, timeout: 10000 }));
+    },
     tipo(t) {
       const c = estado.cliente; c.tipo = t.dataset.t;
       if (c.pag.startsWith('Cartão')) c.pag = 'Cartão na ' + (c.tipo === 'entrega' ? 'entrega' : 'retirada');
@@ -1044,11 +1063,37 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
           nome: c.nome.trim(), tel: c.tel.trim(), tipo: c.tipo, end: c.end.trim(), pag: c.pag, obs: c.obs.trim(), origem: 'cardapio-digital',
           itens: linhasCarrinho().map((l) => ({ produtoId: l.item.id, nome: l.item.nome, qtd: l.qtd, precoCentavos: l.unitario, adicionais: l.extras.map((a) => a.nome), obs: l.obs })),
         });
+        try { localStorage.setItem('mesa_cliente_v1', JSON.stringify({ nome: c.nome.trim(), tel: c.tel.trim(), end: c.end.trim() })); } catch (e) {}
+        c.trocar = false;
         estado.ultimoPedido = p.id; estado.carrinho = {}; estado.tela = 'ok'; estado.resetarRolagem = true;
       }
     },
   };
 
+
+  /* digitar e escolher: lista de sugestões para qualquer input com data-combo */
+  (function () {
+    const norm = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    let box = null, alvo = null;
+    const fecha = () => { if (box) box.remove(); box = null; alvo = null; };
+    function opcoes(inp) { try { return JSON.parse(inp.dataset.combo || '[]'); } catch (e) { return []; } }
+    function escolhe(inp, v) { inp.value = v; inp.dataset.ok = '1'; fecha(); inp.dispatchEvent(new Event('input', { bubbles: true })); }
+    function abre(inp) {
+      const k = norm(inp.value).trim(), todas = opcoes(inp);
+      fecha();
+      if (!k || todas.some((t) => norm(t) === k)) return;
+      const m = todas.filter((t) => norm(t).includes(k)).sort((a, b) => (norm(a).startsWith(k) ? 0 : 1) - (norm(b).startsWith(k) ? 0 : 1)).slice(0, 8);
+      box = document.createElement('div'); box.className = 'cbx'; alvo = inp;
+      if (!m.length) { const p = document.createElement('p'); p.textContent = 'Nada com esse nome. Use "Outro".'; box.append(p); }
+      m.forEach((t, n) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (!n) b.className = 'on'; b.addEventListener('mousedown', (e) => e.preventDefault()); b.addEventListener('click', () => escolhe(inp, t)); box.append(b); });
+      const r = inp.getBoundingClientRect(); box.style.left = r.left + 'px'; box.style.top = (r.bottom + 4) + 'px'; box.style.width = r.width + 'px';
+      document.body.append(box);
+    }
+    document.addEventListener('input', (e) => { const t = e.target; if (t && t.dataset && t.dataset.combo !== undefined) abre(t); });
+    document.addEventListener('keydown', (e) => { if (!alvo || e.target !== alvo) return; if (e.key === 'Enter') { const b = box && box.querySelector('button'); if (b) { e.preventDefault(); b.click(); } } else if (e.key === 'Escape') fecha(); });
+    document.addEventListener('mousedown', (e) => { if (box && !box.contains(e.target) && e.target !== alvo) fecha(); });
+    window.addEventListener('scroll', fecha, true);
+  })();
   Object.assign(acoes, eco.acoes);
   document.addEventListener('click', (e) => {
     const t = e.target.closest('[data-a]');
