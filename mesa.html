@@ -434,7 +434,7 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
     },
     assinatura() {
       const c = estado.config;
-      return JSON.stringify([c.nome, c.descricao, c.aberta, c.logoId, c.categorias, c.tipo, c.cidade, c.contato, c.horario,
+      return JSON.stringify([c.nome, c.descricao, c.aberta, c.logoId, c.capaId, c.categorias, c.tipo, c.cidade, c.contato, c.horario,
         estado.menu.map((i) => [i.id, i.categoria, i.nome, i.descricao, i.precoCentavos, i.disponivel, i.fotoId, i.adicionais])]);
     },
     agendar(colecao) {
@@ -465,7 +465,14 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
         if (u) corpo.logo = u;
       } else if (!c.logoId && e.logoEnv) corpo.logo = '';
       const r = await eco.req('/estabelecimentos/editar', corpo); if (!r.ok) return eco.erro(r);
-      e.logoEnv = c.logoId || null; return '';
+      e.logoEnv = c.logoId || null;
+      /* capa: segunda chamada à parte, para um servidor que ainda não conhece "capa" não derrubar o resto da publicação */
+      if (c.capaId && e.capaEnv !== c.capaId) {
+        const b = await M.imagens.obter(c.capaId);
+        const u = b ? await eco.miniatura(b, [[640, 0.7], [560, 0.6], [480, 0.55], [400, 0.5], [320, 0.45]], 28000) : '';
+        if (u) { const r2 = await eco.req('/estabelecimentos/editar', Object.assign({}, corpo, { capa: u })); if (r2.ok) e.capaEnv = c.capaId; }
+      } else if (!c.capaId && e.capaEnv) { const r2 = await eco.req('/estabelecimentos/editar', Object.assign({}, corpo, { capa: '' })); if (r2.ok) e.capaEnv = null; }
+      return '';
     },
     /* cardápio: o MESA é a fonte; manda tudo, e só as fotos que mudaram */
     async publicarCardapio(e) {
@@ -494,7 +501,7 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
       eco.st.ocupado = true; eco.st.erro = ''; eco.st.msg = 'Publicando…'; if (estado.visao === 'conexao' || estado.visao === 'cardapio') renderizar();
       const sig = eco.assinatura(); let falha = '';
       try {
-        if (opc && opc.tudo) { e.fotos = {}; e.logoEnv = null; }
+        if (opc && opc.tudo) { e.fotos = {}; e.logoEnv = null; e.capaEnv = null; }
         falha = (await eco.publicarPerfil(e)) || (await eco.publicarCardapio(e));
       } catch (x) { falha = 'Não consegui publicar agora.'; }
       eco.st.ocupado = false;
@@ -575,6 +582,9 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
         await repositorio.salvar('pedidos', estado.pedidos).catch(() => {});
         const c = estado.config;   // o MESA ainda não tem estes dados: começa com o que já está no MiHelp (não sobrescreve a loja)
         if (!c.nome.trim() || c.nome === 'Meu estabelecimento') c.nome = l.nome;
+        else if (l.nome && c.nome.trim() !== l.nome.trim()) {   // evita renomear sem querer uma loja que já existe no MiHelp
+          if (confirm('Essa loja no MiHelp se chama "' + l.nome + '", mas o MESA está com "' + c.nome.trim() + '".\n\nOK = usar o nome do MiHelp ("' + l.nome + '").\nCancelar = manter o nome do MESA e renomear a loja no MiHelp.')) { c.nome = l.nome; if (l.descricao) c.descricao = l.descricao; if (l.tipo) c.tipo = l.tipo; }
+        }
         if (!c.descricao && l.descricao) c.descricao = l.descricao;
         if (c.tipo == null && l.tipo) c.tipo = l.tipo;
         if (c.cidade == null && l.cidade) c.cidade = l.cidade;
@@ -582,6 +592,15 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
         if (!c.horario && l.horario && Array.isArray(l.horario.d)) c.horario = { d: l.horario.d.map((x) => (Array.isArray(x) ? x.slice() : [])) };
         estado.config.eco = { chave: l.chave, nome: l.nome, auto: true, fat: true, fotos: {}, sig: '', ult: 0, logoEnv: null };
         await eco.gravarCfg(); eco.st.msg = ''; eco.st.erro = ''; eco.publicar({ tudo: true });
+      },
+      async ecoApagar(t) {
+        const l = (eco.st.lojas || []).find((x) => x.chave === t.dataset.k); if (!l) return false;
+        if (!confirm('Apagar a loja "' + l.nome + '" do MiHelp?\n\nIsso remove o perfil, a equipe e o cardápio publicado. Não dá para desfazer.')) return false;
+        const r = await eco.req('/estabelecimentos/apagar', { chave: l.chave });
+        if (!(r.ok && (!r.j || r.j.ok !== false))) { eco.st.erro = eco.erro(r); return; }
+        eco.st.lojas = (eco.st.lojas || []).filter((x) => x.chave !== l.chave); eco.st.erro = '';
+        if (estado.config.eco && estado.config.eco.chave === l.chave) { estado.config.eco = null; await eco.gravarCfg(); }
+        aviso('Loja apagada.');
       },
       async ecoCriar() {
         const f = eco.form, c = estado.config, cat = eco.st.cat || { tipos: [], cidades: {} };
@@ -775,7 +794,7 @@ ${antigos ? `<div class="acts"><button class="btn" data-a="ecoAntigos">Enviar ${
     }
     if (s.carregando || !s.lojas) return topo + `<section class="mc">${aviso1 || '<p class="mu">Carregando suas lojas…</p>'}${s.erro ? '<div class="acts"><button class="btn" data-a="ecoSair">Sair da conta</button></div>' : ''}</section>`;
     const cat = s.cat || { tipos: [], cidades: {} };
-    const lista = s.lojas.length ? s.lojas.map((l) => `<div class="row"><div class="g"><b>${esc(l.nome)}</b><div class="mu sm">${esc(l.tipo || '')}</div></div><button class="btn pri" data-a="ecoUsar" data-k="${esc(l.chave)}">Usar esta loja</button></div>`).join('') : '<p class="mu sm">Você ainda não tem loja no MiHelp.</p>';
+    const lista = s.lojas.length ? s.lojas.map((l) => `<div class="row"><div class="g"><b>${esc(l.nome)}</b><div class="mu sm">${esc(l.tipo || '')}</div></div><button class="btn pri" data-a="ecoUsar" data-k="${esc(l.chave)}">Usar esta loja</button><button class="btn" data-a="ecoApagar" data-k="${esc(l.chave)}" style="color:#f87171">Apagar</button></div>`).join('') : '<p class="mu sm">Você ainda não tem loja no MiHelp.</p>';
     return topo + `<section class="mc"><h2>Sua loja</h2>${aviso1}${lista}</section>
 <section class="mc"><h2>Criar a loja a partir do MESA</h2><p class="mu sm">Usa o nome e a descrição da aba Cardápio. Ela já nasce no MiHelp e no DOMIN.</p>
 <label class="f">Tipo<select data-ef="tipo">${cat.tipos.map((t) => `<option${(eco.form.tipo || 'Restaurante') === t ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>
