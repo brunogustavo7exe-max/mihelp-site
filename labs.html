@@ -268,6 +268,32 @@ html{color-scheme:dark}
 @media(max-width:900px){.fs-body{grid-template-columns:1fr;overflow:auto}.fs-title span{display:none}}
 </style>
 <style id="dc-by-css">.dcby{display:flex;justify-content:center;margin:20px 0 4px}.dcby img{display:block;width:170px;max-width:75%;height:auto;filter:drop-shadow(0 0 14px rgba(46,168,255,.18))}.side-by{margin:24px 0 8px}</style>
+<style id="emp-css">
+.efg{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:16px;align-items:start}
+.efg .pvcol{position:sticky;top:76px}
+@media(max-width:980px){.efg{grid-template-columns:1fr}.efg .pvcol{position:static;order:-1}}
+.pvw{background:var(--sf);border:1px solid var(--ln);border-radius:22px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.pvtag{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 14px;font-size:12px;color:var(--tx2);border-bottom:1px solid var(--ln);background:rgba(46,168,255,.06)}
+.pvtag b{color:var(--cy)}
+.pvband{height:86px;background:linear-gradient(135deg,#12315f,#0b1220 72%)}
+.pvhead{display:flex;gap:12px;align-items:flex-end;margin:-30px 14px 8px;position:relative}
+.pvav{flex:none;width:66px;height:66px;border-radius:18px;border:3px solid var(--sf);overflow:hidden;display:grid;place-items:center;font-size:28px;font-weight:700;color:#fff;background:#1b2a47}
+.pvav img{width:100%;height:100%;object-fit:cover;display:block}
+.pvhead h3{margin:0;font-size:18px;line-height:1.2;word-break:break-word}.pvhead p{margin:2px 0 0;color:var(--tx2);font-size:13px}
+.pvb{padding:0 14px 14px}
+.pvb p{margin:6px 0}
+.pvst{font-weight:700;font-size:13px}.pvst.on{color:var(--ok)}.pvst.off{color:var(--er)}.pvst.nd{color:var(--tx2)}
+.pvb details{margin:6px 0;font-size:13px;color:var(--tx2)}.pvb summary{cursor:pointer;color:var(--tx)}
+.pvph{color:var(--tx2);opacity:.7}
+.pvlk{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.pvlk span{border:1px solid var(--ln);border-radius:99px;padding:6px 12px;font-size:13px;background:var(--sf2)}
+.pvtabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 8px}
+.pvtabs button{border:1px solid var(--ln);background:var(--sf2);border-radius:99px;padding:7px 14px;font-weight:600;font-size:13px;cursor:pointer;color:var(--tx)}
+.pvtabs button[aria-selected=true]{background:var(--cy);border-color:var(--cy);color:#031526}
+.pvpane{border:1px dashed var(--ln);border-radius:14px;padding:12px;font-size:13px;color:var(--tx2);min-height:64px}
+.pvpane .it{display:flex;justify-content:space-between;gap:8px;padding:5px 0;color:var(--tx)}
+.lgrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0 10px}
+</style>
 </head>
 <body>
 <div id="root"></div>
@@ -318,8 +344,8 @@ function shell(){var r=$('#root');r.textContent='';var app=h('div','app');
  var mb=h('button','btn');mb.append(icone('menu','ico'));mb.id='menu';mb.setAttribute('aria-label','Abrir menu');mb.onclick=function(){$('#side').classList.add('open');$('#scrim').classList.add('on')};
  var sel=h('select');sel.id='ws';sel.setAttribute('aria-label','Empresa ativa');
  if(!S.lojas.length){sel.append(new Option('Nenhuma empresa','')) ;sel.disabled=true}
- S.lojas.forEach(function(l){sel.append(new Option(l.nome,l.chave))});sel.value=S.cur||'';
- sel.onchange=function(){S.cur=sel.value;try{sessionStorage.setItem('dl_loja',S.cur)}catch(e){}load().then(function(){go(S.view)})};
+ S.lojas.forEach(function(l){sel.append(new Option(l.nome,l.chave))});if(S.lojas.length)sel.append(new Option('＋ Nova empresa…','__nova'));sel.value=S.cur||'';
+ sel.onchange=function(){if(sel.value==='__nova'){sel.value=S.cur||'';go('novaempresa');return}S.cur=sel.value;if(S.view==='novaempresa')S.view='visao';try{sessionStorage.setItem('dl_loja',S.cur)}catch(e){}load().then(function(){go(S.view)})};
  var bell=h('button','btn','🔔');bell.setAttribute('aria-label','Notificações');bell.onclick=function(){toast('Sem notificações. Este recurso ainda não está conectado.')};
  var mi=h('a','btn','← MiHelp');mi.href='index.html';nova(mi);
  var u=h('span','chip',S.nome||'Conta'),so=h('button','btn','Sair');so.onclick=sair;
@@ -744,10 +770,7 @@ function gate(msg){var r=$('#root');r.textContent='';var g=h('div','gate'),p=h('
 function sair(){try{if(typeof PRO8!=='undefined'&&PRO8.sync===true)localStorage.removeItem(proKey8())}catch(e){}try{localStorage.removeItem('mh_tk');sessionStorage.removeItem('mh_tk')}catch(e){}S.exp=1;gate('Você saiu. Entre de novo quando quiser.')}
 function refresh(){return api('/perfil/meu').then(function(r){if(r.ok&&r.j){S.ag=r.j.agenda||null;S.lojas=(r.j.lojas||[]).concat(S.lojas.filter(function(x){return x.vinc}));S.conv=r.j.convites||[];S.transf=r.j.transferencias||[];S.cat={tipos:r.j.tipos||[],cidades:r.j.cidades||{}}}})}
 function acao(p,b,m){return chama8(p,b).then(function(r){if(r.ok&&r.j&&r.j.ok){toast(m||'Feito.');return refresh().then(load).then(re)}toast((r.j&&r.j.erro)||'Não foi possível.')})}
-function noLoja(v){v.append(head('Crie sua empresa','Cadastre o negócio para usar caixa, estoque, serviços e equipe.'));
- var p=h('div','panel'),nm=fl('Nome da empresa','text',{maxLength:60}),tp=sel((S.cat.tipos||[]).map(function(t){return[t,t]})),cd=sel(Object.keys(S.cat.cidades||{}).map(function(k){return[k,S.cat.cidades[k]]})),er=h('span','err'),b=h('button','btn p','Criar empresa');
- b.onclick=function(){if(nm.i.value.trim().length<3){er.textContent='Escreva o nome (mínimo 3 letras).';return}b.disabled=true;chama8('/estabelecimentos',{nome:nm.i.value.trim(),tipo:tp.value,cidade:cd.value,modo:'contato',atende:true,funcao:'Dono'}).then(function(r){b.disabled=false;if(r.ok&&r.j&&r.j.ok){S.cur=r.j.chave;try{sessionStorage.setItem('dl_loja',S.cur)}catch(e){}refresh().then(function(){shell();return load()}).then(function(){go('visao')})}else er.textContent=(r.j&&r.j.erro)||'Não foi possível criar agora.'})};
- p.append(nm.l,lab('Tipo de negócio',tp),lab('Cidade',cd),er,b,h('div','note','O perfil público (foto, WhatsApp, localização) você completa depois no MiHelp, a vitrine.'));v.append(p)}
+function noLoja(v){v.append(head('Crie sua empresa','Cadastre o negócio para usar caixa, estoque, serviços e equipe. Na prévia você vê como ela vai aparecer no MiHelp.'));formEmpresa(v,null)}
 function lista(p,vazio,a){if(!a.length)p.append(empty(vazio))}
 VIEWS.servicos=function(v){var l=loja();v.append(head('Serviços e preços',l?l.nome:'','real'));if(!l)return noLoja(v);if(l.vinc)return v.append(empty('Só o dono gerencia os serviços.'));
  var L=(l.servicos||[]).map(function(s){return{nome:s.nome,min:s.min,valor:s.valor}}),p=h('div','panel'),box=h('div'),er=h('span','err');
@@ -794,23 +817,88 @@ function horEd(hv){var w=h('div'),NM=['dom','seg','ter','qua','qui','sex','sáb'
  ivk.onchange=pinta;w.append(sh,pd,tg,h('div','note','Quem fecha de madrugada usa, por exemplo, abre 18:00 e fecha 02:00.'));pinta();
  return{el:w,valor:function(){var d=[[],[],[],[],[],[],[]],s=sharedR();dias.forEach(function(i){if(!custom){d[i]=s.slice();return}var a=pdIn[i].ins,o=[];if(a[0].value&&a[1].value)o.push(a[0].value+'-'+a[1].value);if(a[2].value&&a[3].value)o.push(a[2].value+'-'+a[3].value);d[i]=o});return{p:pk.checked?1:0,d:d}}}}
 function ck(txt,val){var l=h('label','tg'),c=document.createElement('input');c.type='checkbox';c.checked=val;l.append(c,document.createTextNode(' '+txt));return{l:l,c:c}}
+/* ===== Empresa: formulário com PRÉVIA ao vivo (como o perfil aparece no MiHelp) para criar e para editar ===== */
+function hmin(t){var a=String(t||'').split(':');return(+a[0]||0)*60+(+a[1]||0)}
+function statusPrev(hv){
+ if(!hv||!Array.isArray(hv.d)||!hv.d.some(function(x){return x&&x.length}))return{on:null,t:'Horário ainda não definido'};
+ if(hv.p)return{on:false,t:'Fechado temporariamente'};
+ var n=new Date(),dia=n.getDay(),m=n.getHours()*60+n.getMinutes(),ont=(dia+6)%7,aberto=false;
+ (hv.d[dia]||[]).forEach(function(f){var p=f.split('-'),a=hmin(p[0]),b=hmin(p[1]);if(b>a?(m>=a&&m<b):m>=a)aberto=true});
+ (hv.d[ont]||[]).forEach(function(f){var p=f.split('-'),a=hmin(p[0]),b=hmin(p[1]);if(b<=a&&m<b)aberto=true});
+ return{on:aberto,t:aberto?'Aberto agora':'Fechado agora'}}
+function prevEmpresa(){
+ var box=h('div','pvw'),st={aba:null,x:null},ctx={servicos:[],equipe:[],nCard:null,nAv:0,carregado:false};
+ function avatar(x){var a=h('span','pvav');if(x.logo&&/^data:image\//.test(x.logo)){var im=document.createElement('img');im.src=x.logo;im.alt='Logo';a.append(im)}
+  else{var nm=x.nome||'?',k=0;for(var i=0;i<nm.length;i++)k=(k*31+nm.charCodeAt(i))%360;a.style.background='hsl('+k+',45%,32%)';a.textContent=(nm.trim()[0]||'?').toUpperCase()}return a}
+ function ph(t,txt){var p=h('p',t?null:'pvph',t||txt);return p}
+ function pinta(){var x=st.x;if(!x)return;box.textContent='';
+  var tg=h('div','pvtag');tg.append(h('span',null,'Assim aparece no MiHelp'),h('b',null,'Prévia · nada foi salvo'));
+  var cids=S.cat.cidades||{},hd=h('div','pvhead'),inf=h('div');
+  inf.append(h('h3',x.nome?null:'pvph',x.nome||'Nome da sua empresa'),h('p',null,(x.tipo||'')+(cids[x.cidade]?' · '+cids[x.cidade]:'')));hd.append(avatar(x),inf);
+  var b=h('div','pvb'),sp=statusPrev(x.horario);b.append(h('p','pvst '+(sp.on===true?'on':sp.on===false?'off':'nd'),(sp.on===true?'🟢 ':sp.on===false?'🔴 ':'')+sp.t));
+  var NL=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],dt=document.createElement('details');dt.append(h('summary',null,'Horário de funcionamento'));
+  [1,2,3,4,5,6,0].forEach(function(i){var f=(x.horario&&x.horario.d&&x.horario.d[i])||[];dt.append(h('div',null,NL[i]+': '+(f.length?f.map(function(z){return z.replace('-','–')}).join(' e '):'fechado')))});b.append(dt);
+  if(x.endereco)b.append(h('p',null,'📍 '+x.endereco));else b.append(ph('', '📍 Endereço (opcional)'));
+  if(x.descricao)b.append(h('p',null,x.descricao));else b.append(ph('', 'A descrição da empresa aparece aqui.'));
+  var lk=h('div','pvlk');if(x.mapa)lk.append(h('span',null,'🗺 Ver no mapa'));if(x.contato)lk.append(h('span',null,'💬 WhatsApp da loja'));if(x.chat)lk.append(h('span',null,'💬 Chamar'));lk.append(h('span',null,'☆ Favoritar'));b.append(lk);
+  var tabs=[];if(x.modo==='agenda')tabs.push(['serv','Serviços ('+ctx.servicos.length+')']);if(ctx.nCard)tabs.push(['card','🍽 Cardápio ('+ctx.nCard+')']);if(x.equipeVisivel||x.modo==='agenda')tabs.push(['equipe','Equipe ('+ctx.equipe.length+')']);tabs.push(['aval','Avaliações ('+ctx.nAv+')']);
+  if(!tabs.some(function(t){return t[0]===st.aba}))st.aba=tabs[0][0];
+  var tb=h('div','pvtabs');tabs.forEach(function(t){var bt=h('button',null,t[1]);bt.type='button';bt.setAttribute('aria-selected',String(st.aba===t[0]));bt.onclick=function(){st.aba=t[0];pinta()};tb.append(bt)});b.append(tb);
+  var pn=h('div','pvpane');
+  if(st.aba==='serv'){if(!ctx.servicos.length)pn.textContent='Nenhum serviço ainda. Cadastre em Serviços e preços.';ctx.servicos.forEach(function(s){var r=h('div','it');r.append(h('span',null,s.nome),h('span',null,s.min+' min · '+R(s.valor)));pn.append(r)})}
+  else if(st.aba==='card')pn.textContent=ctx.nCard+' itens publicados pelo MESA.';
+  else if(st.aba==='equipe'){if(!ctx.equipe.length)pn.textContent='Nenhum profissional aparece aqui ainda.';ctx.equipe.forEach(function(m){var r=h('div','it');r.append(h('span',null,m.nome),h('span',null,m.funcao||'Equipe'));pn.append(r)})}
+  else pn.textContent='☆☆☆☆☆ · ainda sem avaliação';
+  b.append(pn);box.append(tg,h('div','pvband'),hd,b)}
+ return{el:box,up:function(x){st.x=x;pinta()},dados:function(d){Object.assign(ctx,d);pinta()}}}
+function formEmpresa(v,l,op){op=op||{};var novo=!l,extra=novo&&S.lojas.length>0;
+ var er=h('span','err'),cids=S.cat.cidades||{},tipos=(S.cat.tipos||[]).slice();if(l&&l.tipo&&tipos.indexOf(l.tipo)<0)tipos.unshift(l.tipo);
+ var nome=fl('Nome da empresa','text',{maxLength:60,value:l?l.nome||'':'',placeholder:'Ex.: Lanchonete do Zé'}),
+  tp=sel(tipos.map(function(t){return[t,t]}),l?l.tipo:tipos[0]),cd=sel(Object.keys(cids).map(function(k){return[k,cids[k]]}),l?l.cidade:Object.keys(cids)[0]),
+  md=sel([['contato','Conversa (botão Chamar)'],['agenda','Marcando horário (cliente escolhe dia e hora)']],l&&l.modo||'contato'),
+  end=fl('Endereço','text',{maxLength:100,value:l&&l.endereco||''}),mapa=fl('Link do mapa','text',{maxLength:300,value:l&&l.mapa||''}),
+  wa=fl('WhatsApp da empresa','tel',{maxLength:20,value:l&&l.contato||'',placeholder:'(66) 99999-9999'}),ds=fl('Descrição curta','text',{maxLength:200,value:l&&l.descricao||''}),
+  lf=document.createElement('input'),logo,logoBase='',hed=horEd(l?l.horario:null),
+  kc=ck('Receber conversas de clientes no perfil (chat de atendimento)',l?l.chat!==0:true),kd=ck('Mostrar meu nome como dono no perfil',l?!!l.donoVisivel:false),ke=ck('Mostrar a equipe no perfil (loja com agenda sempre mostra)',l?l.equipeVisivel!==0:true);
+ var pv=prevEmpresa();
+ function vals(){return{nome:nome.i.value.trim(),tipo:tp.value,cidade:cd.value,modo:md.value,endereco:end.i.value.trim(),mapa:mapa.i.value.trim(),contato:wa.i.value,descricao:ds.i.value.trim(),horario:hed.valor(),chat:kc.c.checked,donoVisivel:kd.c.checked,equipeVisivel:ke.c.checked}}
+ function atual(){var x=vals();x.logo=logo!==undefined?logo:logoBase;return x}
+ function up(){pv.up(atual())}
+ lf.type='file';lf.accept='image/*';
+ lf.onchange=function(){var f=lf.files[0];if(!f)return;logoR(f).then(function(r){logo=r;er.style.color='';er.textContent='Logo pronto. Toque em Salvar.';up()}).catch(function(e){er.textContent=e.message||'Não consegui usar a imagem.'})};
+ var lg=h('div','lgrow'),rm=h('button','btn','Remover logo');rm.type='button';rm.onclick=function(){logo='';lf.value='';er.style.color='';er.textContent='Logo removido. Toque em Salvar.';up()};lg.append(lf,rm);
+ var p=h('div','panel');
+ p.append(h('h2',null,novo?'Dados da empresa':'Perfil da empresa'),nome.l,lab('Tipo de negócio',tp),lab('Cidade',cd),lab('Como o cliente fala com vocês',md),end.l,mapa.l,wa.l,ds.l,lab('Logo (opcional)',lg),h('h2',null,'Horário de funcionamento'),hed.el,kc.l,kd.l,ke.l);
+ var ac=h('div','acts'),sv=h('button','btn p',novo?'Criar empresa':'Salvar empresa');
+ if(novo&&extra)ac.append(btn('Cancelar',function(){go('visao')}));
+ ac.append(sv);if(l)ac.append(lnk('Ver perfil público no MiHelp','index.html?loja='+encodeURIComponent(l.chave),1));
+ p.append(ac,er);
+ if(l)p.append(h('div','note','Código da empresa: '+l.chave+'. A foto de perfil de cada pessoa da equipe continua sendo do MiHelp.'));
+ else p.append(h('div','note',extra?'Cada empresa tem caixa, estoque, equipe e perfil próprios. Depois de criar, você troca de empresa no seletor do alto.':'Você completa endereço, serviços e equipe quando quiser.'));
+ sv.onclick=function(){er.style.color='';er.textContent='';var x=vals();
+  if(x.nome.length<3){er.textContent='Escreva o nome (mínimo 3 letras).';return}
+  if(!novo){var b=corpoLoja(l,x);if(logo!==undefined)b.logo=logo;sv.disabled=true;acao('/estabelecimentos/editar',b,'Empresa atualizada. O perfil do MiHelp já mostra.').then(function(){sv.disabled=false});return}
+  sv.disabled=true;er.textContent='Criando…';
+  chama8('/estabelecimentos',{nome:x.nome,tipo:x.tipo,cidade:x.cidade,endereco:x.endereco,mapa:x.mapa,contato:x.contato,modo:x.modo,descricao:x.descricao,chat:x.chat,horario:x.horario,atende:true,funcao:'Dono',donoVisivel:x.donoVisivel,invest:false,equipeVisivel:x.equipeVisivel}).then(function(r){
+   if(!(r.ok&&r.j&&r.j.ok)){sv.disabled=false;er.textContent=(r.j&&r.j.erro)||'Não foi possível criar agora.';return}
+   var ch=r.j.chave;S.cur=ch;try{sessionStorage.setItem('dl_loja',ch)}catch(e){}
+   return refresh().then(function(){var nl=S.lojas.find(function(z){return z.chave===ch});
+     if(!nl||!(logo||x.endereco||x.mapa||x.contato||x.descricao))return;
+     var b2=corpoLoja(nl,x);if(logo)b2.logo=logo;   /* garante os dados completos e o logo, mesmo que a criação só guarde o básico */
+     return chama8('/estabelecimentos/editar',b2).then(function(r2){if(!(r2.ok&&r2.j&&r2.j.ok))toast('Empresa criada, mas alguns dados não salvaram. Complete em Minha empresa.')})})
+    .then(refresh).then(function(){shell();return load()}).then(function(){toast('Empresa criada: '+x.nome+'.');go('empresa')})})};
+ var g=h('div','efg'),col=h('div','pvcol');col.append(pv.el);g.append(p,col);v.append(g);
+ ['input','change'].forEach(function(e){p.addEventListener(e,up)});p.addEventListener('click',function(){setTimeout(up,0)});
+ up();
+ if(l){Promise.all([chama8('/estabelecimentos/ver?chave='+encodeURIComponent(l.chave)),chama8('/cardapio?chave='+encodeURIComponent(l.chave))]).then(function(a){
+   var vr=a[0].ok&&a[0].j&&a[0].j.ok?a[0].j:null,rc=a[1].ok&&a[1].j&&a[1].j.ok&&!a[1].j.vazio?a[1].j:null;
+   if(vr){logoBase=vr.logo||'';pv.dados({servicos:vr.servicos||[],equipe:vr.equipe||[],nAv:vr.n||0})}
+   if(rc)pv.dados({nCard:(rc.itens||[]).length});up()})}}
 VIEWS.empresa=function(v){var l=loja();v.append(head('Minha empresa',l?l.nome:'','real'));if(!l)return noLoja(v);
  if(l.vinc)return v.append(empty('Só o dono edita os dados da empresa.'));
- var p=h('div','panel'),er=h('span','err'),cids=S.cat.cidades||{},tipos=(S.cat.tipos||[]).slice();if(l.tipo&&tipos.indexOf(l.tipo)<0)tipos.unshift(l.tipo);
- var nome=fl('Nome da empresa','text',{maxLength:60,value:l.nome||''}),tp=sel(tipos.map(function(t){return[t,t]}),l.tipo),
-  cd=sel(Object.keys(cids).map(function(k){return[k,cids[k]]}),l.cidade),
-  md=sel([['contato','Conversa (botão Chamar)'],['agenda','Marcando horário (cliente escolhe dia e hora)']],l.modo||'contato'),
-  end=fl('Endereço','text',{maxLength:100,value:l.endereco||''}),mapa=fl('Link do mapa','text',{maxLength:300,value:l.mapa||''}),
-  wa=fl('WhatsApp da empresa','tel',{maxLength:20,value:l.contato||''}),ds=fl('Descrição curta','text',{maxLength:200,value:l.descricao||''}),
-  lf=document.createElement('input'),logo,hed=horEd(l.horario),
-  kc=ck('Receber conversas de clientes no perfil (chat de atendimento)',l.chat!==0),kd=ck('Mostrar meu nome como dono no perfil',!!l.donoVisivel),ke=ck('Mostrar a equipe no perfil (loja com agenda sempre mostra)',l.equipeVisivel!==0);
- lf.type='file';lf.accept='image/*';lf.onchange=function(){var f=lf.files[0];if(!f)return;logoR(f).then(function(r){logo=r;er.style.color='';er.textContent='Logo pronto. Toque em Salvar.'}).catch(function(e){logo=undefined;er.textContent=e.message||'Não consegui usar a imagem.'})};
- p.append(nome.l,lab('Tipo de negócio',tp),lab('Cidade',cd),lab('Como o cliente fala com vocês',md),end.l,mapa.l,wa.l,ds.l,lab('Logo (opcional)',lf),h('h2',null,'Horário de funcionamento'),hed.el,kc.l,kd.l,ke.l);
- var ac=h('div','acts'),sv=h('button','btn p','Salvar empresa');
- sv.onclick=function(){er.style.color='';er.textContent='';if(nome.i.value.trim().length<3){er.textContent='Escreva o nome (mínimo 3 letras).';return}
-  var b=corpoLoja(l,{nome:nome.i.value.trim(),tipo:tp.value,cidade:cd.value,modo:md.value,endereco:end.i.value.trim(),mapa:mapa.i.value.trim(),contato:wa.i.value,descricao:ds.i.value.trim(),horario:hed.valor(),chat:kc.c.checked,donoVisivel:kd.c.checked,equipeVisivel:ke.c.checked});
-  if(logo!==undefined)b.logo=logo;sv.disabled=true;acao('/estabelecimentos/editar',b,'Empresa atualizada. O perfil do MiHelp já mostra.').then(function(){sv.disabled=false})};
- ac.append(sv,lnk('Ver perfil público no MiHelp','index.html?loja='+encodeURIComponent(l.chave),1));p.append(ac,er,h('div','note','Código da empresa: '+l.chave+'. A foto de perfil de cada pessoa da equipe continua sendo do MiHelp.'));v.append(p)};
+ var a=h('div','acts');a.style.marginBottom='12px';a.append(btn('＋ Nova empresa',function(){go('novaempresa')}));v.append(a);
+ formEmpresa(v,l)};
+VIEWS.novaempresa=function(v){v.append(head('Nova empresa','Crie mais uma empresa na sua conta. Você vê, na prévia, como vai aparecer no MiHelp antes de criar.'));formEmpresa(v,null)};
 
 /* ===== Agenda do Domin: igual ao "Meus horários" do MiHelp, com ver perfil e cancelar ===== */
 VIEWS.agenda=function(v){var l=loja();v.append(head('Agenda',l?l.nome:'','real'));if(!l)return noLoja(v);
@@ -879,7 +967,7 @@ function alertas(){var a=[],l=loja();
 /* ===== Botão Criar: atalhos para os fluxos que já existem ===== */
 function criar(){var w=h('span','bellb'),b=h('button','btn cr'),pop=null;b.type='button';b.setAttribute('aria-label','Criar');b.append(icone('mais','ico'),h('span','tcr','Criar'));
  function fecha(){if(pop){pop.remove();pop=null}}
- var IT=[['orcamentos','Novo orçamento',function(){PRO8.tab='trab';S.pendSel='novo';go('orcamentos')}],['clientes','Novo cliente',function(){S.pendSel='novo';go('clientes')}],['financeiro','Lançar no caixa',function(){go('financeiro')}],['estoque','Novo produto',function(){go('estoque')}],['servicos','Novo serviço',function(){go('servicos')}],['equipe','Chamar para a equipe',function(){go('equipe')}]];
+ var IT=[['empresa','Nova empresa',function(){go('novaempresa')}],['orcamentos','Novo orçamento',function(){PRO8.tab='trab';S.pendSel='novo';go('orcamentos')}],['clientes','Novo cliente',function(){S.pendSel='novo';go('clientes')}],['financeiro','Lançar no caixa',function(){go('financeiro')}],['estoque','Novo produto',function(){go('estoque')}],['servicos','Novo serviço',function(){go('servicos')}],['equipe','Chamar para a equipe',function(){go('equipe')}]];
  b.onclick=function(e){e.stopPropagation();if(pop)return fecha();pop=h('div','crmenu');
   IT.forEach(function(x){var i=h('button');i.type='button';var c=h('span','ci');c.append(icone(x[0],'ico'));i.append(c,h('span',null,x[1]));i.onclick=function(){fecha();x[2]()};pop.append(i)});w.append(pop)};
  document.addEventListener('click',function(e){if(pop&&!w.contains(e.target))fecha()});w.append(b);return w}
@@ -1184,8 +1272,8 @@ VIEWS.tutorial=function(v){
  /* 4. atalhos */
  var p4=painel('Atalhos que ajudam'),ul=h('ul','tips');
  ['Busca no alto da tela: procure módulo, cliente, produto ou horário.',
-  'Botão “Criar”: novo orçamento, novo cliente, lançar no caixa, novo produto, novo serviço ou chamar alguém para a equipe.',
-  'Quem tem mais de uma empresa troca a empresa ativa no seletor do alto.',
+  'Botão “Criar”: nova empresa, novo orçamento, novo cliente, lançar no caixa, novo produto, novo serviço ou chamar alguém para a equipe.',
+  'Quem tem mais de uma empresa troca a empresa ativa no seletor do alto. Para abrir outra empresa, use Criar › Nova empresa ou a opção “＋ Nova empresa” no seletor.',
   'O sino mostra os avisos. “← MiHelp” abre a vitrine em outra aba.',
   'No celular, o botão de menu (☰) abre a lista de módulos.'].forEach(function(t){ul.append(h('li',null,t))});
  p4.append(ul);wrap.append(p4);
