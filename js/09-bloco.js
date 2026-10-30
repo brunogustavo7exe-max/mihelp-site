@@ -627,11 +627,13 @@ const erro8=r=>((r&&r.j&&r.j.erro)||'Não deu certo. Tente de novo.')+(r&&r.j&&r
 const botao8=(txt,cls,fn)=>{const b=mk8('button',cls||'more',txt);b.type='button';b.onclick=fn;return b};
 /* botão que pede um segundo toque (apagar, sair, etc.) */
 const botao2x8=(txt,cls,fn)=>{let t=0;const b=botao8(txt,cls,()=>{if(!t){t=setTimeout(()=>{t=0;b.textContent=txt},4000);b.textContent='Toque de novo para confirmar';return}clearTimeout(t);t=0;b.textContent=txt;fn()});return b};
+const CARD8={};
 async function abrirLoja8(chave,opc){
  const d=lojaDlg8||(lojaDlg8=novoDlg8('Estabelecimento'));d.textContent='';d.append(mk8('p','note','Carregando…'));if(!d.open)d.showModal();
- const r=await chama8('/estabelecimentos/ver?chave='+encodeURIComponent(chave));
+ const [r,rc]=await Promise.all([chama8('/estabelecimentos/ver?chave='+encodeURIComponent(chave)),chama8('/cardapio?chave='+encodeURIComponent(chave))]);
+ CARD8[chave]=rc&&rc.ok&&rc.j&&rc.j.ok&&!rc.j.vazio?rc.j:null;
  if(!r.ok||!(r.j&&r.j.ok)){d.textContent='';d.append(mk8('p','note',erro8(r)),botao8('Fechar','more',()=>d.close()));return}
- if(opc&&opc.pro)r.j._pro=opc.pro;pintaLoja8(d,r.j,(opc&&opc.aba)||(r.j.modo==='agenda'&&(r.j.servicos||[]).length?'serv':(r.j.equipeOculta?'aval':'equipe')));
+ if(opc&&opc.pro)r.j._pro=opc.pro;pintaLoja8(d,r.j,(opc&&opc.aba)||(r.j.modo==='agenda'&&(r.j.servicos||[]).length?'serv':(CARD8[chave]?'card':(r.j.equipeOculta?'aval':'equipe'))));
  if(opc&&opc.avaliar)avaliarDireto8(d,r.j)}
 function horarioTxt8(h){if(!h||!Array.isArray(h.d))return[];const N=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];return [1,2,3,4,5,6,0].map(i=>N[i]+': '+((h.d[i]||[]).length?h.d[i].map(x=>x.replace('-','–')).join(' e '):'fechado'))}
 function pintaLoja8(d,L,aba,aviso){d.textContent='';
@@ -656,10 +658,10 @@ function pintaLoja8(d,L,aba,aviso){d.textContent='';
  if(L.logado&&!L.souDono)lk.append(botao8(L.favoritada?'★ Nos favoritos':'☆ Favoritar','more',async()=>{const on=!L.favoritada;const r=await chama8('/favoritos',{alvo:'l:'+L.chave,on});if(r.ok&&r.j&&r.j.ok){L.favoritada=on;if(on)V8.fav.lojas.add(L.chave);else V8.fav.lojas.delete(L.chave);pintaLoja8(d,L,aba);refreshProf()}else pintaLoja8(d,L,aba,erro8(r))}));
  d.append(lk);
  const tabs=mk8('div','v8tabs');
- ((L.modo==='agenda'&&((L.servicos||[]).length||L.souDono)?[['serv','Serviços ('+(L.servicos||[]).length+')']]:[]).concat(L.equipeOculta?[]:[['equipe','Equipe ('+L.totalEquipe+')']]).concat([['aval','Avaliações ('+L.n+')']])).forEach(([k,t])=>{const b=mk8('button',null,t);b.type='button';b.setAttribute('aria-selected',String(aba===k));b.onclick=()=>pintaLoja8(d,L,k);tabs.append(b)});
+ ((L.modo==='agenda'&&((L.servicos||[]).length||L.souDono)?[['serv','Serviços ('+(L.servicos||[]).length+')']]:[]).concat(CARD8[L.chave]?[['card','🍽 Cardápio ('+CARD8[L.chave].itens.length+')']]:[]).concat(L.equipeOculta?[]:[['equipe','Equipe ('+L.totalEquipe+')']]).concat([['aval','Avaliações ('+L.n+')']])).forEach(([k,t])=>{const b=mk8('button',null,t);b.type='button';b.setAttribute('aria-selected',String(aba===k));b.onclick=()=>pintaLoja8(d,L,k);tabs.append(b)});
  d.append(tabs);
  const pane=mk8('div');
- if(aba==='serv'){painelServ8(pane,d,L)}else if(aba==='equipe'){
+ if(aba==='serv'){painelServ8(pane,d,L)}else if(aba==='card'){painelCard8(pane,L)}else if(aba==='equipe'){
   if(!L.equipe.length)pane.append(mk8('p','note','Nenhum profissional aparece aqui ainda.'));
   L.equipe.forEach(m=>{const c=mk8('div','pcard pteam');c.append(avatarEl(m.nome,44));const t=mk8('div','pinfo');t.append(mk8('b',null,m.nome),mk8('span','pw',[m.funcao,m.work].filter(Boolean).join(' · ')||'Equipe'));c.append(t);
    /* todos da equipe (exceto você) podem ser vistos e chamados no privado, a menos que a pessoa tenha desligado */
@@ -953,6 +955,19 @@ function resumoDias8(ds){const o=ORD8.filter(i=>ds.includes(i));if(!o.length)ret
 let agDlg8=null,horDlg8=null;
 
 /* aba "Serviços" do perfil da loja: cada serviço com tempo, valor e o botão Reservar */
+function fotoCard8(chave,id,im){chama8('/cardapio/foto?chave='+encodeURIComponent(chave)+'&id='+encodeURIComponent(id)).then(r=>{if(r.ok&&r.j&&r.j.f)im.src=r.j.f})}
+function painelCard8(pane,L){const C=CARD8[L.chave];
+ if(!C||!C.itens.length){pane.append(mk8('p','note','Esta loja ainda não publicou o cardápio.'));return}
+ if(C.aberta===false)pane.append(mk8('p','v8status off','🔴 Fechada para pedidos no momento'));
+ const cats=(C.cats&&C.cats.length?C.cats:[...new Set(C.itens.map(i=>i.c))]);
+ cats.forEach(cat=>{const li=C.itens.filter(i=>i.c===cat);if(!li.length)return;pane.append(mk8('h4',null,cat));
+  li.forEach(i=>{const c=mk8('div','v8serv'),t=mk8('div','v8servinfo');t.style.flex='1';
+   if(i.f){const im=document.createElement('img');im.alt='';im.loading='lazy';im.width=56;im.height=56;im.style.cssText='border-radius:10px;object-fit:cover;flex:none';c.append(im);fotoCard8(L.chave,i.id,im)}
+   t.append(mk8('b',null,i.n));if(i.d)t.append(mk8('span','note',i.d));
+   t.append(mk8('span','note',i.o?'💲 '+brl8(i.p/100):'Esgotado'));
+   if(i.a&&i.a.length)t.append(mk8('span','note','+ '+i.a.map(a=>a.n+' '+brl8(a.p/100)).join(' · ')));
+   c.append(t);pane.append(c)})});
+ if(L.contato){const a=mk8('a','more','💬 Pedir pelo WhatsApp');a.href=waLink8(L.contato);a.target='_blank';a.rel='noopener noreferrer';a.style.textDecoration='none';pane.append(a)}}
 function painelServ8(pane,d,L){const sv=L.servicos||[];
  if(!sv.length){pane.append(mk8('p','note',L.souDono?'Você ainda não cadastrou serviços. Toque em "Gerenciar minha loja" e depois em "Serviços e preços".':'Esta loja ainda não cadastrou serviços.'));return}
 
