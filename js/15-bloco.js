@@ -166,7 +166,7 @@ async function lerAp(){
   if(window.MH_RX)MH_RX.apoio(it.filter(x=>x.nome).map(x=>({nome:x.nome,valor:x.valor,mostrarValor:!(x.mostrarValor===false||x.mostrarValor==='false'||x.mostrarValor==='nao'||x.mostrarValor==='não')})))}
  catch(e){diag('apoiadores: '+msgErro(e),true)}}
 async function lerNomes(){
- try{const r=await q(COL.perf).ascending('_createdDate').limit(1000).find(),itAll=(r&&r.items)||[],it=itAll.filter(x=>(x.cidade||'barra-do-garcas')===((window.MH_CIDADE||{}).slug||'barra-do-garcas')),hs=[],fund=new Set();
+ try{const r=await q(COL.perf).ascending('_createdDate').limit(1000).find(),itAll=(r&&r.items)||[],it=itAll.filter(x=>window.MH_TEMCID(x.cidade)),hs=[],fund=new Set();
   itAll.forEach(x=>{if(x.nome)DB.nomes.add(String(x.nome).toLowerCase())});
   it.forEach(x=>{if(!x.nome)return;const n=String(x.nome);DB.nomes.add(n.toLowerCase());if(x.papel==='helper'){hs.push(x);if(fund.size<100)fund.add(n)}});
   window.MH_FUND=fund;window.MH_HELPERS=hs.map(x=>({nome:String(x.nome),oficio:x.oficio||''}));try{window.MH_profRefresh&&MH_profRefresh()}catch(e){}

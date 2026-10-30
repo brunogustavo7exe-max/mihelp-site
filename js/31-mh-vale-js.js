@@ -3,14 +3,14 @@ try{(function(){
 const A=window.MH_API,$=id=>document.getElementById(id);
 if(!$('vale'))return;
 if(!A||!A.on()){$('vale').hidden=true;if($('carona'))$('carona').hidden=true;if($('cheers'))$('cheers').hidden=true;document.querySelectorAll('a[href="#vale"],a[href="#carona"]').forEach(n=>{n.style.display='none'});document.querySelectorAll('#dock [data-dock=guia],#dock [data-dock=carona]').forEach(b=>{b.style.display='none'});return}
-const CID=[['barra-do-garcas','Barra do Garças'],['aragarcas','Aragarças'],['pontal-do-araguaia','Pontal do Araguaia']];
+const CID=window.MH_REGIAO.slugs.map(s=>[s,window.MH_REGIAO.nomes[s]||s]);
 const CATS=['Restaurante','Lanchonete','Bar','Loja','Serviço','Turismo','Hotel/Pousada','Saúde','Outro'];
 const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const seguro=u=>/^https?:\/\/[^\s]+$/i.test(String(u||''))?u:'';
 const logado=()=>!!A.usrTk();
 const msg=t=>{$('vMsg').textContent=t||''};const msgC=t=>{$('cMsg').textContent=t||''};
 const dica=r=>{try{return A.admTk()&&r&&r.j&&r.j.detalhe?' ('+r.j.detalhe+')':''}catch(e){return ''}};
-let cid='barra-do-garcas',cat='';
+let cid=(window.MH_CIDADE||{}).slug||'barra-do-garcas',cat='';
 try{const m=window.MH_CIDADE;if(m){if(!CID.some(x=>x[0]===m.slug))CID.push([m.slug,m.nome]);cid=m.slug}}catch(e){}
 const opt=(sel,arr)=>arr.forEach(v=>{const o=document.createElement('option');o.value=Array.isArray(v)?v[0]:v;o.textContent=Array.isArray(v)?v[1]:v;sel.append(o)});
 opt($('vCid'),CID);$('vCid').value=cid;opt($('vCat'),[['','Todas as categorias']].concat(CATS));
@@ -36,7 +36,7 @@ function form(titulo,nota,campos,botao,envia){
  const bt=mk('div','dbt');bt.append(go,cx);d.append(er,bt);d.showModal()}
 async function guia(){
  const box=$('vLista');box.textContent='Carregando…';
- const r=await A.req('/lugares?cidade='+cid);box.textContent='';
+ const r=await A.req('/lugares?cidade='+encodeURIComponent(window.MH_REGIAO.on?window.MH_REGIAO.param():cid));box.textContent='';
  if(!r.ok){box.append(mk('p','note','Não consegui carregar agora. Tente de novo em instantes.'+dica(r)));return}
  let l=(r.j.itens||[]).filter(x=>!cat||x.categoria===cat);
  if(!l.length){box.append(mk('p','note','Ainda não tem indicação por aqui. Seja o primeiro: toque em "Indicar um lugar".'));return}
@@ -48,7 +48,7 @@ async function guia(){
  if(dest)l=l.filter(x=>x!==dest);
  const pinta=(x,ehDest)=>{const c=mk('div','vcard'+(ehDest?' vdest':''));if(ehDest)c.append(mk('span','vtag','🏆 DESTAQUE DO VALE'));c.append(mk('b',0,x.nome));
   if(x.selo){const s=mk('span','vselo','⭐ Estrela MiHelp');if(seguro(x.postIg)){s.append(' · ',link('ver no Instagram',x.postIg))}c.append(s)}
-  c.append(mk('span','vsub',x.categoria+(x.bairro?' · '+x.bairro:'')));
+  c.append(mk('span','vsub',x.categoria+(x.bairro?' · '+x.bairro:'')+(window.MH_REGIAO.on&&x.cidade?' · 📍 '+(window.MH_REGIAO.nomes[x.cidade]||x.cidade):'')));
   if(x.descricao)c.append(mk('p','vdesc',x.descricao));
   const ac=mk('div','vac');const rb=mk('button',0,'👍 Recomendo · '+(x.recs||0));rb.type='button';
   rb.onclick=async()=>{if(!logado()){msg('Entre na sua conta para recomendar.');return}
@@ -104,7 +104,7 @@ const fmtEv=x=>{const p=String(x.data).split('-'),dt=new Date(x.data+'T12:00:00'
 const msgCh=t=>{$('chMsg').textContent=t||''};
 async function cheers(){
  const box=$('chLista');if(!box)return;box.textContent='Carregando…';
- const r=await A.req('/eventos?cidade='+cid,{token:A.usrTk()});box.textContent='';
+ const r=await A.req('/eventos?cidade='+encodeURIComponent(window.MH_REGIAO.on?window.MH_REGIAO.param():cid),{token:A.usrTk()});box.textContent='';
  if(!r.ok){box.append(mk('p','note','Não consegui carregar agora. Tente de novo em instantes.'+dica(r)));return}
  const l=r.j.itens||[];
  if(!l.length){box.append(mk('p','note','Nenhum evento marcado ainda. Vai rolar alguma coisa? Toque em "Divulgar evento".'));return}

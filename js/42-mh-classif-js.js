@@ -2,7 +2,7 @@
 /* MiHelp — Classificados (estilo Marketplace). Olhar é livre; anunciar, ver contato, editar e denunciar exigem conta. */
 try{(function(){
 const A=window.MH_API;if(!A)return;
-const CID={'barra-do-garcas':'Barra do Garças',aragarcas:'Aragarças','pontal-do-araguaia':'Pontal do Araguaia'};try{if(window.MH_CIDADE)CID[MH_CIDADE.slug]=MH_CIDADE.nome}catch(e){}
+const CID={'barra-do-garcas':'Barra do Garças',aragarcas:'Aragarças','pontal-do-araguaia':'Pontal do Araguaia'};try{Object.assign(CID,window.MH_REGIAO.nomes);if(window.MH_CIDADE)CID[MH_CIDADE.slug]=MH_CIDADE.nome}catch(e){}
 const CATS=['Veículos','Casa e móveis','Eletrônicos','Roupas e acessórios','Ferramentas e construção','Animais','Bebês e crianças','Esporte e lazer','Outros'];
 const ICO={'Veículos':'🚗','Casa e móveis':'🛋️','Eletrônicos':'📱','Roupas e acessórios':'👕','Ferramentas e construção':'🧰','Animais':'🐾','Bebês e crianças':'🧸','Esporte e lazer':'⚽','Outros':'📦'};
 const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
@@ -40,17 +40,17 @@ const fotoReq=(id,n)=>A.req('/classificados/foto?id='+encodeURIComponent(id)+'&n
 
 /* ---- a seção na página: filtros + grade de cartões ---- */
 const box=document.getElementById('clsBox');
-let F={cidade:((window.MH_CIDADE||{}).slug||'barra-do-garcas'),cat:'',q:''};
+let F={cidade:window.MH_REGIAO.param(),cat:'',q:''};
 async function lista(off){
  if(!box)return;off=off||0;
  if(!off){box.textContent='';
   const st=mk('p','note');st.id='clsSt';st.setAttribute('role','status');
   const ac=mk('div','v8acts');ac.append(bt('➕ Anunciar','cta2',()=>logado()?form():(abreDlg(),d.append(cab('Classificados'),mk('p','note','Entre na sua conta para anunciar. Toque em "Conta" aqui embaixo.')))),bt('📦 Meus anúncios','more',()=>logado()?meus():(abreDlg(),d.append(cab('Classificados'),mk('p','note','Entre na sua conta para ver os seus anúncios. Toque em "Conta" aqui embaixo.')))));
   if(admOn())ac.append(bt('🛠 Adm: denúncias','more',adm));
-  const fc=campo('Cidade','select');fc.i.add(new Option('Todas',''));Object.keys(CID).forEach(k=>fc.i.add(new Option(CID[k],k)));fc.i.value=F.cidade;
+  const fc=campo('Cidade','select');fc.i.add(new Option('Todas',''));if(window.MH_REGIAO.on)fc.i.add(new Option('Toda a minha região',window.MH_REGIAO.param()));{const cs=Object.assign({},CID,window.MH_REGIAO.nomes);Object.keys(cs).forEach(k=>fc.i.add(new Option(cs[k],k)))}fc.i.value=F.cidade;
   const fk=campo('Categoria','select');fk.i.add(new Option('Todas',''));CATS.forEach(k=>fk.i.add(new Option(ICO[k]+' '+k,k)));fk.i.value=F.cat;
   const fq=campo('Buscar','search',{value:F.q,maxLength:40,placeholder:'Ex.: geladeira, bicicleta, filhote'});
-  const go=()=>{F={cidade:((window.MH_CIDADE||{}).slug||'barra-do-garcas'),cat:fk.i.value,q:fq.i.value.trim()};lista(0)};fc.i.onchange=go;fk.i.onchange=go;fq.i.onkeydown=e=>{if(e.key==='Enter')go()};
+  const go=()=>{F={cidade:fc.i.value,cat:fk.i.value,q:fq.i.value.trim()};lista(0)};fc.i.onchange=go;fk.i.onchange=go;fq.i.onkeydown=e=>{if(e.key==='Enter')go()};
   box.append(mk('p','note',aviso),ac,fk.l,fq.l,bt('🔎 Buscar','more',go),st);
   const g=mk('div','cls-grid');g.id='clsGrid';const mm=mk('div');mm.id='clsMais';box.append(g,mm)}
  const g=document.getElementById('clsGrid'),mais=document.getElementById('clsMais');

@@ -1,0 +1,52 @@
+
+/* ===== v12: perfil da loja organizado: abas, cardápio selecionável, pedido e avaliações ===== */
+.v8dlg .lj-tabs{display:flex;flex-wrap:nowrap;gap:4px;padding:4px;margin:14px 0 12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.03);overflow-x:auto;scrollbar-width:none}
+.v8dlg .lj-tabs::-webkit-scrollbar{display:none}
+.v8dlg .lj-tabs button{flex:1 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 14px;border-radius:12px;border:0;background:transparent;color:var(--mute);font:700 14px var(--sans);white-space:nowrap;cursor:pointer;box-shadow:none;animation:none}
+.v8dlg .lj-tabs button:hover{color:var(--text);background:rgba(var(--gold-rgb),.08)}
+.v8dlg .lj-tabs button[aria-selected=true]{background:linear-gradient(180deg,var(--gold2),var(--gold));color:var(--on-gold,#201804);box-shadow:0 4px 14px rgba(var(--gold-rgb),.35)}
+.lj-tc{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:rgba(255,255,255,.12);font:800 12px/20px var(--sans);text-align:center}
+.lj-tabs button[aria-selected=true] .lj-tc{background:rgba(0,0,0,.25)}
+.lj-tc[hidden]{display:none}
+.lj-sh{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(var(--gold-rgb),.05)}
+.lj-shi{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:12px;background:rgba(var(--gold-rgb),.14);font-size:20px}
+.lj-sh b{display:block;font-size:17px}.lj-sh span:not(.lj-shi){display:block;font-size:13px;color:var(--mute)}
+/* categorias: filtro de verdade */
+.v8dlg .lj-cats{position:static;padding:2px 0 10px;margin:0;background:none;scrollbar-width:none}
+.lj-cats::-webkit-scrollbar{display:none}
+.lj-cats button[aria-pressed=true]{background:var(--gold);color:var(--on-gold,#201804);border-color:var(--gold)}
+.lj-sec[hidden]{display:none}
+h4.lj-cat{display:flex;align-items:baseline;justify-content:space-between;margin:14px 0 8px}
+h4.lj-cat small{font:600 12px var(--sans);color:var(--mute)}
+.lj-card.sel{cursor:pointer}.lj-card.sel:active{transform:scale(.97)}.lj-card.sel:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.lj-plus{position:absolute;right:8px;bottom:8px;z-index:1;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--gold);color:var(--on-gold,#201804);font:800 22px/1 var(--sans);box-shadow:0 4px 12px rgba(0,0,0,.45)}
+.lj-qb{position:absolute;left:8px;top:8px;z-index:1;padding:2px 9px;border-radius:999px;background:var(--gold);color:var(--on-gold,#201804);font:800 12px var(--sans)}
+.lj-bar{position:sticky;bottom:8px;z-index:4;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding:8px 8px 8px 16px;border-radius:16px;background:var(--surf);border:1px solid rgba(var(--gold-rgb),.6);box-shadow:0 10px 30px rgba(0,0,0,.55)}
+.lj-bar[hidden]{display:none}.lj-bar span{font:800 14px var(--sans)}.lj-bar .cta2{min-height:40px;padding:0 16px}
+/* janela do item */
+dialog.lj-sd{width:min(94vw,440px);max-height:90vh;padding:0;overflow:auto;border:1px solid rgba(var(--gold-rgb),.45);border-radius:20px;background:var(--surf);color:var(--text)}
+dialog.lj-sd::backdrop{background:rgba(0,0,0,.6)}
+.lj-sph{position:relative;aspect-ratio:16/9}
+.lj-sx{position:absolute;top:10px;right:10px;z-index:2;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(0,0,0,.5);color:#fff;font-size:15px;cursor:pointer}
+.lj-sb{display:grid;gap:12px;padding:16px}.lj-sb h3{margin:0;font-size:21px}.lj-sp{font-size:18px}.lj-sdesc{margin:0;color:var(--mute);font-size:14px;line-height:1.45}
+.lj-sg{display:grid;gap:6px}.lj-so{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:12px;cursor:pointer}
+.lj-so span{flex:1}.lj-so em{font-style:normal;color:var(--read);font-size:13px}.lj-so input{width:20px;height:20px;accent-color:var(--gold)}
+.lj-sb textarea{width:100%;box-sizing:border-box;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:14px var(--sans);resize:vertical}
+.lj-sf{display:flex;align-items:center;gap:12px}.lj-sf .cta2{flex:1}
+.lj-qs{display:inline-flex;align-items:center;gap:4px;flex:none}
+.lj-qb2{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:rgba(var(--gold-rgb),.08);color:var(--text);font:800 20px/1 var(--sans);cursor:pointer}
+.lj-qb2:hover{border-color:var(--gold)}.lj-qv{min-width:26px;text-align:center;font-size:16px}
+/* aba Pedido */
+.lj-ln{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;padding:12px;margin:8px 0;border:1px solid var(--line);border-radius:14px;background:rgba(var(--gold-rgb),.04)}
+.lj-li{display:grid;gap:2px;min-width:0}.lj-li b{overflow-wrap:anywhere}.lj-lp{grid-column:2;justify-self:end}
+.lj-tot{display:flex;justify-content:space-between;align-items:center;margin:12px 0;padding:12px 14px;border-radius:14px;border:1px solid rgba(var(--gold-rgb),.5);background:rgba(var(--gold-rgb),.08);font-size:17px}
+.lj-vazio{display:grid;gap:10px;justify-items:center;text-align:center;padding:26px 12px;border:1px dashed var(--line);border-radius:16px}
+/* aba Avaliações */
+.av-sum{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;padding:14px;margin:0 0 12px;border:1px solid var(--line);border-radius:16px;background:rgba(var(--gold-rgb),.04)}
+.av-big{display:grid;justify-items:center;gap:2px}.av-big b{font-size:40px;line-height:1}.av-big span:last-child{font-size:12px;color:var(--mute)}
+.av-st{color:var(--gold2);letter-spacing:1px}
+.av-bars{display:grid;gap:5px}.av-r{display:grid;grid-template-columns:30px 1fr 22px;gap:8px;align-items:center;font-size:12px;color:var(--mute)}
+.av-tr{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}.av-tr i{display:block;height:100%;border-radius:99px;background:var(--gold)}.av-n{text-align:right}
+.av-it{padding:12px 14px;margin:8px 0;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.02)}
+.av-h{display:flex;align-items:center;gap:10px}.av-h b{font-size:14px}.av-c{margin:6px 0 0;color:var(--read);font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+@media(max-width:640px){dialog.lj-sd{margin:auto auto 0;width:100%;max-width:none;border-radius:20px 20px 0 0}.v8dlg .lj-tabs button{padding:0 12px;font-size:13px}.av-sum{grid-template-columns:1fr}}

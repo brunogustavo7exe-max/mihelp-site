@@ -470,7 +470,7 @@ async function definirFoto(nome,url){if(url)FOTO[nome]=url;else delete FOTO[nome
 let profPag=0,profQ='';const PROF_N=6;
 const V8={tab:'lojas',tipoF:'',lojas:[],lojasOk:false,fav:{lojas:new Set()},linkFeito:false};
 window.MH_LOJAS8=()=>V8.lojas;window.MH_TIPO8=t=>{V8.tab='lojas';V8.tipoF=t||'';profPag=0;desenharProf()};
-const CID8={'barra-do-garcas':'Barra do Garças',aragarcas:'Aragarças','pontal-do-araguaia':'Pontal do Araguaia'};try{if(window.MH_CIDADE)CID8[MH_CIDADE.slug]=MH_CIDADE.nome}catch(e){}
+const CID8={'barra-do-garcas':'Barra do Garças',aragarcas:'Aragarças','pontal-do-araguaia':'Pontal do Araguaia'};try{if(window.MH_CIDADE)CID8[MH_CIDADE.slug]=MH_CIDADE.nome;Object.assign(CID8,window.MH_REGIAO.nomes)}catch(e){}
 const mk8=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const apiOn8=()=>!!(window.MH_API&&MH_API.on());
 const tk8=()=>(window.MH_API?MH_API.usrTk():'');
@@ -479,7 +479,7 @@ const dataBR8=ts=>new Date(ts).toLocaleDateString('pt-BR');
 const waLink8=n=>{const d=String(n||'').replace(/\D/g,'');return d?'https://wa.me/'+(d.length<=11?'55'+d:d):''};
 function carregaV8(){if(!apiOn8())return;
  chama8('/profissionais').then(r=>{if(r.ok&&r.j&&r.j.ok){window.MH_PROS=r.j.itens||[];window.MH_PROS_OK=true;refreshProf()}}).catch(()=>{});
- chama8('/estabelecimentos').then(r=>{if(r.ok&&r.j&&r.j.ok){V8.lojas=(r.j.itens||[]).filter(l=>(l.cidade||'barra-do-garcas')===((window.MH_CIDADE||{}).slug||'barra-do-garcas'));V8.lojasOk=true;refreshProf()}}).catch(()=>{})}
+ chama8('/estabelecimentos?cidade='+encodeURIComponent(window.MH_REGIAO.param())).then(r=>{if(r.ok&&r.j&&r.j.ok){V8.lojas=(r.j.itens||[]).filter(l=>window.MH_TEMCID(l.cidade));V8.lojasOk=true;refreshProf()}}).catch(()=>{})}
 window.MH_prosRecarrega=carregaV8;
 function carregaFav8(){if(!apiOn8()||!tk8())return;chama8('/favoritos/minhas').then(r=>{if(r.ok&&r.j&&r.j.ok){V8.fav.lojas=new Set(r.j.lojas||[]);refreshProf()}}).catch(()=>{})}
 /* ===== compartilhar: menu do celular (WhatsApp, Instagram...) ou copia o link ===== */
@@ -661,11 +661,11 @@ function pintaLoja8(d,L,aba,aviso){d.textContent='';
  lk.append(botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',(L.tipo||'')+(L.statusTxt?' · '+L.statusTxt:''),linkLoja8(L.chave),m=>{stt.textContent=m;setTimeout(()=>stt.textContent='',2500)})),stt);
  if(L.logado&&!L.souDono)lk.append(botao8(L.favoritada?'★ Nos favoritos':'☆ Favoritar','more',async()=>{const on=!L.favoritada;const r=await chama8('/favoritos',{alvo:'l:'+L.chave,on});if(r.ok&&r.j&&r.j.ok){L.favoritada=on;if(on)V8.fav.lojas.add(L.chave);else V8.fav.lojas.delete(L.chave);pintaLoja8(d,L,aba);refreshProf()}else pintaLoja8(d,L,aba,erro8(r))}));
  d.append(lk);
- const tabs=mk8('div','v8tabs');
- ((L.modo==='agenda'&&((L.servicos||[]).length||L.souDono)?[['serv','Serviços ('+(L.servicos||[]).length+')']]:[]).concat(CARD8[L.chave]?[['card','🍽 Cardápio ('+CARD8[L.chave].itens.length+')']]:[]).concat(L.equipeOculta?[]:[['equipe','Equipe ('+L.totalEquipe+')']]).concat([['aval','Avaliações ('+L.n+')']])).forEach(([k,t])=>{const b=mk8('button',null,t);b.type='button';b.setAttribute('aria-selected',String(aba===k));b.onclick=()=>pintaLoja8(d,L,k);tabs.append(b)});
+ const tabs=mk8('div','v8tabs lj-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Seções da loja');
+ ((L.modo==='agenda'&&((L.servicos||[]).length||L.souDono)?[['serv','🗓 Serviços',(L.servicos||[]).length]]:[]).concat(CARD8[L.chave]?[['card','🍽 Cardápio',CARD8[L.chave].itens.length],['ped','🛒 Pedido',pedQtd8(L.chave)]]:[]).concat(L.equipeOculta?[]:[['equipe','👥 Equipe',L.totalEquipe]]).concat([['aval','⭐ Avaliações',L.n]])).forEach(([k,t,n])=>{const b=mk8('button',null,t);b.type='button';b.dataset.aba=k;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(aba===k));const c=mk8('span','lj-tc',String(n));c.hidden=k==='ped'&&!n;b.append(c);b.onclick=()=>{pintaLoja8(d,L,k);const t2=d.querySelector('.lj-tabs');if(t2)t2.scrollIntoView({block:'start'})};tabs.append(b)});
  d.append(tabs);
- const pane=mk8('div');
- if(aba==='serv'){painelServ8(pane,d,L)}else if(aba==='card'){painelCard8(pane,L)}else if(aba==='equipe'){
+ const pane=mk8('div','lj-pane');pane.setAttribute('role','tabpanel');cabPane8(pane,L,aba);
+ if(aba==='serv'){painelServ8(pane,d,L)}else if(aba==='card'){painelCard8(pane,d,L)}else if(aba==='ped'){painelPed8(pane,d,L)}else if(aba==='equipe'){
   if(!L.equipe.length)pane.append(mk8('p','note','Nenhum profissional aparece aqui ainda.'));
   L.equipe.forEach(m=>{const c=mk8('div','pcard pteam');c.append(avatarEl(m.nome,44));const t=mk8('div','pinfo');t.append(mk8('b',null,m.nome),mk8('span','pw',[m.funcao,m.work].filter(Boolean).join(' · ')||'Equipe'));c.append(t);
    /* todos da equipe (exceto você) podem ser vistos e chamados no privado, a menos que a pessoa tenha desligado */
@@ -679,11 +679,15 @@ function pintaLoja8(d,L,aba,aviso){d.textContent='';
   if(oc>0)pane.append(mk8('p','note',L.totalEquipe+' profissionais no total. '+oc+(oc>1?' preferem':' prefere')+' não aparecer aqui.'));
   if(L.modo==='agenda'&&(L.servicos||[]).length)pane.append(mk8('p','note','Para marcar horário, toque em "Marcar horário" embaixo do profissional ou abra a aba Serviços.'))}
  else{
-  if(!L.n)pane.append(mk8('p','note','Ainda não tem avaliações.'));
-  else{const dist=L.dist||[0,0,0,0,0];for(let k=5;k>=1;k--){const v=dist[k-1]||0;pane.append(mk8('div','note',k+'★  '+'▮'.repeat(Math.round(v/L.n*10))+'  '+v))}}
+  if(!L.n)pane.append(mk8('p','note','Ainda não tem avaliações. Quem usar o serviço pode avaliar e ajudar os outros a escolher.'));
+  else{const dist=L.dist||[0,0,0,0,0],sm=mk8('div','av-sum'),big=mk8('div','av-big');
+   big.append(mk8('b',null,L.nota.toFixed(1).replace('.',',')),mk8('span','av-st',estr(Math.round(L.nota))),mk8('span',null,L.n+(L.n>1?' avaliações':' avaliação')));
+   const bars=mk8('div','av-bars');for(let k=5;k>=1;k--){const v=dist[k-1]||0,r=mk8('div','av-r'),tr=mk8('span','av-tr'),fl=mk8('i');fl.style.width=Math.round(v/L.n*100)+'%';tr.append(fl);r.append(mk8('span','av-k',k+'★'),tr,mk8('span','av-n',String(v)));bars.append(r)}
+   sm.append(big,bars);pane.append(sm)}
   if(L.comentariosOcultos&&L.n)pane.append(mk8('p','note','Os comentários ficam visíveis só para o dono da loja. Aqui aparecem as estrelas.'));
-  else L.avaliacoes.forEach(a=>{const b=mk8('div','dep');b.append(mk8('b',null,estr(a.estrelas)+(a.autor?' · '+a.autor:'')));b.append(document.createElement('br'),document.createTextNode(a.comentario||'(sem comentário)'));
-   if(apiOn8()&&MH_API.admTk()&&document.body.classList.contains('adm')){const x=botao2x8('🗑 Apagar','more',async()=>{const r=await MH_API.req('/avaliar/apagar',{token:MH_API.admTk(),body:{id:a.id}});if(r.ok)abrirLoja8(L.chave);else pintaLoja8(d,L,aba,erro8(r))});x.style.marginLeft='8px';b.append(x)}
+  else L.avaliacoes.forEach(a=>{const b=mk8('div','av-it'),hd=mk8('div','av-h');hd.append(mk8('span','av-st',estr(a.estrelas)));if(a.autor)hd.append(mk8('b',null,a.autor));
+   b.append(hd,mk8('p','av-c',a.comentario||'(sem comentário)'));
+   if(apiOn8()&&MH_API.admTk()&&document.body.classList.contains('adm')){const x=botao2x8('🗑 Apagar','more',async()=>{const r=await MH_API.req('/avaliar/apagar',{token:MH_API.admTk(),body:{id:a.id}});if(r.ok)abrirLoja8(L.chave);else pintaLoja8(d,L,aba,erro8(r))});x.style.marginLeft='auto';hd.append(x)}
    pane.append(b)})}
  d.append(pane);
  if(aviso){const p=mk8('p','note',aviso);p.setAttribute('role','status');d.append(p)}
@@ -966,19 +970,91 @@ let agDlg8=null,horDlg8=null;
 
 /* aba "Serviços" do perfil da loja: cada serviço com tempo, valor e o botão Reservar */
 function fotoCard8(chave,id,im){chama8('/cardapio/foto?chave='+encodeURIComponent(chave)+'&id='+encodeURIComponent(id)).then(r=>{if(r.ok&&r.j&&r.j.f)im.src=r.j.f})}
-function painelCard8(pane,L){const C=CARD8[L.chave];
+/* ===== v12: cardápio selecionável, pedido (WhatsApp) e cabeçalhos das abas ===== */
+const PED8={};
+const brlC8=c=>brl8((c||0)/100);
+const pedLinhas8=ch=>PED8[ch]||(PED8[ch]=[]);
+const pedQtd8=ch=>pedLinhas8(ch).reduce((t,x)=>t+x.q,0);
+const pedTotal8=ch=>pedLinhas8(ch).reduce((t,x)=>t+x.q*x.u,0);
+/* atualiza selo da aba, contadores nos cards e a barra "Ver pedido" sem repintar tudo */
+function pedAtualiza8(root,L){const ch=L.chave,n=pedQtd8(ch),t=pedTotal8(ch);
+ const tc=root.querySelector('.lj-tabs button[data-aba=ped] .lj-tc');if(tc){tc.textContent=String(n);tc.hidden=!n}
+ root.querySelectorAll('.lj-card[data-id]').forEach(c=>{const q=pedLinhas8(ch).filter(x=>String(x.id)===c.dataset.id).reduce((u,x)=>u+x.q,0);let bd=c.querySelector('.lj-qb');
+  if(q){if(!bd){bd=mk8('span','lj-qb');c.querySelector('.lj-ph').append(bd)}bd.textContent=q+'×'}else if(bd)bd.remove()});
+ const bar=root.querySelector('.lj-bar');if(bar){bar.hidden=!n;const sp=bar.querySelector('span');if(sp)sp.textContent='🛒 '+n+(n===1?' item':' itens')+' · '+brlC8(t)}}
+/* cabeçalho de cada aba: diz onde você está */
+function cabPane8(pane,L,aba){const C=CARD8[L.chave],ni=C&&C.itens?C.itens.length:0,te=L.totalEquipe||0;
+ const M={serv:['🗓','Serviços','Escolha um serviço e reserve o seu horário.'],
+  card:['🍽','Cardápio',ni+(ni===1?' item':' itens')+' · toque no item para escolher'],
+  ped:['🛒','Seu pedido','Confira os itens e envie para a loja.'],
+  equipe:['👥','Equipe',te+(te===1?' profissional':' profissionais')],
+  aval:['⭐','Avaliações',L.n?L.n+(L.n===1?' avaliação':' avaliações'):'Ainda sem avaliações']}[aba];
+ if(!M)return;const h=mk8('div','lj-sh');h.append(mk8('span','lj-shi',M[0]));const t=mk8('div');t.append(mk8('b',null,M[1]),mk8('span',null,M[2]));h.append(t);pane.append(h)}
+/* janela do item: adicionais, observação, quantidade */
+function folhaItem8(d,L,i){
+ const s=document.createElement('dialog');s.className='lj-sd';s.setAttribute('aria-label',i.n);
+ const ph=mk8('div','lj-ph lj-sph');ph.append(avatarLoja8(L,56));
+ if(i.f){const im=document.createElement('img');im.alt='';ph.append(im);fotoCard8(L.chave,i.id,im)}
+ const fx=botao8('✕','lj-sx',()=>s.close());fx.setAttribute('aria-label','Fechar');ph.append(fx);
+ const b=mk8('div','lj-sb');b.append(mk8('h3',null,i.n),mk8('strong','lj-sp',brlC8(i.p)));if(i.d)b.append(mk8('p','lj-sdesc',i.d));
+ const ads=i.a||[],sel=new Set();let q=1;
+ const calc=()=>ads.reduce((t,x,k)=>sel.has(k)?t+x.p:t,i.p);
+ const qv=mk8('b','lj-qv','1'),add=botao8('','cta2 lj-sadd',null);
+ const upd=()=>{qv.textContent=String(q);add.textContent='Adicionar · '+brlC8(calc()*q)};
+ if(ads.length){const g=mk8('div','lj-sg');g.append(mk8('b',null,'Adicionais'));
+  ads.forEach((x,k)=>{const lb=document.createElement('label');lb.className='lj-so';const cb=document.createElement('input');cb.type='checkbox';cb.onchange=()=>{if(cb.checked)sel.add(k);else sel.delete(k);upd()};lb.append(cb,mk8('span',null,x.n),mk8('em',null,'+ '+brl8(x.p/100)));g.append(lb)});b.append(g)}
+ const ob=document.createElement('textarea');ob.maxLength=140;ob.rows=2;ob.placeholder='Observação (ex.: sem cebola)';ob.setAttribute('aria-label','Observação do item');b.append(ob);
+ const st=mk8('div','lj-qs'),m=botao8('−','lj-qb2',()=>{if(q>1){q--;upd()}}),p=botao8('+','lj-qb2',()=>{if(q<20){q++;upd()}});
+ m.setAttribute('aria-label','Menos um');p.setAttribute('aria-label','Mais um');st.append(m,qv,p);
+ const ft=mk8('div','lj-sf');ft.append(st,add);b.append(ft);
+ add.onclick=()=>{const ad=[...sel].sort((x,y)=>x-y).map(k=>ads[k].n),u=calc(),obs=ob.value.trim(),ls=pedLinhas8(L.chave);
+  const ex=ls.find(x=>String(x.id)===String(i.id)&&x.ad.join('|')===ad.join('|')&&x.obs===obs&&x.u===u);
+  if(ex)ex.q=Math.min(50,ex.q+q);else ls.push({id:i.id,n:i.n,u,q,ad,obs});
+  s.close();pedAtualiza8(d,L)};
+ s.append(ph,b);document.body.append(s);
+ s.addEventListener('close',()=>s.remove());s.addEventListener('click',e=>{if(e.target===s)s.close()});
+ upd();s.showModal()}
+function painelCard8(pane,d,L){const C=CARD8[L.chave];
  if(!C||!C.itens.length){pane.append(mk8('p','note','Esta loja ainda não publicou o cardápio.'));return}
- if(C.aberta===false)pane.append(mk8('p','v8status off','🔴 Fechada para pedidos no momento'));
+ const rec=C.aberta!==false&&L.aberto!==false;
+ if(!rec)pane.append(mk8('p','v8status off','🔴 Fechada para pedidos no momento. Dá para ver o cardápio, mas não para pedir.'));
  const cats=(C.cats&&C.cats.length?C.cats:[...new Set(C.itens.map(i=>i.c))]).filter(cat=>C.itens.some(i=>i.c===cat));
- if(cats.length>1){const nav=mk8('div','lj-cats');cats.forEach(cat=>{const b=mk8('button',null,cat);b.type='button';b.onclick=()=>{const t=[...pane.querySelectorAll('h4.lj-cat')].find(x=>x.dataset.cat===cat);if(t)t.scrollIntoView({behavior:'smooth',block:'start'})};nav.append(b)});pane.append(nav)}
- cats.forEach(cat=>{const li=C.itens.filter(i=>i.c===cat);const h=mk8('h4','lj-cat',cat);h.dataset.cat=cat;pane.append(h);const g=mk8('div','lj-cards');
-  li.forEach(i=>{const c=mk8('article','lj-card'+(i.o?'':' off')),ph=mk8('div','lj-ph');ph.append(avatarLoja8(L,44));
+ const secs=[];
+ if(cats.length>1){const nav=mk8('div','lj-cats');nav.setAttribute('role','group');nav.setAttribute('aria-label','Filtrar por categoria');
+  const mkb=(rot,val)=>{const bt=mk8('button',null,rot);bt.type='button';bt.setAttribute('aria-pressed',String(val===''));
+   bt.onclick=()=>{nav.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===bt)));secs.forEach(sc=>{sc.hidden=!!val&&sc.dataset.cat!==val})};return bt};
+  nav.append(mkb('Todos',''));cats.forEach(cat=>nav.append(mkb(cat,cat)));pane.append(nav)}
+ cats.forEach(cat=>{const li=C.itens.filter(i=>i.c===cat);const sec=mk8('section','lj-sec');sec.dataset.cat=cat;secs.push(sec);
+  const h=mk8('h4','lj-cat',cat);h.append(mk8('small',null,li.length+(li.length===1?' item':' itens')));sec.append(h);const g=mk8('div','lj-cards');
+  li.forEach(i=>{const pode=!!i.o&&rec,c=mk8('article','lj-card'+(i.o?'':' off')+(pode?' sel':'')),ph=mk8('div','lj-ph');c.dataset.id=String(i.id);ph.append(avatarLoja8(L,44));
    if(i.f){const im=document.createElement('img');im.alt='';im.loading='lazy';ph.append(im);fotoCard8(L.chave,i.id,im)}
+   if(pode)ph.append(mk8('span','lj-plus','+'));
    const t=mk8('div','lj-ct');t.append(mk8('b',null,i.n));if(i.d)t.append(mk8('span','lj-d',i.d));
-   if(i.a&&i.a.length)t.append(mk8('span','lj-ad','+ '+i.a.map(a=>a.n+' '+brl8(a.p/100)).join(' · ')));
+   if(i.a&&i.a.length)t.append(mk8('span','lj-ad','+ '+i.a.map(x=>x.n+' '+brl8(x.p/100)).join(' · ')));
    const f=mk8('div','lj-pf');f.append(mk8('strong',null,brl8(i.p/100)),mk8('em',i.o?'on':'off',i.o?'Disponível':'Esgotado'));
-   c.append(ph,t,f);g.append(c)});pane.append(g)});
- if(L.contato){const a=mk8('a','more','💬 Pedir pelo WhatsApp');a.href=waLink8(L.contato);a.target='_blank';a.rel='noopener noreferrer';a.style.textDecoration='none';a.style.marginTop='12px';a.style.display='inline-flex';pane.append(a)}}
+   c.append(ph,t,f);
+   if(pode){const abre=()=>folhaItem8(d,L,i);c.tabIndex=0;c.setAttribute('role','button');c.setAttribute('aria-label',i.n+', '+brl8(i.p/100)+'. Toque para escolher');c.onclick=abre;c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();abre()}}}
+   g.append(c)});sec.append(g);pane.append(sec)});
+ if(rec){const bar=mk8('div','lj-bar');bar.append(mk8('span'),botao8('Ver pedido →','cta2',()=>{pintaLoja8(d,L,'ped');const t2=d.querySelector('.lj-tabs');if(t2)t2.scrollIntoView({block:'start'})}));pane.append(bar)}
+ pedAtualiza8(pane,L);
+ if(L.contato){const a=mk8('a','more','💬 Falar com a loja no WhatsApp');a.href=waLink8(L.contato);a.target='_blank';a.rel='noopener noreferrer';a.style.textDecoration='none';a.style.marginTop='12px';a.style.display='inline-flex';pane.append(a)}}
+function pedTexto8(L,ls){return 'Olá! Quero fazer um pedido pelo MiHelp ('+L.nome+'):\n'+ls.map(x=>'• '+x.q+'x '+x.n+(x.ad.length?' (+ '+x.ad.join(', ')+')':'')+(x.obs?' — obs: '+x.obs:'')+' — '+brlC8(x.q*x.u)).join('\n')+'\nTotal: '+brlC8(ls.reduce((t,x)=>t+x.q*x.u,0))}
+function painelPed8(pane,d,L){const C=CARD8[L.chave],ch=L.chave,rec=!C||(C.aberta!==false&&L.aberto!==false);
+ const draw=()=>{pane.querySelectorAll('.lj-pbody').forEach(x=>x.remove());const w=mk8('div','lj-pbody'),ls=pedLinhas8(ch);
+  if(!ls.length){const e=mk8('div','lj-vazio');e.append(mk8('b',null,'Seu pedido está vazio'),mk8('p','note','Escolha os itens na aba Cardápio e eles aparecem aqui.'),botao8('🍽 Ver cardápio','cta2',()=>{pintaLoja8(d,L,'card');const t2=d.querySelector('.lj-tabs');if(t2)t2.scrollIntoView({block:'start'})}));w.append(e);pane.append(w);return}
+  ls.forEach((x,k)=>{const r=mk8('div','lj-ln'),inf=mk8('div','lj-li');inf.append(mk8('b',null,x.n));if(x.ad.length)inf.append(mk8('span','note','+ '+x.ad.join(', ')));if(x.obs)inf.append(mk8('span','note','Obs: '+x.obs));
+   const st=mk8('div','lj-qs'),m=botao8('−','lj-qb2',()=>{if(x.q>1)x.q--;else ls.splice(k,1);pedAtualiza8(d,L);draw()}),p=botao8('+','lj-qb2',()=>{if(x.q<50)x.q++;pedAtualiza8(d,L);draw()});
+   m.setAttribute('aria-label',x.q>1?'Menos um':'Remover item');p.setAttribute('aria-label','Mais um');st.append(m,mk8('b','lj-qv',String(x.q)),p);
+   r.append(inf,st,mk8('strong','lj-lp',brlC8(x.q*x.u)));w.append(r)});
+  const tt=mk8('div','lj-tot');tt.append(mk8('span',null,'Total'),mk8('strong',null,brlC8(pedTotal8(ch))));w.append(tt);
+  if(!rec)w.append(mk8('p','v8status off','🔴 A loja está fechada para pedidos agora.'));
+  w.append(mk8('p','note','O pedido sai pelo WhatsApp da loja. Quem confirma o valor final, o pagamento e a entrega é a loja, com você. O MiHelp não cobra nada aqui.'));
+  const ac=mk8('div','v8acts');
+  if(L.contato&&rec&&waLink8(L.contato)){const a=mk8('a','cta2','💬 Enviar pelo WhatsApp');a.href=waLink8(L.contato)+'?text='+encodeURIComponent(pedTexto8(L,ls));a.target='_blank';a.rel='noopener noreferrer';ac.append(a)}
+  else if(!L.contato)w.append(mk8('p','note','Esta loja ainda não informou um WhatsApp. Copie o pedido e combine pelo chat do MiHelp.'));
+  const cp=botao8('📋 Copiar pedido','more',async()=>{try{await navigator.clipboard.writeText(pedTexto8(L,ls));cp.textContent='✔ Copiado'}catch(e){cp.textContent='Não deu para copiar'}setTimeout(()=>cp.textContent='📋 Copiar pedido',2200)});
+  ac.append(cp,botao2x8('🗑 Limpar pedido','more',()=>{PED8[ch]=[];pedAtualiza8(d,L);draw()}));w.append(ac);pane.append(w)};
+ draw()}
 function painelServ8(pane,d,L){const sv=L.servicos||[];
  if(!sv.length){pane.append(mk8('p','note',L.souDono?'Você ainda não cadastrou serviços. Toque em "Gerenciar minha loja" e depois em "Serviços e preços".':'Esta loja ainda não cadastrou serviços.'));return}
 
