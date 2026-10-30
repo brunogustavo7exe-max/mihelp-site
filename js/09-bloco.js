@@ -638,8 +638,9 @@ async function abrirLoja8(chave,opc){
 function horarioTxt8(h){if(!h||!Array.isArray(h.d))return[];const N=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];return [1,2,3,4,5,6,0].map(i=>N[i]+': '+((h.d[i]||[]).length?h.d[i].map(x=>x.replace('-','–')).join(' e '):'fechado'))}
 function pintaLoja8(d,L,aba,aviso){d.textContent='';
  if(L.equipeOculta&&aba==='equipe')aba=(L.modo==='agenda'&&(L.servicos||[]).length)?'serv':'aval';
- const top=mk8('div','v8head');top.append(avatarLoja8(L,64));
- const hd=mk8('div');hd.append(mk8('h3',null,L.nome),mk8('p','note',(L.tipo||'')+(CID8[L.cidade]?' · '+CID8[L.cidade]:'')));top.append(hd);d.append(top);
+ d.append(capaEl8(L,d));
+ const top=mk8('div','v8head lj-id');const av=avatarLoja8(L,84);av.classList.add('lj-av');top.append(av);
+ const hd=mk8('div','lj-nome');hd.append(mk8('h3',null,L.nome));const ch=mk8('div','lj-chips');if(L.tipo)ch.append(mk8('span','lj-chip',L.tipo));if(CID8[L.cidade])ch.append(mk8('span','lj-chip','📍 '+CID8[L.cidade]));hd.append(ch);top.append(hd);d.append(top);
  d.append(mk8('p','stars',L.n?estr(Math.round(L.nota))+'  '+L.nota.toFixed(1).replace('.',',')+' · '+L.n+(L.n>1?' avaliações':' avaliação'):'☆☆☆☆☆ · ainda sem avaliação'));
  {const sb=window.MH_SELOS&&MH_SELOS.bloco('l:'+L.chave,L.nome);if(sb)d.append(sb)}
  if(L.aberto!==null&&L.aberto!==undefined){const p=mk8('p','v8status '+(L.aberto?'on':'off'),(L.aberto?'🟢 ':'🔴 ')+L.statusTxt);d.append(p)}
@@ -839,6 +840,12 @@ async function abrirEspaco8(f){ESPV=(typeof f==='string')?f:null;
  if(r.status===401){try{MH_API.setUsrTk('')}catch(e){}d.close();pedeSenha8(f);return}
  if(!r.ok||!(r.j&&r.j.ok)){d.textContent='';d.append(mk8('p','note',erro8(r)),botao8('Fechar','more',()=>d.close()));return}
  pintaEspaco8(d,r.j)}
+window.MH_V8={recarrega:()=>{try{carregaV8()}catch(e){}},
+ editar:async function(chave){if(!tk8()){pedeSenha8('lojas');return}
+  const d=espDlg8||(espDlg8=novoDlg8('Meu espaço profissional'));d.textContent='';d.append(mk8('p','note','Carregando…'));if(!d.open)d.showModal();
+  const r=await chama8('/perfil/meu');
+  if(!r.ok||!(r.j&&r.j.ok)){d.textContent='';d.append(mk8('p','note',erro8(r)),botao8('Fechar','more',()=>d.close()));return}
+  const L=(r.j.lojas||[]).find(x=>x.chave===chave);if(L)formLoja8(d,r.j,L);else pintaEspaco8(d,r.j)}};
 function pintaEspaco8(d,E,aviso){d.textContent='';
  const st=mk8('p','note');st.setAttribute('role','status');if(aviso)st.textContent=/^[✅❌]/.test(aviso)?aviso:'✅ '+aviso;
  const cab=mk8('div','v8row v8cab');cab.style.justifyContent='space-between';cab.append(mk8('h3',null,'Meu espaço profissional'),botao8('✕ Fechar','more',()=>d.close()));
@@ -928,7 +935,7 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
   if(!E.lojas.length)s.append(mk8('p','note','Você ainda não criou nenhum. Barbearia, salão, loja de motos, oficina: crie e monte a sua equipe.'));
   E.lojas.forEach(L=>{
    const box=mk8('div','v8card');const row=mk8('div','v8row');row.append(mk8('b',null,L.nome),mk8('span','note',L.tipo+(CID8[L.cidade]?' · '+CID8[L.cidade]:'')));
-   const acts=mk8('div','v8acts');acts.append(botao8('👁 Ver perfil','more',()=>{d.close();abrirLoja8(L.chave)}),botao8('✏️ Editar','more',()=>formLoja8(d,E,L)),botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',L.tipo,linkLoja8(L.chave),m=>{st.style.color='';st.textContent=m})),botao2x8('🗑 Apagar','more',()=>envia('/estabelecimentos/apagar',{chave:L.chave},'Estabelecimento apagado.')));
+   const acts=mk8('div','v8acts');acts.append(botao8('👁 Ver perfil','more',()=>{d.close();abrirLoja8(L.chave)}),botao8('✏️ Editar','more',()=>formLoja8(d,E,L)),botao8('🍽 MESA','more',()=>{try{window.open(window.MH_MESA_URL||'mesa.html','_blank','noopener')}catch(e){}}),botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',L.tipo,linkLoja8(L.chave),m=>{st.style.color='';st.textContent=m})),botao2x8('🗑 Apagar','more',()=>envia('/estabelecimentos/apagar',{chave:L.chave},'Estabelecimento apagado.')));
    box.append(row,acts);if(L.favs>0)box.append(mk8('p','note','⭐ '+L.favs+(L.favs===1?' pessoa favoritou':' pessoas favoritaram')+' esta loja.'));
    
    s.append(box)});
@@ -959,15 +966,16 @@ function fotoCard8(chave,id,im){chama8('/cardapio/foto?chave='+encodeURIComponen
 function painelCard8(pane,L){const C=CARD8[L.chave];
  if(!C||!C.itens.length){pane.append(mk8('p','note','Esta loja ainda não publicou o cardápio.'));return}
  if(C.aberta===false)pane.append(mk8('p','v8status off','🔴 Fechada para pedidos no momento'));
- const cats=(C.cats&&C.cats.length?C.cats:[...new Set(C.itens.map(i=>i.c))]);
- cats.forEach(cat=>{const li=C.itens.filter(i=>i.c===cat);if(!li.length)return;pane.append(mk8('h4',null,cat));
-  li.forEach(i=>{const c=mk8('div','v8serv'),t=mk8('div','v8servinfo');t.style.flex='1';
-   if(i.f){const im=document.createElement('img');im.alt='';im.loading='lazy';im.width=56;im.height=56;im.style.cssText='border-radius:10px;object-fit:cover;flex:none';c.append(im);fotoCard8(L.chave,i.id,im)}
-   t.append(mk8('b',null,i.n));if(i.d)t.append(mk8('span','note',i.d));
-   t.append(mk8('span','note',i.o?'💲 '+brl8(i.p/100):'Esgotado'));
-   if(i.a&&i.a.length)t.append(mk8('span','note','+ '+i.a.map(a=>a.n+' '+brl8(a.p/100)).join(' · ')));
-   c.append(t);pane.append(c)})});
- if(L.contato){const a=mk8('a','more','💬 Pedir pelo WhatsApp');a.href=waLink8(L.contato);a.target='_blank';a.rel='noopener noreferrer';a.style.textDecoration='none';pane.append(a)}}
+ const cats=(C.cats&&C.cats.length?C.cats:[...new Set(C.itens.map(i=>i.c))]).filter(cat=>C.itens.some(i=>i.c===cat));
+ if(cats.length>1){const nav=mk8('div','lj-cats');cats.forEach(cat=>{const b=mk8('button',null,cat);b.type='button';b.onclick=()=>{const t=[...pane.querySelectorAll('h4.lj-cat')].find(x=>x.dataset.cat===cat);if(t)t.scrollIntoView({behavior:'smooth',block:'start'})};nav.append(b)});pane.append(nav)}
+ cats.forEach(cat=>{const li=C.itens.filter(i=>i.c===cat);const h=mk8('h4','lj-cat',cat);h.dataset.cat=cat;pane.append(h);const g=mk8('div','lj-cards');
+  li.forEach(i=>{const c=mk8('article','lj-card'+(i.o?'':' off')),ph=mk8('div','lj-ph');ph.append(avatarLoja8(L,44));
+   if(i.f){const im=document.createElement('img');im.alt='';im.loading='lazy';ph.append(im);fotoCard8(L.chave,i.id,im)}
+   const t=mk8('div','lj-ct');t.append(mk8('b',null,i.n));if(i.d)t.append(mk8('span','lj-d',i.d));
+   if(i.a&&i.a.length)t.append(mk8('span','lj-ad','+ '+i.a.map(a=>a.n+' '+brl8(a.p/100)).join(' · ')));
+   const f=mk8('div','lj-pf');f.append(mk8('strong',null,brl8(i.p/100)),mk8('em',i.o?'on':'off',i.o?'Disponível':'Esgotado'));
+   c.append(ph,t,f);g.append(c)});pane.append(g)});
+ if(L.contato){const a=mk8('a','more','💬 Pedir pelo WhatsApp');a.href=waLink8(L.contato);a.target='_blank';a.rel='noopener noreferrer';a.style.textDecoration='none';a.style.marginTop='12px';a.style.display='inline-flex';pane.append(a)}}
 function painelServ8(pane,d,L){const sv=L.servicos||[];
  if(!sv.length){pane.append(mk8('p','note',L.souDono?'Você ainda não cadastrou serviços. Toque em "Gerenciar minha loja" e depois em "Serviços e preços".':'Esta loja ainda não cadastrou serviços.'));return}
 
@@ -1366,6 +1374,24 @@ function criarLoja8(d,E){
    d.append(ok)}
   if(S.n!==1||true)d.append(volta)}
  pinta()}
+/* ===== v9: capa do perfil (degradê, cor própria ou foto), estilo Discord ===== */
+const CAPAS8=[['Aurora','linear-gradient(135deg,#0ea5e9,#6366f1 55%,#a855f7)'],['Brasa','linear-gradient(135deg,#f59e0b,#ef4444 60%,#9f1239)'],['Mata','linear-gradient(135deg,#10b981,#047857 55%,#064e3b)'],['Noite','linear-gradient(135deg,#334155,#312e81 60%,#0f172a)'],['Rosé','linear-gradient(135deg,#f472b6,#c026d3 60%,#6d28d9)'],['Ouro','linear-gradient(135deg,#fbbf24,#d97706 55%,#78350f)'],['Oceano','linear-gradient(135deg,#22d3ee,#2563eb 55%,#1e1b4b)'],['Grafite','linear-gradient(135deg,#64748b,#1f2937 60%,#030712)']];
+function capaLocal8(k){try{return localStorage.getItem('mihelp_capa_'+k)||''}catch(e){return ''}}
+function pintaCapa8(el,capa,nome){let m,bg=null,img=null;
+ if(typeof capa==='string'){
+  if(/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(capa))img=capa;
+  else if((m=/^g:(\d)$/.exec(capa))&&CAPAS8[+m[1]])bg=CAPAS8[+m[1]][1];
+  else if((m=/^c:#([0-9a-fA-F]{6})$/.exec(capa)))bg='linear-gradient(135deg,#'+m[1]+',color-mix(in srgb,#'+m[1]+' 40%,#000))'}
+ if(!img&&!bg){let h=0;for(const c of String(nome||'?'))h=(h*31+c.charCodeAt(0))%360;bg='linear-gradient(135deg,hsl('+h+',55%,38%),hsl('+((h+55)%360)+',60%,20%))'}
+ el.style.backgroundImage=img?'url("'+img+'")':bg}
+function capaEl8(L,d){const c=mk8('div','lj-capa');pintaCapa8(c,L.capa||(L.souDono?capaLocal8(L.chave):''),L.nome);
+ const x=mk8('button','lj-x','✕');x.type='button';x.setAttribute('aria-label','Fechar');x.onclick=()=>d.close();c.append(x);return c}
+function capaRedim8(f){return new Promise((ok,err)=>{if(!f||!/^image\//.test(f.type))return err(new Error('Escolha uma imagem.'));
+ const u=URL.createObjectURL(f),im=new Image();
+ im.onload=()=>{try{const W=640,H=200,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d'),r=Math.max(W/im.width,H/im.height),w=im.width*r,h=im.height*r;g.fillStyle='#111';g.fillRect(0,0,W,H);g.drawImage(im,(W-w)/2,(H-h)/2,w,h);URL.revokeObjectURL(u);
+  let q=.72,s=c.toDataURL('image/jpeg',q);while(s.length>28000&&q>.2){q-=.07;s=c.toDataURL('image/jpeg',q)}
+  s.length<=30000?ok(s):err(new Error('Imagem complexa demais. Tente outra.'))}catch(e){err(e)}};
+ im.onerror=()=>{URL.revokeObjectURL(u);err(new Error('Não consegui abrir essa imagem.'))};im.src=u})}
 function formLoja8(d,E,L){d.textContent='';d.append(mk8('h3',null,L?'Editar '+L.nome:'Criar estabelecimento'));
  const st=mk8('p','note');st.setAttribute('role','status');
  let alvo=d;
@@ -1383,6 +1409,17 @@ function formLoja8(d,E,L){d.textContent='';d.append(mk8('h3',null,L?'Editar '+L.
   mostra();l.append(q);alvo.append(l,cur,res);return{get value(){return val}}})();
  const cid=lista('Cidade',[[((window.MH_CIDADE||{}).slug||'barra-do-garcas'),(window.MH_CIDADE||{}).nome||'Barra do Garças']],L?L.cidade:((window.MH_CIDADE||{}).slug||'barra-do-garcas'));
  const modo=lista('Como o cliente fala com a equipe',[['contato','Conversa (botão Chamar)'],['agenda','Marcando horário (o cliente escolhe dia e hora)']],L?L.modo:'contato');
+ let capa=(L&&L.capa)||(L&&capaLocal8(L.chave))||'',capaMuda=false;
+ {const cp=mk8('div','cp-ed');cp.append(mk8('h4',null,'🎨 Capa do perfil'));
+  const prev=mk8('div','lj-capa cp-prev');const cpAv=avatarLoja8({nome:(L&&L.nome)||'?',logo:L&&L.logo},56);cpAv.classList.add('cp-av');prev.append(cpAv);
+  const redes=()=>pintaCapa8(prev,capa,nome.value||(L&&L.nome));nome.addEventListener('input',redes);redes();
+  const sw=mk8('div','cp-sw');CAPAS8.forEach(([n,bg],k)=>{const b=mk8('button','cp-s');b.type='button';b.title=n;b.setAttribute('aria-label','Capa '+n);b.style.background=bg;b.onclick=()=>{capa='g:'+k;capaMuda=true;redes()};sw.append(b)});
+  const row=mk8('div','cp-row');
+  const cl=mk8('label',null,'🎨 Cor própria ');const ci=document.createElement('input');ci.type='color';ci.value='#2f6fe4';ci.oninput=()=>{capa='c:'+ci.value.toLowerCase();capaMuda=true;redes()};cl.append(ci);
+  const fl=mk8('label',null,'🖼 Enviar foto');const fi2=document.createElement('input');fi2.type='file';fi2.accept='image/*';fi2.hidden=true;fl.append(fi2);
+  fi2.onchange=async()=>{const f=fi2.files[0];if(!f)return;try{capa=await capaRedim8(f);capaMuda=true;redes();st.style.color='';st.textContent='Capa pronta. Toque em Salvar.'}catch(e){st.style.color='var(--red)';st.textContent=e.message||'Não consegui usar a imagem.'}};
+  row.append(cl,fl,botao8('Voltar ao automático','more',()=>{capa='';capaMuda=true;redes()}));
+  cp.append(prev,sw,row,mk8('p','note','Escolha um degradê, uma cor sua ou uma foto deitada (ela é cortada em faixa larga). Só aparece no perfil depois de salvar.'));d.append(cp)}
  const det=document.createElement('details');det.append(mk8('summary',null,'➕ Mais informações (só se quiser)'));d.append(det);alvo=det;
  const end=campo('Endereço (opcional)','text',100,L&&L.endereco,'Rua, número, bairro');
  const mapa=campo('Link do mapa (opcional)','text',300,L&&L.mapa,'https://maps.google.com/...');
@@ -1404,7 +1441,11 @@ function formLoja8(d,E,L){d.textContent='';d.append(mk8('h3',null,L?'Editar '+L.
   if(logo!==undefined)body.logo=logo;
   if(L)body.chave=L.chave;else{body.atende=atende.checked;body.funcao=fun.value.trim()}
   const r=await chama8(L?'/estabelecimentos/editar':'/estabelecimentos',body);
-  if(r.ok&&r.j&&r.j.ok){carregaV8();const r2=await chama8('/perfil/meu');if(r2.ok&&r2.j&&r2.j.ok)pintaEspaco8(d,r2.j,L?'Estabelecimento atualizado.':'Estabelecimento criado! Agora convide a sua equipe.')}
+  if(r.ok&&r.j&&r.j.ok){let aviso=L?'Estabelecimento atualizado.':'Estabelecimento criado! Agora convide a sua equipe.';const chv=L?L.chave:r.j.chave;
+   if(capaMuda&&chv){try{if(capa)localStorage.setItem('mihelp_capa_'+chv,capa);else localStorage.removeItem('mihelp_capa_'+chv)}catch(e){}
+    const b2=Object.assign({},body,{chave:chv,capa});delete b2.atende;delete b2.funcao;await chama8('/estabelecimentos/editar',b2)}
+   carregaV8();const r2=await chama8('/perfil/meu');
+   if(r2.ok&&r2.j&&r2.j.ok){if(capaMuda&&capa){const x=(r2.j.lojas||[]).find(y=>y.chave===chv);if(!x||x.capa!==capa)aviso+=' A capa ficou só neste aparelho: o servidor ainda não guarda capa.'}pintaEspaco8(d,r2.j,aviso)}}
   else{st.style.color='var(--red)';st.textContent=erro8(r)}}),
   botao8('Voltar','more',()=>abrirEspaco8('lojas')));
  d.append(ac)}

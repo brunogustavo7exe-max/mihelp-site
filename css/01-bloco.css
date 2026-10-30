@@ -1,5 +1,5 @@
 
-:root{--gold-rgb:46,168,255;--bg:#05070d;--deep:#04070f;--surf:#0b1220;--line:#1b2a47;--gold:#2ea8ff;--gold2:#8fd8ff;--text:#eaf1fb;--mute:#8ea0bd;--faint:#6b7d9a;--red:#f87171;--mono:'IBM Plex Mono',ui-monospace,monospace;--sans:'Inter',system-ui,sans-serif;color-scheme:dark}
+:root{--gold-rgb:46,168,255;--bg:#05070d;--deep:#04070f;--surf:#0b1220;--line:#1b2a47;--gold:#2ea8ff;--gold2:#8fd8ff;--text:#eaf1fb;--mute:#8ea0bd;--faint:#6b7d9a;--red:#f87171;--mono:'IBM Plex Mono',ui-monospace,monospace;--sans:'Inter',system-ui,sans-serif;color-scheme:dark;--on-gold:#201804}
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 
@@ -396,7 +396,6 @@ button.nm.hp{color:var(--gold)}
   .role{flex-direction:column}
 }
 
-
 /* Header sticky com pubs ao lado do logo */
 .sticky-head{
   position:sticky;top:0;z-index:45;
@@ -439,7 +438,6 @@ button.nm.hp{color:var(--gold)}
   .brand div:last-child{font-size:15px}
 }
 
-
 /* Letreiro MiHelp + Apoiadores fixos no scroll */
 .top-letreiros{
   position:sticky;
@@ -470,7 +468,6 @@ button.nm.hp{color:var(--gold)}
   .pgd{margin-top:10px}
   .dtp{width:14px;height:14px}
 }
-
 
 /* sala ampliada */
 .bar .exp{border:1px solid var(--line);background:var(--bg);color:var(--gold2);border-radius:6px;padding:3px 10px;font:600 12px var(--mono);cursor:pointer}
@@ -796,14 +793,8 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 .gc.flash{outline:2px solid var(--gold2);outline-offset:2px}
 
 :root{--hov:#11203a}
-:root[data-tema=claro]{--gold-rgb:185,133,0;--logo-f:brightness(.9) saturate(1.1);--bg:#FBF6E6;--deep:#F5EDD3;--surf:#FFFDF6;--line:#E0D2A0;--gold:#B98500;--gold2:#7A5600;--text:#2A2310;--mute:#6B5E3C;--faint:#8C7E58;--read:#3A3220;--red:#B3452A;--hov:#F1E4B4;color-scheme:light}
-:root[data-tema=claro] body{background-image:radial-gradient(900px 480px at 15% 0,#F3E2A6 0,transparent 70%)}
-:root[data-tema=claro] .bar{background:linear-gradient(#EAD58A,#DCC26A)}
-:root[data-tema=claro] .tel .scr{background:linear-gradient(120deg,#F3E7BE,#FBF6E6)}
-:root[data-tema=claro] .mq{background:#F0E3B5}
-:root[data-tema=claro] .tk{background:#F0E6C4}
-:root[data-tema=claro] .tka{background:#F3EACB}
-:root[data-tema=claro] button.vg.open:hover,:root[data-tema=claro] button.vg.open:focus-visible{background:var(--hov)}
+:root[data-tema=claro]{--gold-rgb:185,133,0;--logo-f:brightness(.9) saturate(1.1);--bg:#FBF6E6;--deep:#F5EDD3;--surf:#FFFDF6;--line:#E0D2A0;--gold:#B98500;--gold2:#7A5600;--text:#2A2310;--mute:#6B5E3C;--faint:#8C7E58;--read:#3A3220;--red:#B3452A;--hov:#F1E4B4;color-scheme:light;--on-gold:#201804}
+
 #temaBtn{position:fixed;left:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:44;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surf);color:var(--gold2);font-size:19px;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.35)}
 #temaBtn:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
 #somBtn{position:fixed;left:62px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:44;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surf);color:var(--gold2);font-size:19px;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.35)}
@@ -860,7 +851,6 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 #supDlg .f{margin-bottom:12px}
 #supDlg .dbt{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 
-
 /* ===== ADM: pegada terminal de filme (isolado: só #admDlg, login e barra do ADM) ===== */
 #admDlg,dialog[aria-label="Entrar no painel"]{background:repeating-linear-gradient(0deg,rgba(var(--gold-rgb),.045) 0 1px,transparent 1px 3px),#04070f;border:1px solid var(--gold);border-radius:0;box-shadow:0 0 0 1px #000,0 0 30px rgba(var(--gold-rgb),.2),inset 0 0 70px rgba(var(--gold-rgb),.05);scrollbar-color:var(--gold) #04070f}
 #admDlg::backdrop,dialog[aria-label="Entrar no painel"]::backdrop{background:rgba(0,0,0,.9)}
@@ -898,185 +888,95 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 .brand .logo{height:36px;width:auto;display:block;filter:var(--logo-f,none)}
 .brand .l-lt{display:none}:root[data-tema=claro] .brand .l-dk,:root[data-tema=cristal] .brand .l-dk{display:none}:root[data-tema=claro] .brand .l-lt,:root[data-tema=cristal] .brand .l-lt{display:block}
 @media(max-width:640px){.brand .logo{height:28px}}
-:root[data-tema=miami]{--gold-rgb:255,79,163;--logo-f:hue-rotate(-72deg) saturate(1.25);--bg:#120A1F;--deep:#0B0615;--surf:#1B1030;--line:#3A2260;--gold:#FF4FA3;--gold2:#5EE7FF;--text:#FBEAFF;--mute:#B79AD6;--faint:#9A80BC;--read:#F2DDFF;--red:#FF7A59;--hov:#2A1850}
-:root[data-tema=miami] body{background-image:radial-gradient(900px 480px at 12% 0,rgba(255,79,163,.2),transparent 70%),radial-gradient(760px 440px at 92% 8%,rgba(94,231,255,.14),transparent 70%)}
-:root[data-tema=miami] h1{text-shadow:0 0 22px rgba(255,79,163,.45)}
-:root[data-tema=brasil]{--gold-rgb:255,223,0;--logo-f:hue-rotate(12deg) saturate(1.2);--bg:#07140D;--deep:#040D08;--surf:#0E2216;--line:#1F4A2B;--gold:#FFDF00;--gold2:#7FC4FF;--text:#F2FFF5;--mute:#9CC7A8;--faint:#7FAA8B;--read:#E4F7E8;--red:#FF6B5E;--hov:#163A24}
-:root[data-tema=brasil] body{background-image:radial-gradient(900px 480px at 15% 0,rgba(0,156,59,.22),transparent 70%),radial-gradient(700px 420px at 90% 10%,rgba(0,39,118,.3),transparent 70%)}
-:root[data-tema=araguaia]{--gold-rgb:255,138,61;--logo-f:hue-rotate(-18deg) saturate(1.15);--bg:#1A0F1E;--deep:#12091A;--surf:#261629;--line:#4A2A45;--gold:#FF8A3D;--gold2:#FFB86B;--text:#FFF1E6;--mute:#D3A9A0;--faint:#B58A87;--read:#FFE3D3;--red:#FF5E7E;--hov:#3A2038}
-:root[data-tema=araguaia] body{background-image:linear-gradient(180deg,rgba(255,138,61,.18),transparent 420px),radial-gradient(800px 460px at 85% 0,rgba(155,89,182,.22),transparent 70%)}
-:root[data-tema=terminal]{--gold-rgb:57,255,20;--logo-f:hue-rotate(68deg) saturate(1.1);--bg:#050805;--deep:#020402;--surf:#0A120A;--line:#17331B;--gold:#39FF14;--gold2:#9CFFB0;--text:#CFFFD8;--mute:#6FB583;--faint:#5A9468;--read:#BDF5C9;--red:#FF6B5E;--hov:#0F2414}
-:root[data-tema=terminal] body{font-family:var(--mono)}
-:root[data-tema=terminal] body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;background:repeating-linear-gradient(0deg,rgba(57,255,20,.035) 0 1px,transparent 1px 3px)}
-@media(prefers-reduced-motion:reduce){:root[data-tema=terminal] body::after{display:none}}
+:root[data-tema=miami]{--gold-rgb:255,79,163;--logo-f:hue-rotate(-72deg) saturate(1.25);--bg:#120A1F;--deep:#0B0615;--surf:#1B1030;--line:#3A2260;--gold:#FF4FA3;--gold2:#5EE7FF;--text:#FBEAFF;--mute:#B79AD6;--faint:#9A80BC;--read:#F2DDFF;--red:#FF7A59;--hov:#2A1850;--on-gold:#201804}
+
+:root[data-tema=brasil]{--gold-rgb:255,223,0;--logo-f:hue-rotate(12deg) saturate(1.2);--bg:#07140D;--deep:#040D08;--surf:#0E2216;--line:#1F4A2B;--gold:#FFDF00;--gold2:#7FC4FF;--text:#F2FFF5;--mute:#9CC7A8;--faint:#7FAA8B;--read:#E4F7E8;--red:#FF6B5E;--hov:#163A24;--on-gold:#201804}
+
+:root[data-tema=araguaia]{--gold-rgb:255,138,61;--logo-f:hue-rotate(-18deg) saturate(1.15);--bg:#1A0F1E;--deep:#12091A;--surf:#261629;--line:#4A2A45;--gold:#FF8A3D;--gold2:#FFB86B;--text:#FFF1E6;--mute:#D3A9A0;--faint:#B58A87;--read:#FFE3D3;--red:#FF5E7E;--hov:#3A2038;--on-gold:#201804}
+
+:root[data-tema=terminal]{--gold-rgb:57,255,20;--logo-f:hue-rotate(68deg) saturate(1.1);--bg:#050805;--deep:#020402;--surf:#0A120A;--line:#17331B;--gold:#39FF14;--gold2:#9CFFB0;--text:#CFFFD8;--mute:#6FB583;--faint:#5A9468;--read:#BDF5C9;--red:#FF6B5E;--hov:#0F2414;--on-gold:#201804}
+
 /* temas extras: Eclipse, Cristal, Voltagem, Sombra */
-:root[data-tema=eclipse]{--gold-rgb:178,107,255;--logo-f:hue-rotate(-40deg) saturate(1.2);--bg:#0E0716;--deep:#08040F;--surf:#170C26;--line:#38205A;--gold:#B26BFF;--gold2:#FF6EC7;--text:#F3E9FF;--mute:#AE98CF;--faint:#8F78B3;--read:#EADCFF;--red:#FF6B8A;--hov:#261540}
-:root[data-tema=eclipse] body{background-image:radial-gradient(900px 480px at 10% 0,rgba(178,107,255,.24),transparent 70%),radial-gradient(760px 440px at 92% 6%,rgba(255,110,199,.16),transparent 70%)}
-:root[data-tema=eclipse] h1{text-shadow:0 0 24px rgba(178,107,255,.5)}
-:root[data-tema=cristal]{--gold-rgb:29,95,214;--logo-f:none;--bg:#F5F6F8;--deep:#ECEEF2;--surf:#FFFFFF;--line:#DDE1E8;--gold:#1D5FD6;--gold2:#174EAF;--text:#12161C;--mute:#4E5968;--faint:#677284;--read:#1E2530;--red:#C8341C;--hov:#EAF0FC;--sans:Inter,"SF Pro Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:var(--sans);color-scheme:light}
-:root[data-tema=cristal] body{background-image:none}
-:root[data-tema=cristal] .bar{background:var(--surf);border-bottom:1px solid var(--line)}
-:root[data-tema=cristal] .tel .scr,:root[data-tema=cristal] .mq,:root[data-tema=cristal] .tka{background:var(--deep)}
-:root[data-tema=cristal] .tk{background:var(--surf)}
-:root[data-tema=cristal] *{text-shadow:none!important}
-:root[data-tema=cristal] #cfgBtn,:root[data-tema=cristal] #cfgPan{box-shadow:0 2px 12px rgba(16,24,40,.14)}
-:root[data-tema=cristal] button.vg.open:hover,:root[data-tema=cristal] button.vg.open:focus-visible{background:var(--hov)}
-:root[data-tema=generico]{--gold-rgb:37,99,235;--logo-f:none;--bg:#FFFFFF;--deep:#F3F4F6;--surf:#FFFFFF;--line:#E5E7EB;--gold:#2563EB;--gold2:#1D4ED8;--text:#111827;--mute:#4B5563;--faint:#6B7280;--read:#1F2937;--red:#DC2626;--hov:#F3F4F6;--sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--mono:var(--sans);color-scheme:light}
-:root[data-tema=generico] body{background:#fff;background-image:none}
+:root[data-tema=eclipse]{--gold-rgb:178,107,255;--logo-f:hue-rotate(-40deg) saturate(1.2);--bg:#0E0716;--deep:#08040F;--surf:#170C26;--line:#38205A;--gold:#B26BFF;--gold2:#FF6EC7;--text:#F3E9FF;--mute:#AE98CF;--faint:#8F78B3;--read:#EADCFF;--red:#FF6B8A;--hov:#261540;--on-gold:#201804}
+
+:root[data-tema=cristal]{--gold-rgb:29,95,214;--logo-f:none;--bg:#F5F6F8;--deep:#ECEEF2;--surf:#FFFFFF;--line:#DDE1E8;--gold:#1D5FD6;--gold2:#174EAF;--text:#12161C;--mute:#4E5968;--faint:#677284;--read:#1E2530;--red:#C8341C;--hov:#EAF0FC;--sans:Inter,"SF Pro Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:var(--sans);color-scheme:light;--on-gold:#fff}
+
+:root[data-tema=generico]{--gold-rgb:37,99,235;--logo-f:none;--bg:#FFFFFF;--deep:#F3F4F6;--surf:#FFFFFF;--line:#E5E7EB;--gold:#2563EB;--gold2:#1D4ED8;--text:#111827;--mute:#4B5563;--faint:#6B7280;--read:#1F2937;--red:#DC2626;--hov:#F3F4F6;--sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--mono:var(--sans);color-scheme:light;--on-gold:#fff}
+
 :root[data-tema=generico] .brand .l-dk{display:none}:root[data-tema=generico] .brand .l-lt{display:block}
-:root[data-tema=generico] *{text-shadow:none!important}
-:root[data-tema=generico] .glitch,:root[data-tema=generico] .glitch *{animation:none!important}
-:root[data-tema=generico] .bar{background:var(--surf);border-bottom:1px solid var(--line)}
-:root[data-tema=generico] .bar i{display:none}
-:root[data-tema=generico] .win{border-radius:12px;box-shadow:0 1px 3px rgba(16,24,40,.08)}
-:root[data-tema=generico] #cfgBtn,:root[data-tema=generico] #cfgPan{box-shadow:0 2px 12px rgba(16,24,40,.14)}
+
 /* Genérico: some tudo que fica rodando ou distraindo; sobra só achar um profissional, conversar e a conta */
-:root[data-tema=generico] .intro-tools,:root[data-tema=generico] .intro-pack .sub,:root[data-tema=generico] .feira-note,:root[data-tema=generico] .intro-mini,:root[data-tema=generico] .pulse,
-:root[data-tema=generico] #meta,:root[data-tema=generico] #duelo,:root[data-tema=generico] #enquete,:root[data-tema=generico] #instalar,:root[data-tema=generico] #hoje,:root[data-tema=generico] #tutorial,
-:root[data-tema=generico] #aovivo,:root[data-tema=generico] #guilda,:root[data-tema=generico] #reputacao,:root[data-tema=generico] #saiba,:root[data-tema=generico] #taxas,:root[data-tema=generico] #guia-chat,
-:root[data-tema=generico] #seguranca,:root[data-tema=generico] #privacidade,:root[data-tema=generico] #fliperama,:root[data-tema=generico] #flBoard,:root[data-tema=generico] #duvidas,
-:root[data-tema=generico] #quem,:root[data-tema=generico] #apoie,:root[data-tema=generico] #patrocinio,
-:root[data-tema=generico] .nv a:not([href="#cadWin"]):not([href="#cw"]):not([href*="instagram.com"]),:root[data-tema=generico] #dock [data-dock=anunciar]{display:none!important}
-:root[data-tema=generico] #dock{grid-template-columns:repeat(4,1fr)!important}
+
 /* Genérico: Suporte, Mais informações e Ajustes no cabeçalho; os links de informação aparecem ao abrir "Mais informações" */
-:root[data-tema=generico] nav.nv.nv-s{display:flex;flex-wrap:wrap;gap:8px;overflow:visible;padding:0}
-:root[data-tema=generico] nav.nv.nv-s>.more:is(#navSup,#navApps,#navMais,#navAjustes,[href*="instagram.com"],#navBaixar){display:inline-flex!important;align-items:center;justify-content:center;min-height:38px;padding:6px 14px;border-radius:999px;font:600 14px var(--sans);flex:0 0 auto;width:auto;white-space:nowrap}
-:root[data-tema=generico] nav.nv.nv-s>.more:not(:is(#navSup,#navApps,#navMais,#navAjustes,[href*="instagram.com"],#navBaixar,[data-go="saiba"],[data-go="hoje"],[data-go="tutorial"],[data-go="guia-chat"],[data-go="seguranca"],[data-go="taxas"],[data-go="duvidas"],[data-go="apoie"],[data-go="patrocinio"],[data-go="quem"],[data-go="privacidade"])){display:none!important}
-:root[data-tema=generico] nav.nv.nv-s.nv-aberto>a.more:is([data-go="saiba"],[data-go="hoje"],[data-go="tutorial"],[data-go="guia-chat"],[data-go="seguranca"],[data-go="taxas"],[data-go="duvidas"],[data-go="apoie"],[data-go="patrocinio"],[data-go="quem"],[data-go="privacidade"]){display:inline-flex!important;align-items:center;min-height:38px;padding:6px 14px;border-radius:999px;font:600 14px var(--sans);flex:0 0 auto;width:auto;white-space:nowrap}
-:root[data-tema=generico] nav.nv .more{background:var(--surf)!important;color:var(--gold2)!important;border:1px solid var(--line)!important}
-:root[data-tema=generico] nav.nv .more.baixar{background:var(--gold)!important;color:#fff!important;border-color:var(--gold)!important}
+
 .ig-foot{color:var(--gold2);font-weight:700;text-decoration:none;margin-right:8px}
 .ig-foot:hover,.ig-foot:focus-visible{text-decoration:underline;outline:none}
-:root[data-tema=generico] .shell{display:block;max-width:1120px;margin:0 auto;padding:0 20px}
-:root[data-tema=generico] .wrap{max-width:none;padding:20px 0 60px}
-:root[data-tema=generico] .top{padding:4px 0 20px;border-bottom:1px solid var(--line);margin-bottom:24px}
-:root[data-tema=generico] h1{font-size:clamp(28px,4.2vw,46px);line-height:1.12;letter-spacing:-.02em;font-weight:800;margin:0 0 22px}
-:root[data-tema=generico] h1 span{display:block;color:var(--gold)}
-:root[data-tema=generico] footer{border-top:1px solid var(--line);padding-top:18px;font-family:var(--sans)}
+
 @media(min-width:700px){
-:root[data-tema=generico] #needRow{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important;gap:12px;flex-wrap:wrap;overflow:visible!important}
-:root[data-tema=generico] #needRow button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:110px;padding:16px 10px;border-radius:14px;background:var(--surf);border:1px solid var(--line);white-space:normal;word-break:normal!important;overflow-wrap:normal!important;hyphens:none}
-:root[data-tema=generico] #needRow button:hover,:root[data-tema=generico] #needRow button:focus-visible{border-color:var(--gold);box-shadow:0 2px 10px rgba(16,24,40,.08);outline:none}
+
 }
 /* campo de digitar do chat acompanha o tema claro */
-:root[data-tema=cristal] #m,:root[data-tema=generico] #m,:root[data-tema=claro] #m{background:var(--surf)!important;color:var(--text)!important;border:1px solid var(--line)!important}
-:root[data-tema=cristal] .mark{color:#fff!important}
-:root[data-tema=generico] .mark{color:#fff!important}
-:root[data-tema=cristal] .role input:checked+span{color:#fff!important}
-:root[data-tema=generico] .role input:checked+span{color:#fff!important}
-:root[data-tema=cristal] .go{color:#fff!important}
-:root[data-tema=generico] .go{color:#fff!important}
-:root[data-tema=cristal] .send button.p{color:#fff!important}
-:root[data-tema=generico] .send button.p{color:#fff!important}
-:root[data-tema=cristal] .tabs button[aria-selected=true]{color:#fff!important}
-:root[data-tema=generico] .tabs button[aria-selected=true]{color:#fff!important}
-:root[data-tema=cristal] .cta2{color:#fff!important}
-:root[data-tema=generico] .cta2{color:#fff!important}
-:root[data-tema=cristal] .dur input:checked+span{color:#fff!important}
-:root[data-tema=generico] .dur input:checked+span{color:#fff!important}
-:root[data-tema=cristal] .cat-row button.on{color:#fff!important}
-:root[data-tema=generico] .cat-row button.on{color:#fff!important}
-:root[data-tema=cristal] .fab:hover{color:#fff!important}
-:root[data-tema=generico] .fab:hover{color:#fff!important}
-:root[data-tema=cristal] .sugf button{color:#fff!important}
-:root[data-tema=generico] .sugf button{color:#fff!important}
-:root[data-tema=cristal] .wtabs button.on{color:#fff!important}
-:root[data-tema=generico] .wtabs button.on{color:#fff!important}
-:root[data-tema=cristal] .admchip{color:#fff!important}
-:root[data-tema=generico] .admchip{color:#fff!important}
-:root[data-tema=cristal] .atabs button.on{color:#fff!important}
-:root[data-tema=generico] .atabs button.on{color:#fff!important}
-:root[data-tema=cristal] .fl-tabs button[aria-pressed=true]{color:#fff!important}
-:root[data-tema=generico] .fl-tabs button[aria-pressed=true]{color:#fff!important}
-:root[data-tema=cristal] .fl-pad button:active{color:#fff!important}
-:root[data-tema=generico] .fl-pad button:active{color:#fff!important}
-:root[data-tema=cristal] .seg button[aria-pressed=true]{color:#fff!important}
-:root[data-tema=generico] .seg button[aria-pressed=true]{color:#fff!important}
-:root[data-tema=cristal] dialog[aria-label="Perfil"] .admbox .adm-r1 .adm-save:hover{color:#fff!important}
-:root[data-tema=generico] dialog[aria-label="Perfil"] .admbox .adm-r1 .adm-save:hover{color:#fff!important}
-:root[data-tema=cristal] .avt-cam{color:#fff!important}
-:root[data-tema=generico] .avt-cam{color:#fff!important}
-/* ===== tema Genérico Noturno ===== */
-:root[data-tema=generico-noturno]{--gold-rgb:59,130,246;--logo-f:none;--bg:#0F1115;--deep:#0A0C10;--surf:#171A21;--line:#2A2F3A;--gold:#2F6FEB;--gold2:#8DB8FF;--text:#F3F4F6;--mute:#A3ABB8;--faint:#8B94A3;--read:#E5E7EB;--red:#F87171;--hov:#1F2430;--sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--mono:var(--sans);color-scheme:dark}
 
-:root[data-tema=generico-noturno] body{background:#fff;background-image:none}
+/* ===== tema Genérico Noturno ===== */
+:root[data-tema=generico-noturno]{--gold-rgb:59,130,246;--logo-f:none;--bg:#0F1115;--deep:#0A0C10;--surf:#171A21;--line:#2A2F3A;--gold:#2F6FEB;--gold2:#8DB8FF;--text:#F3F4F6;--mute:#A3ABB8;--faint:#8B94A3;--read:#E5E7EB;--red:#F87171;--hov:#1F2430;--sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--mono:var(--sans);color-scheme:dark;--on-gold:#fff}
+
 :root[data-tema=generico-noturno] .brand .l-dk{display:none}
 :root[data-tema=generico-noturno] .brand .l-lt{display:block}
-:root[data-tema=generico-noturno] *{text-shadow:none!important}
-:root[data-tema=generico-noturno] .glitch,:root[data-tema=generico-noturno] .glitch *{animation:none!important}
-:root[data-tema=generico-noturno] .bar{background:var(--surf);border-bottom:1px solid var(--line)}
-:root[data-tema=generico-noturno] .bar i{display:none}
-:root[data-tema=generico-noturno] .win{border-radius:12px;box-shadow:0 1px 3px rgba(16,24,40,.08)}
-:root[data-tema=generico-noturno] #cfgBtn,:root[data-tema=generico-noturno] #cfgPan{box-shadow:0 2px 12px rgba(16,24,40,.14)}
+:root[data-tema] *{text-shadow:none!important}
+:root[data-tema] .glitch,:root[data-tema] .glitch *{animation:none!important}
+:root[data-tema] .bar{background:var(--surf);border-bottom:1px solid var(--line)}
+:root[data-tema] .bar i{display:none}
+:root[data-tema] .win{border-radius:12px;box-shadow:0 1px 3px rgba(16,24,40,.08)}
+:root[data-tema] #cfgBtn,:root[data-tema] #cfgPan{box-shadow:0 2px 12px rgba(16,24,40,.14)}
 /* Genérico: some tudo que fica rodando ou distraindo; sobra só achar um profissional, conversar e a conta */
-:root[data-tema=generico-noturno] .intro-tools,:root[data-tema=generico-noturno] .intro-pack .sub,:root[data-tema=generico-noturno] .feira-note,:root[data-tema=generico-noturno] .intro-mini,:root[data-tema=generico-noturno] .pulse,
-:root[data-tema=generico-noturno] #meta,:root[data-tema=generico-noturno] #duelo,:root[data-tema=generico-noturno] #enquete,:root[data-tema=generico-noturno] #instalar,:root[data-tema=generico-noturno] #hoje,:root[data-tema=generico-noturno] #tutorial,
-:root[data-tema=generico-noturno] #aovivo,:root[data-tema=generico-noturno] #guilda,:root[data-tema=generico-noturno] #reputacao,:root[data-tema=generico-noturno] #saiba,:root[data-tema=generico-noturno] #taxas,:root[data-tema=generico-noturno] #guia-chat,
-:root[data-tema=generico-noturno] #seguranca,:root[data-tema=generico-noturno] #privacidade,:root[data-tema=generico-noturno] #fliperama,:root[data-tema=generico-noturno] #flBoard,:root[data-tema=generico-noturno] #duvidas,
-:root[data-tema=generico-noturno] #quem,:root[data-tema=generico-noturno] #apoie,:root[data-tema=generico-noturno] #patrocinio,
-:root[data-tema=generico-noturno] .nv a:not([href="#cadWin"]):not([href="#cw"]):not([href*="instagram.com"]),:root[data-tema=generico-noturno] #dock [data-dock=anunciar]{display:none!important}
-:root[data-tema=generico-noturno] #dock{grid-template-columns:repeat(4,1fr)!important}
+:root[data-tema] .intro-tools,:root[data-tema] .intro-pack .sub,:root[data-tema] .feira-note,:root[data-tema] .intro-mini,:root[data-tema] .pulse,:root[data-tema] #meta,:root[data-tema] #duelo,:root[data-tema] #enquete,:root[data-tema] #instalar,:root[data-tema] #hoje,:root[data-tema] #tutorial,:root[data-tema] #aovivo,:root[data-tema] #guilda,:root[data-tema] #reputacao,:root[data-tema] #saiba,:root[data-tema] #taxas,:root[data-tema] #guia-chat,:root[data-tema] #seguranca,:root[data-tema] #privacidade,:root[data-tema] #fliperama,:root[data-tema] #flBoard,:root[data-tema] #duvidas,:root[data-tema] #quem,:root[data-tema] #apoie,:root[data-tema] #patrocinio,:root[data-tema] .nv a:not([href="#cadWin"]):not([href="#cw"]):not([href*="instagram.com"]),:root[data-tema] #dock [data-dock=anunciar]{display:none!important}
+:root[data-tema] #dock{grid-template-columns:repeat(4,1fr)!important}
 /* Genérico: Suporte, Mais informações e Ajustes no cabeçalho; os links de informação aparecem ao abrir "Mais informações" */
-:root[data-tema=generico-noturno] nav.nv.nv-s{display:flex;flex-wrap:wrap;gap:8px;overflow:visible;padding:0}
-:root[data-tema=generico-noturno] nav.nv.nv-s>.more:is(#navSup,#navApps,#navMais,#navAjustes,[href*="instagram.com"],#navBaixar){display:inline-flex!important;align-items:center;justify-content:center;min-height:38px;padding:6px 14px;border-radius:999px;font:600 14px var(--sans);flex:0 0 auto;width:auto;white-space:nowrap}
-:root[data-tema=generico-noturno] nav.nv.nv-s>.more:not(:is(#navSup,#navApps,#navMais,#navAjustes,[href*="instagram.com"],#navBaixar,[data-go="saiba"],[data-go="hoje"],[data-go="tutorial"],[data-go="guia-chat"],[data-go="seguranca"],[data-go="taxas"],[data-go="duvidas"],[data-go="apoie"],[data-go="patrocinio"],[data-go="quem"],[data-go="privacidade"])){display:none!important}
-:root[data-tema=generico-noturno] nav.nv.nv-s.nv-aberto>a.more:is([data-go="saiba"],[data-go="hoje"],[data-go="tutorial"],[data-go="guia-chat"],[data-go="seguranca"],[data-go="taxas"],[data-go="duvidas"],[data-go="apoie"],[data-go="patrocinio"],[data-go="quem"],[data-go="privacidade"]){display:inline-flex!important;align-items:center;min-height:38px;padding:6px 14px;border-radius:999px;font:600 14px var(--sans);flex:0 0 auto;width:auto;white-space:nowrap}
-:root[data-tema=generico-noturno] nav.nv .more{background:var(--surf)!important;color:var(--gold2)!important;border:1px solid var(--line)!important}
-:root[data-tema=generico-noturno] nav.nv .more.baixar{background:var(--gold)!important;color:#fff!important;border-color:var(--gold)!important}
-:root[data-tema=generico-noturno] .shell{display:block;max-width:1120px;margin:0 auto;padding:0 20px}
-:root[data-tema=generico-noturno] .wrap{max-width:none;padding:20px 0 60px}
-:root[data-tema=generico-noturno] .top{padding:4px 0 20px;border-bottom:1px solid var(--line);margin-bottom:24px}
-:root[data-tema=generico-noturno] h1{font-size:clamp(28px,4.2vw,46px);line-height:1.12;letter-spacing:-.02em;font-weight:800;margin:0 0 22px}
-:root[data-tema=generico-noturno] h1 span{display:block;color:var(--gold)}
-:root[data-tema=generico-noturno] footer{border-top:1px solid var(--line);padding-top:18px;font-family:var(--sans)}
+:root[data-tema] nav.nv.nv-s{display:flex;flex-wrap:wrap;gap:8px;overflow:visible;padding:0}
+:root[data-tema] nav.nv.nv-s>.more:is(#navSup,#navApps,#navMais,#navAjustes,[href*="instagram.com"],#navBaixar){display:inline-flex!important;align-items:center;justify-content:center;min-height:38px;padding:6px 14px;border-radius:999px;font:600 14px var(--sans);flex:0 0 auto;width:auto;white-space:nowrap}
+:root[data-tema] nav.nv.nv-s>.more:not(:is(#navSup,#navApps,#navMais,#navAjustes,[href*="instagram.com"],#navBaixar,[data-go="saiba"],[data-go="hoje"],[data-go="tutorial"],[data-go="guia-chat"],[data-go="seguranca"],[data-go="taxas"],[data-go="duvidas"],[data-go="apoie"],[data-go="patrocinio"],[data-go="quem"],[data-go="privacidade"])){display:none!important}
+:root[data-tema] nav.nv.nv-s.nv-aberto>a.more:is([data-go="saiba"],[data-go="hoje"],[data-go="tutorial"],[data-go="guia-chat"],[data-go="seguranca"],[data-go="taxas"],[data-go="duvidas"],[data-go="apoie"],[data-go="patrocinio"],[data-go="quem"],[data-go="privacidade"]){display:inline-flex!important;align-items:center;min-height:38px;padding:6px 14px;border-radius:999px;font:600 14px var(--sans);flex:0 0 auto;width:auto;white-space:nowrap}
+:root[data-tema] nav.nv .more{background:var(--surf)!important;color:var(--gold2)!important;border:1px solid var(--line)!important}
+:root[data-tema] nav.nv .more.baixar{background:var(--gold)!important;color:var(--on-gold)!important;border-color:var(--gold)!important}
+
 @media(min-width:700px){
-:root[data-tema=generico-noturno] #needRow{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important;gap:12px;flex-wrap:wrap;overflow:visible!important}
-:root[data-tema=generico-noturno] #needRow button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:110px;padding:16px 10px;border-radius:14px;background:var(--surf);border:1px solid var(--line);white-space:normal;word-break:normal!important;overflow-wrap:normal!important;hyphens:none}
-:root[data-tema=generico-noturno] #needRow button:hover,:root[data-tema=generico-noturno] #needRow button:focus-visible{border-color:var(--gold);box-shadow:0 2px 10px rgba(16,24,40,.08);outline:none}
+:root[data-tema] #needRow{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important;gap:12px;flex-wrap:wrap;overflow:visible!important}
+:root[data-tema] #needRow button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:110px;padding:16px 10px;border-radius:14px;background:var(--surf);border:1px solid var(--line);white-space:normal;word-break:normal!important;overflow-wrap:normal!important;hyphens:none}
+:root[data-tema] #needRow button:hover,:root[data-tema] #needRow button:focus-visible{border-color:var(--gold);box-shadow:0 2px 10px rgba(16,24,40,.08);outline:none}
 }
 /* campo de digitar do chat acompanha o tema claro */
-:root[data-tema=cristal] #m,:root[data-tema=generico-noturno] #m,:root[data-tema=claro] #m{background:var(--surf)!important;color:var(--text)!important;border:1px solid var(--line)!important}
-:root[data-tema=generico-noturno] .mark{color:#fff!important}
-:root[data-tema=generico-noturno] .role input:checked+span{color:#fff!important}
-:root[data-tema=generico-noturno] .go{color:#fff!important}
-:root[data-tema=generico-noturno] .send button.p{color:#fff!important}
-:root[data-tema=generico-noturno] .tabs button[aria-selected=true]{color:#fff!important}
-:root[data-tema=generico-noturno] .cta2{color:#fff!important}
-:root[data-tema=generico-noturno] .dur input:checked+span{color:#fff!important}
-:root[data-tema=generico-noturno] .cat-row button.on{color:#fff!important}
-:root[data-tema=generico-noturno] .fab:hover{color:#fff!important}
-:root[data-tema=generico-noturno] .sugf button{color:#fff!important}
-:root[data-tema=generico-noturno] .wtabs button.on{color:#fff!important}
-:root[data-tema=generico-noturno] .admchip{color:#fff!important}
-:root[data-tema=generico-noturno] .atabs button.on{color:#fff!important}
-:root[data-tema=generico-noturno] .fl-tabs button[aria-pressed=true]{color:#fff!important}
-:root[data-tema=generico-noturno] .fl-pad button:active{color:#fff!important}
-:root[data-tema=generico-noturno] .seg button[aria-pressed=true]{color:#fff!important}
-:root[data-tema=generico-noturno] dialog[aria-label="Perfil"] .admbox .adm-r1 .adm-save:hover{color:#fff!important}
-:root[data-tema=generico-noturno] .avt-cam{color:#fff!important}
+:root[data-tema] #m{background:var(--surf)!important;color:var(--text)!important;border:1px solid var(--line)!important}
+:root[data-tema] .mark{color:var(--on-gold)!important}
+:root[data-tema] .role input:checked+span{color:var(--on-gold)!important}
+:root[data-tema] .go{color:var(--on-gold)!important}
+:root[data-tema] .send button.p{color:var(--on-gold)!important}
+:root[data-tema] .tabs button[aria-selected=true]{color:var(--on-gold)!important}
+:root[data-tema] .cta2{color:var(--on-gold)!important}
+:root[data-tema] .dur input:checked+span{color:var(--on-gold)!important}
+:root[data-tema] .cat-row button.on{color:var(--on-gold)!important}
+:root[data-tema] .fab:hover{color:var(--on-gold)!important}
+:root[data-tema] .sugf button{color:var(--on-gold)!important}
+:root[data-tema] .wtabs button.on{color:var(--on-gold)!important}
+:root[data-tema] .admchip{color:var(--on-gold)!important}
+:root[data-tema] .atabs button.on{color:var(--on-gold)!important}
+:root[data-tema] .fl-tabs button[aria-pressed=true]{color:var(--on-gold)!important}
+:root[data-tema] .fl-pad button:active{color:var(--on-gold)!important}
+:root[data-tema] .seg button[aria-pressed=true]{color:var(--on-gold)!important}
+:root[data-tema] dialog[aria-label="Perfil"] .admbox .adm-r1 .adm-save:hover{color:var(--on-gold)!important}
+:root[data-tema] .avt-cam{color:#fff!important}
 
 /* Genérico (claro e noturno): botão para minimizar o perfil e botão para abrir de novo */
-:root[data-tema^=generico] #cadWin .bar i.fechavel{display:inline-flex!important;align-items:center;margin-left:auto;width:auto!important;height:auto!important;padding:4px 12px;border:1px solid var(--line)!important;border-radius:999px!important;background:var(--bg)!important;color:var(--gold2);font:600 12px var(--sans);font-style:normal;line-height:1.2;cursor:pointer}
-:root[data-tema^=generico] #cadWin .bar i.fechavel::before{content:"— Minimizar"}
-:root[data-tema^=generico] #cadWin .bar i.fechavel:hover{background:var(--hov)!important;filter:none}
-:root[data-tema^=generico] #perfSq:not([hidden]){display:inline-flex;align-items:center;gap:7px;width:auto!important;height:auto!important;padding:4px 12px;border:1px solid var(--line)!important;border-radius:999px!important;background:var(--surf)!important;color:var(--gold2);font:600 12px var(--sans);cursor:pointer}
-:root[data-tema^=generico] #perfSq::before{content:"";width:9px;height:9px;border-radius:50%;background:#6EC8AA}
-:root[data-tema^=generico] #perfSq[data-st=ocupado]::before{background:#F2C94C}
-:root[data-tema^=generico] #perfSq::after{content:"Meu Perfil"}
+
 /* Genérico Noturno: mesmo layout do Genérico, com cores escuras */
-:root[data-tema=generico-noturno] body{background:var(--bg);background-image:none}
+:root[data-tema] body{background:var(--bg);background-image:none}
 :root[data-tema=generico-noturno] .brand .l-dk{display:block}:root[data-tema=generico-noturno] .brand .l-lt{display:none}
-:root[data-tema=generico-noturno] .win{box-shadow:0 1px 3px rgba(0,0,0,.55)}
-:root[data-tema=generico-noturno] #cfgBtn,:root[data-tema=generico-noturno] #cfgPan{box-shadow:0 2px 12px rgba(0,0,0,.6)}
-:root[data-tema=generico-noturno] #needRow button:hover,:root[data-tema=generico-noturno] #needRow button:focus-visible{box-shadow:0 2px 10px rgba(0,0,0,.5)}
+:root[data-tema]:not([data-tema=claro],[data-tema=cristal],[data-tema=generico]) .win{box-shadow:0 1px 3px rgba(0,0,0,.55)}
+:root[data-tema]:not([data-tema=claro],[data-tema=cristal],[data-tema=generico]) #cfgBtn,:root[data-tema]:not([data-tema=claro],[data-tema=cristal],[data-tema=generico]) #cfgPan{box-shadow:0 2px 12px rgba(0,0,0,.6)}
+:root[data-tema]:not([data-tema=claro],[data-tema=cristal],[data-tema=generico]) #needRow button:hover,:root[data-tema]:not([data-tema=claro],[data-tema=cristal],[data-tema=generico]) #needRow button:focus-visible{box-shadow:0 2px 10px rgba(0,0,0,.5)}
 
-:root[data-tema=voltagem]{--gold-rgb:245,245,0;--logo-f:hue-rotate(20deg) saturate(1.3);--bg:#0D0F12;--deep:#07080A;--surf:#15181D;--line:#2C333D;--gold:#F5F500;--gold2:#00E5FF;--text:#EEF3F8;--mute:#93A0B0;--faint:#76838F;--read:#E1E8EF;--red:#FF4D6D;--hov:#1F242B}
-:root[data-tema=voltagem] body{background-image:linear-gradient(135deg,rgba(0,229,255,.10),transparent 38%),radial-gradient(700px 420px at 90% 8%,rgba(245,245,0,.10),transparent 70%)}
-:root[data-tema=voltagem] h1 span{text-shadow:0 0 18px rgba(245,245,0,.35)}
-:root[data-tema=sombra]{--gold-rgb:255,59,59;--logo-f:hue-rotate(-30deg) saturate(1.4);--bg:#08080A;--deep:#000;--surf:#101012;--line:#2A2A2E;--gold:#FF3B3B;--gold2:#FFFFFF;--text:#EDEDED;--mute:#9A9AA0;--faint:#75757B;--read:#E0E0E0;--red:#FF8A00;--hov:#1A1A1D}
-:root[data-tema=sombra] body{font-family:var(--mono);background-image:none}
-:root[data-tema=sombra] h1{text-shadow:2px 0 rgba(255,59,59,.65),-2px 0 rgba(255,255,255,.25)}
+:root[data-tema=voltagem]{--gold-rgb:245,245,0;--logo-f:hue-rotate(20deg) saturate(1.3);--bg:#0D0F12;--deep:#07080A;--surf:#15181D;--line:#2C333D;--gold:#F5F500;--gold2:#00E5FF;--text:#EEF3F8;--mute:#93A0B0;--faint:#76838F;--read:#E1E8EF;--red:#FF4D6D;--hov:#1F242B;--on-gold:#201804}
 
+:root[data-tema=sombra]{--gold-rgb:255,59,59;--logo-f:hue-rotate(-30deg) saturate(1.4);--bg:#08080A;--deep:#000;--surf:#101012;--line:#2A2A2E;--gold:#FF3B3B;--gold2:#FFFFFF;--text:#EDEDED;--mute:#9A9AA0;--faint:#75757B;--read:#E0E0E0;--red:#FF8A00;--hov:#1A1A1D;--on-gold:#201804}
 
 /* SOS na linha das abas + janelinha do SOS */
 .tabrow{display:flex;align-items:flex-end;gap:8px;border-bottom:1px solid var(--line);background:var(--bg);padding-right:10px}

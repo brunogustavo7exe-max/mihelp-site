@@ -19,7 +19,7 @@ window.MH_CENTRAL=async function(ctx){
   :lojas.length?'Dados, logo, serviços, produtos, equipe, caixa e orçamentos ficam no D\u2019Castro Labs.'
   :'Você ainda não tem uma empresa. Crie a sua no D\u2019Castro Labs.';
 
- var sel=null;
+ var p0=p.textContent,sel=null;
  if(lojas.length>1){sel=document.createElement('select');sel.setAttribute('aria-label','Empresa');
   lojas.forEach(function(l){sel.add(new Option(l.nome,l.chave))});d.append(sel)}
  function cur(){return lojas.find(function(l){return sel?l.chave===sel.value:true})||null}
@@ -28,11 +28,22 @@ window.MH_CENTRAL=async function(ctx){
  var lb=document.createElement('a');lb.className='mc-b mc-p';lb.target='_blank';lb.textContent='Abrir no Domin';
  lb.onclick=function(e){var w=null;try{w=window.open(lb.href,'_blank')}catch(x){}if(w){e.preventDefault();try{w.opener=null}catch(x){}}};
  var pb=document.createElement('button');pb.type='button';pb.textContent='Perfil público';
+ var mb=document.createElement('a');mb.className='mc-b';mb.target='_blank';mb.rel='noopener noreferrer';mb.textContent='Abrir no MESA';mb.href=window.MH_MESA_URL||'mesa.html';
+ var eb=document.createElement('button');eb.type='button';eb.textContent='Editar';
+ var ab=document.createElement('button');ab.type='button';ab.textContent='Apagar';ab.className='mc-d';
  var c=document.createElement('button');c.type='button';c.textContent='Fechar';
- function atualiza(){var l=cur();lb.href='labs.html'+(l?'?loja='+encodeURIComponent(l.chave):'');pb.disabled=!l}
+ function atualiza(){var l=cur();lb.href='labs.html'+(l?'?loja='+encodeURIComponent(l.chave):'');pb.disabled=!l;eb.disabled=!l;ab.disabled=!l}
+ eb.onclick=function(){var l=cur();if(!l)return;d.close();if(window.MH_V8)MH_V8.editar(l.chave);else ctx.espaco('lojas')};
+ var armado=0;
+ ab.onclick=async function(){var l=cur();if(!l)return;
+  if(!armado){armado=setTimeout(function(){armado=0;ab.textContent='Apagar';p.textContent=p0},5000);ab.textContent='Toque de novo para apagar';p.textContent='Isso remove \u201c'+l.nome+'\u201d do MiHelp (perfil, equipe e cardápio publicado). Não dá para desfazer.';return}
+  clearTimeout(armado);armado=0;ab.disabled=true;ab.textContent='Apagando…';
+  var r=null;try{r=await MH_API.req('/estabelecimentos/apagar',{token:tkn,body:{chave:l.chave}})}catch(e){}
+  if(r&&r.ok&&!(r.j&&r.j.ok===false)){try{MH_V8&&MH_V8.recarrega()}catch(e){}d.close();MH_CENTRAL(ctx)}
+  else{ab.disabled=false;ab.textContent='Apagar';p.textContent=(r&&r.j&&r.j.erro)||'Não consegui apagar agora. Tente de novo.'}};
  if(sel)sel.onchange=atualiza;atualiza();
  pb.onclick=function(){var l=cur();if(!l)return;d.close();location.href='?loja='+encodeURIComponent(l.chave)};
  c.onclick=function(){d.close()};
- f.append(lb,pb,c);d.append(f);
+ f.append(lb,mb,pb,eb,ab,c);d.append(f);
 };
 })();

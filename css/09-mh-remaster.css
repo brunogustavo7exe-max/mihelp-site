@@ -37,7 +37,7 @@ html.sem-outdoor:root[data-tema] .shell,html.modo-foco:root[data-tema] .shell{gr
 }
 
 /* ===== chrome comum a todos os temas ===== */
-:root[data-tema]:not([data-tema=terminal]){--mono:var(--sans)}
+:root[data-tema]{--mono:var(--sans)}
 :root[data-tema] .win{border-radius:12px;overflow:hidden}
 :root[data-tema] .bar{font-family:var(--sans);font-size:13px;font-weight:600;background:var(--surf);border-bottom:1px solid var(--line)}
 :root[data-tema] .bar i:not(.fechavel){display:none}
@@ -55,54 +55,24 @@ html:root:root:root:root body nav.nv.nv-s:not(.nv-aberto)>#navAjustes{display:no
 @keyframes mhblink{50%{opacity:0}}
 
 /* ===== 1 Dourado: editorial, ouro e serifa ===== */
-:root[data-tema=escuro] h1,:root[data-tema=escuro] h2,:root[data-tema=escuro] h3{font-family:Georgia,"Times New Roman",serif;font-weight:700}
-:root[data-tema=escuro] body{background-image:radial-gradient(900px 480px at 15% 0,rgba(var(--gold-rgb),.14),transparent 70%)}
-:root[data-tema=escuro] .win{border-top:2px solid var(--gold);box-shadow:0 12px 30px rgba(0,0,0,.45)}
-:root[data-tema=escuro] .top{border-bottom-color:rgba(var(--gold-rgb),.55)}
+
 /* ===== 2 Claro: papel e marca-texto ===== */
-:root[data-tema=claro] h1,:root[data-tema=claro] h2,:root[data-tema=claro] h3{font-family:Georgia,"Times New Roman",serif}
-:root[data-tema=claro] .win{background:var(--surf);box-shadow:inset 0 1px 0 #fff,0 10px 24px rgba(122,86,0,.13)}
-:root[data-tema=claro] .bar{background:var(--deep)}
-:root[data-tema=claro] h1 span{background:linear-gradient(transparent 62%,rgba(var(--gold-rgb),.3) 0);width:fit-content}
+
 /* ===== 3 Miami: neon degradê ===== */
-:root[data-tema=miami] .win{border:1px solid transparent;background:linear-gradient(var(--surf),var(--surf)) padding-box,linear-gradient(135deg,#FF4FA3,#5EE7FF) border-box;box-shadow:0 0 28px rgba(255,79,163,.2)}
-:root[data-tema=miami] h1{font-style:italic;font-weight:900;letter-spacing:-.03em}
-:root[data-tema=miami] h1 span{background:linear-gradient(90deg,#FF4FA3,#FFB86B,#5EE7FF);-webkit-background-clip:text;background-clip:text;color:transparent}
-:root[data-tema=miami] .top{border-bottom:3px solid;border-image:linear-gradient(90deg,#FF4FA3,#FFB86B,#5EE7FF) 1}
+
 /* ===== 4 Brasil: faixas e losango ===== */
-:root[data-tema=brasil] body{background-image:repeating-linear-gradient(45deg,rgba(255,223,0,.035) 0 2px,transparent 2px 30px),radial-gradient(900px 480px at 15% 0,rgba(0,156,59,.22),transparent 70%),radial-gradient(700px 420px at 90% 10%,rgba(0,39,118,.3),transparent 70%)}
-:root[data-tema=brasil] .top{border-bottom:0;padding-bottom:26px;box-shadow:0 5px 0 #009C3B,0 10px 0 #FFDF00,0 15px 0 #002776}
-:root[data-tema=brasil] .win{border-left:4px solid var(--gold);border-radius:10px}
-:root[data-tema=brasil] h1{font-weight:900}
+
 /* ===== 5 Pôr do sol: vidro e horizonte ===== */
-:root[data-tema=araguaia] body{background-image:radial-gradient(circle 280px at 82% 0,rgba(255,138,61,.4),transparent 70%),linear-gradient(180deg,#3A1A3F 0,#1A0F1E 560px)}
-:root[data-tema=araguaia] .win{background:rgba(38,22,41,.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-color:rgba(255,184,107,.28);border-radius:20px}
-:root[data-tema=araguaia] .bar{background:transparent}
-:root[data-tema=araguaia] h1 span{background:linear-gradient(90deg,#FF8A3D,#FF5E7E);-webkit-background-clip:text;background-clip:text;color:transparent}
+
 /* ===== 6 Terminal: prompt e cursor ===== */
-:root[data-tema=terminal] .win{border-radius:2px;border-color:var(--gold);box-shadow:0 0 0 1px rgba(57,255,20,.15),0 0 20px rgba(57,255,20,.12)}
-:root[data-tema=terminal] .bar::before{content:"$";color:var(--gold)}
-:root[data-tema=terminal] h1 span::after{content:"\2588";margin-left:.12em;animation:mhblink 1s steps(1) infinite}
-:root[data-tema=terminal] nav.nv.nv-s>.more,:root[data-tema=terminal] nav.nv.nv-s>#navAjustes{border-radius:2px!important}
-@media(prefers-reduced-motion:reduce){:root[data-tema=terminal] h1 span::after{animation:none}}
+
 /* ===== 7 Eclipse: disco negro com coroa ===== */
-:root[data-tema=eclipse] body{background-repeat:no-repeat;background-image:radial-gradient(circle 70px at 88% 110px,#000 0 96%,transparent 100%),radial-gradient(circle 150px at 88% 110px,rgba(178,107,255,.6),transparent 72%),radial-gradient(900px 480px at 10% 0,rgba(178,107,255,.2),transparent 70%)}
-:root[data-tema=eclipse] .win{border-radius:20px;box-shadow:0 0 0 1px rgba(178,107,255,.25),0 0 44px rgba(178,107,255,.14)}
-:root[data-tema=eclipse] h1 span{background:linear-gradient(90deg,#B26BFF,#FF6EC7);-webkit-background-clip:text;background-clip:text;color:transparent}
+
 /* ===== 8 Cristal: gelo e vidro fosco ===== */
-:root[data-tema=cristal] body{background-image:linear-gradient(160deg,#E6F0FF,#F5F6F8 42%,#ECF3FF);background-attachment:fixed}
-:root[data-tema=cristal] .win{background:rgba(255,255,255,.7);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);border:1px solid rgba(255,255,255,.95);border-radius:20px;box-shadow:0 10px 34px rgba(29,95,214,.1),inset 0 1px 0 #fff}
-:root[data-tema=cristal] .bar{background:transparent;border-bottom-color:rgba(29,95,214,.12)}
+
 /* ===== 11 Voltagem: bloco duro e sombra deslocada ===== */
-:root[data-tema=voltagem] .win{border:2px solid var(--text);border-radius:4px;box-shadow:6px 6px 0 var(--gold)}
-:root[data-tema=voltagem] .bar{background:var(--gold);color:#0D0F12;border-bottom:2px solid var(--text)}
-:root[data-tema=voltagem] h1{text-transform:uppercase;font-weight:900;letter-spacing:-.01em}
-:root[data-tema=voltagem] nav.nv.nv-s>.more,:root[data-tema=voltagem] nav.nv.nv-s>#navAjustes{border-radius:4px!important;border-width:2px!important}
+
 /* ===== 12 Sombra: noir, só linhas ===== */
-:root[data-tema=sombra] body{background-image:radial-gradient(ellipse at 50% -10%,rgba(255,255,255,.08),transparent 60%)}
-:root[data-tema=sombra] .win{background:transparent;border-radius:2px;box-shadow:none}
-:root[data-tema=sombra] .bar{background:transparent;letter-spacing:.08em}
-:root[data-tema=sombra] h1{font-weight:300;letter-spacing:.02em}
 
 /* ===== Colunas de jornal: perfil + Caronas à esquerda, chat + Guia à direita ===== */
 .jcol{display:flex;flex-direction:column;gap:22px;min-width:0}
@@ -126,8 +96,8 @@ html.modo-foco #vale,html.modo-foco #carona,html.modo-foco #cheers{display:none!
  .jcol>#vale,.jcol>#carona,.jcol>#cheers{margin-top:20px}
 }
 /* ===== Genérico: cabeçalho misto (Suporte, Mais informações e Ajustes como nos outros temas) ===== */
-:root[data-tema^=generico] :is(#saiba,#hoje,#tutorial,#guia-chat,#seguranca,#taxas,#duvidas,#apoie,#patrocinio,#quem,#privacidade).mh-ver{display:block!important;scroll-margin-top:16px}
-:root[data-tema^=generico] nav.nv.nv-s.nv-aberto>.more:not(:is(#navSup,#navApps,#navMais,#navAjustes,[href*="instagram.com"],#navBaixar,[data-go="saiba"],[data-go="hoje"],[data-go="tutorial"],[data-go="guia-chat"],[data-go="seguranca"],[data-go="taxas"],[data-go="duvidas"],[data-go="apoie"],[data-go="patrocinio"],[data-go="quem"],[data-go="privacidade"])):not(#navSup):not(#navApps):not(#navMais){display:none!important}
+:root[data-tema] :is(#saiba,#hoje,#tutorial,#guia-chat,#seguranca,#taxas,#duvidas,#apoie,#patrocinio,#quem,#privacidade).mh-ver{display:block!important;scroll-margin-top:16px}
+:root[data-tema] nav.nv.nv-s.nv-aberto>.more:not(:is(#navSup,#navApps,#navMais,#navAjustes,[href*="instagram.com"],#navBaixar,[data-go="saiba"],[data-go="hoje"],[data-go="tutorial"],[data-go="guia-chat"],[data-go="seguranca"],[data-go="taxas"],[data-go="duvidas"],[data-go="apoie"],[data-go="patrocinio"],[data-go="quem"],[data-go="privacidade"])):not(#navSup):not(#navApps):not(#navMais){display:none!important}
 /* ===== Publicidade lateral: sem moldura nem título, os anúncios soltos na página ===== */
 :root[data-tema] .side>.win{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;overflow:visible}
 :root[data-tema] .side>.win>.bar{display:none!important}

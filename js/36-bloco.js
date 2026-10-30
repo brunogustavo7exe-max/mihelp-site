@@ -45,7 +45,7 @@ function bloco(k,rot){const l=get(k),a=adm();if(!l.length&&!a)return null;
  const w=el('div','mhs-bloco');
  const pinta=()=>{w.textContent='';const ls=get(k);
   if(ls.length){w.append(el('h4',null,'Selos MiHelp'));const g=el('div','mhs-g'),dd=el('p','mhs-d');dd.hidden=true;dd.setAttribute('role','status');
-   ls.forEach(c=>{const b=el('button','mhs-b');b.type='button';b.append(tile(c),document.createTextNode(c.nome));b.setAttribute('aria-pressed','false');
+   ls.forEach(c=>{const b=el('button','mhs-b');b.style.setProperty('--c',c.cor);b.type='button';b.append(tile(c),document.createTextNode(c.nome));b.setAttribute('aria-pressed','false');
     b.onclick=()=>{const on=b.getAttribute('aria-pressed')==='true';g.querySelectorAll('.mhs-b').forEach(x=>x.setAttribute('aria-pressed','false'));if(on){dd.hidden=true}else{b.setAttribute('aria-pressed','true');dd.hidden=false;dd.textContent=c.nome+': '+c.txt}};g.append(b)});
    w.append(g,dd)}
   if(adm()){const b=el('button','more','🏅 '+(ls.length?'Editar selos':'Dar selos')+' (adm)');b.type='button';b.onclick=()=>editar(k,rot||'esta página',pinta);w.append(b)}};

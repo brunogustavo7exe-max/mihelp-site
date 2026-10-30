@@ -1,0 +1,33 @@
+
+/* ===== v10: botões padronizados, caixas tracejadas viram cartões do app ===== */
+.cta2,.more,button.more,button.cta2,a.cta2,a.more{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 22px;box-sizing:border-box;border-radius:12px;font:800 14px var(--sans);line-height:1.2;text-align:center;text-decoration:none;cursor:pointer;transition:transform .1s,box-shadow .2s,border-color .2s,filter .2s}
+.cta2{border:1px solid transparent;background:linear-gradient(180deg,var(--gold2),var(--gold));box-shadow:0 6px 18px rgba(var(--gold-rgb),.28)}
+.cta2:hover{filter:brightness(1.07);box-shadow:0 8px 22px rgba(var(--gold-rgb),.4)}
+.more,button.more,a.more{font-family:var(--sans);font-weight:700;color:var(--text);border:1px solid var(--line);background:linear-gradient(180deg,rgba(var(--gold-rgb),.08),rgba(var(--gold-rgb),.03))}
+.more:hover{border-color:rgba(var(--gold-rgb),.7);box-shadow:0 0 14px rgba(var(--gold-rgb),.25)}
+.cta2:active,.more:active{transform:scale(.97)}
+.cta2:focus-visible,.more:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.cta2:disabled,.more:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+.vbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.v8acts,.v8dlg .v8acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.v8acts>.cta2,.v8acts>.more,.v8acts>button,.v8acts>a{width:100%;min-height:46px;margin-top:0}
+.v8dlg .perfil-acoes .more,.v8dlg .perfil-acoes .cta2{margin:0}
+/* diálogo Minha loja (central): mesmo visual do resto, botões do mesmo tamanho */
+#mhCentral{border-radius:20px;border-color:rgba(var(--gold-rgb),.45);box-shadow:0 0 0 1px rgba(var(--gold-rgb),.15),0 24px 70px rgba(0,0,0,.6),0 0 40px rgba(var(--gold-rgb),.12);padding:22px}
+#mhCentral h3{font-size:22px}
+#mhCentral .mc-a{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+#mhCentral button,#mhCentral a.mc-b{justify-content:center;min-height:46px;padding:0 14px;border-radius:12px;font:700 14px var(--sans);color:var(--text);border:1px solid var(--line);background:linear-gradient(180deg,rgba(var(--gold-rgb),.08),rgba(var(--gold-rgb),.03));transition:transform .1s,box-shadow .2s,border-color .2s}
+#mhCentral button:hover,#mhCentral a.mc-b:hover{border-color:rgba(var(--gold-rgb),.7);box-shadow:0 0 14px rgba(var(--gold-rgb),.25)}
+#mhCentral button:active,#mhCentral a.mc-b:active{transform:scale(.97)}
+#mhCentral .mc-p{grid-column:1/-1;background:linear-gradient(180deg,var(--gold2),var(--gold));border-color:transparent;color:var(--on-gold);font-weight:800;box-shadow:0 6px 18px rgba(var(--gold-rgb),.28)}
+#mhCentral .mc-d{color:#f87171;border-color:rgba(248,113,113,.4)}
+#mhCentral .mc-d:hover{border-color:#f87171;box-shadow:0 0 14px rgba(248,113,113,.3)}
+/* caixas tracejadas -> cartões sólidos com cara de app */
+.slot,.feira-note,.aproto,.apaste,.port-th.vazio,.imgpick,input[type=file],#needCats .nc-busca,.rooms .sug,#ctabs .ctperfil,.honest{border-style:solid!important;border-color:rgba(var(--gold-rgb),.28)!important;border-radius:14px;background:linear-gradient(180deg,rgba(var(--gold-rgb),.07),rgba(var(--gold-rgb),.025))}
+button.vg.open{min-height:96px;border:1px solid rgba(var(--gold-rgb),.38);border-radius:16px;background:linear-gradient(180deg,rgba(var(--gold-rgb),.09),rgba(var(--gold-rgb),.03));justify-content:center;align-items:center;text-align:center;gap:8px;position:relative;transition:transform .12s,box-shadow .2s,border-color .2s}
+button.vg.open::before{content:"+";display:grid;place-items:center;width:34px;height:34px;border-radius:50%;font:800 22px var(--sans);color:var(--on-gold);background:linear-gradient(180deg,var(--gold2),var(--gold));box-shadow:0 0 12px rgba(var(--gold-rgb),.55)}
+button.vg.open b{font-size:16px;color:var(--text)}
+button.vg.open small{font:500 13px var(--sans);color:var(--mute)}
+button.vg.open:hover,button.vg.open:focus-visible{background:linear-gradient(180deg,rgba(var(--gold-rgb),.16),rgba(var(--gold-rgb),.05));border-style:solid;border-color:var(--gold);box-shadow:0 0 18px rgba(var(--gold-rgb),.3);transform:translateY(-1px)}
+.steps li,.tb td,.live .ev,.live button.ev,.arow,#admDlg h4,#admDlg .arow,.gnew{border-bottom-style:solid;border-bottom-color:rgba(var(--gold-rgb),.14)}
+.gnew,.admbox,#admDlg .admbox,dialog[aria-label="Perfil"] .admbox h4:not(:first-child){border-top-style:solid;border-top-color:rgba(var(--gold-rgb),.2)}

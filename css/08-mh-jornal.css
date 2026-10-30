@@ -11,22 +11,15 @@ html.modo-foco #need,html.modo-foco #prof,html.modo-foco #introPack{display:none
 .cfgjan button[aria-pressed=true]{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
 
 /* ===== Genérico (claro e noturno): letreiros e outdoors com as cores do tema ===== */
-:root[data-tema^=generico] .mq,:root[data-tema^=generico] .tka{background:var(--deep)}
-:root[data-tema^=generico] .tk{background:var(--surf)}
-:root[data-tema^=generico] .mq{border-bottom-color:var(--line)}
+
 @media(min-width:1200px){
- :root[data-tema^=generico] .shell{display:grid;grid-template-columns:176px minmax(0,1120px) 176px;gap:14px;justify-content:center;max-width:1560px;padding:0 14px}
+ 
 }
-html.sem-outdoor:root[data-tema^=generico] .shell,html.modo-foco:root[data-tema^=generico] .shell{grid-template-columns:minmax(0,1120px)!important}
 
 /* campos de texto, telefone e e-mail com as cores do tema (no celular ficavam pretos no Genérico claro) */
-:root[data-tema^=generico] input:is([type=text],[type=tel],[type=email],[type=url]):not(#m){background-color:var(--surf)!important;color:var(--text)!important;border:1px solid var(--line)!important}
+
 /* ===== Genérico: página em colunas, como jornal ===== */
-:root[data-tema^=generico] #cLista{column-width:280px;column-gap:14px}
-:root[data-tema^=generico] #cLista .vcard{break-inside:avoid}
-:root[data-tema^=generico] #cLista>p{column-span:all}
+
 @media(min-width:1000px){
- :root[data-tema^=generico] .wrap{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);column-gap:22px;row-gap:22px;align-items:start}
- :root[data-tema^=generico] .wrap>*{grid-column:1/-1}
- :root[data-tema^=generico] #vLista{max-height:300px;overflow-y:auto}
+
 }

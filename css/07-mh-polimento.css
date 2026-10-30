@@ -28,7 +28,7 @@ body:has(#cfgPan:not([hidden])) .admbar{display:none}
 
 .more.baixar{background:var(--gold);color:#201804;border-color:var(--gold);font-weight:700;cursor:pointer}
 .more.baixar[hidden]{display:none!important}
-:root[data-tema=cristal] .more.baixar,:root[data-tema=generico] .more.baixar,:root[data-tema=generico-noturno] .more.baixar{color:#fff}
+:root[data-tema] .more.baixar{color:var(--on-gold)}
 dialog.pwa-dlg{width:min(92vw,420px);padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--surf);color:var(--text);font-size:15px;line-height:1.55}
 dialog.pwa-dlg::backdrop{background:rgba(0,0,0,.6)}
 dialog.pwa-dlg h3{margin:0 0 8px;font-size:20px}
