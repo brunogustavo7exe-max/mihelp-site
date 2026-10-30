@@ -422,8 +422,8 @@ function portfolioEl(nome){
 function editorPortfolio(){
  carregarPortLocal();
  const el=(t,cl,x)=>{const e=document.createElement(t);if(cl)e.className=cl;if(x!=null)e.textContent=x;return e};
- const det=el('details','port-ed');det.append(el('summary',0,'🖼️ Portfólio e contatos'));
- det.append(el('p','note','Mostre trabalhos que você já fez. Toque na foto para trocar.'));
+ const det=el('details','port-ed');det.append(el('summary',0,'🖼️ Minha vitrine'));
+ det.append(el('p','note','Aqui você cuida só da aparência do seu negócio: fotos dos trabalhos e contatos que o cliente vê. Toque na foto para trocar.'));
  const row=el('div','port-row'),msg=el('p','note');msg.setAttribute('role','status');
  const fi=document.createElement('input');fi.type='file';fi.accept='image/*';fi.hidden=true;let slot=0;
  const desenha=()=>{row.textContent='';const a=PORT[eu.nome]||[];
@@ -1346,7 +1346,7 @@ function criarLoja8(d,E){
    const ok=botao8('✅ Criar meu negócio','cta2 v8go',async()=>{if(S.envio)return;S.envio=true;ok.disabled=true;st.style.color='';st.textContent='Criando…';
     const body={nome:S.nome,tipo:S.tipo,cidade:S.cidade,endereco:'',mapa:'',contato:'',modo:S.modo,descricao:'',chat:true,horario:horarioEditor8(null).valor(),atende:S.atende,funcao:'',donoVisivel:S.donoVisivel,invest:S.invest,equipeVisivel:S.equipeVisivel};
     const r2=await chama8('/estabelecimentos',body);
-    if(r2.ok&&r2.j&&r2.j.ok){carregaV8();const r3=await chama8('/perfil/meu');if(r3.ok&&r3.j&&r3.j.ok){const nl=(r3.j.lojas||[]).find(x=>x.chave===r2.j.chave);pintaEspaco8(d,r3.j,'Pronto! Seu negócio foi criado. Serviços, equipe, caixa e estoque você gerencia no D’Castro Labs.')}else abrirEspaco8()}
+    if(r2.ok&&r2.j&&r2.j.ok){carregaV8();const r3=await chama8('/perfil/meu');if(r3.ok&&r3.j&&r3.j.ok){const nl=(r3.j.lojas||[]).find(x=>x.chave===r2.j.chave);pintaEspaco8(d,r3.j,'Pronto! Seu negócio foi criado. Serviços, equipe, caixa e estoque você gerencia no Domin.')}else abrirEspaco8()}
     else{S.envio=false;ok.disabled=false;st.style.color='var(--red)';st.textContent=erro8(r2)}});
    d.append(ok)}
   if(S.n!==1||true)d.append(volta)}

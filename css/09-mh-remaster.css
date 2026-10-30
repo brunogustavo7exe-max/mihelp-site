@@ -127,7 +127,7 @@ html.modo-foco #vale,html.modo-foco #carona,html.modo-foco #cheers{display:none!
 }
 /* ===== Genérico: cabeçalho misto (Suporte, Mais informações e Ajustes como nos outros temas) ===== */
 :root[data-tema^=generico] :is(#saiba,#hoje,#tutorial,#guia-chat,#seguranca,#taxas,#duvidas,#apoie,#patrocinio,#quem,#privacidade).mh-ver{display:block!important;scroll-margin-top:16px}
-:root[data-tema^=generico] nav.nv.nv-s.nv-aberto>.more:not(:is(#navSup,#navMais,#navAjustes,[href*="instagram.com"],#navBaixar,[data-go="saiba"],[data-go="hoje"],[data-go="tutorial"],[data-go="guia-chat"],[data-go="seguranca"],[data-go="taxas"],[data-go="duvidas"],[data-go="apoie"],[data-go="patrocinio"],[data-go="quem"],[data-go="privacidade"])):not(#navSup):not(#navMais){display:none!important}
+:root[data-tema^=generico] nav.nv.nv-s.nv-aberto>.more:not(:is(#navSup,#navApps,#navMais,#navAjustes,[href*="instagram.com"],#navBaixar,[data-go="saiba"],[data-go="hoje"],[data-go="tutorial"],[data-go="guia-chat"],[data-go="seguranca"],[data-go="taxas"],[data-go="duvidas"],[data-go="apoie"],[data-go="patrocinio"],[data-go="quem"],[data-go="privacidade"])):not(#navSup):not(#navApps):not(#navMais){display:none!important}
 /* ===== Publicidade lateral: sem moldura nem título, os anúncios soltos na página ===== */
 :root[data-tema] .side>.win{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;overflow:visible}
 :root[data-tema] .side>.win>.bar{display:none!important}

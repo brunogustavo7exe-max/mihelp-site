@@ -3,5 +3,5 @@
 const su=document.getElementById('navSup');if(su){su.textContent='🆘 Suporte';nv.prepend(su)}
 const m=document.createElement('button');m.type='button';m.id='navMais';m.className='more';m.setAttribute('aria-expanded','false');m.textContent='ℹ️ Mais informações';
 m.onclick=()=>{const o=nv.classList.toggle('nv-aberto');m.setAttribute('aria-expanded',String(o));m.textContent=o?'✕ Fechar':'ℹ️ Mais informações'};
-if(su)su.after(m);else nv.prepend(m)}
+const ap=document.getElementById('navApps');if(su){if(ap)su.after(ap);(ap||su).after(m)}else{nv.prepend(m);if(ap)nv.prepend(ap)}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ini);else ini()})();

@@ -103,12 +103,19 @@ function cartaoMeu(ctx,antes){const w=document.createElement('div');w.className=
 let ABERTA='';
 function aplica(){const r=document.getElementById('reg');if(!r)return;r.querySelectorAll('.mhp-sec').forEach(x=>{x.hidden=x.dataset.s!==ABERTA;if(!x.hidden&&x.dataset.s==='port'){const d=x.querySelector('details');if(d)d.open=true}});r.querySelectorAll('.mhp-g button[data-s]').forEach(b=>b.classList.toggle('on',b.dataset.s===ABERTA))}
 function mostrar(k){ABERTA=ABERTA===k?'':k;aplica();const el=ABERTA&&document.querySelector('#reg .mhp-sec[data-s="'+k+'"]');if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'})}
+const DOMIN_URL=(window.MH_DOMIN_URL=window.MH_DOMIN_URL||'labs.html');let CTXV=null;
+function atalhosVitrine(){const w=document.createElement('div');w.className='mhp-vit';
+ w.innerHTML='<p class="note"><b>Vitrine</b> é o que as pessoas veem no MiHelp. <b>Caixa, estoque, equipe e serviços</b> ficam no <b>Domin</b>.</p><div class="mhp-vit-b"></div>';
+ const b=w.lastChild,mk=(t,f)=>{const x=document.createElement('button');x.type='button';x.textContent=t;x.onclick=f;b.append(x)};
+ mk('✏️ Visual da minha loja (logo, endereço, horário)',()=>{try{CTXV&&CTXV.espaco('lojas')}catch(e){}});
+ mk('🧭 Gestão da empresa no Domin',()=>{let k=null;try{k=window.open(DOMIN_URL,'_blank')}catch(e){}if(k){try{k.opener=null}catch(e){}}else location.href=DOMIN_URL});
+ return w}
 function organiza(r){const kids=[...r.children],txt=n=>n.textContent||'';
  const sec=(k,ns)=>{if(!ns.length)return;const w=document.createElement('div');w.className='mhp-sec';w.dataset.s=k;ns[0].before(w);ns.forEach(n=>w.append(n))};
- const det=kids.find(n=>n.classList.contains('port-ed')||(n.tagName==='DETAILS'&&txt(n).indexOf('Portfólio e contatos')>=0));if(det)sec('port',[det]);
+ const det=kids.find(n=>n.classList.contains('port-ed')||(n.tagName==='DETAILS'&&txt(n).indexOf('Minha vitrine')>=0));if(det){sec('port',[det]);const pw=r.querySelector('.mhp-sec[data-s="port"]');if(pw&&!pw.querySelector('.mhp-vit'))pw.prepend(atalhosVitrine())}
  const ia=kids.findIndex(n=>n.tagName==='H4'&&txt(n).indexOf('Comentários')===0),ifv=kids.findIndex(n=>n.tagName==='H4'&&txt(n).indexOf('Meus favoritos')===0);
  if(ia>=0)sec('aval',kids.slice(ia,ifv>ia?ifv:undefined));if(ifv>=0)sec('fav',kids.slice(ifv));aplica()}
-function tiles(ctx){const w=document.createElement('div');w.className='mhp-tiles';w.innerHTML='<h4>Meu painel</h4><div class="mhp-g"></div>';const g=w.lastChild;
- [['📅','Minha agenda',()=>ctx.agenda?ctx.agenda():agenda(ctx)],['🗓','Meus horários',()=>ctx.horarios&&ctx.horarios()],['🏪','Minha loja',()=>window.MH_CENTRAL?MH_CENTRAL(ctx):ctx.espaco('lojas')],['⭐','Avaliações',()=>mostrar('aval'),'aval'],['🖼️','Portfólio e contatos',()=>mostrar('port'),'port'],['❤️','Favoritos',()=>mostrar('fav'),'fav'],['🔒','Conta e privacidade',()=>ctx.espaco('priv')],['⚙','Ofícios, equipes e mais',()=>ctx.espaco()],['📤','Compartilhar perfil',()=>ctx.share()]]
+function tiles(ctx){CTXV=ctx;const w=document.createElement('div');w.className='mhp-tiles';w.innerHTML='<h4>Meu painel</h4><div class="mhp-g"></div>';const g=w.lastChild;
+ [['📅','Minha agenda',()=>ctx.agenda?ctx.agenda():agenda(ctx)],['🗓','Meus horários',()=>ctx.horarios&&ctx.horarios()],['🏪','Minha loja',()=>window.MH_CENTRAL?MH_CENTRAL(ctx):ctx.espaco('lojas')],['⭐','Avaliações',()=>mostrar('aval'),'aval'],['🖼️','Minha vitrine',()=>mostrar('port'),'port'],['❤️','Favoritos',()=>mostrar('fav'),'fav'],['🔒','Conta e privacidade',()=>ctx.espaco('priv')],['⚙','Ofícios, equipes e mais',()=>ctx.espaco()],['📤','Compartilhar perfil',()=>ctx.share()]]
  .forEach(x=>{const b=document.createElement('button');b.type='button';if(x[3])b.dataset.s=x[3];b.innerHTML='<span>'+x[0]+'</span>'+x[1];b.onclick=x[2];g.append(b)});return w}
 return{tiles,tem,marcar,toast,organiza,embutido,cartaoMeu}})();
