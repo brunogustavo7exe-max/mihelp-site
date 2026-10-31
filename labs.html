@@ -299,6 +299,9 @@ html{color-scheme:dark}
 .pvpane{border:1px dashed var(--ln);border-radius:14px;padding:12px;font-size:13px;color:var(--tx2);min-height:64px}
 .pvpane .it{display:flex;justify-content:space-between;gap:8px;padding:5px 0;color:var(--tx)}
 .lgrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0 10px}
+.fp{border-collapse:collapse;width:100%;min-width:1100px;font-size:13px}.fp th,.fp td{padding:6px 8px;border-top:1px solid var(--ln);text-align:right;white-space:nowrap}.fp th{color:var(--tx2);font-weight:600;font-size:12px;border-top:0}.fp th:first-child,.fp td:first-child{text-align:left}.fp input,.fp select{width:76px;min-height:36px;border-radius:8px;border:1px solid var(--ln);background:var(--sf2);color:var(--tx);padding:0 6px;text-align:right}.fp tfoot td{font-weight:700}
+.fphol{background:#fff;color:#000;border-radius:10px;padding:16px;margin-top:10px}.fphol table{width:100%;border-collapse:collapse}.fphol th,.fphol td{border-top:1px solid #ccc;padding:5px 6px;color:#000;text-align:left}.fphol td+td,.fphol th+th{text-align:right}.fphol .tg{color:#444}
+@media print{body.imp-fphol *{visibility:hidden}body.imp-fphol .fphol,body.imp-fphol .fphol *{visibility:visible}body.imp-fphol .fphol{position:absolute;left:0;top:0;width:100%;margin:0}body.imp-fphol .fphol .acts{display:none}}
 </style>
 </head>
 <body>
@@ -350,7 +353,7 @@ var MODS=[
  ['Começar',[['tutorial','📖','Como usar o Domin','real']]],
  ['Principal',[['visao','◧','Visão geral','real'],['empresa','🏢','Minha empresa','real'],['equipe','👥','Equipe','real'],['clientes','🤝','Clientes','real'],['servicos','🛠','Serviços e preços','real'],['orcamentos','🧾','Orçamentos e trabalhos','real'],['agenda','🗓','Agenda','real']]],
  ['Operação',[['financeiro','💰','Financeiro','real'],['estoque','📦','Estoque','real'],['relatorios','📊','Relatórios','real'],['automacoes','⚡','Automações','beta']]],
- ['Workforce',[['meutrabalho','🧑‍💼','Meu Trabalho','beta'],['escalas','📅','Escalas (turnos)','beta'],['chat','💬','Chat da equipe','beta'],['ponto','⏱','Ponto digital','demo'],['avaliacoes','🔒','Avaliações privadas','beta'],['passaporte','🪪','Passaporte Profissional','beta']]],
+ ['Workforce',[['meutrabalho','🧑‍💼','Meu Trabalho','beta'],['escalas','📅','Escalas (turnos)','beta'],['chat','💬','Chat da equipe','beta'],['ponto','⏱','Ponto digital','demo'],['folha','💵','Folha de pagamento','beta'],['avaliacoes','🔒','Avaliações privadas','beta'],['passaporte','🪪','Passaporte Profissional','beta']]],
  ['Sistema',[['studio','🎛','Personalização (Studio)','beta'],['config','⚙','Configurações','real'],['app','⬇','Download','real']]]
 ];
 var PROTO={
@@ -444,7 +447,7 @@ function boot(){
   S.lojas=a[0].j.lojas||[];S.conv=a[0].j.convites||[];S.transf=a[0].j.transferencias||[];S.cat={tipos:a[0].j.tipos||[],cidades:cidMinha(a[0].j.cidades||{})};(a[0].j.vinculos||[]).forEach(function(x){if(x.status==='aceito'&&!S.lojas.some(function(l){return l.chave===x.est}))S.lojas.push({chave:x.est,nome:(x.estNome||x.est)+' (como funcionário)',vinc:1,equipe:[],servicos:[]})});S.nome=(a[1].j&&a[1].j.nome)||'';
   var q=new URLSearchParams(location.search).get('loja')||(function(){try{return sessionStorage.getItem('dl_loja')}catch(e){return ''}})();
   S.cur=((S.lojas.find(function(l){return l.chave===q})||S.lojas[0])||{}).chave||null;
-  S.boot=1;return Promise.all(S.lojas.filter(function(x){return x.vinc}).map(function(x){return api('/gestao/acesso?chave='+encodeURIComponent(x.chave)).then(function(r){x.gestor=!!(r.ok&&r.j&&r.j.ok)})})).then(function(){shell();var h0=location.hash.slice(1);return load().then(function(){go(h0||(S.off?'automacoes':'visao'))})})})}
+  S.boot=1;return Promise.all(S.lojas.filter(function(x){return x.vinc}).map(function(x){return Promise.all([api('/gestao/acesso?chave='+encodeURIComponent(x.chave)),api('/pdv/estado?chave='+encodeURIComponent(x.chave))]).then(function(rr){var r=rr[0],q=rr[1],kp='dl_pdvok_'+x.chave;x.gestor=!!(r.ok&&r.j&&r.j.ok);if(q.status===0){try{x.pdv=localStorage.getItem(kp)==='1'}catch(e){x.pdv=false}}else{x.pdv=!!(q.ok&&q.j&&q.j.ok&&(q.j.perms||[]).length);try{localStorage.setItem(kp,x.pdv?'1':'0')}catch(e){}}})})).then(function(){shell();var h0=location.hash.slice(1);return load().then(function(){go(h0||((S.off||(loja()&&loja().vinc&&loja().pdv))?'automacoes':'visao'))})})})}
 /* ===== WORKFORCE =====
  Dados salvos no servidor (/wf/dados), um bloco por empresa. Escalas continuam protótipo. O servidor decide o papel (empregador/funcionário). Independente do MiHelp: avaliações públicas não entram aqui. */
 var WFV=['meutrabalho','ponto','avaliacoes','passaporte','config'];
@@ -975,6 +978,7 @@ var ICN={visao:'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y=
  estoque:'<path d="M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10"/>',
  relatorios:'<path d="M4 20V10M10 20V4M16 20v-7M2 20h20"/>',
  automacoes:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+ folha:'<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9v.01M18 15v.01"/>',
  meutrabalho:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 13h18"/>',
  escalas:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 13h3M13 13h3M8 17h3"/>',
  ponto:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
@@ -1136,7 +1140,7 @@ VIEWS.equipe=function(v){var l=loja();v.append(head('Equipe',l?l.nome:'','real')
   else{if(m.status==='aceito'&&!m.eu){var c=sel(CARGOS,m.cargo||'nenhum');c.setAttribute('aria-label','Cargo de '+m.nome);s.append(c,btn('Salvar cargo',function(){acao('/equipe/cargo',{id:m.id,cargo:c.value},'Cargo salvo.')}))}
    if(!m.eu||m.status!=='aceito')s.append(botao2x8('Remover','',function(){acao('/equipe/remover',{id:m.id},'Removido.')}))}
   r.append(s);p.append(r)});v.append(p);
- var c=h('div','panel'),tl=fl('Telefone da pessoa (com DDD)','tel',{maxLength:16}),fn=fl('Função (opcional)','text',{maxLength:30});c.append(h('h2',null,'Chamar alguém'),tl.l,fn.l,btn('Enviar convite',function(){acao('/equipe/convidar',{chave:l.chave,tel:tl.i.value,funcao:fn.i.value.trim()},'Se o telefone tiver conta, o convite aparece para a pessoa.')},'p'));v.append(c);
+ var c=h('div','panel'),tl=fl('Telefone da pessoa (com DDD)','tel',{maxLength:16}),fn=fl('Função (opcional) — ex.: Caixa, Repositor, Carregador, Logística, Estoque, RH','text',{maxLength:30});c.append(h('h2',null,'Chamar alguém'),tl.l,fn.l,btn('Enviar convite',function(){acao('/equipe/convidar',{chave:l.chave,tel:tl.i.value,funcao:fn.i.value.trim()},'Se o telefone tiver conta, o convite aparece para a pessoa.')},'p'));v.append(c);
  var t=h('div','panel'),tt=fl('Telefone de quem vai ficar com a loja','tel',{maxLength:16});t.append(h('h2',null,'Passar a loja para outra pessoa'));
  if(l.transferindoPara)t.append(h('div','note','Oferta enviada para '+l.transferindoPara+'. Esperando resposta.'),btn('Cancelar oferta',function(){acao('/estabelecimentos/transferir/responder',{id:l.transferId,aceitar:false},'Oferta cancelada.')}));
  else t.append(h('div','note','A pessoa precisa aceitar. Você deixa de ser dono.'),tt.l,botao2x8('Oferecer a loja','',function(){acao('/estabelecimentos/transferir',{chave:l.chave,tel:tt.i.value},'Se o telefone for de um Helper, a oferta aparece para ele.')}));v.append(t)};
@@ -1239,10 +1243,10 @@ VIEWS.financeiro=function(v){var l=loja();v.append(head('Financeiro',l?l.nome:''
 /* ===== Catálogo de módulos e personalização por atividade (rotas /org/config do Worker v21) =====
    Ativar ou ocultar um módulo só muda o que aparece na navegação. Quem pode usar o quê é decidido pelo servidor, por papel. */
 var ATIV={geral:['Geral / outro',['servicos','orcamentos','agenda','financeiro','estoque','clientes']],autonomo:['Profissional autônomo',['clientes','orcamentos','agenda','financeiro']],construcao:['Construção e reformas',['clientes','orcamentos','servicos','financeiro','estoque','equipe']],beleza:['Beleza e estética',['agenda','servicos','clientes','financeiro','estoque','equipe']],comercio:['Comércio e varejo',['estoque','financeiro','clientes','equipe']],oficina:['Oficina e manutenção',['orcamentos','clientes','estoque','financeiro','agenda']],alimentacao:['Alimentação (restaurante, lanchonete)',['estoque','financeiro','equipe','clientes']],saude:['Saúde e bem-estar',['agenda','clientes','servicos','financeiro']],escritorio:['Escritório e serviços',['clientes','orcamentos','agenda','financeiro','equipe']]};
-var MCAT={visao:{e:'real',core:1,dep:[]},studio:{e:'real',core:1,dep:[]},config:{e:'real',core:1,dep:[]},empresa:{e:'real',dep:[]},equipe:{e:'real',dep:['empresa']},clientes:{e:'parcial',dep:[]},servicos:{e:'real',dep:['empresa']},orcamentos:{e:'real',dep:['clientes']},agenda:{e:'real',dep:['servicos']},financeiro:{e:'real',dep:['empresa']},estoque:{e:'real',dep:['empresa']},relatorios:{e:'real',dep:['financeiro','estoque']},automacoes:{e:'proto',dep:[]},meutrabalho:{e:'parcial',dep:['equipe']},escalas:{e:'parcial',dep:['meutrabalho']},chat:{e:'parcial',dep:['meutrabalho']},ponto:{e:'parcial',dep:['meutrabalho']},avaliacoes:{e:'parcial',dep:['meutrabalho']},passaporte:{e:'parcial',dep:['meutrabalho']}};
+var MCAT={visao:{e:'real',core:1,dep:[]},studio:{e:'real',core:1,dep:[]},config:{e:'real',core:1,dep:[]},empresa:{e:'real',dep:[]},equipe:{e:'real',dep:['empresa']},clientes:{e:'parcial',dep:[]},servicos:{e:'real',dep:['empresa']},orcamentos:{e:'real',dep:['clientes']},agenda:{e:'real',dep:['servicos']},financeiro:{e:'real',dep:['empresa']},estoque:{e:'real',dep:['empresa']},relatorios:{e:'real',dep:['financeiro','estoque']},automacoes:{e:'proto',dep:[]},meutrabalho:{e:'parcial',dep:['equipe']},escalas:{e:'parcial',dep:['meutrabalho']},chat:{e:'parcial',dep:['meutrabalho']},ponto:{e:'parcial',dep:['meutrabalho']},avaliacoes:{e:'parcial',dep:['meutrabalho']},passaporte:{e:'parcial',dep:['meutrabalho']},folha:{e:'parcial',dep:['meutrabalho']}};
 function modNome(id){var n=id;MODS.forEach(function(g){g[1].forEach(function(m){if(m[0]===id)n=m[2]})});return n}
 function atalhosAtiv(){var a=ATIV[((S.cfg||{}).ativ||{}).p];if(!a)return[['financeiro','Financeiro'],['estoque','Estoque'],['equipe','Equipe'],['agenda','Agenda'],['servicos','Serviços'],['orcamentos','Orçamentos']];return a[1].slice(0,6).map(function(m){return[m,modNome(m)]})}
-function modOculto(id){if(id==='tutorial'||id==='app')return false;var l=loja();if(l&&l.vinc)return !(WFV.indexOf(id)>-1||id==='financeiro'||(l.gestor&&id==='estoque'));var m=S.cfg&&S.cfg.mods;return !!(m&&m[id]===0&&!(MCAT[id]&&MCAT[id].core))}
+function modOculto(id){if(id==='tutorial'||id==='app')return false;var l=loja();if(l&&l.vinc)return !(WFV.indexOf(id)>-1||id==='financeiro'||(l.gestor&&id==='estoque')||(l.pdv&&id==='automacoes'));var m=S.cfg&&S.cfg.mods;return !!(m&&m[id]===0&&!(MCAT[id]&&MCAT[id].core))}
 function aplicaNav(){var side=$('#side');if(!side)return;var ocultos=0;side.querySelectorAll('.nav').forEach(function(n){if(n.id==='mais'||n.id==='pwaBtn')return;var o=modOculto(n.dataset.v);if(o)ocultos++;n.style.display=o&&!S.maisMods?'none':'';n.style.opacity=o?'.55':''});
  var g=null,algum=0;Array.prototype.slice.call(side.children).concat([null]).forEach(function(e){if(!e||e.className==='grp'){if(g)g.style.display=algum?'':'none';g=e;algum=0}else if(e.className.indexOf('nav')>-1&&e.id!=='mais'&&e.style.display!=='none')algum=1});
  var b=$('#mais');if(b)b.remove();if(ocultos){b=h('button','nav');b.id='mais';b.append(icone('mais'),h('span',null,S.maisMods?'Esconder módulos extras':'Mais módulos ('+ocultos+')'));b.onclick=function(){S.maisMods=!S.maisMods;aplicaNav()};side.append(b)}}
@@ -1333,9 +1337,6 @@ VIEWS.app=function(v){
   if(!win)p.append(h('p','sub','Este computador não parece ser Windows. O app funciona só no Windows 10 ou 11.'))}
  var ol=h('ol');ol.style.cssText='padding-left:20px;line-height:1.8';
  ['Baixe e abra o arquivo Domin-Windows.exe. Se o Windows avisar "editor desconhecido", clique em Mais informações e depois em Executar assim mesmo.','Ele se instala sozinho e cria o atalho "Domin" na área de trabalho e no menu Iniciar. O Domin abre em janela própria.','Entre na sua conta, vá em Automações > Impressora e nota, escolha a impressora térmica e clique em Abrir gaveta.','Em outro computador, entre no labs, abra a aba Download e repita. Pronto: da próxima vez é só abrir o atalho "Domin".'].forEach(function(t){ol.append(h('li',null,t))});
- var DRIVERS=[['POS Printer Driver V8.2 (impressoras térmicas 80 mm, ESC/POS)','drivers/POS_Printer_Driver_Setup_V8_2.exe']];
- var dv=painel('Drivers da impressora');dv.append(h('p','sub','Se o Windows não mostrar a impressora térmica, instale o driver dela neste computador e depois escolha a impressora em Automações > Impressora e nota. Para outras marcas, use o driver do fabricante.'));
- DRIVERS.forEach(function(d){var r=h('div','li'),l=h('a','btn','⬇ Baixar');l.href=d[1];l.setAttribute('download','');r.append(h('span',null,d[0]),l);dv.append(r)});
  var q=painel('Como funciona');q.append(ol,h('p','sub','O app usa o Microsoft Edge que já vem no Windows (ou o Chrome), em janela só do Domin. O sistema continua online: as atualizações chegam sozinhas, sem baixar de novo, e a venda offline funciona como no site. Precisa do Windows 10 ou 11.'));
  var b=h('div','acts');b.append(btn('Ir para Impressora e nota',function(){try{PD.tab='imp'}catch(e){}go('automacoes')}));q.append(b);
  var m=painel('Personalizar para uma loja (marca própria)'),mn=fl('Nome da loja (nome do atalho e da janela)','text',{maxLength:30}),mc=fl('Cor principal (6 letras/números, ex.: ff6a00)','text',{maxLength:7,value:'2ea8ff'}),mf=document.createElement('input');mf.type='file';mf.accept='image/*';
@@ -1346,7 +1347,7 @@ VIEWS.app=function(v){
   var f=mf.files[0];if(!f)return fim(false);
   var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var cv=document.createElement('canvas');cv.width=cv.height=256;var x=cv.getContext('2d'),sc=Math.min(256/im.width,256/im.height),w=im.width*sc,hh=im.height*sc;x.drawImage(im,(256-w)/2,(256-hh)/2,w,hh);cv.toBlob(function(bl){baixa('logo.png',bl);fim(true)},'image/png')};im.onerror=function(){toast('Não consegui ler essa imagem.')};im.src=r.result};r.readAsDataURL(f)},'p');
  m.append(h('p','sub','Para cada loja que contratar: gere o marca.json (e o logo.png), coloque na mesma pasta do Domin-Windows.exe e entregue a pasta. O atalho, o ícone, o nome da janela e a cor do painel ficam com a cara da loja.'),mn.l,mc.l,lab('Logo da loja (PNG/JPG, de preferência quadrada)',mf),(function(){var d=h('div','acts');d.append(mb);return d})());
- v.append(p,dv,q,m)};
+ v.append(p,q,m)};
 
 VIEWS.tutorial=function(v){
  var l=loja(),wrap=h('div','tut');v.append(wrap);
@@ -1391,6 +1392,7 @@ VIEWS.tutorial=function(v){
   chat:'Canal geral, grupos e conversa direta com a gerência. Participa quem aceitou o convite da equipe.',
   ponto:'Marcações simuladas de entrada e saída, com pedido de correção. É um protótipo: não tem validade legal.',
   avaliacoes:'Avaliações internas e privadas da empresa, separadas das avaliações públicas do MiHelp, que nunca se misturam com estas. O indicador atual considera os últimos 18 meses; o histórico fica guardado.',
+  folha:'Salários, INSS, IRRF, FGTS e líquido de cada funcionário, com lançamento de horas extras e faltas, fechamento do mês, holerite e cópia para o Excel. Só o empregador vê.',
   passaporte:'Histórico profissional complementar, declarado pelo próprio trabalhador. Não substitui a Carteira de Trabalho Digital.',
   studio:'Escolha a atividade da empresa e ative ou desative módulos. Os essenciais ficam sempre ativos e alguns módulos dependem de outros.',
   config:'Ajustes gerais do Domin.'
@@ -1422,7 +1424,7 @@ VIEWS.tutorial=function(v){
   ['Posso esconder módulos que não uso?','Sim, em Personalização. Os essenciais não saem do menu.']].forEach(function(q){var d=h('details','mod'),s=h('summary',null,q[0]);d.append(s,h('p',null,q[1]));p5.append(d)});
  wrap.append(p5);
 };
-var go0=go;go=function(id){var l=loja();if(l&&l.vinc&&WFV.indexOf(id)<0&&id!=='financeiro'&&id!=='tutorial'&&!(l.gestor&&id==='estoque'))id='meutrabalho';if(WFV.indexOf(id)>-1&&id!=='config'&&S.view!==id&&!Store.n)delete Store.mem[S.cur];return go0(id)};
+var go0=go;go=function(id){var l=loja();if(l&&l.vinc&&WFV.indexOf(id)<0&&id!=='financeiro'&&id!=='tutorial'&&!(l.gestor&&id==='estoque')&&!(l.pdv&&id==='automacoes')&&id!=='novaempresa')id='meutrabalho';if(WFV.indexOf(id)>-1&&id!=='config'&&S.view!==id&&!Store.n)delete Store.mem[S.cur];return go0(id)};
 
 /* ===== v23: Primeiros passos (Visão geral) e Relatórios reais =====
    Só leem dados que o Domin já carrega (nenhuma rota nova no Worker). Quem pode ver o quê continua sendo decidido pelo servidor. */
@@ -1826,7 +1828,7 @@ VIEWS.chat=function(v){
  VIEWS.automacoes=function(v){var l=loja();v.append(head('Automações',l?l.nome:'','beta'));if(!l)return noLoja(v);
   var box=h('div');v.append(box);box.append(h('p','sub','Carregando…'));
   function carrega(){return api('/pdv/estado?chave='+encodeURIComponent(l.chave)).then(function(r){r=OFF.est(r);if(!(r.ok&&r.j&&r.j.ok)){box.textContent='';box.append(empty('Não foi possível abrir: '+((r.j&&r.j.erro)||'indisponível')+'. Se aparecer "rota não encontrada", o Worker v25 ainda não foi publicado.'));return}PD.E=r.j;OFF.refresh=carrega;desenha();OFF.sync(carrega)})}
-  function desenha(){var E=PD.E,ab=[['visao','Visão geral'],['pdv','Frente de caixa'],['caixa','Caixa'],['hist','Histórico'],['vale','Vale-funcionário']];ab.push(['imp','Impressora e nota']);if(E.nivel==='dono')ab.push(['perm','Permissões']);ab.push(['integ','Integrações e fiscal']);
+  function desenha(){var E=PD.E,ab=[['visao','Visão geral'],['pdv','Frente de caixa'],['caixa','Caixa'],['hist','Histórico'],['vale','Vale-funcionário']];ab.push(['imp','Impressora e nota']);if(E.nivel==='dono')ab.push(['perm','Permissões']);ab.push(['integ','Integrações e fiscal']);var PM={pdv:'vender',caixa:'caixa',vale:'vale'};ab=ab.filter(function(a){return PM[a[0]]?E.perms.indexOf(PM[a[0]])>-1:(a[0]==='integ'?E.nivel!=='op':true)});if(!ab.some(function(a){return a[0]===PD.tab}))PD.tab=ab[0][0];
    box.textContent='';var t=h('div','acts');ab.forEach(function(a){t.append(btn(a[1],function(){PD.tab=a[0];desenha()},PD.tab===a[0]?'p':''))});box.append(t);OFF.banner(box);var c=h('div');box.append(c);
    ({visao:aVisao,pdv:aPdv,caixa:aCaixa,hist:aHist,vale:aVale,perm:aPerm,integ:aInteg,imp:PR.aba}[PD.tab]||aVisao)(c,E)}
   function sem(c,p){if(PD.E.perms.indexOf(p)<0){c.append(empty('Você não tem permissão para esta área. Peça ao dono da empresa.'));return true}}
@@ -1836,8 +1838,9 @@ VIEWS.chat=function(v){
    c.append(g);if(E.abertos.length){var p=painel('Caixas abertos agora');E.abertos.forEach(function(a){p.append(h('div','li',a.term+' · '+a.nome+' · desde '+hm25(a.t)))});c.append(p)}
    if(!cx)c.append(empty('Nenhuma venda em andamento.',btn('Abrir caixa',function(){PD.tab='caixa';desenha()},'p')))}
   function aCaixa(c,E){if(sem(c,'caixa'))return;var cx=E.caixa;
-   if(!cx){var tm=fl('Terminal / caixa','text',{value:'Caixa 1',maxLength:30}),vi=fl('Dinheiro inicial (R$)','text',{inputMode:'decimal',value:'0'}),ob=fl('Observação','text',{maxLength:80}),rid=uid8(),b=btn('Abrir caixa',function(){b.disabled=true;pdPost('/pdv/caixa',{chave:l.chave,acao:'abrir',term:tm.i.value,valor:num8(vi.i.value),obs:ob.i.value,rid:rid},'Caixa aberto.').then(function(r){b.disabled=false;if(r)carrega()})},'p');
-    var p=painel('Abertura de caixa');p.append(tm.l,vi.l,ob.l,b);c.append(p);return}
+   if(!cx){var tm=fl('Qual caixa você vai usar hoje?','text',{value:OFF.ler('term','Caixa 1'),maxLength:30}),vi=fl('Dinheiro inicial (R$)','text',{inputMode:'decimal',value:'0'}),ob=fl('Observação','text',{maxLength:80}),rid=uid8(),b=btn('Abrir caixa',function(){b.disabled=true;pdPost('/pdv/caixa',{chave:l.chave,acao:'abrir',term:tm.i.value,valor:num8(vi.i.value),obs:ob.i.value,rid:rid},'Caixa aberto.').then(function(r){b.disabled=false;if(r){OFF.grava('term',tm.i.value);carrega()}})},'p');
+    var p=painel('Abertura de caixa');var dlt=document.createElement('datalist');dlt.id='dl_term';for(var ti=1;ti<=20;ti++)dlt.append(new Option('Caixa '+ti));tm.i.setAttribute('list','dl_term');
+    p.append(h('p','sub','Escolha o caixa onde você está hoje. Amanhã pode ser outro: o sistema mostra as suas entradas e saídas de dinheiro neste caixa.'),tm.l,vi.l,ob.l,b,dlt);c.append(p);return}
    var rs=cx.resumo,p=painel('Caixa '+cx.term+' · aberto por '+cx.nome),tb=h('div');
    [['Abertura',cx.ini],['Dinheiro recebido',rs.dinheiro],['Reforços',rs.reforco],['Quitações de vale (dinheiro)',rs.quitDin],['Sangrias',-rs.sangria],['Estornos em dinheiro',-rs.estDin],['Esperado em dinheiro',rs.esperado],['Pix (manual)',rs.pix],['Débito (manual)',rs.debito],['Crédito (manual)',rs.credito],['Vale (a receber)',rs.vale]].forEach(function(x){tb.append(h('div','li',x[0]+': '+R(x[1])))});p.append(tb);c.append(p);
    var q=painel('Sangria ou reforço'),vl=fl('Valor (R$)','text',{inputMode:'decimal'}),ob2=fl('Motivo','text',{maxLength:80}),mv=sel([['sangria','Sangria (retirada)'],['reforco','Reforço (entrada)']]);
@@ -1880,7 +1883,9 @@ VIEWS.chat=function(v){
     if(E.nivel!=='op')s.append(btn(cf?'Alterar limite':'Autorizar',function(){var v2=prompt('Limite do vale (R$):',cf?cf.limite:'100');if(v2===null)return;pdPost('/pdv/vale',{chave:l.chave,acao:'cfg',quem:m.quem,limite:num8(v2),ativo:true},'Salvo.').then(function(x){if(x)carrega()})}),cf?btn(cf.ativo?'Desativar':'Ativar',function(){pdPost('/pdv/vale',{chave:l.chave,acao:'cfg',quem:m.quem,limite:cf.limite,ativo:!cf.ativo},'Salvo.').then(function(x){if(x)carrega()})}):h('span'));
     if(cf&&cf.saldo>0&&E.perms.indexOf('vale')>-1)s.append(btn('Receber quitação',function(){var v2=prompt('Valor recebido (R$) — saldo '+R(cf.saldo)+':');if(!v2)return;var f2=confirm('OK = dinheiro · Cancelar = Pix (manual)')?'dinheiro':'pix';pdPost('/pdv/vale',{chave:l.chave,acao:'quitar',quem:m.quem,valor:num8(v2),forma:f2,rid:uid8()},'Quitação registrada.').then(function(x){if(x)carrega()})}));r.append(s);p.append(r)});
    p.append(h('p','sub','O vale é uma venda a receber: baixa o estoque, mas só entra como receita no Financeiro quando for quitado. Desconto em folha e regras trabalhistas não são calculados aqui: defina a política com seu contador.'));c.append(p)}
-  function aPerm(c,E){var p=painel('Permissões por pessoa'),P={};E.membros.forEach(function(m){if(m.dono)return;P[m.quem]=(E.perm[m.quem]||[]).slice();var r=h('div','li');r.append(h('b',null,m.nome+' '));[['vender','Vender'],['desconto','Desconto'],['cancelar','Cancelar'],['caixa','Caixa'],['vale','Vale']].forEach(function(k){var lb=h('label'),ck=document.createElement('input');ck.type='checkbox';ck.checked=P[m.quem].indexOf(k[0])>-1;ck.onchange=function(){var a=P[m.quem],i=a.indexOf(k[0]);if(ck.checked&&i<0)a.push(k[0]);if(!ck.checked&&i>-1)a.splice(i,1)};lb.append(ck,' '+k[1]+' ');r.append(lb)});p.append(r)});
+  function aPerm(c,E){var p=painel('Permissões por pessoa'),P={};E.membros.forEach(function(m){if(m.dono)return;P[m.quem]=(E.perm[m.quem]||[]).slice();var r=h('div','li'),cks=[];r.append(h('b',null,m.nome+' '));[['vender','Vender'],['desconto','Desconto'],['cancelar','Cancelar'],['caixa','Caixa'],['vale','Vale']].forEach(function(k){var lb=h('label'),ck=document.createElement('input');ck.type='checkbox';ck.checked=P[m.quem].indexOf(k[0])>-1;cks.push([k[0],ck]);ck.onchange=function(){var a=P[m.quem],i=a.indexOf(k[0]);if(ck.checked&&i<0)a.push(k[0]);if(!ck.checked&&i>-1)a.splice(i,1)};lb.append(ck,' '+k[1]+' ');r.append(lb)});
+   var ms=sel([['','Modelo de função…'],['caixa','Caixa (vender + caixa)'],['atend','Atendente (só vender)'],['ger','Gerente (tudo)'],['nada','Repositor / carregador / logística (sem caixa)']],'');ms.setAttribute('aria-label','Modelo de função de '+m.nome);
+   ms.onchange=function(){var set={caixa:['vender','caixa'],atend:['vender'],ger:['vender','desconto','cancelar','caixa','vale'],nada:[]}[ms.value];if(!set)return;P[m.quem]=set.slice();cks.forEach(function(x){x[1].checked=set.indexOf(x[0])>-1})};r.append(ms);p.append(r)});
    var dm=fl('Desconto máximo do operador (%) — acima disso só gestor/dono','number',{min:0,max:100,value:E.cfg.descMax});p.append(dm.l,btn('Salvar permissões',function(){pdPost('/pdv/config',{chave:l.chave,perm:P,descMax:+dm.i.value},'Salvo.').then(function(x){if(x)carrega()})},'p'),h('p','sub','Quem tem cargo "gestor" na equipe já pode tudo, exceto mudar permissões. As permissões são conferidas no servidor.'));c.append(p)}
   function aInteg(c){var p=painel('Integrações e documentos fiscais'),L=[['Pix com confirmação automática','Não configurado','Precisa de provedor (ex.: Mercado Pago, que o Domin já usa nos Pix do MiHelp) + webhook + vínculo à venda.'],['Cartão / TEF / maquininha','Não configurado','Precisa de provedor/TEF contratado e comprovado tecnicamente. Hoje é registro manual.'],['NFC-e / NF-e / cupom fiscal','Não configurado','Precisa de provedor fiscal, certificado digital, séries, homologação. Nenhum documento fiscal é emitido por este sistema.'],['Leitor de código de barras','Ativo','Leitor USB que "digita" funciona na frente de caixa e no estoque (campo de código de barras do produto).'],['Impressora de recibo / gaveta','Parcial','Impressão pelo navegador ou direto (ESC/POS), abertura de gaveta e nota personalizável. Configure em Impressora e nota. A nota não é fiscal.']];
    L.forEach(function(x){var r=h('div','li');r.append(h('span','chip demo',x[1]),h('span',null,' '+x[0]+' — '+x[2]));p.append(r)});c.append(p)}
@@ -1980,6 +1985,95 @@ VIEWS.chat=function(v){
     ov.remove();document.body.style.overflow='';PD.fs=false;if(PD.E)desenha()}
    pinta();bq.focus()}
   carrega()};
+
+/* ===== FOLHA DE PAGAMENTO =====
+ Funcionários vêm do cadastro do Workforce (Meu Trabalho). Salário, dependentes, lançamentos e meses fechados
+ ficam no servidor (worker v30, rota /folha/dados), só para o empregador. Tabelas de referência: 2026. */
+var FOLHA={mes:hoje().slice(0,7),mem:{},q:Promise.resolve(),tm:0,
+ n:function(x){var n=parseFloat(String(x==null?'':x).replace(',','.'));return isFinite(n)&&n>0?n:0},
+ r2:function(x){return Math.round(x*100+1e-6)/100},
+ FX:[[1621,.075],[2902.84,.09],[4354.27,.12],[8475.55,.14]],
+ norm:function(o){o=o&&typeof o==='object'?o:{};return{v:1,cad:o.cad||{},mov:o.mov||{},fech:o.fech||{}}},
+ cur:function(){return FOLHA.mem[S.cur]},
+ st:function(t){var e=$('#fst');if(e)e.textContent=t},
+ post:function(k,d,base){return fetch(API+'/folha/dados',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+tk()},body:JSON.stringify({chave:k,dados:d,base:base})}).then(function(r){return r.json().catch(function(){return{}}).then(function(j){return{ok:r.ok,j:j}})}).catch(function(){return{ok:false,j:null}})}};
+FOLHA.carregar=function(){var k=S.cur;return api('/folha/dados?chave='+encodeURIComponent(k)).then(function(r){
+ if(r.ok&&r.j&&r.j.ok){var d=FOLHA.norm(r.j.dados),m=FOLHA.mem[k]={d:d,ts:Number(r.j.ts)||0},lk='dl_folha_'+k,loc=null;
+  try{loc=JSON.parse(localStorage.getItem(lk)||'null')}catch(e){}
+  if(loc&&loc.v===1&&!Object.keys(d.cad).length&&!Object.keys(d.mov).length&&!Object.keys(d.fech).length){m.d=FOLHA.norm(loc);m.dirty=1;m.migra=lk;FOLHA.push()} /* folha antiga deste aparelho sobe uma vez */
+ }else FOLHA.mem[k]={off:1,erro:(r.j&&r.j.erro)||'indisponível'}})};
+FOLHA.sv=function(imed){var m=FOLHA.cur();if(!m||m.off)return Promise.resolve();m.dirty=1;FOLHA.st('Alterações pendentes…');if(imed)return FOLHA.push();clearTimeout(FOLHA.tm);FOLHA.tm=setTimeout(FOLHA.push,900);return Promise.resolve()};
+FOLHA.push=function(){clearTimeout(FOLHA.tm);var k=S.cur;
+ FOLHA.q=FOLHA.q.then(function(){var m=FOLHA.mem[k];if(!m||m.off||!m.dirty)return;m.dirty=0;FOLHA.st('Salvando…');
+  return FOLHA.post(k,m.d,m.ts).then(function(r){
+   if(r.ok&&r.j&&r.j.ok){m.ts=r.j.ts;
+    if(m.migra){try{localStorage.setItem('dl_folha_bak_'+k,localStorage.getItem(m.migra)||'');localStorage.removeItem(m.migra)}catch(e){}delete m.migra;toast('A folha que estava neste aparelho foi enviada para o servidor.')}
+    FOLHA.st(m.dirty?'Alterações pendentes…':'Salvo no servidor')}
+   else if(r.j&&r.j.erro){toast(r.j.erro);delete FOLHA.mem[k];if(S.view==='folha'&&S.cur===k)re()} /* recusado pelo servidor (outro aparelho gravou antes): recarrega a versão atual */
+   else{m.dirty=1;FOLHA.st('Sem conexão. Tentando de novo…');setTimeout(function(){FOLHA.push()},6000)}})});
+ return FOLHA.q};
+FOLHA.inss=function(b){var t=0,p=0;FOLHA.FX.forEach(function(f){if(b>p)t+=(Math.min(b,f[0])-p)*f[1];p=f[0]});return FOLHA.r2(t)};
+FOLHA.tab=function(b){if(b<=2428.8)return 0;var v=b<=2826.65?b*.075-182.16:b<=3751.05?b*.15-394.16:b<=4664.68?b*.225-675.49:b*.275-908.73;return Math.max(0,v)};
+FOLHA.irrf=function(bruto,ins,dep){var imp=Math.min(FOLHA.tab(bruto-ins-dep*189.59),FOLHA.tab(bruto-607.2)),red=0;
+ if(bruto<=5000)red=Math.min(imp,312.89);else if(bruto<=7350)red=Math.max(0,978.62-0.133145*bruto);
+ return FOLHA.r2(Math.max(0,imp-red))};
+FOLHA.calc=function(f,c,m){c=c||{};m=m||{};var n=FOLHA.n,r2=FOLHA.r2,sal=n(c.sal),dep=Math.floor(n(c.dep)),he50=n(m.he50),he100=n(m.he100),fal=n(m.fal),pr=n(m.pr),ds=n(m.ds),hora=sal/220,
+ vHE=r2(he50*hora*1.5+he100*hora*2),vF=r2(fal*sal/30),bruto=r2(sal+vHE+pr-vF),ins=FOLHA.inss(bruto),ir=FOLHA.irrf(bruto,ins,dep),
+ vt=c.vt?r2(Math.min(sal*.06,Math.max(0,bruto))):0;
+ return{id:f.id,nome:f.nome,cargo:f.cargo||'',sal:sal,dep:dep,vtopt:!!c.vt,he50:he50,he100:he100,fal:fal,pr:pr,ds:ds,vHE:vHE,vF:vF,bruto:bruto,ins:ins,ir:ir,vt:vt,fgts:r2(bruto*.08),liq:r2(bruto-ins-ir-vt-ds)}};
+FOLHA.rows=function(d,o,mes){if(o.fech[mes])return o.fech[mes];var mv=o.mov[mes]||{};return d.funcs.map(function(f){return FOLHA.calc(f,o.cad[f.id],mv[f.id])})};
+FOLHA.tot=function(a){var t={bruto:0,ins:0,ir:0,vt:0,ds:0,fgts:0,liq:0};a.forEach(function(x){for(var k in t)t[k]=FOLHA.r2(t[k]+x[k])});return t};
+FOLHA.copia=function(box,a){var L=[['Nome','Cargo','Salário base','Horas extras','Faltas','Outros proventos','Bruto','INSS','IRRF','V.T.','Outros descontos','Líquido','FGTS']];
+ a.forEach(function(x){L.push([x.nome,x.cargo,x.sal,x.vHE,x.vF,x.pr,x.bruto,x.ins,x.ir,x.vt,x.ds,x.liq,x.fgts])});
+ var txt=L.map(function(l){return l.map(function(c){return typeof c==='number'?String(c).replace('.',','):c}).join('\t')}).join('\n');
+ box.textContent='';var p=h('div','panel'),ta=h('textarea');p.append(h('h2',null,'Cole no Excel'));ta.readOnly=true;ta.rows=6;ta.style.cssText='width:100%;background:var(--sf2);color:var(--tx);border:1px solid var(--ln);border-radius:8px;padding:8px;font:12px/1.4 ui-monospace,monospace';ta.value=txt;p.append(ta);box.append(p);ta.focus();ta.select();
+ try{navigator.clipboard.writeText(txt).then(function(){toast('Copiado. É só colar no Excel.')},function(){toast('Selecione o texto e copie.')})}catch(e){toast('Selecione o texto e copie.')}};
+FOLHA.hol=function(box,x,mes){box.textContent='';var w=h('div','fphol'),t=h('table'),b=h('tbody');
+ w.append(h('h3',null,'Recibo de pagamento · '+mes.split('-').reverse().join('/')),h('div',null,x.nome+(x.cargo?' · '+x.cargo:'')));
+ var hd=h('tr');['Descrição','Proventos','Descontos'].forEach(function(s){hd.append(h('th',null,s))});t.append(h('thead')).firstChild.append(hd);
+ function ln(d,p,dc){var r=h('tr');r.append(h('td',null,d),h('td',null,p?R(p):''),h('td',null,dc?R(dc):''));b.append(r)}
+ ln('Salário base',x.sal,0);if(x.vHE)ln('Horas extras',x.vHE,0);if(x.pr)ln('Outros proventos',x.pr,0);if(x.vF)ln('Faltas',0,x.vF);
+ ln('INSS',0,x.ins);if(x.ir)ln('IRRF',0,x.ir);if(x.vt)ln('Vale-transporte (6%)',0,x.vt);if(x.ds)ln('Outros descontos',0,x.ds);
+ t.append(b);w.append(t,h('p',null,'Líquido a receber: '+R(x.liq)),h('div','tg','FGTS depositado pela empresa: '+R(x.fgts)));
+ var ac=h('div','acts');ac.append(btn('Imprimir',function(){document.body.classList.add('imp-fphol');window.print()},'p'),btn('Fechar',function(){box.textContent=''}));
+ w.lastChild.style.marginTop='6px';w.append(ac);box.append(w);w.scrollIntoView({behavior:'smooth'})};
+window.addEventListener('afterprint',function(){document.body.classList.remove('imp-fphol')});
+VIEWS.folha=function(v){
+ if(!wfHead(v,'Folha de pagamento','Salários, descontos e fechamento mensal, sem somar à mão.','Cálculo de referência com as tabelas de 2026: INSS progressivo, IRRF com redutor da Lei 15.270/2025 e FGTS de 8%. Não inclui DSR sobre faltas, férias, 13º nem encargos patronais; confira com a contabilidade antes de pagar. Salários e lançamentos ficam salvos no servidor, visíveis só para o empregador.'))return;
+ if(ROLE!=='empregador'){v.append(empty('A folha de pagamento é visível só para o empregador desta empresa.'));return}
+ var d=Store.get();
+ if(!d.funcs.length){v.append(empty('Cadastre os funcionários em Meu Trabalho primeiro. Eles aparecem aqui automaticamente.',btn('Ir para Meu Trabalho',function(){go('meutrabalho')},'p')));return}
+ var c=FOLHA.cur();
+ if(!c){v.append(empty('Carregando a folha…'));FOLHA.carregar().then(function(){if(S.view==='folha'&&$('#view'))re()});return}
+ if(c.off){v.append(empty('Não foi possível carregar a folha: '+c.erro+'.'),btn('Tentar de novo',function(){delete FOLHA.mem[S.cur];re()}));return}
+ var o=c.d,mes=FOLHA.mes,fc=!!o.fech[mes];if(!o.mov[mes])o.mov[mes]={};var mv=o.mov[mes];
+ var top=h('div','panel'),ac=h('div','acts'),lb=h('label','fld','Mês de competência'),mi=h('input'),box=h('div');
+ mi.type='month';mi.value=mes;mi.onchange=function(){if(mi.value){FOLHA.mes=mi.value;re()}};lb.append(mi);ac.append(lb);
+ if(fc)ac.append(h('span','chip ok','mês fechado'),btn('Reabrir mês',function(){delete o.fech[mes];FOLHA.sv(1).then(re)}));
+ else ac.append(btn('Fechar folha do mês',function(){o.fech[mes]=FOLHA.rows(d,o,mes);FOLHA.sv(1).then(function(){toast('Mês fechado. Os valores ficam congelados.');re()})},'p'));
+ ac.append(btn('Copiar para Excel',function(){FOLHA.copia(box,FOLHA.rows(d,o,mes))}));var stt=h('span','tg',c.ts?'Salvo no servidor':'Ainda não salvo');stt.id='fst';ac.append(stt);top.append(ac);v.append(top);
+ var cards=h('div','grid');v.append(cards);
+ var rows=FOLHA.rows(d,o,mes),pn=h('div','panel'),wr=h('div'),tb=h('table','fp'),hd=h('tr'),bd=h('tbody'),ft=h('tr'),cells=[],fcell={};
+ wr.style.overflowX='auto';
+ ['Funcionário','Salário base','Dep.','V.T.','H.E. 50% (h)','H.E. 100% (h)','Faltas (dias)','Outros proventos','Outros descontos','Bruto','INSS','IRRF','V.T.','Líquido',''].forEach(function(s){hd.append(h('th',null,s))});
+ tb.append(h('thead'));tb.firstChild.append(hd);
+ function inp(val,lab,fn){var i=h('input');i.inputMode='decimal';i.placeholder='0';i.value=val||'';i.disabled=fc;i.setAttribute('aria-label',lab);i.oninput=function(){fn(i.value)};return i}
+ function td(x){var c=h('td');if(x!=null){if(typeof x==='object')c.append(x);else c.textContent=x}return c}
+ function upd(){if(fc)return;var a=FOLHA.rows(d,o,mes),t=FOLHA.tot(a);
+  a.forEach(function(x,i){var c=cells[i];c.bruto.textContent=R(x.bruto);c.ins.textContent=R(x.ins);c.ir.textContent=R(x.ir);c.vt.textContent=R(x.vt);c.liq.textContent=R(x.liq)});paint(a,t)}
+ function paint(a,t){cards.textContent='';cards.append(card('Total bruto',R(t.bruto),a.length+' funcionário(s)'),card('Descontos',R(FOLHA.r2(t.ins+t.ir+t.vt+t.ds)),'INSS, IRRF, V.T. e outros'),card('Líquido a pagar',R(t.liq),'valor da folha'),card('FGTS a recolher',R(t.fgts),'8% sobre o bruto'),card('Custo total estimado',R(FOLHA.r2(t.bruto+t.fgts)),'bruto + FGTS'));
+  fcell.bruto.textContent=R(t.bruto);fcell.ins.textContent=R(t.ins);fcell.ir.textContent=R(t.ir);fcell.vt.textContent=R(t.vt);fcell.liq.textContent=R(t.liq)}
+ rows.forEach(function(x){var id=x.id,tr=h('tr'),c=function(){return o.cad[id]=o.cad[id]||{}},m=function(){return mv[id]=mv[id]||{}},sv=function(){FOLHA.sv();upd()};
+  var nm=h('div',null,x.nome);nm.append(h('div','tg',x.cargo||''));
+  var vs=h('select');vs.append(new Option('Não','0'),new Option('Sim','1'));vs.value=x.vtopt?'1':'0';vs.disabled=fc;vs.setAttribute('aria-label','Vale-transporte de '+x.nome);vs.onchange=function(){c().vt=vs.value==='1';sv()};
+  tr.append(td(nm),td(inp(x.sal,'Salário de '+x.nome,function(s){c().sal=s;sv()})),td(inp(x.dep,'Dependentes de '+x.nome,function(s){c().dep=s;sv()})),td(vs),
+   td(inp(x.he50,'Horas extras 50% de '+x.nome,function(s){m().he50=s;sv()})),td(inp(x.he100,'Horas extras 100% de '+x.nome,function(s){m().he100=s;sv()})),
+   td(inp(x.fal,'Faltas de '+x.nome,function(s){m().fal=s;sv()})),td(inp(x.pr,'Outros proventos de '+x.nome,function(s){m().pr=s;sv()})),td(inp(x.ds,'Outros descontos de '+x.nome,function(s){m().ds=s;sv()})));
+  var q={bruto:td(),ins:td(),ir:td(),vt:td(),liq:td()};cells.push(q);tr.append(q.bruto,q.ins,q.ir,q.vt,q.liq,td(btn('Holerite',function(){FOLHA.hol(box,FOLHA.rows(d,o,mes).find(function(r){return r.id===id})||x,mes)})));bd.append(tr)});
+ ft.append(td('Total'));for(var i=0;i<8;i++)ft.append(td());['bruto','ins','ir','vt','liq'].forEach(function(k){fcell[k]=td();ft.append(fcell[k])});ft.append(td());
+ tb.append(bd);var tf=h('tfoot');tf.append(ft);tb.append(tf);wr.append(tb);pn.append(wr);v.append(pn,box);
+ cells.forEach(function(q,i){var x=rows[i];q.bruto.textContent=R(x.bruto);q.ins.textContent=R(x.ins);q.ir.textContent=R(x.ir);q.vt.textContent=R(x.vt);q.liq.textContent=R(x.liq)});
+ paint(rows,FOLHA.tot(rows))};
 
 boot();
 })();
