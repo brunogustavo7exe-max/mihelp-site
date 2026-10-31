@@ -410,13 +410,13 @@ function go(id){S.view=id;try{history.replaceState(null,'','#'+id)}catch(e){}
 function boot(){
  if(!tk())return gate();
  var r=$('#root');r.append(h('div','gate','Carregando…'));
- Promise.all([api('/perfil/meu'),api('/conta/eu')]).then(function(a){
+ Promise.all([api('/perfil/meu'),api('/conta/eu')]).then(OFF.boot).then(function(a){
   if(a[0].status===401||a[1].status===401)return gate('Sua sessão terminou. Entre de novo.');
   if(!a[0].ok)return gate('Não foi possível carregar agora: '+((a[0].j&&a[0].j.erro)||'sem conexão')+'.');
   S.lojas=a[0].j.lojas||[];S.conv=a[0].j.convites||[];S.transf=a[0].j.transferencias||[];S.cat={tipos:a[0].j.tipos||[],cidades:cidMinha(a[0].j.cidades||{})};(a[0].j.vinculos||[]).forEach(function(x){if(x.status==='aceito'&&!S.lojas.some(function(l){return l.chave===x.est}))S.lojas.push({chave:x.est,nome:(x.estNome||x.est)+' (como funcionário)',vinc:1,equipe:[],servicos:[]})});S.nome=(a[1].j&&a[1].j.nome)||'';
   var q=new URLSearchParams(location.search).get('loja')||(function(){try{return sessionStorage.getItem('dl_loja')}catch(e){return ''}})();
   S.cur=((S.lojas.find(function(l){return l.chave===q})||S.lojas[0])||{}).chave||null;
-  S.boot=1;return Promise.all(S.lojas.filter(function(x){return x.vinc}).map(function(x){return api('/gestao/acesso?chave='+encodeURIComponent(x.chave)).then(function(r){x.gestor=!!(r.ok&&r.j&&r.j.ok)})})).then(function(){shell();var h0=location.hash.slice(1);return load().then(function(){go(h0||'visao')})})})}
+  S.boot=1;return Promise.all(S.lojas.filter(function(x){return x.vinc}).map(function(x){return api('/gestao/acesso?chave='+encodeURIComponent(x.chave)).then(function(r){x.gestor=!!(r.ok&&r.j&&r.j.ok)})})).then(function(){shell();var h0=location.hash.slice(1);return load().then(function(){go(h0||(S.off?'automacoes':'visao'))})})})}
 /* ===== WORKFORCE =====
  Dados salvos no servidor (/wf/dados), um bloco por empresa. Escalas continuam protótipo. O servidor decide o papel (empregador/funcionário). Independente do MiHelp: avaliações públicas não entram aqui. */
 var WFV=['meutrabalho','ponto','avaliacoes','passaporte','config'];
@@ -1558,8 +1558,63 @@ VIEWS.chat=function(v){
  const PD={tab:'visao',cart:[],pag:[],rid:uid8(),desc:'',mot:'',q:'',vale:'',vend:''};
  const FP={dinheiro:'Dinheiro',pix:'Pix (manual)',debito:'Débito (manual)',credito:'Crédito (manual)',vale:'Vale-funcionário'};
  const hm25=function(t){var d=new Date(t);return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
- function pdPost(p,b,ok){return chama8(p,b).then(function(r){if(r.ok&&r.j&&r.j.ok){toast(ok||'Feito.');return r}toast((r.j&&r.j.erro)||'Não foi possível.');return null})}
+ function pdPost(p,b,ok){if(p==='/pdv/caixa'&&b.acao==='fechar'&&OFF.fila().length){toast('Envie as vendas feitas offline antes de fechar o caixa.');return Promise.resolve(null)}return (p==='/pdv/venda'?OFF.venda(b):chama8(p,b)).then(function(r){if(r.ok&&r.j&&r.j.ok){toast(ok||'Feito.');return r}toast((r.j&&r.j.erro)||'Não foi possível.');return null})}
  /* ===== v30: impressora térmica, gaveta e nota personalizável (a configuração fica guardada neste computador, por empresa) ===== */
+ /* ===== v31: PDV offline (web). Vendas sem internet ficam numa fila neste computador e são enviadas ao servidor quando a conexão volta.
+    O servidor já ignora vendas repetidas (mesmo "rid"), então reenviar nunca duplica. ===== */
+ const OFF={busy:0,refresh:null};
+ OFF.u=function(){try{return JSON.parse(atob(tk().split('.')[0].replace(/-/g,'+').replace(/_/g,'/'))).t||''}catch(e){return ''}};
+ OFF.k=function(w){var l=loja();return 'dl_off_'+w+'_'+(l?l.chave:'x')+'_'+OFF.u()};
+ OFF.ler=function(w,pad){try{var v=JSON.parse(localStorage.getItem(OFF.k(w))||'null');return v==null?pad:v}catch(e){return pad}};
+ OFF.grava=function(w,v){try{localStorage.setItem(OFF.k(w),JSON.stringify(v));return true}catch(e){return false}};
+ OFF.fila=function(){return OFF.ler('fila',[])};
+ OFF.guardaE=function(E){var c=Object.assign({},E,{aud:[],caixas:[],vendas:(E.vendas||[]).slice(0,30)});OFF.grava('estado',c)};
+ /* abrir o app sem internet: usa o perfil e a empresa da última vez que entrou online */
+ OFF.boot=function(a){var K='dl_boot_'+OFF.u();
+  if(a[0].status===0&&a[1].status===0){try{var c=JSON.parse(localStorage.getItem(K)||'null');if(c){S.off=1;return[{ok:true,status:200,j:c.p},{ok:true,status:200,j:c.e}]}}catch(e){}}
+  else if(a[0].ok&&a[1].ok){try{localStorage.setItem(K,JSON.stringify({p:a[0].j,e:a[1].j}))}catch(e){}}
+  return a};
+ /* estado do PDV: online guarda uma cópia; sem internet usa a última cópia */
+ OFF.est=function(r){if(r.ok&&r.j&&r.j.ok){PD.off=0;OFF.guardaE(r.j);return r}
+  if(r.status===0){var c=OFF.ler('estado',null);if(c&&c.caixa){PD.off=1;return{ok:true,status:200,j:c}}}return r};
+ OFF.post=function(body){var c=new AbortController(),t=setTimeout(function(){c.abort()},8000);
+  return fetch(API+'/pdv/venda',{method:'POST',signal:c.signal,headers:{'content-type':'application/json',authorization:'Bearer '+tk()},body:JSON.stringify(body)}).then(function(r){clearTimeout(t);if(r.status===401)expira();return r.json().catch(function(){return{}}).then(function(j){return{ok:r.ok,status:r.status,j:j}})}).catch(function(){clearTimeout(t);return{ok:false,status:0,j:{erro:'sem conexão'}}})};
+ OFF.venda=function(body){return OFF.post(body).then(function(r){return r.status!==0?r:OFF.enfileira(body)})};
+ OFF.enfileira=function(b){var E=PD.E,er=function(m){return{ok:false,status:0,j:{erro:m}}};
+  if(!E||!E.caixa)return er('Sem internet e sem caixa aberto guardado neste computador. Conecte para abrir o caixa.');
+  var fila=OFF.fila();if(fila.length>=200)return er('Fila offline cheia (200 vendas). Conecte para enviar.');
+  if((b.pag||[]).some(function(p){return p.forma==='vale'}))return er('Sem internet: vale-funcionário precisa de conexão. Use outra forma de pagamento.');
+  var itens=[],bruto=0,usado={};
+  for(var i=0;i<(b.itens||[]).length;i++){var it=b.itens[i],p=E.produtos.find(function(x){return x.id===it.id}),q=Math.floor(Number(it.qtd));
+   if(!p||!(q>=1))return er('Produto inválido no carrinho.');usado[p.id]=(usado[p.id]||0)+q;if(usado[p.id]>(Number(p.qtd)||0))return er('Estoque insuficiente de '+p.nome+' (tem '+p.qtd+').');
+   itens.push({id:p.id,nome:p.nome,qtd:q,pu:p.venda});bruto=Math.round((bruto+q*p.venda)*100)/100}
+  var desc=Math.round((Number(b.desconto)||0)*100)/100,total=Math.round((bruto-desc)*100)/100,troco=0,din=0;
+  (b.pag||[]).forEach(function(p){if(p.forma==='dinheiro'){din+=p.valor;troco+=Math.max(0,(Number(p.rec)||p.valor)-p.valor)}});
+  var seq=OFF.ler('seq',0)+1;OFF.grava('seq',seq);
+  var v={id:'off'+b.rid,n:'OFF'+seq,off:1,t:Date.now(),opNome:E.caixa.nome||'',itens:itens,bruto:bruto,desc:desc,motivo:b.motivo||'',total:total,pag:b.pag,troco:Math.round(troco*100)/100,st:'concluida'};
+  fila.push({rid:b.rid,body:b,local:v,t:v.t,st:'pend',msg:''});if(!OFF.grava('fila',fila))return er('Sem espaço para guardar a venda offline.');
+  itens.forEach(function(i){var p=E.produtos.find(function(x){return x.id===i.id});p.qtd-=i.qtd});
+  var rs=E.caixa.resumo;if(rs){rs.vendas++;(b.pag||[]).forEach(function(p){rs[p.forma]=(rs[p.forma]||0)+p.valor});rs.esperado=Math.round((rs.esperado+din)*100)/100}
+  OFF.guardaE(E);return{ok:true,status:200,j:{ok:true,venda:v,off:1}}};
+ /* envia a fila em ordem; para na primeira falha de conexão */
+ OFF.sync=function(cb){if(OFF.busy)return Promise.resolve();if(!OFF.fila().some(function(x){return x.st==='pend'}))return Promise.resolve();OFF.busy=1;var ok=0,er=0;
+  function fim(){OFF.busy=0;if(ok)toast(ok+' venda(s) feita(s) offline enviada(s).');if(er)toast(er+' venda(s) offline precisam de atenção.');if((ok||er)&&cb)cb();return Promise.resolve()}
+  function prox(){var x=OFF.fila().find(function(y){return y.st==='pend'});if(!x)return fim();
+   return OFF.post(x.body).then(function(r){if(r.status===0)return fim();var q=OFF.fila(),i=q.findIndex(function(y){return y.rid===x.rid});
+    if(i>-1){if(r.ok&&r.j&&r.j.ok){q.splice(i,1);ok++}else{q[i].st='erro';q[i].msg=(r.j&&r.j.erro)||'recusada';er++}OFF.grava('fila',q)}return prox()})}
+  return prox()};
+ OFF.banner=function(box){var q=OFF.fila();if(!PD.off&&!q.length)return;var p=h('div','panel'),a=h('div','acts'),pend=q.filter(function(x){return x.st==='pend'}).length;a.style.marginTop='0';
+  if(PD.off){a.append(h('span','chip wr','Sem internet'),btn('Tentar reconectar',function(){if(OFF.refresh)OFF.refresh()}))}
+  if(pend)a.append(h('span','chip wr',pend+' venda(s) aguardando envio'),btn('Enviar agora',function(){OFF.sync(OFF.refresh)}));
+  if(a.childNodes.length)p.append(a);
+  if(PD.off)p.append(h('p','sub','Vendendo offline com os preços e o estoque da última vez que ficou online. Dinheiro, Pix e cartão (manual) funcionam. Vale-funcionário, cancelamento, abrir/fechar caixa e sangria precisam de internet.'));
+  q.filter(function(x){return x.st==='erro'}).forEach(function(x){var r=h('div','li'),s=h('span','acts');r.append(h('span',null,x.local.n+' · '+R(x.local.total)+' · recusada pelo servidor: '+x.msg));
+   s.append(btn('Tentar de novo',function(){var f=OFF.fila(),y=f.find(function(z){return z.rid===x.rid});if(y){y.st='pend';y.msg=''}OFF.grava('fila',f);OFF.sync(OFF.refresh)}),btn('Descartar',function(){if(!confirm('Descartar esta venda? Ela não será enviada ao servidor.'))return;OFF.grava('fila',OFF.fila().filter(function(z){return z.rid!==x.rid}));if(OFF.refresh)OFF.refresh()}));r.append(s);p.append(r)});
+  box.append(p)};
+ window.addEventListener('online',function(){OFF.sync(OFF.refresh)});
+ setInterval(function(){OFF.sync(OFF.refresh)},30000);
+ try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
+
  const PR={porta:null,dev:null,ep:0,SITE:'https://www.dcastrolabs.com/'};
  PR.k=function(){var l=loja();return 'dl_rec_'+(l?l.chave:'x')};
  PR.cfg=function(){var c={via:'navegador',col:48,baud:9600,gp:0,gav:1,auto:0,semAc:0,nome:'',l1:'',l2:'',rod:'Obrigado pela preferência!',logo:'nenhum',logoData:'',qrs:[]};try{var o=JSON.parse(localStorage.getItem(PR.k())||'{}');Object.keys(o).forEach(function(x){c[x]=o[x]})}catch(e){}if(!Array.isArray(c.qrs))c.qrs=[];while(c.qrs.length<3)c.qrs.push({t:'',u:''});return c};
@@ -1575,7 +1630,7 @@ VIEWS.chat=function(v){
   if(c.logo!=='nenhum')B.push({k:'logo'});
   B.push({k:'c',s:c.nome||(l?l.nome:''),b:1,z:2});
   if(c.l1)B.push({k:'c',s:c.l1});if(c.l2)B.push({k:'c',s:c.l2});
-  B.push({k:'hr'},{k:'c',s:'NOTA DE VENDA'+(v.n?' #'+v.n:''),b:1},{k:'c',s:d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+(v.opNome?' · '+v.opNome:'')},{k:'hr'});
+  B.push({k:'hr'},{k:'c',s:'NOTA DE VENDA'+(v.n?' #'+v.n:'')+(v.off?' (offline)':''),b:1},{k:'c',s:d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+(v.opNome?' · '+v.opNome:'')},{k:'hr'});
   (v.itens||[]).forEach(function(i){var pu=i.pu!=null?i.pu:i.venda;B.push({k:'t',s:i.nome},{k:'lr',a:'   '+i.qtd+' x '+PR.n2(pu),b:PR.n2(i.qtd*pu)})});
   B.push({k:'hr'});
   if(v.desc>0)B.push({k:'lr',a:'Subtotal',b:PR.n2(v.bruto)},{k:'lr',a:'Desconto',b:'-'+PR.n2(v.desc)});
@@ -1682,9 +1737,9 @@ VIEWS.chat=function(v){
 
  VIEWS.automacoes=function(v){var l=loja();v.append(head('Automações',l?l.nome:'','beta'));if(!l)return noLoja(v);
   var box=h('div');v.append(box);box.append(h('p','sub','Carregando…'));
-  function carrega(){return api('/pdv/estado?chave='+encodeURIComponent(l.chave)).then(function(r){if(!(r.ok&&r.j&&r.j.ok)){box.textContent='';box.append(empty('Não foi possível abrir: '+((r.j&&r.j.erro)||'indisponível')+'. Se aparecer "rota não encontrada", o Worker v25 ainda não foi publicado.'));return}PD.E=r.j;desenha()})}
+  function carrega(){return api('/pdv/estado?chave='+encodeURIComponent(l.chave)).then(function(r){r=OFF.est(r);if(!(r.ok&&r.j&&r.j.ok)){box.textContent='';box.append(empty('Não foi possível abrir: '+((r.j&&r.j.erro)||'indisponível')+'. Se aparecer "rota não encontrada", o Worker v25 ainda não foi publicado.'));return}PD.E=r.j;OFF.refresh=carrega;desenha();OFF.sync(carrega)})}
   function desenha(){var E=PD.E,ab=[['visao','Visão geral'],['pdv','Frente de caixa'],['caixa','Caixa'],['hist','Histórico'],['vale','Vale-funcionário']];ab.push(['imp','Impressora e nota']);if(E.nivel==='dono')ab.push(['perm','Permissões']);ab.push(['integ','Integrações e fiscal']);
-   box.textContent='';var t=h('div','acts');ab.forEach(function(a){t.append(btn(a[1],function(){PD.tab=a[0];desenha()},PD.tab===a[0]?'p':''))});box.append(t);var c=h('div');box.append(c);
+   box.textContent='';var t=h('div','acts');ab.forEach(function(a){t.append(btn(a[1],function(){PD.tab=a[0];desenha()},PD.tab===a[0]?'p':''))});box.append(t);OFF.banner(box);var c=h('div');box.append(c);
    ({visao:aVisao,pdv:aPdv,caixa:aCaixa,hist:aHist,vale:aVale,perm:aPerm,integ:aInteg,imp:PR.aba}[PD.tab]||aVisao)(c,E)}
   function sem(c,p){if(PD.E.perms.indexOf(p)<0){c.append(empty('Você não tem permissão para esta área. Peça ao dono da empresa.'));return true}}
   function aVisao(c,E){var cx=E.caixa,rs=cx&&cx.resumo,g=h('div','grid');
@@ -1819,7 +1874,7 @@ VIEWS.chat=function(v){
    function finaliza(){if(st.busy||PD.fin)return;var F=falta();
     if(!PD.cart.length){aviso('Adicione produtos.','err');return}if(F.falta!==0){aviso('Pagamento não fecha o total (falta '+R(F.falta)+').','err');return}
     st.busy=true;PD.fin=true;aviso('Enviando venda…');pPay();var T=F.T;
-    chama8('/pdv/venda',{chave:l.chave,rid:PD.rid,itens:PD.cart.map(function(i){return{id:i.id,qtd:i.qtd}}),desconto:T.desc,motivo:PD.mot,pag:PD.pag,vale:PD.vale}).then(function(r){
+    OFF.venda({chave:l.chave,rid:PD.rid,itens:PD.cart.map(function(i){return{id:i.id,qtd:i.qtd}}),desconto:T.desc,motivo:PD.mot,pag:PD.pag,vale:PD.vale}).then(function(r){
      st.busy=false;PD.fin=false;
      if(r.ok&&r.j&&r.j.ok){var v=r.j.venda||{};if(v.id){PD.last=v;PR.apos(v)}st.fim={n:v.n,troco:v.troco||0,total:T.total,t:Date.now()};PD.cart=[];PD.pag=[];PD.desc='';PD.mot='';PD.vale='';PD.rid=uid8();st.ult=null;st.sug=[];st.forma=null;aviso('');pinta();return carrega()}
      aviso(r.status===0?'Sem resposta do servidor. Aperte Finalizar de novo: a venda não duplica.':((r.j&&r.j.erro)||'Não foi possível concluir.'),'err');pPay();if(r.status===409)carrega()})}

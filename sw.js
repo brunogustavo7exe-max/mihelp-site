@@ -1,9 +1,10 @@
-/* MiHelp — service worker. Fica na RAIZ do site, ao lado do index.html.
+/* MiHelp + Domin — service worker. Fica na RAIZ do site, ao lado do index.html e do labs.html.
    Troque VERSAO sempre que publicar uma mudança grande, para limpar o cache antigo. */
-const VERSAO = 'mihelp-v1';
+const VERSAO = 'mihelp-v2';
 const SHELL = [
   './',
   'index.html',
+  'labs.html',
   'manifest.webmanifest',
   'icons/icon-192.png',
   'icons/icon-512.png',
@@ -33,16 +34,18 @@ self.addEventListener('fetch', (e) => {
   /* só mexe no que é do próprio site; API (worker), Wix, esm.sh e fontes passam direto */
   if (url.origin !== location.origin) return;
 
-  /* páginas: tenta a rede primeiro (sempre a versão nova); sem internet, usa o cache */
+  /* páginas: tenta a rede primeiro (sempre a versão nova); sem internet, usa o cache.
+     O Domin (labs.html) tem a própria cópia, para não misturar com a do MiHelp (index.html). */
   if (req.mode === 'navigate') {
+    const domin = /(^|\/)labs(\.html)?$/.test(url.pathname);
+    const chave = domin ? 'labs.html' : 'index.html';
     e.respondWith(
       fetch(req)
         .then((r) => {
-          const copia = r.clone();
-          caches.open(VERSAO).then((c) => c.put('index.html', copia)).catch(() => {});
+          if (r && r.ok) { const copia = r.clone(); caches.open(VERSAO).then((c) => c.put(chave, copia)).catch(() => {}); }
           return r;
         })
-        .catch(() => caches.match('index.html').then((r) => r || caches.match('./')))
+        .catch(() => caches.match(chave).then((r) => r || (domin ? Response.error() : caches.match('./'))))
     );
     return;
   }
