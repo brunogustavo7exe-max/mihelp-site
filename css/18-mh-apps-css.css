@@ -17,6 +17,7 @@
 #appsDlg .ap-domin p{color:#A7B0C6}#appsDlg .ap-domin ul{color:#dfe6f3}#appsDlg .ap-domin li::marker{color:#00A3FF}
 .ap-domin .dm-tag{position:absolute;top:10px;right:10px;border-color:#00A3FF;color:#7fcbff;background:rgba(0,163,255,.08)}
 .ap-domin .dm-logo{display:block;width:100%;max-width:340px;height:auto;margin:6px auto 12px}
+#appsDlg .ap-mihelp .mh-here,#appsDlg .ap-domin .dm-go{display:flex;width:max-content;max-width:100%;margin:16px auto 6px}
 #appsDlg .ap-domin .dm-go{background:linear-gradient(180deg,#1aa9ff,#0072d6);color:#fff;border:1px solid #6cc8ff;gap:8px;box-shadow:0 0 14px rgba(0,163,255,.4)}
 .dm-ic{width:24px;height:24px;border-radius:6px}
 #appsDlg .ap-domin .dm-lema{margin:12px 0 0;text-align:center;font:700 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#00A3FF}
@@ -26,10 +27,16 @@
 .ap-mihelp .mh-logo{display:block;height:46px;width:auto;max-width:70%;margin:6px 0 12px}
 #appsDlg .ap-mihelp .mh-here{background:rgba(242,169,59,.12);color:#F7C26B;border:1px solid #F2A93B;opacity:1;cursor:default}
 #appsDlg .ap-mihelp .mh-lema{margin:12px 0 0;text-align:center;font:700 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#F2A93B}
+.ap-rivo{background:#05070d linear-gradient(160deg,#0b1a33,#05070d)!important;border-color:#2ea8ff!important;box-shadow:0 0 0 1px rgba(46,168,255,.25),0 0 22px rgba(46,168,255,.18);position:relative;padding-top:38px!important}
+#appsDlg .ap-rivo p{color:#b9c7dd}#appsDlg .ap-rivo ul{color:#eaf1fb}#appsDlg .ap-rivo li::marker{color:#2ea8ff}
+.ap-rivo .rv-tag{position:absolute;top:10px;right:10px;border-color:#2ea8ff;color:#7cc4ff;background:rgba(46,168,255,.08)}
+.ap-rivo .rv-logo{display:block;width:100%;max-width:170px;height:auto;margin:2px auto 12px;mix-blend-mode:lighten}
+#appsDlg .ap-rivo .rv-go{display:flex;width:max-content;max-width:100%;margin:16px auto 6px;padding:10px 30px;border-radius:999px;border:1px dashed #2ea8ff;background:transparent;color:#7cc4ff;font:700 14px var(--sans);opacity:.85;cursor:default}
+#appsDlg .ap-rivo .rv-lema{margin:12px 0 0;text-align:center;font:700 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#2ea8ff}
 .ap-mesa{background:#0d0b0a linear-gradient(160deg,#1f130a,#0d0b0a)!important;border-color:#f89f2e!important;box-shadow:0 0 0 1px rgba(248,159,46,.25),0 0 22px rgba(236,113,33,.2);position:relative}
 #appsDlg .ap-mesa p{color:#d8c9b6}#appsDlg .ap-mesa ul{color:#fdf5eb}#appsDlg .ap-mesa li::marker{color:#f89f2e}
 .ap-mesa .ms-tag{position:absolute;top:10px;right:10px;border-color:#f89f2e;color:#ffc27a;background:rgba(248,159,46,.08)}
-.ap-mesa .ms-logo{display:block;width:100%;max-width:150px;height:auto;margin:6px auto 12px;mix-blend-mode:lighten}
+.ap-mesa .ms-logo{display:block;width:100%;max-width:190px;height:auto;margin:6px auto 12px;mix-blend-mode:lighten}
 #appsDlg .ap-mesa .ms-go{display:flex;width:max-content;max-width:100%;margin:18px auto 6px;padding:10px 34px;background:linear-gradient(135deg,#f89f2e,#ec7121);color:#1a0f05;border:1px solid #ffc27a;box-shadow:0 0 14px rgba(236,113,33,.4)}
 #appsDlg .ap-mesa .ms-lema{margin:12px 0 0;text-align:center;font:700 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#f89f2e}
 #appsDlg .ap-mesa .ms-nota{margin:8px 0 0;font-size:13px;opacity:.85}

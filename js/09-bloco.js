@@ -979,13 +979,18 @@ const pedTotal8=ch=>pedLinhas8(ch).reduce((t,x)=>t+x.q*x.u,0);
 /* atualiza selo da aba, contadores nos cards e a barra "Ver pedido" sem repintar tudo */
 function pedAtualiza8(root,L){const ch=L.chave,n=pedQtd8(ch),t=pedTotal8(ch);
  const tc=root.querySelector('.lj-tabs button[data-aba=ped] .lj-tc');if(tc){tc.textContent=String(n);tc.hidden=!n}
- root.querySelectorAll('.lj-card[data-id]').forEach(c=>{const q=pedLinhas8(ch).filter(x=>String(x.id)===c.dataset.id).reduce((u,x)=>u+x.q,0);let bd=c.querySelector('.lj-qb');
-  if(q){if(!bd){bd=mk8('span','lj-qb');c.querySelector('.lj-ph').append(bd)}bd.textContent=q+'×'}else if(bd)bd.remove()});
+ root.querySelectorAll('.lj-card[data-id]').forEach(c=>{const q=pedLinhas8(ch).filter(x=>String(x.id)===c.dataset.id).reduce((u,x)=>u+x.q,0);const qk=c.querySelector('.lj-qk');
+  if(qk){qk.classList.toggle('on',q>0);const nb=qk.querySelector('b');if(nb)nb.textContent=String(q)}});
  const bar=root.querySelector('.lj-bar');if(bar){bar.hidden=!n;const sp=bar.querySelector('span');if(sp)sp.textContent='🛒 '+n+(n===1?' item':' itens')+' · '+brlC8(t)}}
+/* v30: + e − direto no card, sem abrir a janela (a janela abre ao tocar na foto) */
+function qRap30(d,L,i,delta){const ls=pedLinhas8(L.chave);
+ if(delta>0){const ex=ls.find(x=>String(x.id)===String(i.id)&&!x.ad.length&&!x.obs&&x.u===i.p);if(ex)ex.q=Math.min(50,ex.q+1);else ls.push({id:i.id,n:i.n,u:i.p,q:1,ad:[],obs:''})}
+ else{for(let k=ls.length-1;k>=0;k--)if(String(ls[k].id)===String(i.id)){if(ls[k].q>1)ls[k].q--;else ls.splice(k,1);break}}
+ pedAtualiza8(d,L)}
 /* cabeçalho de cada aba: diz onde você está */
 function cabPane8(pane,L,aba){const C=CARD8[L.chave],ni=C&&C.itens?C.itens.length:0,te=L.totalEquipe||0;
  const M={serv:['🗓','Serviços','Escolha um serviço e reserve o seu horário.'],
-  card:['🍽','Cardápio',ni+(ni===1?' item':' itens')+' · toque no item para escolher'],
+  card:['🍽','Cardápio',ni+(ni===1?' item':' itens')+' · use + para adicionar · toque na foto para ver detalhes'],
   ped:['🛒','Seu pedido','Confira, preencha seus dados e envie direto para a loja.'],
   equipe:['👥','Equipe',te+(te===1?' profissional':' profissionais')],
   aval:['⭐','Avaliações',L.n?L.n+(L.n===1?' avaliação':' avaliações'):'Ainda sem avaliações']}[aba];
@@ -1040,7 +1045,10 @@ function painelCard8(pane,d,L){const C=CARD8[L.chave];
   const h=mk8('h4','lj-cat',cat);h.append(mk8('small',null,li.length+(li.length===1?' item':' itens')));sec.append(h);const g=mk8('div','lj-cards');
   li.forEach(i=>{const pode=!!i.o&&rec,c=mk8('article','lj-card'+(i.o?'':' off')+(pode?' sel':'')),ph=mk8('div','lj-ph');c.dataset.id=String(i.id);c.dataset.q=semAcento29([i.n,i.d,cat,(i.a||[]).map(x=>x.n).join(' ')].join(' '));ph.append(avatarLoja8(L,44));
    if(i.f){const im=document.createElement('img');im.alt='';im.loading='lazy';ph.append(im);fotoCard8(L.chave,i.id,im)}
-   if(pode)ph.append(mk8('span','lj-plus','+'));
+   if(pode){const qk=mk8('span','lj-qk'),mm=document.createElement('button'),pp=document.createElement('button');mm.type='button';pp.type='button';mm.className='m';mm.textContent='\u2212';pp.textContent='+';
+    mm.setAttribute('aria-label','Tirar um '+i.n);pp.setAttribute('aria-label','Colocar um '+i.n);
+    mm.onclick=e=>{e.stopPropagation();qRap30(d,L,i,-1)};pp.onclick=e=>{e.stopPropagation();qRap30(d,L,i,1)};
+    qk.onclick=e=>e.stopPropagation();qk.addEventListener('keydown',e=>e.stopPropagation());qk.append(mm,mk8('b',null,'0'),pp);ph.append(qk)}
    const t=mk8('div','lj-ct');t.append(mk8('b',null,i.n));if(i.d)t.append(mk8('span','lj-d',i.d));
    if(i.a&&i.a.length)t.append(mk8('span','lj-ad','+ '+i.a.map(x=>x.n+' '+brl8(x.p/100)).join(' · ')));
    const f=mk8('div','lj-pf');f.append(mk8('strong',null,brl8(i.p/100)),mk8('em',i.o?'on':'off',i.o?'Disponível':'Esgotado'));
@@ -1057,7 +1065,7 @@ const FORM8={},ENV8={},CLI29='mh_cli_ped',ENVK29='mh_ped_env',FINAL29=['entregue
 const lsJ29=(k,pad)=>{try{const v=JSON.parse(localStorage.getItem(k)||'null');return v==null?pad:v}catch(e){return pad}};
 const lsW29=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 const envLer29=ch=>{if(ENV8[ch])return ENV8[ch];const x=lsJ29(ENVK29,[]).find(y=>y&&y.ch===ch&&Date.now()-y.ts<8*3600e3);if(x)ENV8[ch]=x;return x||null};
-const envGrava29=x=>{const o={ch:x.ch,rid:x.rid,ts:x.ts,tipo:x.tipo,nome:x.nome,total:x.total,itens:x.itens,st:x.st,num:x.num};lsW29(ENVK29,lsJ29(ENVK29,[]).filter(y=>y&&y.ch!==x.ch).concat([o]).slice(-6))};
+const envGrava29=x=>{const o={ch:x.ch,rid:x.rid,ts:x.ts,tipo:x.tipo,nome:x.nome,total:x.total,itens:x.itens,st:x.st,num:x.num,conf:x.conf,av:x.av};lsW29(ENVK29,lsJ29(ENVK29,[]).filter(y=>y&&y.ch!==x.ch).concat([o]).slice(-6))};
 const envLimpa29=ch=>{delete ENV8[ch];lsW29(ENVK29,lsJ29(ENVK29,[]).filter(y=>y&&y.ch!==ch))};
 const ETP29={novo:x=>x.num?'✅ Pedido #'+x.num+' recebido pela loja':'📨 Enviado. Aguardando a loja confirmar',preparando:()=>'👨‍🍳 A loja está preparando o seu pedido',
  pronto:x=>x.tipo==='retirada'?'✅ Pronto! Pode retirar na loja':'📦 Pronto, esperando sair para entrega',a_caminho:()=>'🛵 Saiu para entrega',entregue:x=>x.tipo==='retirada'?'🎉 Retirado. Bom apetite!':'🎉 Entregue. Bom apetite!',cancelado:()=>'A loja não pôde aceitar este pedido. Fale com ela pelo WhatsApp.'};
@@ -1069,7 +1077,40 @@ function envPoll29(pane,d,L,x,redesenha){clearTimeout(x._t);
   if(r.ok&&r.j&&r.j.ok&&(r.j.st!==x.st||r.j.num!==x.num)){x.st=r.j.st;x.num=r.j.num||0;envGrava29(x);if(pane.isConnected)redesenha()}
   if(!FINAL29.includes(x.st))x._t=setTimeout(passo,15000)};
  x._t=setTimeout(passo,3000)}
-function envView29(w,d,L,x,temNovo,volta){
+/* ===== v30: quem pediu confirma o recebimento; depois avalia o lanche (loja) e a entrega (entregador) ===== */
+const AVK30='mh_aval_entrega';
+function estrelas30(rot,sub){const w=mk8('div','lj-av'),row=mk8('div','lj-stars');let n=0;const bs=[];
+ const pinta=()=>bs.forEach((b,k)=>{b.classList.toggle('on',k<n);b.setAttribute('aria-pressed',String(k+1===n))});
+ for(let i=1;i<=5;i++){const b=document.createElement('button');b.type='button';b.textContent='\u2605';b.setAttribute('aria-label',i+(i===1?' estrela':' estrelas'));b.onclick=()=>{n=i;pinta()};bs.push(b);row.append(b)}
+ const ti=document.createElement('input');ti.type='text';ti.maxLength=140;ti.placeholder='Comentário (opcional)';ti.setAttribute('aria-label','Comentário: '+rot);
+ w.append(mk8('b',null,rot),mk8('span','note',sub),row,ti);return{el:w,nota:()=>n,txt:()=>ti.value.trim()}}
+function confView30(w,d,L,x,temNovo,volta,redesenha){
+ const entrega=x.tipo!=='retirada',box=mk8('div','lj-env'),ac=mk8('div','v8acts');
+ const zap=(rot,cls)=>{if(L.contato&&waLink8(L.contato)){const a=mk8('a',cls,rot);a.href=waLink8(L.contato)+'?text='+encodeURIComponent('Olá! Sobre o meu pedido'+(x.num?' #'+x.num:'')+' feito pelo MiHelp ('+x.nome+')');a.target='_blank';a.rel='noopener noreferrer';ac.append(a)}};
+ const manda=ok=>{x.conf=ok?'sim':'nao';envGrava29(x);chama8('/cardapio/pedido/confirmar',{chave:x.ch,rid:x.rid,recebi:ok}).catch(()=>{});redesenha()};
+ if(entrega&&!x.conf){
+  box.append(mk8('div','lj-ok','\ud83d\udce6'),mk8('h4',null,'O entregador marcou como entregue'),mk8('p','lj-es','Você recebeu o seu pedido?'),mk8('p','note','Só confirme se o pedido já está com você.'));
+  ac.append(botao8('\u2705 Sim, recebi','cta2',()=>manda(true)),botao8('\u274c Não recebi','more',()=>manda(false)))}
+ else if(x.conf==='nao'){
+  box.classList.add('bad');box.append(mk8('div','lj-ok','\u2715'),mk8('h4',null,'Pedido não recebido'),mk8('p','lj-es','Fale com a loja pelo WhatsApp para resolver.'),mk8('p','note','A loja e a entrega ficam avisadas de que esse pedido não chegou.'));
+  zap('\ud83d\udcac Falar com a loja no WhatsApp','cta2');ac.append(botao8('Na verdade, recebi','more',()=>manda(true)),botao8('Fechar','more',()=>{x.av=1;envGrava29(x);redesenha()}))}
+ else{
+  box.append(mk8('div','lj-ok','\ud83c\udf89'),mk8('h4',null,'Pedido recebido. Bom apetite!'),mk8('p','note','Conta como foi? Leva 10 segundos.'));
+  const b1=estrelas30('\ud83c\udf54 O lanche — '+L.nome,'Sabor, capricho e como veio embalado.'),b2=entrega?estrelas30('\ud83d\udef5 A entrega — entregador','Rapidez e cuidado do entregador.'):null;
+  box.append(b1.el);if(b2)box.append(b2.el);
+  const msg=mk8('p','note');msg.setAttribute('role','status');box.append(msg);
+  const ok=botao8('Enviar avaliações','cta2 lj-send',async()=>{
+   if(!b1.nota()&&!(b2&&b2.nota())){msg.style.color='var(--red)';msg.textContent='Toque nas estrelas para avaliar.';return}
+   ok.disabled=true;msg.style.color='';msg.textContent='Enviando…';let falha='';
+   if(b1.nota()){const r=await chama8('/avaliar',{chave:x.ch,estrelas:b1.nota(),comentario:b1.txt()});if(!(r.ok&&r.j&&r.j.ok))falha=erro8(r)}
+   if(b2&&b2.nota()){const reg={ch:x.ch,rid:x.rid,estrelas:b2.nota(),comentario:b2.txt(),ts:Date.now()};lsW29(AVK30,lsJ29(AVK30,[]).concat([reg]).slice(-20));chama8('/cardapio/pedido/avaliar-entrega',reg).catch(()=>{})}
+   if(falha){ok.disabled=false;msg.style.color='var(--red)';msg.textContent=falha+' Dá para tentar de novo ou pular.';return}
+   x.av=1;envGrava29(x);redesenha()});
+  ac.append(ok,botao8('Pular','more',()=>{x.av=1;envGrava29(x);redesenha()}))}
+ if(temNovo)ac.append(botao8('\u2190 Voltar ao meu novo pedido','more',volta));
+ w.append(box,ac)}
+function envView29(w,d,L,x,temNovo,volta,redesenha){
+ if(redesenha&&x.st==='entregue'&&!x.av){confView30(w,d,L,x,temNovo,volta,redesenha);return}
  const fim=FINAL29.includes(x.st),ruim=x.st==='cancelado',box=mk8('div','lj-env'+(ruim?' bad':fim?' fim':''));
  box.append(mk8('div','lj-ok',ruim?'✕':fim?'🎉':'✓'),mk8('h4',null,ruim?'Pedido não aceito':fim?(x.tipo==='retirada'?'Pedido retirado':'Pedido entregue'):'Pedido enviado!'),mk8('p','lj-es',ETP29[x.st](x)));
  if(!ruim){const nomes=['Enviado','Preparando','Pronto',x.tipo==='retirada'?'Retirado':'A caminho'].concat(x.tipo==='retirada'?[]:['Entregue']);
@@ -1086,7 +1127,7 @@ function envView29(w,d,L,x,temNovo,volta){
 function painelPed8(pane,d,L){const C=CARD8[L.chave],ch=L.chave,rec=!C||(C.aberta!==false&&L.aberto!==false);
  const F=FORM8[ch]||(FORM8[ch]=(()=>{const s=lsJ29(CLI29,{});return{tipo:'entrega',nome:s.nome||(eu&&eu.nome)||'',tel:s.tel||'',rua:s.rua||'',bairro:s.bairro||'',pag:s.pag||'Pix',obs:'',loc:'',ver:0}})());
  const draw=()=>{pane.querySelectorAll('.lj-pbody').forEach(x=>x.remove());const w=mk8('div','lj-pbody'),ls=pedLinhas8(ch),env=envLer29(ch);
-  if(env&&(!ls.length||F.ver)){envView29(w,d,L,env,!!ls.length,()=>{F.ver=0;draw()});pane.append(w);envPoll29(pane,d,L,env,draw);return}
+  if(env&&(!ls.length||F.ver)){envView29(w,d,L,env,!!ls.length,()=>{F.ver=0;draw()},draw);pane.append(w);envPoll29(pane,d,L,env,draw);return}
   if(!ls.length){const e=mk8('div','lj-vazio');e.append(mk8('b',null,'Seu pedido está vazio'),mk8('p','note','Escolha os itens na aba Cardápio e eles aparecem aqui.'),botao8('🍽 Ver cardápio','cta2',()=>{pintaLoja8(d,L,'card');const t2=d.querySelector('.lj-tabs');if(t2)t2.scrollIntoView({block:'start'})}));w.append(e);pane.append(w);return}
   if(env&&!FINAL29.includes(env.st)){const bn=mk8('div','lj-andando');bn.append(mk8('span',null,'📨 Você tem um pedido em andamento aqui.'),botao8('Acompanhar','more',()=>{F.ver=1;draw()}));w.append(bn)}
   ls.forEach((x,k)=>{const r=mk8('div','lj-ln'),inf=mk8('div','lj-li');inf.append(mk8('b',null,x.n));if(x.ad.length)inf.append(mk8('span','note','+ '+x.ad.join(', ')));if(x.obs)inf.append(mk8('span','note','Obs: '+x.obs));

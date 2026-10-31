@@ -21,8 +21,15 @@ h4.lj-cat small{font:600 12px var(--sans);color:var(--mute)}
 .lj-card.sel{cursor:pointer}.lj-card.sel:active{transform:scale(.97)}.lj-card.sel:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
 .lj-plus{position:absolute;right:8px;bottom:8px;z-index:1;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--gold);color:var(--on-gold,#201804);font:800 22px/1 var(--sans);box-shadow:0 4px 12px rgba(0,0,0,.45)}
 .lj-qb{position:absolute;left:8px;top:8px;z-index:1;padding:2px 9px;border-radius:999px;background:var(--gold);color:var(--on-gold,#201804);font:800 12px var(--sans)}
+.lj-qk{position:absolute;right:8px;bottom:8px;z-index:2;display:flex;align-items:center;border-radius:999px;background:var(--gold);color:var(--on-gold,#201804);box-shadow:0 4px 12px rgba(0,0,0,.45)}
+.lj-qk button{width:40px;height:40px;border:0;border-radius:50%;background:transparent;color:inherit;font:800 24px/1 var(--sans);cursor:pointer;display:grid;place-items:center;padding:0;touch-action:manipulation}
+.lj-qk button:active{background:rgba(0,0,0,.18)}.lj-qk b{display:none;min-width:18px;text-align:center;font:800 15px var(--sans)}
+.lj-qk .m{display:none}.lj-qk.on .m{display:grid}.lj-qk.on b{display:block}
+.lj-av{display:grid;gap:6px;width:100%;margin-top:8px;text-align:left}.lj-av input{width:100%;box-sizing:border-box}
+.lj-stars{display:flex;gap:4px}.lj-stars button{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--mute);font-size:24px;cursor:pointer}
+.lj-stars button.on{background:var(--gold);border-color:var(--gold);color:var(--on-gold,#201804)}
 .lj-bar{position:sticky;bottom:8px;z-index:4;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding:8px 8px 8px 16px;border-radius:16px;background:var(--surf);border:1px solid rgba(var(--gold-rgb),.6);box-shadow:0 10px 30px rgba(0,0,0,.55)}
-.lj-bar[hidden]{display:none}.lj-bar span{font:800 14px var(--sans)}.lj-bar .cta2{min-height:40px;padding:0 16px}
+.lj-bar[hidden]{display:none}.lj-bar span{font:800 14px var(--sans)}.lj-bar .cta2{display:inline-flex;align-items:center;justify-content:center;margin:0;min-height:44px;padding:0 18px;white-space:nowrap}
 /* janela do item */
 dialog.lj-sd{width:min(94vw,440px);max-height:90vh;padding:0;overflow:auto;border:1px solid rgba(var(--gold-rgb),.45);border-radius:20px;background:var(--surf);color:var(--text)}
 dialog.lj-sd::backdrop{background:rgba(0,0,0,.6)}
