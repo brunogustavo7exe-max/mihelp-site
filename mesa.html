@@ -90,6 +90,7 @@ body{background:radial-gradient(760px 360px at 90% -80px,rgba(248,159,46,.09),tr
 .nv{transition:background .15s}.nv:hover{background:var(--sf2)}.nv[aria-current=page]{box-shadow:inset 3px 0 0 var(--ac)}
 .oc{transition:border-color .15s}.oc:hover{border-color:var(--ac2)}
 .tg.test{background:var(--wrb);color:var(--wr)}
+  .tg.mh{background:rgba(248,159,46,.16);color:#ffc27a}
 .phone{box-shadow:0 14px 44px rgba(0,0,0,.5)}
 .mbar{display:none}
 @media (max-width:800px){.mbar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--ln);background:var(--sf)}.mbar img{width:34px;height:auto;border-radius:6px}.mbar b{font-size:15px}}
@@ -380,11 +381,12 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
     l.qtd += qtd;
   }
 
-  function criarPedido({ nome, tel, tipo, end, pag, obs, itens, origem }) {
+  function criarPedido({ nome, tel, tipo, end, pag, obs, itens, origem, rid, num, taxa }) {
     const pedido = {
-      id: estado.config.proximoPedido++, nome, tel, tipo, endereco: end, pagamento: pag, obs, itens,
-      taxaEntregaCentavos: taxaPara(tipo), status: 'novo', criadoEm: Date.now(), origem,
+      id: num != null ? num : estado.config.proximoPedido++, nome, tel, tipo, endereco: end, pagamento: pag, obs, itens,
+      taxaEntregaCentavos: taxa != null ? taxa : taxaPara(tipo), status: 'novo', criadoEm: Date.now(), origem,
     };
+    if (rid) { pedido.rid = rid; pedido.sync = 'novo'; }   // veio do MiHelp: rid = código do pedido lá; sync = última etapa que o cliente já viu
     estado.pedidos.push(pedido); estado.novos.add(pedido.id);
     salvar('pedidos'); salvar('config');
     return pedido;
@@ -443,7 +445,7 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
     },
     assinatura() {
       const c = estado.config;
-      return JSON.stringify([c.nome, c.descricao, c.aberta, c.logoId, c.capaId, c.categorias, c.tipo, c.cidade, c.contato, c.horario,
+      return JSON.stringify([c.nome, c.descricao, c.aberta, c.logoId, c.capaId, c.categorias, c.tipo, c.cidade, c.contato, c.horario, c.taxaEntregaCentavos,
         estado.menu.map((i) => [i.id, i.categoria, i.nome, i.descricao, i.precoCentavos, i.disponivel, i.fotoId, i.adicionais])]);
     },
     agendar(colecao) {
@@ -455,7 +457,7 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
     tic() {
       const e = estado.config.eco; if (!e || !e.chave || !eco.token()) return;
       if (e.auto !== false && eco.assinatura() !== e.sig && !eco.st.ocupado) eco.publicar();
-      eco.enviarPendentes();
+      eco.enviarPendentes(); eco.buscar(); eco.enviarStatus();
     },
 
     /* perfil: usa a rota que o MiHelp e o DOMIN já usam para editar a loja; só mexe no que o MESA edita */
@@ -489,7 +491,7 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
       const vivos = new Set(estado.menu.map((i) => i.id)), semFoto = [], trocar = [];
       for (const i of estado.menu) { if (i.fotoId && e.fotos[i.id] !== i.fotoId) trocar.push(i); else if (!i.fotoId && e.fotos[i.id]) semFoto.push(i.id); }
       for (const id of Object.keys(e.fotos)) if (!vivos.has(id)) delete e.fotos[id];
-      const montar = (fotos) => ({ chave: e.chave, aberta: estado.config.aberta, categorias: estado.config.categorias, semFoto,
+      const montar = (fotos) => ({ chave: e.chave, aberta: estado.config.aberta, taxaEntregaCentavos: estado.config.taxaEntregaCentavos || 0, categorias: estado.config.categorias, semFoto,
         itens: estado.menu.map((i) => ({ id: i.id, categoria: i.categoria, nome: i.nome, descricao: i.descricao, precoCentavos: i.precoCentavos, disponivel: i.disponivel,
           adicionais: (i.adicionais || []).map((a) => ({ nome: a.nome, precoCentavos: a.precoCentavos })) })), fotos });
       let falta = trocar.slice(), primeira = true;
@@ -519,6 +521,54 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
       await eco.gravarCfg();
       if (eco.st.repetir) { eco.st.repetir = false; eco.agendar('menu'); }
       if (estado.visao === 'conexao' || estado.visao === 'cardapio') renderizar();
+    },
+
+    /* pedidos do MiHelp: o cliente envia lá, o Worker guarda na fila, o MESA busca, confirma o número (#) e depois devolve cada etapa */
+    bip() {
+      try {
+        const A = window.AudioContext || window.webkitAudioContext; if (!A) return;
+        const x = eco.audio || (eco.audio = new A()), o = x.createOscillator(), g = x.createGain(), t = x.currentTime;
+        o.connect(g); g.connect(x.destination); o.type = 'sine'; o.frequency.setValueAtTime(880, t); o.frequency.setValueAtTime(1175, t + 0.18);
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.3, t + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+        o.start(t); o.stop(t + 0.62);
+      } catch (_) { /* sem áudio ou bloqueado pelo navegador */ }
+    },
+    async buscar() {
+      const e = estado.config.eco;
+      if (!e || !e.chave || e.ped === false || !eco.token() || eco.st.buscando) return;
+      eco.st.buscando = true;
+      try {
+        const r = await eco.req('/mesa/pedidos?chave=' + encodeURIComponent(e.chave));
+        if (!(r.ok && r.j && r.j.ok)) { eco.st.pedErro = r.status === 403 ? 'Esta conta não é dona nem gestora da loja.' : ''; return; }
+        eco.st.pedErro = ''; eco.st.pedUlt = Date.now();
+        let n = 0, ultimo = 0;
+        for (const o of (r.j.itens || []).slice(0, 20)) {
+          const ja = estado.pedidos.find((p) => p.rid === o.rid);
+          if (ja) { const c0 = await eco.req('/mesa/pedido/status', { chave: e.chave, rid: o.rid, st: ja.status, num: ja.id }); if (c0.ok && c0.j && c0.j.ok) ja.sync = ja.status; continue; }
+          const num = estado.config.proximoPedido++;   // reserva o número; o Worker só deixa UM aparelho da loja confirmar cada pedido
+          const c = await eco.req('/mesa/pedido/status', { chave: e.chave, rid: o.rid, st: 'novo', num });
+          if (!(c.ok && c.j && c.j.ok) || c.j.jaTem) { if (estado.config.proximoPedido === num + 1) estado.config.proximoPedido = num; continue; }
+          const tipo = o.tipo === 'retirada' ? 'retirada' : 'entrega';
+          const p = criarPedido({
+            nome: o.nome, tel: o.tel, tipo, end: o.end || '', pag: o.pag === 'Cartão' ? 'Cartão na ' + (tipo === 'entrega' ? 'entrega' : 'retirada') : (o.pag || 'Pix'),
+            obs: o.obs || '', origem: 'mihelp', rid: o.rid, num, taxa: Number(o.tx) || 0,
+            itens: (o.itens || []).map((i) => ({ produtoId: i.id, nome: i.n, qtd: i.q, precoCentavos: i.u, adicionais: i.ad || [], obs: i.obs || '' })),
+          });
+          n++; ultimo = p.id;
+        }
+        if (n) { eco.bip(); aviso(n === 1 ? `Novo pedido do MiHelp: #${ultimo}` : `${n} novos pedidos do MiHelp`); if (estado.visao === 'pedidos' || estado.visao === 'conexao') renderizar(); }
+      } finally { eco.st.buscando = false; }
+    },
+    async enviarStatus() {   // devolve ao cliente a etapa em que o pedido está (preparando, pronto, a caminho…)
+      const e = estado.config.eco;
+      if (!e || !e.chave || !eco.token() || eco.st.devolvendo) return;
+      const lista = estado.pedidos.filter((p) => p.rid && p.sync !== p.status).slice(0, 10);
+      if (!lista.length) return;
+      eco.st.devolvendo = true;
+      try {
+        for (const p of lista) { const r = await eco.req('/mesa/pedido/status', { chave: e.chave, rid: p.rid, st: p.status, num: p.id }); if (r.ok && r.j && r.j.ok) p.sync = p.status; }
+        await repositorio.salvar('pedidos', estado.pedidos).catch(() => {});
+      } finally { eco.st.devolvendo = false; }
     },
 
     /* faturamento: um lançamento de entrada no financeiro da loja (o DOMIN lê de lá). O "rid" impede lançar o mesmo pedido duas vezes. */
@@ -633,12 +683,13 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
   };
 
   /* ---------- telas ---------- */
+  const linkar = (t) => esc(t).replace(/📍 (https:\/\/maps\.google\.com\/\?q=[-0-9.,]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--ac)">📍 Abrir no mapa</a>');   // localização enviada pelo cliente do MiHelp
   function cartaoPedido(o) {
     const min = Pedidos.minutosDesde(o), prox = Pedidos.proximaEtapa(o);
     return `<article class="oc${estado.novos.has(o.id) ? ' fresh' : ''}"><div class="r"><b>#${o.id} ${esc(o.nome)}</b><span class="age ${Pedidos.nivelAtraso(min)}" data-id="${o.id}">${min} min</span></div>
-<div><span class="tg">${o.tipo === 'entrega' ? 'Entrega' : 'Retirada'}</span>${o.origem === 'simulador' ? '<span class="tg test">Teste</span>' : ''}<span class="mu sm">${esc(o.pagamento)}</span></div>
+<div><span class="tg">${o.tipo === 'entrega' ? 'Entrega' : 'Retirada'}</span>${o.origem === 'simulador' ? '<span class="tg test">Teste</span>' : ''}${o.origem === 'mihelp' ? '<span class="tg mh">via MiHelp</span>' : ''}<span class="mu sm">${esc(o.pagamento)}</span></div>
 <ul>${o.itens.map((i) => `<li>${i.qtd}× ${esc(i.nome)}${i.adicionais && i.adicionais.length ? `<div class="mu sm">+ ${i.adicionais.map(esc).join(', ')}</div>` : ''}${i.obs ? `<div class="note">“${esc(i.obs)}”</div>` : ''}</li>`).join('')}</ul>
-${o.obs ? `<p class="note">“${esc(o.obs)}”</p>` : ''}${o.tipo === 'entrega' ? `<p class="mu sm">${esc(o.endereco)}</p>` : ''}
+${o.obs ? `<p class="note">“${esc(o.obs)}”</p>` : ''}${o.tipo === 'entrega' ? `<p class="mu sm">${linkar(o.endereco)}</p>` : ''}
 <div class="r"><b>${Money.formatar(Pedidos.total(o))}</b><span class="mu sm">${esc(o.tel)}</span></div>
 <div class="acts2">${prox ? `<button class="btn pri full" data-a="avancar" data-id="${o.id}">${prox.acao}</button>` : ''}${Pedidos.podeRecusar(o) ? `<button class="btn full" data-a="recusar" data-id="${o.id}">Recusar</button>` : ''}</div></article>`;
   }
@@ -790,6 +841,7 @@ ${estado.tela === 'ok' ? `<p class="callout">O pedido #${estado.ultimoPedido} ch
 <div class="acts"><button class="btn pri" data-a="ecoPublicar"${s.ocupado ? ' disabled' : ''}>Publicar tudo agora</button><a class="btn" href="${url}" target="_blank" rel="noopener">Ver no MiHelp</a><a class="btn" href="${ECO_LABS}" target="_blank" rel="noopener">Abrir no DOMIN</a></div></section>
 <section class="mc"><h2>O que acompanha</h2>
 <label class="op"><input type="checkbox" data-eco="auto"${e.auto !== false ? ' checked' : ''}><span class="g"><b>Publicar sozinho</b><div class="mu sm">Nome, descrição, logotipo, aberta/fechada e cardápio (itens, preços, adicionais, fotos) vão para a página da loja no MiHelp quando você salva.</div></span></label>
+<label class="op"><input type="checkbox" data-eco="ped"${e.ped !== false ? ' checked' : ''}><span class="g"><b>Receber pedidos do MiHelp</b><div class="mu sm">O cliente pede pela página da loja (sem precisar de cadastro) e o pedido aparece sozinho em Pedidos, com som. Cada etapa que você muda volta para o cliente acompanhar.${e.ped === false ? '' : s.pedErro ? ' <b style="color:var(--er)">' + esc(s.pedErro) + '</b>' : s.pedUlt ? ' Fila verificada às ' + new Date(s.pedUlt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + '.' : ''}</div></span></label>
 <label class="op"><input type="checkbox" data-eco="fat"${e.fat !== false ? ' checked' : ''}><span class="g"><b>Faturamento no DOMIN</b><div class="mu sm">Cada pedido marcado como entregue vira uma entrada no financeiro da loja. Pedidos de teste do simulador nunca são enviados.</div></span></label>
 <p class="mu sm">${pend ? pend + ' pedido(s) esperando para ir ao DOMIN (vão assim que houver conexão).' : 'Nenhum pedido esperando para ir ao DOMIN.'}</p>
 ${antigos ? `<div class="acts"><button class="btn" data-a="ecoAntigos">Enviar ${antigos} pedido(s) antigo(s) ao DOMIN</button></div>` : ''}</section>
@@ -849,7 +901,7 @@ ${antigos ? `<div class="acts"><button class="btn" data-a="ecoAntigos">Enviar ${
       const f = [0, 1].map((k) => (fx[k] ? String(fx[k]).split('-') : ['', '']));
       return { on: fx.length > 0, f };
     });
-    return { nome: c.nome, tipo: c.tipo || '', cidade: c.cidade || '', contato: fmtTel(c.contato), h };
+    return { nome: c.nome, tipo: c.tipo || '', cidade: c.cidade || '', contato: fmtTel(c.contato), taxa: Money.paraCampo(c.taxaEntregaCentavos || 0), h };
   }
   function horarioDoRascunho(L) {   // devolve { d } ou { erro }
     const d = [[], [], [], [], [], [], []];
@@ -879,6 +931,9 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
 <div class="g2"><label class="f">Tipo de negócio (digite e escolha)<input data-l="tipo" data-combo='${esc(JSON.stringify(tipos.concat(tipos.includes('Outro') ? [] : ['Outro'])))}' value="${esc(L.tipo || '')}" placeholder="Ex.: lanchonete, pizzaria…" autocomplete="off"></label>
 <label class="f">Cidade<select data-l="cidade">${Object.entries(cidades).map(([k, v]) => `<option value="${esc(k)}"${k === L.cidade ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select></label></div>
 <label class="f">WhatsApp<input data-l="contato" value="${esc(L.contato)}" type="tel" inputmode="tel" placeholder="(66) 99999-9999" maxlength="20"></label></section>
+<section class="mc"><h2>Entrega</h2>
+<label class="f">Taxa de entrega (R$)<input data-l="taxa" value="${esc(L.taxa)}" inputmode="decimal" placeholder="0,00" maxlength="8"></label>
+<p class="mu sm">É somada ao total do pedido de quem escolhe entrega, no MiHelp e aqui. Deixe 0,00 se a loja não cobra. Quem retira no local não paga taxa.</p></section>
 <section class="mc"><h2>Horário de funcionamento</h2>
 <p class="mu sm">Marque os dias em que a loja abre. Se fecha de madrugada, use por exemplo 18:00 às 02:00. A 2ª faixa é para quem faz pausa no meio do dia.</p>${linhas}
 <div class="acts" style="margin-top:12px"><button class="btn" data-a="horCopiar">Copiar a segunda para todos os dias</button></div></section>
@@ -961,6 +1016,9 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
       { const lt = (eco.st.cat && eco.st.cat.tipos) || []; if (!L.tipo || (lt.length && L.tipo !== c.tipo && L.tipo !== 'Outro' && !lt.includes(L.tipo))) { aviso('Digite o tipo de negócio e toque numa opção da lista (ou "Outro").'); return false; } }
       if (dig && (dig.length < 10 || dig.length > 13)) { aviso('WhatsApp: informe com DDD, por exemplo (66) 99999-9999.'); return false; }
       const hr = horarioDoRascunho(L); if (hr.erro) { aviso(hr.erro); return false; }
+      const tx = Money.interpretar(String(L.taxa == null ? '0' : L.taxa).trim() || '0');
+      if (Number.isNaN(tx) || tx > 100000) { aviso('Taxa de entrega inválida. Use por exemplo 5,00 (ou 0,00 se não cobra).'); return false; }
+      c.taxaEntregaCentavos = tx;
       c.nome = nome; c.tipo = L.tipo; c.cidade = L.cidade; c.contato = dig; c.horario = { d: hr.d };
       estado.loja = null; salvar('config'); clearTimeout(eco.timer);
       if (eco.conectado() && eco.token()) { aviso('Salvo. Enviando para o MiHelp…'); eco.publicar(); } else aviso('Salvo neste aparelho. Conecte a loja ao MiHelp na aba Conexão para publicar.');
@@ -969,12 +1027,12 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
     avancar(t) {
       const p = buscarPedido(t.dataset.id), prox = p && Pedidos.proximaEtapa(p);
       if (!prox) return false;
-      p.status = prox.para; if (p.status === 'entregue') { p.entregueEm = Date.now(); eco.faturar(p); } salvar('pedidos'); aviso(`Pedido #${p.id} atualizado`);
+      p.status = prox.para; if (p.status === 'entregue') { p.entregueEm = Date.now(); eco.faturar(p); } salvar('pedidos'); aviso(`Pedido #${p.id} atualizado`); eco.enviarStatus();
     },
     recusar(t) {
       const p = buscarPedido(t.dataset.id);
       if (!p || !Pedidos.podeRecusar(p)) return false;
-      p.status = 'cancelado'; salvar('pedidos'); aviso(`Pedido #${p.id} recusado`);
+      p.status = 'cancelado'; salvar('pedidos'); aviso(`Pedido #${p.id} recusado`); eco.enviarStatus();
     },
     abrir() { estado.config.aberta = !estado.config.aberta; salvar('config'); },
     simular() {
@@ -1177,6 +1235,8 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
     repositorio.aoMudarExternamente(async () => { await carregarEstado(); renderizar(); });
     setInterval(atualizarTempos, 30000);
     setInterval(eco.tic, 60000); eco.tic();
+    setInterval(() => { eco.buscar(); eco.enviarStatus(); }, 15000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) { eco.buscar(); eco.enviarStatus(); } });
   }
   iniciar();
 })(window.MESA);

@@ -30,7 +30,7 @@
 #appsDlg .ap-mesa p{color:#d8c9b6}#appsDlg .ap-mesa ul{color:#fdf5eb}#appsDlg .ap-mesa li::marker{color:#f89f2e}
 .ap-mesa .ms-tag{position:absolute;top:10px;right:10px;border-color:#f89f2e;color:#ffc27a;background:rgba(248,159,46,.08)}
 .ap-mesa .ms-logo{display:block;width:100%;max-width:150px;height:auto;margin:6px auto 12px;mix-blend-mode:lighten}
-#appsDlg .ap-mesa .ms-go{background:linear-gradient(135deg,#f89f2e,#ec7121);color:#1a0f05;border:1px solid #ffc27a;box-shadow:0 0 14px rgba(236,113,33,.4)}
+#appsDlg .ap-mesa .ms-go{display:flex;width:max-content;max-width:100%;margin:18px auto 6px;padding:10px 34px;background:linear-gradient(135deg,#f89f2e,#ec7121);color:#1a0f05;border:1px solid #ffc27a;box-shadow:0 0 14px rgba(236,113,33,.4)}
 #appsDlg .ap-mesa .ms-lema{margin:12px 0 0;text-align:center;font:700 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#f89f2e}
 #appsDlg .ap-mesa .ms-nota{margin:8px 0 0;font-size:13px;opacity:.85}
 .dc-by{display:flex;justify-content:center;margin:0 0 16px}

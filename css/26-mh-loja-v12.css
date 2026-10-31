@@ -41,6 +41,41 @@ dialog.lj-sd::backdrop{background:rgba(0,0,0,.6)}
 .lj-li{display:grid;gap:2px;min-width:0}.lj-li b{overflow-wrap:anywhere}.lj-lp{grid-column:2;justify-self:end}
 .lj-tot{display:flex;justify-content:space-between;align-items:center;margin:12px 0;padding:12px 14px;border-radius:14px;border:1px solid rgba(var(--gold-rgb),.5);background:rgba(var(--gold-rgb),.08);font-size:17px}
 .lj-vazio{display:grid;gap:10px;justify-items:center;text-align:center;padding:26px 12px;border:1px dashed var(--line);border-radius:16px}
+/* v29: busca no cardápio, envio do pedido ao MESA e acompanhamento */
+.lj-find{position:sticky;top:0;z-index:5;margin:0 0 6px;padding:6px 0 4px;background:var(--surf)}
+.lj-busca{display:flex!important;align-items:center;gap:8px;min-height:48px;padding:0 6px 0 16px;border-radius:999px;border:1px solid rgba(var(--gold-rgb),.5);background:rgba(var(--gold-rgb),.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 4px 14px rgba(0,0,0,.25);transition:border-color .15s,box-shadow .15s}
+.lj-busca:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px rgba(var(--gold-rgb),.25),0 4px 14px rgba(0,0,0,.25)}
+.lj-bi{font-size:16px;opacity:.9}
+.lj-busca input{flex:1;min-width:0;height:44px;margin:0!important;padding:0!important;border:0!important;outline:0;background:transparent!important;color:var(--text);font:600 16px var(--sans);-webkit-appearance:none;appearance:none;outline:none!important;box-shadow:none!important}
+.lj-busca input::-webkit-search-cancel-button,.lj-busca input::-webkit-search-decoration{display:none}
+.lj-busca input::placeholder{color:var(--faint);font-weight:500}
+.lj-bx{flex:none;width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:var(--text);font-size:13px;cursor:pointer}
+.lj-bx[hidden],.lj-nada[hidden],.lj-card[hidden],.lj-sec[hidden]{display:none!important}
+.lj-res{margin:6px 6px 0;font:700 12px var(--sans);color:var(--mute)}.lj-res:empty{display:none}
+.v8dlg .lj-find .lj-cats{padding:8px 0 2px}
+.lj-nada{display:grid;gap:8px;justify-items:center;text-align:center;padding:26px 12px;margin-top:8px;border:1px dashed var(--line);border-radius:16px}
+.lj-form{display:grid;gap:10px;margin:14px 0 4px}.lj-form h5{margin:8px 0 0;font:800 15px var(--sans)}
+.lj-seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lj-seg3{grid-template-columns:repeat(3,1fr)}.lj-seg3 button{min-height:44px;font-size:13px}.lj-loc{width:100%;min-height:44px;justify-content:center}
+.lj-seg button{min-height:48px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);font:800 14px var(--sans);cursor:pointer}
+.lj-seg button[aria-pressed=true]{background:var(--gold);color:var(--on-gold,#201804);border-color:var(--gold)}
+.lj-f{display:grid;gap:4px}.lj-f>span{font:700 12px var(--sans);color:var(--mute)}
+.lj-f input,.lj-f select,.lj-f textarea{width:100%;box-sizing:border-box;min-height:46px;margin:0;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:16px var(--sans)}
+.lj-f textarea{padding:10px 12px;min-height:64px;resize:vertical}
+.lj-f input:focus,.lj-f select:focus,.lj-f textarea:focus{outline:2px solid var(--gold2);outline-offset:1px}
+.lj-sum{display:grid;gap:6px;margin:14px 0 4px;padding:12px 14px;border-radius:14px;border:1px solid rgba(var(--gold-rgb),.5);background:rgba(var(--gold-rgb),.08)}
+.lj-sum div{display:flex;justify-content:space-between;align-items:center;font-size:14px}.lj-sum .tot{margin-top:4px;padding-top:8px;border-top:1px solid var(--line);font-size:18px}
+.lj-err{margin:10px 0 0;padding:10px 12px;border-radius:12px;border:1px solid var(--red);background:rgba(248,113,113,.1);color:var(--text);font:600 14px var(--sans)}.lj-err[hidden]{display:none}
+.cta2.lj-send{display:flex;width:100%;box-sizing:border-box;justify-content:center;align-items:center;margin:12px 0 0;min-height:54px;font-size:16px}.lj-send[disabled]{opacity:.6;cursor:wait}
+.lj-alt{margin:16px 0 0;padding:10px 12px;border:1px solid var(--line);border-radius:14px}.lj-alt summary{cursor:pointer;font:700 13px var(--sans);color:var(--mute)}.lj-alt .v8acts{margin-top:10px}
+.lj-limpa{margin-top:10px}
+.lj-andando{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;padding:10px 12px;border-radius:14px;border:1px solid rgba(var(--gold-rgb),.55);background:rgba(var(--gold-rgb),.08);font:700 13px var(--sans)}
+.lj-env{display:grid;gap:10px;justify-items:center;text-align:center;padding:22px 14px;margin:8px 0;border:1px solid rgba(var(--gold-rgb),.5);border-radius:18px;background:rgba(var(--gold-rgb),.07)}
+.lj-env h4{margin:0;font-size:21px}.lj-es{margin:0;font:800 15px var(--sans)}.lj-et{font-size:17px}
+.lj-ok{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:var(--gold);color:var(--on-gold,#201804);font:800 28px var(--sans)}
+.lj-steps{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:6px;width:100%;margin-top:6px}.lj-steps i{height:6px;border-radius:99px;background:var(--line)}.lj-steps i.on{background:var(--gold)}
+.lj-stl{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:6px;width:100%;font:600 10.5px var(--sans);color:var(--mute);text-align:center}
+.lj-eul{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:3px;font-size:14px;color:var(--read)}
+.lj-env.bad{border-color:var(--red);background:rgba(248,113,113,.07)}.lj-env.bad .lj-ok{background:var(--red);color:#fff}
 /* aba Avaliações */
 .av-sum{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;padding:14px;margin:0 0 12px;border:1px solid var(--line);border-radius:16px;background:rgba(var(--gold-rgb),.04)}
 .av-big{display:grid;justify-items:center;gap:2px}.av-big b{font-size:40px;line-height:1}.av-big span:last-child{font-size:12px;color:var(--mute)}

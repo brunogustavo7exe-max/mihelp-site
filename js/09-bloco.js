@@ -986,10 +986,11 @@ function pedAtualiza8(root,L){const ch=L.chave,n=pedQtd8(ch),t=pedTotal8(ch);
 function cabPane8(pane,L,aba){const C=CARD8[L.chave],ni=C&&C.itens?C.itens.length:0,te=L.totalEquipe||0;
  const M={serv:['🗓','Serviços','Escolha um serviço e reserve o seu horário.'],
   card:['🍽','Cardápio',ni+(ni===1?' item':' itens')+' · toque no item para escolher'],
-  ped:['🛒','Seu pedido','Confira os itens e envie para a loja.'],
+  ped:['🛒','Seu pedido','Confira, preencha seus dados e envie direto para a loja.'],
   equipe:['👥','Equipe',te+(te===1?' profissional':' profissionais')],
   aval:['⭐','Avaliações',L.n?L.n+(L.n===1?' avaliação':' avaliações'):'Ainda sem avaliações']}[aba];
  if(!M)return;const h=mk8('div','lj-sh');h.append(mk8('span','lj-shi',M[0]));const t=mk8('div');t.append(mk8('b',null,M[1]),mk8('span',null,M[2]));h.append(t);pane.append(h)}
+const semAcento29=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 /* janela do item: adicionais, observação, quantidade */
 function folhaItem8(d,L,i){
  const s=document.createElement('dialog');s.className='lj-sd';s.setAttribute('aria-label',i.n);
@@ -1019,14 +1020,25 @@ function painelCard8(pane,d,L){const C=CARD8[L.chave];
  const rec=C.aberta!==false&&L.aberto!==false;
  if(!rec)pane.append(mk8('p','v8status off','🔴 Fechada para pedidos no momento. Dá para ver o cardápio, mas não para pedir.'));
  const cats=(C.cats&&C.cats.length?C.cats:[...new Set(C.itens.map(i=>i.c))]).filter(cat=>C.itens.some(i=>i.c===cat));
- const secs=[];
+ const secs=[];let catSel='',termo='';
+ const find=mk8('div','lj-find'),res=mk8('div','lj-res'),nada=mk8('div','lj-nada');res.setAttribute('role','status');nada.hidden=true;
+ const aplica=()=>{const tk=semAcento29(termo).split(/\s+/).filter(Boolean);let tot=0;
+  secs.forEach(sc=>{let vis=0;sc.querySelectorAll('.lj-card').forEach(c=>{const ok=tk.every(w=>c.dataset.q.includes(w));c.hidden=!ok;if(ok)vis++});
+   const sm=sc.querySelector('h4 small');if(sm)sm.textContent=vis+(vis===1?' item':' itens');
+   sc.hidden=(!!catSel&&sc.dataset.cat!==catSel)||!vis;if(!sc.hidden)tot+=vis});
+  nada.hidden=tot>0;res.textContent=tk.length&&tot?tot+(tot===1?' item encontrado':' itens encontrados'):''};
+ if(C.itens.length>=4){const bx=mk8('div','lj-busca'),inp=document.createElement('input');inp.type='search';inp.placeholder='Buscar no cardápio (ex.: bacon, suco, batata)';inp.autocomplete='off';inp.maxLength=40;inp.enterKeyHint='search';inp.setAttribute('aria-label','Buscar no cardápio');
+  const lim=botao8('✕','lj-bx',()=>{inp.value='';termo='';lim.hidden=true;aplica();inp.focus()});lim.hidden=true;lim.setAttribute('aria-label','Limpar busca');
+  inp.oninput=()=>{termo=inp.value;lim.hidden=!termo;aplica()};bx.setAttribute('role','search');bx.append(mk8('span','lj-bi','🔍'),inp,lim);find.append(bx,res);
+  nada.append(mk8('b',null,'Nenhum item encontrado'),mk8('p','note','Tente outra palavra ou limpe a busca para ver o cardápio todo.'),botao8('Limpar busca','more',()=>lim.onclick()))}
  if(cats.length>1){const nav=mk8('div','lj-cats');nav.setAttribute('role','group');nav.setAttribute('aria-label','Filtrar por categoria');
   const mkb=(rot,val)=>{const bt=mk8('button',null,rot);bt.type='button';bt.setAttribute('aria-pressed',String(val===''));
-   bt.onclick=()=>{nav.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===bt)));secs.forEach(sc=>{sc.hidden=!!val&&sc.dataset.cat!==val})};return bt};
-  nav.append(mkb('Todos',''));cats.forEach(cat=>nav.append(mkb(cat,cat)));pane.append(nav)}
+   bt.onclick=()=>{nav.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===bt)));catSel=val;aplica()};return bt};
+  nav.append(mkb('Todos',''));cats.forEach(cat=>nav.append(mkb(cat,cat)));find.append(nav)}
+ if(find.childNodes.length)pane.append(find);
  cats.forEach(cat=>{const li=C.itens.filter(i=>i.c===cat);const sec=mk8('section','lj-sec');sec.dataset.cat=cat;secs.push(sec);
   const h=mk8('h4','lj-cat',cat);h.append(mk8('small',null,li.length+(li.length===1?' item':' itens')));sec.append(h);const g=mk8('div','lj-cards');
-  li.forEach(i=>{const pode=!!i.o&&rec,c=mk8('article','lj-card'+(i.o?'':' off')+(pode?' sel':'')),ph=mk8('div','lj-ph');c.dataset.id=String(i.id);ph.append(avatarLoja8(L,44));
+  li.forEach(i=>{const pode=!!i.o&&rec,c=mk8('article','lj-card'+(i.o?'':' off')+(pode?' sel':'')),ph=mk8('div','lj-ph');c.dataset.id=String(i.id);c.dataset.q=semAcento29([i.n,i.d,cat,(i.a||[]).map(x=>x.n).join(' ')].join(' '));ph.append(avatarLoja8(L,44));
    if(i.f){const im=document.createElement('img');im.alt='';im.loading='lazy';ph.append(im);fotoCard8(L.chave,i.id,im)}
    if(pode)ph.append(mk8('span','lj-plus','+'));
    const t=mk8('div','lj-ct');t.append(mk8('b',null,i.n));if(i.d)t.append(mk8('span','lj-d',i.d));
@@ -1035,25 +1047,96 @@ function painelCard8(pane,d,L){const C=CARD8[L.chave];
    c.append(ph,t,f);
    if(pode){const abre=()=>folhaItem8(d,L,i);c.tabIndex=0;c.setAttribute('role','button');c.setAttribute('aria-label',i.n+', '+brl8(i.p/100)+'. Toque para escolher');c.onclick=abre;c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();abre()}}}
    g.append(c)});sec.append(g);pane.append(sec)});
+ pane.append(nada);
  if(rec){const bar=mk8('div','lj-bar');bar.append(mk8('span'),botao8('Ver pedido →','cta2',()=>{pintaLoja8(d,L,'ped');const t2=d.querySelector('.lj-tabs');if(t2)t2.scrollIntoView({block:'start'})}));pane.append(bar)}
  pedAtualiza8(pane,L);
  if(L.contato){const a=mk8('a','more','💬 Falar com a loja no WhatsApp');a.href=waLink8(L.contato);a.target='_blank';a.rel='noopener noreferrer';a.style.textDecoration='none';a.style.marginTop='12px';a.style.display='inline-flex';pane.append(a)}}
 function pedTexto8(L,ls){return 'Olá! Quero fazer um pedido pelo MiHelp ('+L.nome+'):\n'+ls.map(x=>'• '+x.q+'x '+x.n+(x.ad.length?' (+ '+x.ad.join(', ')+')':'')+(x.obs?' — obs: '+x.obs:'')+' — '+brlC8(x.q*x.u)).join('\n')+'\nTotal: '+brlC8(ls.reduce((t,x)=>t+x.q*x.u,0))}
+/* ===== v29: pedido enviado direto ao MESA da loja (sem precisar de cadastro) e acompanhamento ===== */
+const FORM8={},ENV8={},CLI29='mh_cli_ped',ENVK29='mh_ped_env',FINAL29=['entregue','cancelado'];
+const lsJ29=(k,pad)=>{try{const v=JSON.parse(localStorage.getItem(k)||'null');return v==null?pad:v}catch(e){return pad}};
+const lsW29=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const envLer29=ch=>{if(ENV8[ch])return ENV8[ch];const x=lsJ29(ENVK29,[]).find(y=>y&&y.ch===ch&&Date.now()-y.ts<8*3600e3);if(x)ENV8[ch]=x;return x||null};
+const envGrava29=x=>{const o={ch:x.ch,rid:x.rid,ts:x.ts,tipo:x.tipo,nome:x.nome,total:x.total,itens:x.itens,st:x.st,num:x.num};lsW29(ENVK29,lsJ29(ENVK29,[]).filter(y=>y&&y.ch!==x.ch).concat([o]).slice(-6))};
+const envLimpa29=ch=>{delete ENV8[ch];lsW29(ENVK29,lsJ29(ENVK29,[]).filter(y=>y&&y.ch!==ch))};
+const ETP29={novo:x=>x.num?'✅ Pedido #'+x.num+' recebido pela loja':'📨 Enviado. Aguardando a loja confirmar',preparando:()=>'👨‍🍳 A loja está preparando o seu pedido',
+ pronto:x=>x.tipo==='retirada'?'✅ Pronto! Pode retirar na loja':'📦 Pronto, esperando sair para entrega',a_caminho:()=>'🛵 Saiu para entrega',entregue:x=>x.tipo==='retirada'?'🎉 Retirado. Bom apetite!':'🎉 Entregue. Bom apetite!',cancelado:()=>'A loja não pôde aceitar este pedido. Fale com ela pelo WhatsApp.'};
+/* acompanha a etapa do pedido: pergunta ao Worker a cada 15 s enquanto a janela da loja estiver aberta */
+function envPoll29(pane,d,L,x,redesenha){clearTimeout(x._t);
+ const passo=async()=>{if(!d.isConnected||!d.open||ENV8[x.ch]!==x||FINAL29.includes(x.st))return;
+  const r=await chama8('/cardapio/pedido?chave='+encodeURIComponent(x.ch)+'&rid='+encodeURIComponent(x.rid));
+  if(!d.isConnected||!d.open||ENV8[x.ch]!==x)return;
+  if(r.ok&&r.j&&r.j.ok&&(r.j.st!==x.st||r.j.num!==x.num)){x.st=r.j.st;x.num=r.j.num||0;envGrava29(x);if(pane.isConnected)redesenha()}
+  if(!FINAL29.includes(x.st))x._t=setTimeout(passo,15000)};
+ x._t=setTimeout(passo,3000)}
+function envView29(w,d,L,x,temNovo,volta){
+ const fim=FINAL29.includes(x.st),ruim=x.st==='cancelado',box=mk8('div','lj-env'+(ruim?' bad':fim?' fim':''));
+ box.append(mk8('div','lj-ok',ruim?'✕':fim?'🎉':'✓'),mk8('h4',null,ruim?'Pedido não aceito':fim?(x.tipo==='retirada'?'Pedido retirado':'Pedido entregue'):'Pedido enviado!'),mk8('p','lj-es',ETP29[x.st](x)));
+ if(!ruim){const nomes=['Enviado','Preparando','Pronto',x.tipo==='retirada'?'Retirado':'A caminho'].concat(x.tipo==='retirada'?[]:['Entregue']);
+  const idx=x.st==='novo'?0:x.st==='preparando'?1:x.st==='pronto'?2:x.st==='a_caminho'?3:nomes.length-1;
+  const bar=mk8('div','lj-steps'),lb=mk8('div','lj-stl');bar.style.setProperty('--n',nomes.length);lb.style.setProperty('--n',nomes.length);nomes.forEach((n,k)=>{const i=mk8('i',k<=idx?'on':'');bar.append(i);lb.append(mk8('span',null,n))});box.append(bar,lb)}
+ const ul=mk8('ul','lj-eul');(x.itens||[]).forEach(i=>ul.append(mk8('li',null,i.q+'× '+i.n+(i.ad&&i.ad.length?' (+ '+i.ad.join(', ')+')':''))));
+ box.append(ul,mk8('strong','lj-et','Total: '+brlC8(x.total)),mk8('p','note',fim?'Pedido de '+x.nome+'.':'A loja já vê o seu pedido no painel dela. Esta tela se atualiza sozinha, não precisa recarregar.'));
+ w.append(box);
+ const ac=mk8('div','v8acts');
+ if(temNovo)ac.append(botao8('← Voltar ao meu novo pedido','cta2',volta));
+ if(L.contato&&waLink8(L.contato)){const a=mk8('a',ruim?'cta2':'more','💬 Falar com a loja no WhatsApp');a.href=waLink8(L.contato)+'?text='+encodeURIComponent('Olá! Sobre o meu pedido'+(x.num?' #'+x.num:'')+' feito pelo MiHelp ('+x.nome+')');a.target='_blank';a.rel='noopener noreferrer';ac.append(a)}
+ ac.append(botao8(fim?'🍽 Fazer outro pedido':'🍽 Ver o cardápio','more',()=>{if(fim)envLimpa29(x.ch);pintaLoja8(d,L,'card');const t2=d.querySelector('.lj-tabs');if(t2)t2.scrollIntoView({block:'start'})}));
+ w.append(ac)}
 function painelPed8(pane,d,L){const C=CARD8[L.chave],ch=L.chave,rec=!C||(C.aberta!==false&&L.aberto!==false);
- const draw=()=>{pane.querySelectorAll('.lj-pbody').forEach(x=>x.remove());const w=mk8('div','lj-pbody'),ls=pedLinhas8(ch);
+ const F=FORM8[ch]||(FORM8[ch]=(()=>{const s=lsJ29(CLI29,{});return{tipo:'entrega',nome:s.nome||(eu&&eu.nome)||'',tel:s.tel||'',rua:s.rua||'',bairro:s.bairro||'',pag:s.pag||'Pix',obs:'',loc:'',ver:0}})());
+ const draw=()=>{pane.querySelectorAll('.lj-pbody').forEach(x=>x.remove());const w=mk8('div','lj-pbody'),ls=pedLinhas8(ch),env=envLer29(ch);
+  if(env&&(!ls.length||F.ver)){envView29(w,d,L,env,!!ls.length,()=>{F.ver=0;draw()});pane.append(w);envPoll29(pane,d,L,env,draw);return}
   if(!ls.length){const e=mk8('div','lj-vazio');e.append(mk8('b',null,'Seu pedido está vazio'),mk8('p','note','Escolha os itens na aba Cardápio e eles aparecem aqui.'),botao8('🍽 Ver cardápio','cta2',()=>{pintaLoja8(d,L,'card');const t2=d.querySelector('.lj-tabs');if(t2)t2.scrollIntoView({block:'start'})}));w.append(e);pane.append(w);return}
+  if(env&&!FINAL29.includes(env.st)){const bn=mk8('div','lj-andando');bn.append(mk8('span',null,'📨 Você tem um pedido em andamento aqui.'),botao8('Acompanhar','more',()=>{F.ver=1;draw()}));w.append(bn)}
   ls.forEach((x,k)=>{const r=mk8('div','lj-ln'),inf=mk8('div','lj-li');inf.append(mk8('b',null,x.n));if(x.ad.length)inf.append(mk8('span','note','+ '+x.ad.join(', ')));if(x.obs)inf.append(mk8('span','note','Obs: '+x.obs));
    const st=mk8('div','lj-qs'),m=botao8('−','lj-qb2',()=>{if(x.q>1)x.q--;else ls.splice(k,1);pedAtualiza8(d,L);draw()}),p=botao8('+','lj-qb2',()=>{if(x.q<50)x.q++;pedAtualiza8(d,L);draw()});
    m.setAttribute('aria-label',x.q>1?'Menos um':'Remover item');p.setAttribute('aria-label','Mais um');st.append(m,mk8('b','lj-qv',String(x.q)),p);
    r.append(inf,st,mk8('strong','lj-lp',brlC8(x.q*x.u)));w.append(r)});
-  const tt=mk8('div','lj-tot');tt.append(mk8('span',null,'Total'),mk8('strong',null,brlC8(pedTotal8(ch))));w.append(tt);
+  /* como receber */
+  const fm=mk8('div','lj-form');fm.append(mk8('h5',null,'Como você quer receber?'));
+  const seg=mk8('div','lj-seg');seg.setAttribute('role','group');seg.setAttribute('aria-label','Como você quer receber');
+  [['entrega','🛵 Entrega'],['retirada','🏪 Retirar na loja']].forEach(([v,t])=>{const b=botao8(t,null,()=>{F.tipo=v;draw()});b.setAttribute('aria-pressed',String(F.tipo===v));seg.append(b)});fm.append(seg);
+  const campo=(rot,el)=>{const l=mk8('label','lj-f');l.append(mk8('span',null,rot),el);return l};
+  const inp=(k,ph,tp,ac,ml)=>{const i=document.createElement('input');i.type=tp||'text';i.value=F[k]||'';i.placeholder=ph||'';i.maxLength=ml||80;if(ac)i.autocomplete=ac;if(tp==='tel')i.inputMode='tel';i.oninput=()=>{F[k]=i.value};return i};
+  const reg=!!tk8()&&eu&&eu.nome;if(reg)F.nome=eu.nome;
+  fm.append(mk8('h5',null,'Seus dados'));if(reg)fm.append(mk8('p','note','Pedindo como '+eu.nome+'. Só falta o telefone e onde entregar.'));else fm.append(campo('Seu nome',inp('nome','Como a loja deve te chamar','text','name',60)));fm.append(campo('Telefone / WhatsApp com DDD',inp('tel','(66) 99999-9999','tel','tel',20)));
+  if(F.tipo==='entrega'){fm.append(mk8('h5',null,'Onde entregar'),campo('Rua e número',inp('rua','Ex.: Rua das Flores, 120','text','street-address',120)),campo('Bairro ou ponto de referência',inp('bairro','Ex.: Centro, perto da praça','text','off',60)));
+   const gl=botao8(F.loc?'✔ Localização anexada (toque para refazer)':'📍 Usar minha localização','more lj-loc',()=>{if(!navigator.geolocation){gl.textContent='Este aparelho não deixa pegar a localização';return}gl.textContent='Buscando localização…';navigator.geolocation.getCurrentPosition(pos=>{F.loc='https://maps.google.com/?q='+pos.coords.latitude.toFixed(6)+','+pos.coords.longitude.toFixed(6);gl.textContent='✔ Localização anexada (toque para refazer)'},()=>{gl.textContent='Não consegui. Digite a rua e o número.'},{enableHighAccuracy:true,timeout:10000})});fm.append(gl)}
+  else fm.append(mk8('p','note','Você retira o pedido na loja. Sem taxa de entrega.'));
+  const pg8=mk8('div','lj-seg lj-seg3');pg8.setAttribute('role','group');pg8.setAttribute('aria-label','Forma de pagamento');
+  [['Pix','Pix'],['Cartão','💳 Cartão'],['Dinheiro','💵 Dinheiro']].forEach(([v,t])=>{const b=botao8(t,null,()=>{F.pag=v;pg8.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))});b.setAttribute('aria-pressed',String(F.pag===v));pg8.append(b)});
+  const pl=mk8('div','lj-f');pl.append(mk8('span',null,'Pagamento (você paga direto à loja)'),pg8);fm.append(pl);
+  const ob=document.createElement('textarea');ob.maxLength=140;ob.rows=2;ob.value=F.obs;ob.placeholder='Ex.: sem cebola, troco para R$ 50';ob.oninput=()=>{F.obs=ob.value};fm.append(campo('Observação do pedido (opcional)',ob));
+  w.append(fm);
+  /* totais */
+  const sub=pedTotal8(ch),tx=F.tipo==='entrega'&&C&&typeof C.tx==='number'?C.tx:0,tt=mk8('div','lj-sum');
+  const lin=(a,b,cl)=>{const r=mk8('div',cl||'');r.append(mk8('span',null,a),mk8('strong',null,b));tt.append(r)};
+  lin('Subtotal',brlC8(sub));if(F.tipo==='entrega'&&C&&typeof C.tx==='number')lin('Taxa de entrega',tx?brlC8(tx):'Grátis');lin('Total',brlC8(sub+tx),'tot');w.append(tt);
   if(!rec)w.append(mk8('p','v8status off','🔴 A loja está fechada para pedidos agora.'));
-  w.append(mk8('p','note','O pedido sai pelo WhatsApp da loja. Quem confirma o valor final, o pagamento e a entrega é a loja, com você. O MiHelp não cobra nada aqui.'));
+  const err=mk8('p','lj-err');err.hidden=true;err.setAttribute('role','alert');
+  const falha=m=>{err.textContent=m;err.hidden=false;try{err.scrollIntoView({block:'nearest'})}catch(e){}};
+  const env2=botao8('📨 Enviar pedido · '+brlC8(sub+tx),'cta2 lj-send',async()=>{
+   const nome=F.nome.trim(),tel=F.tel.replace(/\D/g,''),rua=F.rua.trim(),bairro=F.bairro.trim();
+   if(!rec)return falha('A loja está fechada para pedidos agora.');
+   if(nome.length<2)return falha('Digite o seu nome.');
+   if(tel.length<10||tel.length>13)return falha('Digite o telefone com DDD, para a loja falar com você.');
+   if(F.tipo==='entrega'&&rua.length<6&&!F.loc)return falha('Digite a rua e o número da entrega (ou use a sua localização).');
+   env2.disabled=true;env2.textContent='Enviando…';err.hidden=true;
+   const r=await chama8('/cardapio/pedido',{chave:ch,nome,tel,tipo:F.tipo,end:F.tipo==='entrega'?([rua,bairro].filter(Boolean).join(' — ').slice(0,115)+(F.loc?(rua||bairro?' · ':'')+'📍 '+F.loc:'')):'',pag:F.pag,obs:F.obs.trim(),itens:ls.map(x=>({id:x.id,q:x.q,ad:x.ad,obs:x.obs}))});
+   if(r.ok&&r.j&&r.j.ok){lsW29(CLI29,{nome:reg?'':nome,tel:F.tel,rua,bairro,pag:F.pag});
+    const x={ch,rid:r.j.rid,ts:Date.now(),tipo:F.tipo,nome,total:r.j.total,itens:ls.map(i=>({n:i.n,q:i.q,ad:i.ad.slice()})),st:'novo',num:0};
+    ENV8[ch]=x;envGrava29(x);PED8[ch]=[];F.obs='';F.ver=0;pedAtualiza8(d,L);draw();try{pane.scrollIntoView({block:'start'})}catch(e){}return}
+   env2.disabled=false;env2.textContent='📨 Enviar pedido · '+brlC8(sub+tx);falha(r.status===0?'Sem conexão. Confira a internet e tente de novo.':erro8(r))});
+  w.append(err,env2,mk8('p','note','Não precisa de cadastro. O pedido cai direto no painel da loja (MESA) e você acompanha aqui. Quem confirma o valor final e combina o pagamento é a loja. O MiHelp não cobra nada.'));
+  /* alternativas */
+  const alt=document.createElement('details');alt.className='lj-alt';alt.append(mk8('summary',null,'Prefere combinar pelo WhatsApp?'));
   const ac=mk8('div','v8acts');
-  if(L.contato&&rec&&waLink8(L.contato)){const a=mk8('a','cta2','💬 Enviar pelo WhatsApp');a.href=waLink8(L.contato)+'?text='+encodeURIComponent(pedTexto8(L,ls));a.target='_blank';a.rel='noopener noreferrer';ac.append(a)}
-  else if(!L.contato)w.append(mk8('p','note','Esta loja ainda não informou um WhatsApp. Copie o pedido e combine pelo chat do MiHelp.'));
+  if(L.contato&&rec&&waLink8(L.contato)){const a=mk8('a','more','💬 Enviar pelo WhatsApp');a.href=waLink8(L.contato)+'?text='+encodeURIComponent(pedTexto8(L,ls));a.target='_blank';a.rel='noopener noreferrer';ac.append(a)}
   const cp=botao8('📋 Copiar pedido','more',async()=>{try{await navigator.clipboard.writeText(pedTexto8(L,ls));cp.textContent='✔ Copiado'}catch(e){cp.textContent='Não deu para copiar'}setTimeout(()=>cp.textContent='📋 Copiar pedido',2200)});
-  ac.append(cp,botao2x8('🗑 Limpar pedido','more',()=>{PED8[ch]=[];pedAtualiza8(d,L);draw()}));w.append(ac);pane.append(w)};
+  ac.append(cp);alt.append(ac);w.append(alt);
+  w.append(botao2x8('🗑 Limpar pedido','more lj-limpa',()=>{PED8[ch]=[];pedAtualiza8(d,L);draw()}));
+  pane.append(w)};
  draw()}
 function painelServ8(pane,d,L){const sv=L.servicos||[];
  if(!sv.length){pane.append(mk8('p','note',L.souDono?'Você ainda não cadastrou serviços. Toque em "Gerenciar minha loja" e depois em "Serviços e preços".':'Esta loja ainda não cadastrou serviços.'));return}

@@ -28,7 +28,7 @@ function abrir(){d.textContent='';
  const ms=mk('div','ap-c ap-mesa');
  const ml2=new Image();ml2.src=MLOGO;ml2.alt='MESA · Sabor, gestão, conexão';ml2.className='ms-logo';
  ms.append(mk('span','ap-tag ok ms-tag','No ar'),ml2,mk('p',0,'O painel de lanchonetes e restaurantes: monte o cardápio com fotos e preços, acompanhe os pedidos e deixe a loja sempre atualizada aqui no MiHelp.'));
- const msl=mk('ul');['Cardápio digital com fotos, preços e adicionais','Pedidos em andamento, do novo ao entregue','O cardápio vai sozinho para a página da loja no MiHelp','O faturamento segue para o Domin'].forEach(x=>msl.append(mk('li',0,x)));ms.append(msl);
+ const msl=mk('ul');['Cardápio digital com fotos, preços, adicionais e taxa de entrega','O cardápio vai sozinho para a página da loja no MiHelp','Os pedidos feitos no MiHelp chegam sozinhos no MESA, com aviso sonoro','O cliente acompanha o pedido, do novo ao entregue','O faturamento segue para o Domin'].forEach(x=>msl.append(mk('li',0,x)));ms.append(msl);
  const mgo=mk('a','ap-go ms-go','Abrir o MESA');mgo.href=urlM();mgo.target='_blank';mgo.rel='noopener noreferrer';
  ms.append(mgo,mk('p','ms-nota','Entra com a mesma conta do MiHelp. Se você ainda não entrou, o MESA pede o telefone e a senha ali mesmo. Entregadores (motoboy) entram em breve no mesmo ecossistema.'),mk('p','ms-lema','Sabor · Gestão · Conexão'));d.append(ms);
  d.append(card('Novos apps','Planejado',false,'O ecossistema da D’Castro Labs vai ganhar outros apps, cada um com a sua função. O Domin continua sendo só a gestão financeira e empresarial.',null,null));
