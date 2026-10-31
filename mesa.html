@@ -682,6 +682,29 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
     },
   };
 
+  /* ---------- ponte MESA → RIVO ----------
+     Hoje a chamada vai por uma fila no localStorage ('rivo_fila_v1'), que o RIVO lê quando os dois estão abertos no mesmo
+     navegador e no mesmo endereço (modo de teste). Com o servidor do RIVO, trocar pedir() e ler() por chamadas à API;
+     o resto (botão, etiqueta, estados) continua igual. */
+  const rivo = {
+    FILA: 'rivo_fila_v1', ST: 'rivo_status_v1',
+    ROT: { solicitada: 'Procurando entregador', atribuida: 'Entregador encontrado', a_coleta: 'Indo buscar o pedido', coletado: 'Pegou o pedido', em_rota: 'A caminho do cliente', entregue: 'Entregue', cancelada: 'Chamada cancelada' },
+    rd(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (_) { return null; } },
+    pode(o) { return o.tipo === 'entrega' && (o.status === 'preparando' || o.status === 'pronto') && !o.rivo; },
+    pedir(o) {
+      const c = estado.config, rid = 'mesa-' + ((c.eco && c.eco.chave) || 'local') + '-' + o.id;
+      const fila = Array.isArray(rivo.rd(rivo.FILA)) ? rivo.rd(rivo.FILA) : [];
+      if (!fila.some((x) => x.rid === rid)) fila.push({ rid, loja: c.nome, cidade: c.cidade || '', telLoja: c.contato || '', n: o.id, cliente: o.nome, tel: o.tel, dest: o.endereco, valor: o.taxaEntregaCentavos || 0, obs: o.obs || '', pag: o.pagamento, pronto: o.status === 'pronto', ts: Date.now() });
+      try { localStorage.setItem(rivo.FILA, JSON.stringify(fila)); } catch (_) { return false; }
+      o.rivo = { rid, st: 'solicitada', nome: '', ts: Date.now() }; return true;
+    },
+    ler() {
+      const mp = rivo.rd(rivo.ST) || {}; let mudou = false;
+      estado.pedidos.forEach((o) => { if (!o.rivo) return; const r = mp[o.rivo.rid]; if (r && (r.st !== o.rivo.st || (r.nome || '') !== (o.rivo.nome || ''))) { o.rivo.st = r.st; o.rivo.nome = r.nome || ''; mudou = true; } });
+      if (mudou) { salvar('pedidos'); renderizar(); }
+    },
+  };
+
   /* ---------- telas ---------- */
   const linkar = (t) => esc(t).replace(/📍 (https:\/\/maps\.google\.com\/\?q=[-0-9.,]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--ac)">📍 Abrir no mapa</a>');   // localização enviada pelo cliente do MiHelp
   function cartaoPedido(o) {
@@ -691,7 +714,8 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
 <ul>${o.itens.map((i) => `<li>${i.qtd}× ${esc(i.nome)}${i.adicionais && i.adicionais.length ? `<div class="mu sm">+ ${i.adicionais.map(esc).join(', ')}</div>` : ''}${i.obs ? `<div class="note">“${esc(i.obs)}”</div>` : ''}</li>`).join('')}</ul>
 ${o.obs ? `<p class="note">“${esc(o.obs)}”</p>` : ''}${o.tipo === 'entrega' ? `<p class="mu sm">${linkar(o.endereco)}</p>` : ''}
 <div class="r"><b>${Money.formatar(Pedidos.total(o))}</b><span class="mu sm">${esc(o.tel)}</span></div>
-<div class="acts2">${prox ? `<button class="btn pri full" data-a="avancar" data-id="${o.id}">${prox.acao}</button>` : ''}${Pedidos.podeRecusar(o) ? `<button class="btn full" data-a="recusar" data-id="${o.id}">Recusar</button>` : ''}</div></article>`;
+${o.tipo === 'entrega' && o.rivo ? `<p class="mu sm">RIVO: ${esc(rivo.ROT[o.rivo.st] || o.rivo.st)}${o.rivo.nome ? ' · ' + esc(o.rivo.nome) : ''}</p>` : ''}
+<div class="acts2">${rivo.pode(o) ? `<button class="btn full" data-a="chamarEntregador" data-id="${o.id}">Solicitar entregador</button>` : ''}${prox ? `<button class="btn pri full" data-a="avancar" data-id="${o.id}">${prox.acao}</button>` : ''}${Pedidos.podeRecusar(o) ? `<button class="btn full" data-a="recusar" data-id="${o.id}">Recusar</button>` : ''}</div></article>`;
   }
 
   function telaPedidos() {
@@ -1029,6 +1053,12 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
       if (!prox) return false;
       p.status = prox.para; if (p.status === 'entregue') { p.entregueEm = Date.now(); eco.faturar(p); } salvar('pedidos'); aviso(`Pedido #${p.id} atualizado`); eco.enviarStatus();
     },
+    chamarEntregador(t) {
+      const p = buscarPedido(t.dataset.id);
+      if (!p || !rivo.pode(p)) return false;
+      if (!rivo.pedir(p)) { aviso('Não consegui registrar a chamada neste navegador.'); return false; }
+      salvar('pedidos'); aviso(`Entregador solicitado para o pedido #${p.id}`);
+    },
     recusar(t) {
       const p = buscarPedido(t.dataset.id);
       if (!p || !Pedidos.podeRecusar(p)) return false;
@@ -1235,6 +1265,7 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
     repositorio.aoMudarExternamente(async () => { await carregarEstado(); renderizar(); });
     setInterval(atualizarTempos, 30000);
     setInterval(eco.tic, 60000); eco.tic();
+    setInterval(rivo.ler, 4000); window.addEventListener('storage', (e) => { if (e.key === rivo.ST) rivo.ler(); });
     setInterval(() => { eco.buscar(); eco.enviarStatus(); }, 15000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) { eco.buscar(); eco.enviarStatus(); } });
   }
