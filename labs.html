@@ -447,10 +447,11 @@ function boot(){
   S.lojas=a[0].j.lojas||[];S.conv=a[0].j.convites||[];S.transf=a[0].j.transferencias||[];S.cat={tipos:a[0].j.tipos||[],cidades:cidMinha(a[0].j.cidades||{})};(a[0].j.vinculos||[]).forEach(function(x){if(x.status==='aceito'&&!S.lojas.some(function(l){return l.chave===x.est}))S.lojas.push({chave:x.est,nome:(x.estNome||x.est)+' (como funcionário)',vinc:1,equipe:[],servicos:[]})});S.nome=(a[1].j&&a[1].j.nome)||'';
   var q=new URLSearchParams(location.search).get('loja')||(function(){try{return sessionStorage.getItem('dl_loja')}catch(e){return ''}})();
   S.cur=((S.lojas.find(function(l){return l.chave===q})||S.lojas[0])||{}).chave||null;
-  S.boot=1;return Promise.all(S.lojas.filter(function(x){return x.vinc}).map(function(x){return Promise.all([api('/gestao/acesso?chave='+encodeURIComponent(x.chave)),api('/pdv/estado?chave='+encodeURIComponent(x.chave))]).then(function(rr){var r=rr[0],q=rr[1],kp='dl_pdvok_'+x.chave;x.gestor=!!(r.ok&&r.j&&r.j.ok);if(q.status===0){try{x.pdv=localStorage.getItem(kp)==='1'}catch(e){x.pdv=false}}else{x.pdv=!!(q.ok&&q.j&&q.j.ok&&(q.j.perms||[]).length);try{localStorage.setItem(kp,x.pdv?'1':'0')}catch(e){}}})})).then(function(){shell();var h0=location.hash.slice(1);return load().then(function(){go(h0||((S.off||(loja()&&loja().vinc&&loja().pdv))?'automacoes':'visao'))})})})}
+  S.boot=1;return Promise.all(S.lojas.filter(function(x){return x.vinc}).map(function(x){return Promise.all([api('/gestao/acesso?chave='+encodeURIComponent(x.chave)),api('/pdv/estado?chave='+encodeURIComponent(x.chave))]).then(function(rr){var r=rr[0],q=rr[1],kp='dl_pdvok_'+x.chave;x.gestor=!!(r.ok&&r.j&&r.j.ok);if(q.status===0){try{x.pdv=localStorage.getItem(kp)==='1'}catch(e){x.pdv=false}}else{x.pdv=!!(q.ok&&q.j&&q.j.ok&&(q.j.perms||[]).length);try{localStorage.setItem(kp,x.pdv?'1':'0')}catch(e){}}})})).then(function(){shell();var h0=location.hash.slice(1);return load().then(function(){go(h0||((S.off||(loja()&&loja().vinc&&loja().pdv))?'automacoes':'visao'));NOTIF.inicia()})})})}
 /* ===== WORKFORCE =====
  Dados salvos no servidor (/wf/dados), um bloco por empresa. Escalas continuam protótipo. O servidor decide o papel (empregador/funcionário). Independente do MiHelp: avaliações públicas não entram aqui. */
 var WFV=['meutrabalho','ponto','avaliacoes','passaporte','config'];
+var MBR=['escalas','chat'];/* telas que o membro vê além do Workforce: o servidor continua decidindo o que ele pode ler e gravar */
 function wfPost(k,d,base){return fetch(API+'/wf/dados',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+tk()},body:JSON.stringify({chave:k,dados:d,base:base})}).then(function(r){return r.json().catch(function(){return{}}).then(function(j){return{ok:r.ok,j:j}})}).catch(function(){return{ok:false,j:{erro:'sem conexão'}}})}
 var Store={mem:{},q:Promise.resolve(),n:0,
  cur:function(){return this.mem[S.cur]},
@@ -463,6 +464,24 @@ var Store={mem:{},q:Promise.resolve(),n:0,
    else{toast((r.j&&r.j.erro)||'Não foi possível salvar.');return self.carregar().then(function(){if(!$('#view .fld'))re()})}})}).then(function(){self.n--});return true}};
 function autor(){return S.nome||'Empregador'}
 var ROLE='empregador',ME='',FT='',BQ='';
+/* ===== Aviso de mensagem nova do chat: bolinha no menu e no modo caixa =====
+   Guarda neste aparelho o horário da última mensagem vista em cada canal e consulta o servidor de tempos em tempos.
+   Só conta mensagens de outras pessoas. Na primeira vez em um canal não conta o histórico antigo. */
+var NOTIF={n:0,t:null,busy:0,
+ k:function(ch,c){return 'dl_chatvisto_'+ch+'_'+c},
+ ler:function(ch,c){try{var v=localStorage.getItem(NOTIF.k(ch,c));return v==null?null:+v}catch(e){return null}},
+ vi:function(ch,c,ts){try{localStorage.setItem(NOTIF.k(ch,c),String(ts))}catch(e){}NOTIF.pinta(0)},
+ pinta:function(n){if(n!=null&&n!==0)NOTIF.n=n;if(n===0&&S.view==='chat')NOTIF.n=0;
+  var q=NOTIF.n;document.querySelectorAll('.nav[data-v=chat]').forEach(function(b){var o=b.querySelector('.nbolinha');if(o)o.remove();if(q>0){var d=h('span','dot nbolinha',q>9?'9+':String(q));d.style.cssText='margin-left:auto;background:#ff4d6d;border-color:#ff4d6d;color:#fff;font-weight:700;min-width:18px;text-align:center';d.setAttribute('aria-label',q+' mensagem(ns) nova(s) no chat');b.append(d)}});
+  var fs=document.querySelector('.pdvfs .fs-chat');if(fs){fs.textContent=q>0?'💬 '+q+' nova'+(q>1?'s':''):'💬 Chat';fs.style.background=q>0?'#ff4d6d':'';fs.style.color=q>0?'#fff':''}},
+ checa:function(){var l=loja();if(!l||!tk()||NOTIF.busy||document.hidden||S.off)return;NOTIF.busy=1;var ch=l.chave;
+  api('/eq/canais?chave='+encodeURIComponent(ch)).then(function(r){if(!r.ok||!r.j||!r.j.ok)return;
+   return Promise.all((r.j.canais||[]).map(function(c){var v=NOTIF.ler(ch,c.id);
+    return api('/eq/msgs?chave='+encodeURIComponent(ch)+'&canal='+encodeURIComponent(c.id)+'&desde='+(v||0)).then(function(m){if(!m.ok||!m.j||!m.j.ok)return 0;var it=m.j.itens||[];
+     if(v==null){var mx=0;it.forEach(function(x){mx=Math.max(mx,x.ts)});NOTIF.vi(ch,c.id,mx||Date.now());return 0}
+     if(S.view==='chat'&&c.id===(typeof CC==='undefined'?'geral':CC))return 0;return it.filter(function(x){return !x.mine}).length})}))}).then(function(a){if(!a)return;var t=a.reduce(function(x,y){return x+y},0);if(loja()&&loja().chave===ch){NOTIF.n=t;NOTIF.pinta()}}).catch(function(){}).then(function(){NOTIF.busy=0})},
+ inicia:function(){if(NOTIF.t)return;NOTIF.checa();NOTIF.t=setInterval(NOTIF.checa,30000);document.addEventListener('visibilitychange',function(){if(!document.hidden)NOTIF.checa()})}};
+
 function re(){go(S.view)}
 function ymd(t){return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0')}
 function hoje(){return ymd(new Date())}
@@ -491,6 +510,16 @@ function roleBar(v){var c=Store.cur(),d=Store.get(),p=h('div','panel');ROLE=c.pa
 var ST=[['fazer','A fazer'],['andamento','Em andamento'],['concluida','Concluída']];
 function funcForm(f){var d=Store.get();show(form(f?'Editar funcionário':'Novo funcionário',[{k:'nome',l:'Nome',req:1,min:2},{k:'cargo',l:'Cargo / função',req:1},{k:'depto',l:'Equipe ou departamento'},{k:'adm',l:'Admissão',t:'date'},{k:'quem',l:'Vincular a membro da equipe (para ele ver o próprio painel)',t:'select',o:[['','Sem conta vinculada']].concat((Store.cur().membros||[]).map(function(m){return [m.quem,m.nome]}))}],function(x){
  if(f){Object.assign(d.funcs.find(function(y){return y.id===f.id}),x)}else d.funcs.push(Object.assign({id:nid(d)},x));save(d,'Funcionário salvo.')},f))}
+function trazEquipe(){var l=loja(),d=Store.get(),c=Store.cur()||{},mb=c.membros||[];
+ if(!l||l.vinc)return toast('Só o dono traz a equipe para a folha.');
+ var low=function(t){return String(t||'').trim().toLowerCase()},novos=[];
+ (l.equipe||[]).forEach(function(m){if(m.status!=='aceito'||m.eu)return;
+  var ja=d.funcs.some(function(f){return low(f.nome)===low(m.nome)});if(ja)return;
+  var vm=mb.find(function(x){return low(x.nome)===low(m.nome)});
+  novos.push({id:nid(d),nome:m.nome,cargo:m.funcao||'A definir',depto:'',adm:'',quem:vm?vm.quem:''})});
+ if(!novos.length)return toast('Ninguém novo na equipe para trazer. Quem já está na folha foi ignorado.');
+ if(!confirm('Trazer '+novos.length+' pessoa(s) da equipe como funcionário(s): '+novos.map(function(x){return x.nome}).join(', ')+'?\nDepois é só completar salário e detalhes.'))return;
+ novos.forEach(function(x){d.funcs.push(x)});save(d,novos.length+' funcionário(s) trazido(s) da equipe.')}
 function funcPanel(v,d){var p=h('div','panel');p.append(h('h2',null,'Funcionários'));var bar=h('div','acts'),q=h('input'),so=opts([['nome','Ordenar por nome'],['cargo','Ordenar por cargo']]),box=h('div');
  q.placeholder='Pesquisar nome, cargo ou equipe';q.value=BQ;q.setAttribute('aria-label','Pesquisar funcionários');so.setAttribute('aria-label','Ordenar');
  function lista(){box.textContent='';var t=BQ.toLowerCase(),a=d.funcs.filter(function(f){return (f.nome+' '+f.cargo+' '+(f.depto||'')).toLowerCase().indexOf(t)>-1}).sort(function(x,y){return String(x[so.value]).localeCompare(String(y[so.value]),'pt')});
@@ -499,7 +528,7 @@ function funcPanel(v,d){var p=h('div','panel');p.append(h('h2',null,'Funcionári
    r.append(h('span',null,f.nome+' · '+f.cargo+(f.depto?' ('+f.depto+')':'')+' · '+n+' tarefa(s) aberta(s)'));
    s.append(btn('Editar',function(){funcForm(f)}),btn('Excluir',function(){if(confirm('Excluir '+f.nome+'? As tarefas, marcações, pedidos e itens do passaporte deste funcionário também serão removidos. As avaliações ficam no histórico.')){
     var k=function(x){return x.f!==f.id};d.funcs=d.funcs.filter(function(x){return x.id!==f.id});d.tarefas=d.tarefas.filter(k);d.marc=d.marc.filter(k);d.corr=d.corr.filter(k);d.pass=d.pass.filter(k);save(d,'Funcionário excluído.')}}));r.append(s);box.append(r)})}
- q.oninput=function(){BQ=q.value;lista()};so.onchange=lista;bar.append(q,so,btn('+ Novo funcionário',function(){funcForm()},'p'));p.append(bar,box);lista();v.append(p)}
+ q.oninput=function(){BQ=q.value;lista()};so.onchange=lista;bar.append(q,so,btn('+ Novo funcionário',function(){funcForm()},'p'));if(ROLE==='empregador')bar.append(btn('Trazer da equipe',trazEquipe));p.append(bar,box);lista();v.append(p)}
 function tarefaPanel(v,d,emp){var p=h('div','panel'),bar=h('div','acts'),f=opts(ST,'Todos os estados');p.append(h('h2',null,emp?'Tarefas':'Minhas tarefas'));
  f.value=FT;f.setAttribute('aria-label','Filtrar por estado');f.onchange=function(){FT=f.value;re()};bar.append(f);
  if(emp)bar.append(btn('+ Nova tarefa',function(){if(!d.funcs.length)return toast('Cadastre um funcionário primeiro.');
@@ -1246,7 +1275,7 @@ var ATIV={geral:['Geral / outro',['servicos','orcamentos','agenda','financeiro',
 var MCAT={visao:{e:'real',core:1,dep:[]},studio:{e:'real',core:1,dep:[]},config:{e:'real',core:1,dep:[]},empresa:{e:'real',dep:[]},equipe:{e:'real',dep:['empresa']},clientes:{e:'parcial',dep:[]},servicos:{e:'real',dep:['empresa']},orcamentos:{e:'real',dep:['clientes']},agenda:{e:'real',dep:['servicos']},financeiro:{e:'real',dep:['empresa']},estoque:{e:'real',dep:['empresa']},relatorios:{e:'real',dep:['financeiro','estoque']},automacoes:{e:'proto',dep:[]},meutrabalho:{e:'parcial',dep:['equipe']},escalas:{e:'parcial',dep:['meutrabalho']},chat:{e:'parcial',dep:['meutrabalho']},ponto:{e:'parcial',dep:['meutrabalho']},avaliacoes:{e:'parcial',dep:['meutrabalho']},passaporte:{e:'parcial',dep:['meutrabalho']},folha:{e:'parcial',dep:['meutrabalho']}};
 function modNome(id){var n=id;MODS.forEach(function(g){g[1].forEach(function(m){if(m[0]===id)n=m[2]})});return n}
 function atalhosAtiv(){var a=ATIV[((S.cfg||{}).ativ||{}).p];if(!a)return[['financeiro','Financeiro'],['estoque','Estoque'],['equipe','Equipe'],['agenda','Agenda'],['servicos','Serviços'],['orcamentos','Orçamentos']];return a[1].slice(0,6).map(function(m){return[m,modNome(m)]})}
-function modOculto(id){if(id==='tutorial'||id==='app')return false;var l=loja();if(l&&l.vinc)return !(WFV.indexOf(id)>-1||id==='financeiro'||(l.gestor&&id==='estoque')||(l.pdv&&id==='automacoes'));var m=S.cfg&&S.cfg.mods;return !!(m&&m[id]===0&&!(MCAT[id]&&MCAT[id].core))}
+function modOculto(id){if(id==='tutorial'||id==='app')return false;var l=loja();if(l&&l.vinc)return !(WFV.indexOf(id)>-1||MBR.indexOf(id)>-1||id==='financeiro'||(l.gestor&&id==='estoque')||(l.pdv&&id==='automacoes'));var m=S.cfg&&S.cfg.mods;return !!(m&&m[id]===0&&!(MCAT[id]&&MCAT[id].core))}
 function aplicaNav(){var side=$('#side');if(!side)return;var ocultos=0;side.querySelectorAll('.nav').forEach(function(n){if(n.id==='mais'||n.id==='pwaBtn')return;var o=modOculto(n.dataset.v);if(o)ocultos++;n.style.display=o&&!S.maisMods?'none':'';n.style.opacity=o?'.55':''});
  var g=null,algum=0;Array.prototype.slice.call(side.children).concat([null]).forEach(function(e){if(!e||e.className==='grp'){if(g)g.style.display=algum?'':'none';g=e;algum=0}else if(e.className.indexOf('nav')>-1&&e.id!=='mais'&&e.style.display!=='none')algum=1});
  var b=$('#mais');if(b)b.remove();if(ocultos){b=h('button','nav');b.id='mais';b.append(icone('mais'),h('span',null,S.maisMods?'Esconder módulos extras':'Mais módulos ('+ocultos+')'));b.onclick=function(){S.maisMods=!S.maisMods;aplicaNav()};side.append(b)}}
@@ -1424,7 +1453,7 @@ VIEWS.tutorial=function(v){
   ['Posso esconder módulos que não uso?','Sim, em Personalização. Os essenciais não saem do menu.']].forEach(function(q){var d=h('details','mod'),s=h('summary',null,q[0]);d.append(s,h('p',null,q[1]));p5.append(d)});
  wrap.append(p5);
 };
-var go0=go;go=function(id){var l=loja();if(l&&l.vinc&&WFV.indexOf(id)<0&&id!=='financeiro'&&id!=='tutorial'&&!(l.gestor&&id==='estoque')&&!(l.pdv&&id==='automacoes')&&id!=='novaempresa')id='meutrabalho';if(WFV.indexOf(id)>-1&&id!=='config'&&S.view!==id&&!Store.n)delete Store.mem[S.cur];return go0(id)};
+var go0=go;go=function(id){var l=loja();if(l&&l.vinc&&WFV.indexOf(id)<0&&MBR.indexOf(id)<0&&id!=='financeiro'&&id!=='tutorial'&&!(l.gestor&&id==='estoque')&&!(l.pdv&&id==='automacoes')&&id!=='novaempresa')id='meutrabalho';if(WFV.indexOf(id)>-1&&id!=='config'&&S.view!==id&&!Store.n)delete Store.mem[S.cur];return go0(id)};
 
 /* ===== v23: Primeiros passos (Visão geral) e Relatórios reais =====
    Só leem dados que o Domin já carrega (nenhuma rota nova no Worker). Quem pode ver o quê continua sendo decidido pelo servidor. */
@@ -1602,7 +1631,7 @@ VIEWS.chat=function(v){
  function puxar(reset){if(reset){msgs.textContent='';ult=0}
   api('/eq/msgs?chave='+encodeURIComponent(l.chave)+'&canal='+encodeURIComponent(CC)+'&desde='+ult).then(function(r){if(!r.ok||!r.j.ok){if(reset)msgs.append(empty((r.j&&r.j.erro)||'Erro ao abrir o chat.'));return}
    var fim=msgs.scrollTop+msgs.clientHeight>=msgs.scrollHeight-30;if(reset&&!r.j.itens.length)msgs.append(h('div','note','Nenhuma mensagem ainda. Mande a primeira.'));
-   r.j.itens.forEach(function(m){ult=Math.max(ult,m.ts);bolha(m)});if(fim||reset)msgs.scrollTop=msgs.scrollHeight})}
+   r.j.itens.forEach(function(m){ult=Math.max(ult,m.ts);bolha(m)});if(fim||reset)msgs.scrollTop=msgs.scrollHeight;if(ult)NOTIF.vi(l.chave,CC,ult)})}
  function abas(){tabs.textContent='';J.canais.forEach(function(c){tabs.append(btn(c.nome,function(){CC=c.id;abas();puxar(1)},c.id===CC?'p':''))});
   if(J.papel==='dono'){tabs.append(btn('+ Grupo',function(){grupoForm(l,J)}));var gg=CC.indexOf('g:')===0&&(J.grupos||[]).find(function(x){return 'g:'+x.id===CC});if(gg)tabs.append(btn('Editar grupo',function(){grupoForm(l,J,gg)}))}}
  api('/eq/canais?chave='+encodeURIComponent(l.chave)).then(function(r){if(!r.ok||!r.j.ok){P.textContent='';P.append(empty('Não foi possível abrir o chat: '+((r.j&&r.j.erro)||'erro')+'.'));return}
@@ -1900,7 +1929,7 @@ VIEWS.chat=function(v){
    var top=h('div','fs-top'),relo=h('span','fs-clock'),lg=new Image();lg.src=MARK;lg.alt='Domin';lg.className='fs-mark';
    var ti=h('div','fs-title');ti.append(h('b',null,'Modo caixa'),h('span',null,' · '+E().caixa.term+' · '+E().caixa.nome+' · '+l.nome));
    var sair=btn('Sair do modo caixa',function(){fecha()});sair.title='Sair do modo caixa (os itens da venda ficam guardados)';
-   var bg=btn('Gaveta (F10)',function(){PR.gaveta()}),br=btn('Reimprimir (F1)',function(){PR.ultima()});top.append(lg,ti,h('span','sp'),relo,bg,br,sair);
+   var bg=btn('Gaveta (F10)',function(){PR.gaveta()}),br=btn('Reimprimir (F1)',function(){PR.ultima()});var cb=btn('💬 Chat',function(){fecha();go('chat')});cb.classList.add('fs-chat');cb.title='Abrir o chat da equipe (sai do modo caixa; a venda atual fica guardada)';top.append(lg,ti,h('span','sp'),relo,cb,bg,br,sair);NOTIF.pinta();
    var body=h('div','fs-body'),esq=h('div','fs-left'),dir=h('div','fs-right');
    var bq=document.createElement('input');bq.type='text';bq.className='fs-scan';bq.autocomplete='off';bq.setAttribute('aria-label','Buscar ou ler produto');bq.placeholder='Passe ou digite o produto (F2) · ex.: 3*caneta';
    var msg=h('div','fs-msg');msg.setAttribute('role','status');msg.setAttribute('aria-live','polite');
@@ -1993,7 +2022,7 @@ var FOLHA={mes:hoje().slice(0,7),mem:{},q:Promise.resolve(),tm:0,
  n:function(x){var n=parseFloat(String(x==null?'':x).replace(',','.'));return isFinite(n)&&n>0?n:0},
  r2:function(x){return Math.round(x*100+1e-6)/100},
  FX:[[1621,.075],[2902.84,.09],[4354.27,.12],[8475.55,.14]],
- norm:function(o){o=o&&typeof o==='object'?o:{};return{v:1,cad:o.cad||{},mov:o.mov||{},fech:o.fech||{}}},
+ norm:function(o){o=o&&typeof o==='object'?o:{};return{v:1,cad:o.cad||{},mov:o.mov||{},fech:o.fech||{},lanc:o.lanc||{}}},
  cur:function(){return FOLHA.mem[S.cur]},
  st:function(t){var e=$('#fst');if(e)e.textContent=t},
  post:function(k,d,base){return fetch(API+'/folha/dados',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+tk()},body:JSON.stringify({chave:k,dados:d,base:base})}).then(function(r){return r.json().catch(function(){return{}}).then(function(j){return{ok:r.ok,j:j}})}).catch(function(){return{ok:false,j:null}})}};
@@ -2017,14 +2046,14 @@ FOLHA.tab=function(b){if(b<=2428.8)return 0;var v=b<=2826.65?b*.075-182.16:b<=37
 FOLHA.irrf=function(bruto,ins,dep){var imp=Math.min(FOLHA.tab(bruto-ins-dep*189.59),FOLHA.tab(bruto-607.2)),red=0;
  if(bruto<=5000)red=Math.min(imp,312.89);else if(bruto<=7350)red=Math.max(0,978.62-0.133145*bruto);
  return FOLHA.r2(Math.max(0,imp-red))};
-FOLHA.calc=function(f,c,m){c=c||{};m=m||{};var n=FOLHA.n,r2=FOLHA.r2,sal=n(c.sal),dep=Math.floor(n(c.dep)),he50=n(m.he50),he100=n(m.he100),fal=n(m.fal),pr=n(m.pr),ds=n(m.ds),hora=sal/220,
- vHE=r2(he50*hora*1.5+he100*hora*2),vF=r2(fal*sal/30),bruto=r2(sal+vHE+pr-vF),ins=FOLHA.inss(bruto),ir=FOLHA.irrf(bruto,ins,dep),
+FOLHA.calc=function(f,c,m){c=c||{};m=m||{};var n=FOLHA.n,r2=FOLHA.r2,sal=n(c.sal),dep=Math.floor(n(c.dep)),he50=n(m.he50),he100=n(m.he100),fal=n(m.fal),pr=n(m.pr),ds=n(m.ds),com=n(m.com),vale=n(m.vale),adi=n(m.adi),hora=sal/220,
+ vHE=r2(he50*hora*1.5+he100*hora*2),vF=r2(fal*sal/30),bruto=r2(sal+vHE+pr+com-vF),ins=FOLHA.inss(bruto),ir=FOLHA.irrf(bruto,ins,dep),
  vt=c.vt?r2(Math.min(sal*.06,Math.max(0,bruto))):0;
- return{id:f.id,nome:f.nome,cargo:f.cargo||'',sal:sal,dep:dep,vtopt:!!c.vt,he50:he50,he100:he100,fal:fal,pr:pr,ds:ds,vHE:vHE,vF:vF,bruto:bruto,ins:ins,ir:ir,vt:vt,fgts:r2(bruto*.08),liq:r2(bruto-ins-ir-vt-ds)}};
+ return{id:f.id,nome:f.nome,cargo:f.cargo||'',sal:sal,dep:dep,vtopt:!!c.vt,he50:he50,he100:he100,fal:fal,pr:pr,ds:ds,com:com,vale:vale,adi:adi,vHE:vHE,vF:vF,bruto:bruto,ins:ins,ir:ir,vt:vt,fgts:r2(bruto*.08),liq:r2(bruto-ins-ir-vt-ds-vale-adi)}};
 FOLHA.rows=function(d,o,mes){if(o.fech[mes])return o.fech[mes];var mv=o.mov[mes]||{};return d.funcs.map(function(f){return FOLHA.calc(f,o.cad[f.id],mv[f.id])})};
-FOLHA.tot=function(a){var t={bruto:0,ins:0,ir:0,vt:0,ds:0,fgts:0,liq:0};a.forEach(function(x){for(var k in t)t[k]=FOLHA.r2(t[k]+x[k])});return t};
-FOLHA.copia=function(box,a){var L=[['Nome','Cargo','Salário base','Horas extras','Faltas','Outros proventos','Bruto','INSS','IRRF','V.T.','Outros descontos','Líquido','FGTS']];
- a.forEach(function(x){L.push([x.nome,x.cargo,x.sal,x.vHE,x.vF,x.pr,x.bruto,x.ins,x.ir,x.vt,x.ds,x.liq,x.fgts])});
+FOLHA.tot=function(a){var t={bruto:0,ins:0,ir:0,vt:0,ds:0,vale:0,adi:0,fgts:0,liq:0};a.forEach(function(x){for(var k in t)t[k]=FOLHA.r2(t[k]+(x[k]||0))});return t};
+FOLHA.copia=function(box,a){var L=[['Nome','Cargo','Salário base','Horas extras','Faltas','Outros proventos','Comissão','Bruto','INSS','IRRF','V.T.','Outros descontos','Vale-funcionário','Adiantamento','Líquido','FGTS']];
+ a.forEach(function(x){L.push([x.nome,x.cargo,x.sal,x.vHE,x.vF,x.pr,x.com||0,x.bruto,x.ins,x.ir,x.vt,x.ds,x.vale||0,x.adi||0,x.liq,x.fgts])});
  var txt=L.map(function(l){return l.map(function(c){return typeof c==='number'?String(c).replace('.',','):c}).join('\t')}).join('\n');
  box.textContent='';var p=h('div','panel'),ta=h('textarea');p.append(h('h2',null,'Cole no Excel'));ta.readOnly=true;ta.rows=6;ta.style.cssText='width:100%;background:var(--sf2);color:var(--tx);border:1px solid var(--ln);border-radius:8px;padding:8px;font:12px/1.4 ui-monospace,monospace';ta.value=txt;p.append(ta);box.append(p);ta.focus();ta.select();
  try{navigator.clipboard.writeText(txt).then(function(){toast('Copiado. É só colar no Excel.')},function(){toast('Selecione o texto e copie.')})}catch(e){toast('Selecione o texto e copie.')}};
@@ -2032,45 +2061,71 @@ FOLHA.hol=function(box,x,mes){box.textContent='';var w=h('div','fphol'),t=h('tab
  w.append(h('h3',null,'Recibo de pagamento · '+mes.split('-').reverse().join('/')),h('div',null,x.nome+(x.cargo?' · '+x.cargo:'')));
  var hd=h('tr');['Descrição','Proventos','Descontos'].forEach(function(s){hd.append(h('th',null,s))});t.append(h('thead')).firstChild.append(hd);
  function ln(d,p,dc){var r=h('tr');r.append(h('td',null,d),h('td',null,p?R(p):''),h('td',null,dc?R(dc):''));b.append(r)}
- ln('Salário base',x.sal,0);if(x.vHE)ln('Horas extras',x.vHE,0);if(x.pr)ln('Outros proventos',x.pr,0);if(x.vF)ln('Faltas',0,x.vF);
- ln('INSS',0,x.ins);if(x.ir)ln('IRRF',0,x.ir);if(x.vt)ln('Vale-transporte (6%)',0,x.vt);if(x.ds)ln('Outros descontos',0,x.ds);
+ ln('Salário base',x.sal,0);if(x.vHE)ln('Horas extras',x.vHE,0);if(x.pr)ln('Outros proventos',x.pr,0);if(x.com)ln('Comissão',x.com,0);if(x.vF)ln('Faltas',0,x.vF);
+ ln('INSS',0,x.ins);if(x.ir)ln('IRRF',0,x.ir);if(x.vt)ln('Vale-transporte (6%)',0,x.vt);if(x.ds)ln('Outros descontos',0,x.ds);if(x.vale)ln('Vale-funcionário (compras no PDV)',0,x.vale);if(x.adi)ln('Adiantamento salarial',0,x.adi);
  t.append(b);w.append(t,h('p',null,'Líquido a receber: '+R(x.liq)),h('div','tg','FGTS depositado pela empresa: '+R(x.fgts)));
  var ac=h('div','acts');ac.append(btn('Imprimir',function(){document.body.classList.add('imp-fphol');window.print()},'p'),btn('Fechar',function(){box.textContent=''}));
  w.lastChild.style.marginTop='6px';w.append(ac);box.append(w);w.scrollIntoView({behavior:'smooth'})};
 window.addEventListener('afterprint',function(){document.body.classList.remove('imp-fphol')});
+
+/* ===== v32: vale-funcionário, comissão e lançamento no Financeiro =====
+   Vale: saldo devendo de cada pessoa no PDV (/pdv/estado). Comissão: entradas do mês com o profissional marcado x o % de cada um (/gestao/resumo).
+   Tudo entra como SUGESTÃO que o dono confere antes de gravar. */
+FOLHA.puxar=function(d,o,mes,done){var k=S.cur,l=loja();if(!l)return;toast('Buscando vale e comissão…');
+ Promise.all([api('/pdv/estado?chave='+encodeURIComponent(k)),api('/gestao/resumo?chave='+encodeURIComponent(k)+'&mes='+encodeURIComponent(mes))]).then(function(a){
+  var pe=a[0],fr=a[1],E=pe.ok&&pe.j&&pe.j.ok?pe.j:null,G=fr.ok&&fr.j&&fr.j.ok?fr.j:null,avisos=[];
+  if(!E)avisos.push('não consegui ler os vales do PDV');if(!G)avisos.push('não consegui ler o Financeiro');
+  var vales=(E&&E.vales)||{},com=(G&&G.com)||{},movs=(G&&G.movs)||[],temProf=movs.some(function(m){return m.prof||m.quem});
+  if(G&&!temProf&&movs.length)avisos.push('as vendas do mês não trazem o profissional, então a comissão ficou em zero');
+  var lin=[],ch=[];
+  d.funcs.forEach(function(f){if(!f.quem)return;var sv=vales[f.quem]?FOLHA.n(vales[f.quem].saldo):0,pc=FOLHA.n(com[f.quem]),
+   base=movs.reduce(function(t,m){return t+((m.tipo==='entrada'&&(m.prof===f.quem||m.quem===f.quem))?FOLHA.n(m.valor):0)},0),cm=FOLHA.r2(base*pc/100);
+   if(sv>0||cm>0){lin.push(f.nome+(cm>0?' · comissão '+R(cm):'')+(sv>0?' · vale '+R(sv):''));ch.push([f.id,cm,sv])}});
+  var sem=d.funcs.filter(function(f){return !f.quem}).length;
+  if(sem)avisos.push(sem+' funcionário(s) sem login vinculado (vale e comissão só vêm de quem tem conta ligada em Meu Trabalho)');
+  if(!ch.length){toast('Nada para puxar neste mês.'+(avisos.length?' '+avisos.join('; ')+'.':''));return}
+  if(!confirm('Puxar para a folha de '+mes.split('-').reverse().join('/')+'?\n\n'+lin.join('\n')+(avisos.length?'\n\nAtenção: '+avisos.join('; ')+'.':'')+'\n\nIsso substitui a comissão e o vale digitados neste mês.'))return;
+  var mv=o.mov[mes]=o.mov[mes]||{};ch.forEach(function(c){var y=mv[c[0]]=mv[c[0]]||{};y.com=c[1]||'';y.vale=c[2]||''});
+  FOLHA.sv(1).then(function(){toast('Vale e comissão puxados. Confira os valores.');done()})})};
+FOLHA.lancar=function(o,mes,rows,done){var k=S.cur;if(o.lanc[mes]){toast('Este mês já foi lançado no Financeiro. Para corrigir, ajuste o gasto lá.');return}
+ var t=FOLHA.tot(rows),custo=FOLHA.r2(t.bruto+t.fgts);if(!(custo>0)){toast('Nada para lançar: o custo da folha está zerado.');return}
+ var ult=ymd(new Date(+mes.slice(0,4),+mes.slice(5,7),0)),dia=ult<hoje()?ult:hoje();
+ if(!confirm('Lançar no Financeiro um gasto "Funcionários" de '+R(custo)+' (bruto + FGTS) com data '+fd(dia)+'?'))return;
+ chama8('/gestao/gasto',{rid:'folha-'+mes+'-'+k.slice(0,10),chave:k,cat:'Funcionários',valor:custo,desc:'Folha de pagamento '+mes.split('-').reverse().join('/'),dia:dia}).then(function(r){
+  if(r.ok&&r.j&&r.j.ok){o.lanc[mes]={valor:custo,ts:Date.now()};FOLHA.sv(1).then(function(){toast('Lançado no Financeiro.');done()})}else toast((r.j&&r.j.erro)||'Não foi possível lançar no Financeiro.')})};
 VIEWS.folha=function(v){
- if(!wfHead(v,'Folha de pagamento','Salários, descontos e fechamento mensal, sem somar à mão.','Cálculo de referência com as tabelas de 2026: INSS progressivo, IRRF com redutor da Lei 15.270/2025 e FGTS de 8%. Não inclui DSR sobre faltas, férias, 13º nem encargos patronais; confira com a contabilidade antes de pagar. Salários e lançamentos ficam salvos no servidor, visíveis só para o empregador.'))return;
+ if(!wfHead(v,'Folha de pagamento','Salários, descontos e fechamento mensal, sem somar à mão.','Cálculo de referência com as tabelas de 2026: INSS progressivo, IRRF com redutor da Lei 15.270/2025 e FGTS de 8%. Não inclui DSR sobre faltas, férias, 13º nem encargos patronais; confira com a contabilidade antes de pagar. Vale-funcionário e adiantamento só podem ser descontados com autorização do funcionário; confirme com a contabilidade. Salários e lançamentos ficam salvos no servidor, visíveis só para o empregador.'))return;
  if(ROLE!=='empregador'){v.append(empty('A folha de pagamento é visível só para o empregador desta empresa.'));return}
  var d=Store.get();
- if(!d.funcs.length){v.append(empty('Cadastre os funcionários em Meu Trabalho primeiro. Eles aparecem aqui automaticamente.',btn('Ir para Meu Trabalho',function(){go('meutrabalho')},'p')));return}
+ if(!d.funcs.length){v.append(empty('Cadastre os funcionários em Meu Trabalho primeiro. Eles aparecem aqui automaticamente.',btn('Trazer da equipe',trazEquipe,'p'),btn('Ir para Meu Trabalho',function(){go('meutrabalho')})));return}
  var c=FOLHA.cur();
  if(!c){v.append(empty('Carregando a folha…'));FOLHA.carregar().then(function(){if(S.view==='folha'&&$('#view'))re()});return}
  if(c.off){v.append(empty('Não foi possível carregar a folha: '+c.erro+'.'),btn('Tentar de novo',function(){delete FOLHA.mem[S.cur];re()}));return}
  var o=c.d,mes=FOLHA.mes,fc=!!o.fech[mes];if(!o.mov[mes])o.mov[mes]={};var mv=o.mov[mes];
  var top=h('div','panel'),ac=h('div','acts'),lb=h('label','fld','Mês de competência'),mi=h('input'),box=h('div');
  mi.type='month';mi.value=mes;mi.onchange=function(){if(mi.value){FOLHA.mes=mi.value;re()}};lb.append(mi);ac.append(lb);
- if(fc)ac.append(h('span','chip ok','mês fechado'),btn('Reabrir mês',function(){delete o.fech[mes];FOLHA.sv(1).then(re)}));
- else ac.append(btn('Fechar folha do mês',function(){o.fech[mes]=FOLHA.rows(d,o,mes);FOLHA.sv(1).then(function(){toast('Mês fechado. Os valores ficam congelados.');re()})},'p'));
+ if(fc)ac.append(h('span','chip ok','mês fechado'),btn('Reabrir mês',function(){delete o.fech[mes];FOLHA.sv(1).then(function(){if(o.lanc[mes])toast('Atenção: este mês já foi lançado no Financeiro. Se mudar valores, ajuste o gasto lá.');re()})}),o.lanc[mes]?h('span','chip ok','lançado no Financeiro'):btn('Lançar no Financeiro',function(){FOLHA.lancar(o,mes,o.fech[mes],re)}));
+ else ac.append(btn('Puxar vale e comissão',function(){FOLHA.puxar(d,o,mes,re)}),btn('Fechar folha do mês',function(){o.fech[mes]=FOLHA.rows(d,o,mes);FOLHA.sv(1).then(function(){toast('Mês fechado. Os valores ficam congelados.');re();if(!o.lanc[mes])setTimeout(function(){FOLHA.lancar(o,mes,o.fech[mes],re)},400)})},'p'));
  ac.append(btn('Copiar para Excel',function(){FOLHA.copia(box,FOLHA.rows(d,o,mes))}));var stt=h('span','tg',c.ts?'Salvo no servidor':'Ainda não salvo');stt.id='fst';ac.append(stt);top.append(ac);v.append(top);
  var cards=h('div','grid');v.append(cards);
  var rows=FOLHA.rows(d,o,mes),pn=h('div','panel'),wr=h('div'),tb=h('table','fp'),hd=h('tr'),bd=h('tbody'),ft=h('tr'),cells=[],fcell={};
  wr.style.overflowX='auto';
- ['Funcionário','Salário base','Dep.','V.T.','H.E. 50% (h)','H.E. 100% (h)','Faltas (dias)','Outros proventos','Outros descontos','Bruto','INSS','IRRF','V.T.','Líquido',''].forEach(function(s){hd.append(h('th',null,s))});
+ ['Funcionário','Salário base','Dep.','V.T.','H.E. 50% (h)','H.E. 100% (h)','Faltas (dias)','Outros proventos','Outros descontos','Comissão','Vale (desc.)','Adiant. pago','Bruto','INSS','IRRF','V.T.','Líquido',''].forEach(function(s){hd.append(h('th',null,s))});
  tb.append(h('thead'));tb.firstChild.append(hd);
  function inp(val,lab,fn){var i=h('input');i.inputMode='decimal';i.placeholder='0';i.value=val||'';i.disabled=fc;i.setAttribute('aria-label',lab);i.oninput=function(){fn(i.value)};return i}
  function td(x){var c=h('td');if(x!=null){if(typeof x==='object')c.append(x);else c.textContent=x}return c}
  function upd(){if(fc)return;var a=FOLHA.rows(d,o,mes),t=FOLHA.tot(a);
   a.forEach(function(x,i){var c=cells[i];c.bruto.textContent=R(x.bruto);c.ins.textContent=R(x.ins);c.ir.textContent=R(x.ir);c.vt.textContent=R(x.vt);c.liq.textContent=R(x.liq)});paint(a,t)}
- function paint(a,t){cards.textContent='';cards.append(card('Total bruto',R(t.bruto),a.length+' funcionário(s)'),card('Descontos',R(FOLHA.r2(t.ins+t.ir+t.vt+t.ds)),'INSS, IRRF, V.T. e outros'),card('Líquido a pagar',R(t.liq),'valor da folha'),card('FGTS a recolher',R(t.fgts),'8% sobre o bruto'),card('Custo total estimado',R(FOLHA.r2(t.bruto+t.fgts)),'bruto + FGTS'));
+ function paint(a,t){cards.textContent='';cards.append(card('Total bruto',R(t.bruto),a.length+' funcionário(s)'),card('Descontos',R(FOLHA.r2(t.ins+t.ir+t.vt+t.ds+t.vale+t.adi)),'INSS, IRRF, V.T., vale, adiantamento e outros'),card('Líquido a pagar',R(t.liq),'valor da folha'),card('FGTS a recolher',R(t.fgts),'8% sobre o bruto'),card('Custo total estimado',R(FOLHA.r2(t.bruto+t.fgts)),'bruto + FGTS'));
   fcell.bruto.textContent=R(t.bruto);fcell.ins.textContent=R(t.ins);fcell.ir.textContent=R(t.ir);fcell.vt.textContent=R(t.vt);fcell.liq.textContent=R(t.liq)}
  rows.forEach(function(x){var id=x.id,tr=h('tr'),c=function(){return o.cad[id]=o.cad[id]||{}},m=function(){return mv[id]=mv[id]||{}},sv=function(){FOLHA.sv();upd()};
   var nm=h('div',null,x.nome);nm.append(h('div','tg',x.cargo||''));
   var vs=h('select');vs.append(new Option('Não','0'),new Option('Sim','1'));vs.value=x.vtopt?'1':'0';vs.disabled=fc;vs.setAttribute('aria-label','Vale-transporte de '+x.nome);vs.onchange=function(){c().vt=vs.value==='1';sv()};
   tr.append(td(nm),td(inp(x.sal,'Salário de '+x.nome,function(s){c().sal=s;sv()})),td(inp(x.dep,'Dependentes de '+x.nome,function(s){c().dep=s;sv()})),td(vs),
    td(inp(x.he50,'Horas extras 50% de '+x.nome,function(s){m().he50=s;sv()})),td(inp(x.he100,'Horas extras 100% de '+x.nome,function(s){m().he100=s;sv()})),
-   td(inp(x.fal,'Faltas de '+x.nome,function(s){m().fal=s;sv()})),td(inp(x.pr,'Outros proventos de '+x.nome,function(s){m().pr=s;sv()})),td(inp(x.ds,'Outros descontos de '+x.nome,function(s){m().ds=s;sv()})));
+   td(inp(x.fal,'Faltas de '+x.nome,function(s){m().fal=s;sv()})),td(inp(x.pr,'Outros proventos de '+x.nome,function(s){m().pr=s;sv()})),td(inp(x.ds,'Outros descontos de '+x.nome,function(s){m().ds=s;sv()})),td(inp(x.com,'Comissão de '+x.nome,function(s){m().com=s;sv()})),td(inp(x.vale,'Vale-funcionário a descontar de '+x.nome,function(s){m().vale=s;sv()})),td(inp(x.adi,'Adiantamento já pago a '+x.nome,function(s){m().adi=s;sv()})));
   var q={bruto:td(),ins:td(),ir:td(),vt:td(),liq:td()};cells.push(q);tr.append(q.bruto,q.ins,q.ir,q.vt,q.liq,td(btn('Holerite',function(){FOLHA.hol(box,FOLHA.rows(d,o,mes).find(function(r){return r.id===id})||x,mes)})));bd.append(tr)});
- ft.append(td('Total'));for(var i=0;i<8;i++)ft.append(td());['bruto','ins','ir','vt','liq'].forEach(function(k){fcell[k]=td();ft.append(fcell[k])});ft.append(td());
+ ft.append(td('Total'));for(var i=0;i<11;i++)ft.append(td());['bruto','ins','ir','vt','liq'].forEach(function(k){fcell[k]=td();ft.append(fcell[k])});ft.append(td());
  tb.append(bd);var tf=h('tfoot');tf.append(ft);tb.append(tf);wr.append(tb);pn.append(wr);v.append(pn,box);
  cells.forEach(function(q,i){var x=rows[i];q.bruto.textContent=R(x.bruto);q.ins.textContent=R(x.ins);q.ir.textContent=R(x.ir);q.vt.textContent=R(x.vt);q.liq.textContent=R(x.liq)});
  paint(rows,FOLHA.tot(rows))};
