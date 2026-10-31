@@ -1333,6 +1333,9 @@ VIEWS.app=function(v){
   if(!win)p.append(h('p','sub','Este computador não parece ser Windows. O app funciona só no Windows 10 ou 11.'))}
  var ol=h('ol');ol.style.cssText='padding-left:20px;line-height:1.8';
  ['Baixe e abra o arquivo Domin-Windows.exe. Se o Windows avisar "editor desconhecido", clique em Mais informações e depois em Executar assim mesmo.','Ele se instala sozinho e cria o atalho "Domin" na área de trabalho e no menu Iniciar. O Domin abre em janela própria.','Entre na sua conta, vá em Automações > Impressora e nota, escolha a impressora térmica e clique em Abrir gaveta.','Em outro computador, entre no labs, abra a aba Download e repita. Pronto: da próxima vez é só abrir o atalho "Domin".'].forEach(function(t){ol.append(h('li',null,t))});
+ var DRIVERS=[['POS Printer Driver V8.2 (impressoras térmicas 80 mm, ESC/POS)','drivers/POS_Printer_Driver_Setup_V8_2.exe']];
+ var dv=painel('Drivers da impressora');dv.append(h('p','sub','Se o Windows não mostrar a impressora térmica, instale o driver dela neste computador e depois escolha a impressora em Automações > Impressora e nota. Para outras marcas, use o driver do fabricante.'));
+ DRIVERS.forEach(function(d){var r=h('div','li'),l=h('a','btn','⬇ Baixar');l.href=d[1];l.setAttribute('download','');r.append(h('span',null,d[0]),l);dv.append(r)});
  var q=painel('Como funciona');q.append(ol,h('p','sub','O app usa o Microsoft Edge que já vem no Windows (ou o Chrome), em janela só do Domin. O sistema continua online: as atualizações chegam sozinhas, sem baixar de novo, e a venda offline funciona como no site. Precisa do Windows 10 ou 11.'));
  var b=h('div','acts');b.append(btn('Ir para Impressora e nota',function(){try{PD.tab='imp'}catch(e){}go('automacoes')}));q.append(b);
  var m=painel('Personalizar para uma loja (marca própria)'),mn=fl('Nome da loja (nome do atalho e da janela)','text',{maxLength:30}),mc=fl('Cor principal (6 letras/números, ex.: ff6a00)','text',{maxLength:7,value:'2ea8ff'}),mf=document.createElement('input');mf.type='file';mf.accept='image/*';
@@ -1343,7 +1346,7 @@ VIEWS.app=function(v){
   var f=mf.files[0];if(!f)return fim(false);
   var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var cv=document.createElement('canvas');cv.width=cv.height=256;var x=cv.getContext('2d'),sc=Math.min(256/im.width,256/im.height),w=im.width*sc,hh=im.height*sc;x.drawImage(im,(256-w)/2,(256-hh)/2,w,hh);cv.toBlob(function(bl){baixa('logo.png',bl);fim(true)},'image/png')};im.onerror=function(){toast('Não consegui ler essa imagem.')};im.src=r.result};r.readAsDataURL(f)},'p');
  m.append(h('p','sub','Para cada loja que contratar: gere o marca.json (e o logo.png), coloque na mesma pasta do Domin-Windows.exe e entregue a pasta. O atalho, o ícone, o nome da janela e a cor do painel ficam com a cara da loja.'),mn.l,mc.l,lab('Logo da loja (PNG/JPG, de preferência quadrada)',mf),(function(){var d=h('div','acts');d.append(mb);return d})());
- v.append(p,q,m)};
+ v.append(p,dv,q,m)};
 
 VIEWS.tutorial=function(v){
  var l=loja(),wrap=h('div','tut');v.append(wrap);
