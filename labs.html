@@ -1617,7 +1617,7 @@ VIEWS.chat=function(v){
 
  const PR={porta:null,dev:null,ep:0,SITE:'https://www.dcastrolabs.com/'};
  PR.k=function(){var l=loja();return 'dl_rec_'+(l?l.chave:'x')};
- PR.cfg=function(){var c={via:'navegador',col:48,baud:9600,gp:0,gav:1,auto:0,semAc:0,nome:'',l1:'',l2:'',rod:'Obrigado pela preferência!',logo:'nenhum',logoData:'',qrs:[]};try{var o=JSON.parse(localStorage.getItem(PR.k())||'{}');Object.keys(o).forEach(function(x){c[x]=o[x]})}catch(e){}if(!Array.isArray(c.qrs))c.qrs=[];while(c.qrs.length<3)c.qrs.push({t:'',u:''});return c};
+ PR.cfg=function(){var c={via:'navegador',col:48,baud:9600,gp:0,gav:1,auto:0,semAc:0,nome:'',l1:'',l2:'',rod:'Obrigado pela preferência!',logo:'nenhum',logoData:'',qrs:[]};try{var o=JSON.parse(localStorage.getItem(PR.k())||'{}');Object.keys(o).forEach(function(x){c[x]=o[x]})}catch(e){}if(!Array.isArray(c.qrs))c.qrs=[];c.qrs.forEach(function(q){if(q&&typeof q.u==='string'&&q.u.indexOf(PR.SITE+'?loja=')===0&&q.u.indexOf('avaliar=')<0)q.u+='&avaliar=1'});while(c.qrs.length<3)c.qrs.push({t:'',u:''});return c};
  PR.salva=function(c){try{localStorage.setItem(PR.k(),JSON.stringify(c));return true}catch(e){toast('Não deu para salvar (logo muito grande?).');return false}};
  PR.n2=function(v){return (Math.round((Number(v)||0)*100)/100).toFixed(2).replace('.',',')};
  PR.FPN={dinheiro:'Dinheiro',pix:'Pix',debito:'Débito',credito:'Crédito',vale:'Vale-funcionário'};
@@ -1704,6 +1704,14 @@ VIEWS.chat=function(v){
  PR.imprime=function(v,comGav){if(!v||!v.itens)return Promise.reject(new Error('Nenhuma venda para imprimir.'));var c=PR.cfg();
   return PR.prep(v,c).then(function(P){if(c.via==='navegador')return PR.qrLib().then(function(){return PR.imprimeHtml(PR.html(P,c))});return PR.envia(PR.escpos(P.B,c,P.lg,comGav),c)})};
  PR.gaveta=function(){var c=PR.cfg();
+  if(c.via==='navegador'&&navigator.serial&&navigator.serial.getPorts){
+   return navigator.serial.getPorts().then(function(ps){
+    if(!ps.length)return PR.gavNav(c);
+    var c2={};Object.keys(c).forEach(function(x){c2[x]=c[x]});c2.via='serial';PR.porta=PR.porta||ps[0];
+    return PR.envia([27,64].concat(PR.gav(c2)),c2).then(function(){toast('Gaveta acionada.')})
+   }).catch(function(e){toast(e.message||'Não consegui abrir a gaveta.')})}
+  return PR.gavNav(c)};
+ PR.gavNav=function(c){
   var p=c.via==='navegador'?(toast('Modo navegador: a gaveta abre se o driver da impressora estiver com "abrir gaveta ao imprimir".'),PR.imprimeHtml('<!doctype html><html><body style="margin:0;font:8px monospace">.</body></html>')):PR.envia(PR.gav(c).length?[27,64].concat(PR.gav(c)):[],c);
   return p.then(function(){if(c.via!=='navegador')toast('Gaveta acionada.')}).catch(function(e){toast(e.message||'Não consegui abrir a gaveta.')})};
  PR.ultima=function(){var v=PD.last||(PD.E&&PD.E.vendas.find(function(x){return x.st==='concluida'}));if(!v)return toast('Nenhuma venda para imprimir.');PR.imprime(v).catch(function(e){toast(e.message||'Falha ao imprimir.')})};
@@ -1730,7 +1738,7 @@ VIEWS.chat=function(v){
    btn('Imprimir teste',function(){colhe();PR.imprime(PR.amostra(),0).then(function(){toast('Teste enviado.')}).catch(function(e){toast(e.message||'Falha ao imprimir.')})},'p'),
    btn('Abrir gaveta',function(){colhe();PR.gaveta()}));p.append(a1,h('p','sub','Pelo navegador: dica para não aparecer a janela de impressão — abra o Chrome com o atalho que termina em --kiosk-printing. A gaveta abre se no driver da impressora estiver marcado "abrir gaveta ao imprimir". No modo direto, o sistema manda o comando da gaveta na hora, sem gastar papel, mas só funciona se o Windows mostrar a impressora como porta COM (serial) ou com driver WinUSB.'));
   var a2=h('div','acts');a2.append(
-   btn('QR de avaliação do MiHelp',function(){qt[0].i.value='Nos dê 5 estrelas no MiHelp';qu[0].i.value=PR.SITE+'?loja='+encodeURIComponent(l.chave);atualiza()}),
+   btn('QR de avaliação do MiHelp',function(){qt[0].i.value='Nos dê 5 estrelas no MiHelp';qu[0].i.value=PR.SITE+'?loja='+encodeURIComponent(l.chave)+'&avaliar=1';atualiza()}),
    btn('Puxar endereço e telefone do perfil',function(){PR.info().then(function(f){if(f.endereco)l1.i.value=f.endereco;if(f.contato)l2.i.value='Tel: '+f.contato;atualiza()})}),
    btn('Atualizar prévia',atualiza),btn('Salvar',function(){if(colhe())toast('Salvo neste computador.')},'p'));q.append(a2,pv,h('p','sub','A nota sai como "Documento sem valor fiscal": este sistema não emite NFC-e. A configuração fica guardada neste computador e nesta empresa.'));
   c.append(p,q);atualiza()};
