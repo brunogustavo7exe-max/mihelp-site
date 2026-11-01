@@ -621,7 +621,7 @@ document.addEventListener('click',e=>{const x=e.target.closest&&e.target.closest
 
 // ---- como entrar: ?admin na URL, ou 5 toques no logo ----
 let taps=0,tt=null;const br=document.querySelector('.brand');
-if(br)br.addEventListener('click',()=>{taps++;clearTimeout(tt);tt=setTimeout(()=>{taps=0},2500);if(taps>=5){taps=0;abrirPainel()}});
+if(br)br.addEventListener('click',()=>{taps++;clearTimeout(tt);tt=setTimeout(()=>{taps=0},2500);if(taps>=5){taps=0;window.open('admin.html','_blank')}});
 if(/[?&]admin(=|&|$)/.test(location.search))setTimeout(abrirPainel,300);
 if(logado()){document.body.classList.add('adm');bar.hidden=false;chipUpd()}
 })()}catch(e){console.error('MiHelp (painel adm):',e)}

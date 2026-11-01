@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>MIHELP // ROOT</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{--bg:#030806;--pn:#07120d;--ln:#0f3d27;--g:#2bff88;--g2:#13a85a;--am:#ffb000;--rd:#ff4d5e;--tx:#b9ffd9;--mu:#5f9a7c}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--tx);font:13px/1.5 'JetBrains Mono',ui-monospace,Consolas,monospace}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);z-index:99}
+::selection{background:var(--g);color:#000}
+a{color:var(--g)}
+button,input,select,textarea{font:inherit;color:var(--g);background:#020b06;border:1px solid var(--ln);border-radius:2px;padding:7px 10px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--g);box-shadow:0 0 8px rgba(43,255,136,.35)}
+button{cursor:pointer;text-transform:uppercase;letter-spacing:.06em}
+button:hover{background:var(--g);color:#000;box-shadow:0 0 12px rgba(43,255,136,.5)}
+button.rd{color:var(--rd);border-color:#5a1620}button.rd:hover{background:var(--rd);color:#000}
+button.am{color:var(--am);border-color:#5a4210}button.am:hover{background:var(--am);color:#000}
+.glow{text-shadow:0 0 8px rgba(43,255,136,.7)}
+#login{position:fixed;inset:0;display:grid;place-items:center;z-index:50;background:var(--bg)}
+#rain{position:absolute;inset:0;opacity:.35}
+.box{position:relative;width:min(420px,92vw);border:1px solid var(--g2);background:rgba(3,8,6,.88);padding:22px;box-shadow:0 0 30px rgba(43,255,136,.18)}
+.box h1{margin:0 0 4px;font-size:22px;color:var(--g)}
+.box p{margin:0 0 14px;color:var(--mu)}
+.box input{width:100%;margin:6px 0 12px}
+#msg{min-height:20px;color:var(--rd)}
+.cur::after{content:"█";animation:b 1s steps(1) infinite}@keyframes b{50%{opacity:0}}
+#app{display:none;height:100%;grid-template-columns:210px 1fr;grid-template-rows:1fr 120px}
+#app.on{display:grid}
+nav{grid-row:1/3;border-right:1px solid var(--ln);background:var(--pn);padding:14px 10px;overflow:auto}
+nav h2{margin:0 0 12px;font-size:15px;color:var(--g)}
+nav button{display:block;width:100%;text-align:left;margin:0 0 5px;border-color:transparent;background:transparent;text-transform:none}
+nav button.on{border-color:var(--g2);color:#000;background:var(--g)}
+nav .sp{height:14px}
+main{overflow:auto;padding:18px}
+main h3{margin:0 0 14px;color:var(--am);font-size:15px}main h3::before{content:"> ";color:var(--g)}
+.card{border:1px solid var(--ln);background:var(--pn);padding:14px;margin:0 0 14px}
+.card h4{margin:0 0 10px;color:var(--g);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.num{font-size:30px;color:var(--g);text-shadow:0 0 10px rgba(43,255,136,.6)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 8px}
+.row>input,.row>select{flex:1;min-width:120px}
+.it{border:1px solid var(--ln);padding:8px 10px;margin:0 0 6px;display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.it small{color:var(--mu)}
+textarea{width:100%;min-height:140px;resize:vertical}
+#log{grid-column:2;border-top:1px solid var(--ln);background:#010503;overflow:auto;padding:8px 14px;font-size:11px;color:var(--mu)}
+#log b{color:var(--g)}#log .e{color:var(--rd)}
+.mb{display:none}
+@media(max-width:760px){#app{grid-template-columns:1fr;grid-template-rows:auto 1fr 90px}nav{grid-row:1;display:flex;gap:4px;overflow-x:auto;border-right:0;border-bottom:1px solid var(--ln);padding:8px}nav h2,nav .sp{display:none}nav button{width:auto;white-space:nowrap;margin:0}#log{grid-column:1}}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <canvas id="rain"></canvas>
+  <div class="box">
+    <h1 class="glow">MIHELP//ROOT</h1>
+    <p>acesso restrito. tentativas são registradas.</p>
+    <label>senha do administrador</label>
+    <input id="pw" type="password" autocomplete="current-password" autofocus>
+    <button id="go" style="width:100%">autenticar <span class="cur"></span></button>
+    <div id="msg"></div>
+  </div>
+</div>
+
+<div id="app">
+  <nav id="nav"></nav>
+  <main id="main"></main>
+  <div id="log"></div>
+</div>
+
+<script>
+const API='https://mihelp-api.mihelpmarketing.workers.dev';
+const SITE='index.html'; // página do MiHelp (mesmo domínio)
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SEM_LOGIN=false; // true = modo demo (sem login, dados de mentira). Deixe false para usar de verdade.
+let TK=''; try{TK=sessionStorage.getItem('mh_admtk')||''}catch(e){}
+
+/* ---------- log estilo terminal ---------- */
+function log(t,err){const l=$('#log');l.insertAdjacentHTML('afterbegin','<div class="'+(err?'e':'')+'"><b>['+new Date().toLocaleTimeString('pt-BR')+']</b> '+esc(t)+'</div>')}
+
+
+/* ---------- dados de mentira (modo SEM_LOGIN) ---------- */
+function mock(path){
+  const p=path.split('?')[0];
+  if(p==='/stats')return {ok:true,cad:128,helpers:61,lojas:14};
+  if(p==='/config')return {ok:true,meta:'x',titulos:'x',duelo:'x'};
+  if(p==='/admin/usuarios')return {ok:true,itens:[{nome:'Maria Souza',tel:'66999990001',papel:'helper',oficio:'Pintor'},{nome:'João Lima',tel:'66999990002',papel:'cliente',oficio:''},{nome:'Ana Reis',tel:'66999990003',papel:'helper',oficio:'Eletricista'}]};
+  if(p==='/admin/oficios')return {ok:true,itens:[{tel:'66999990004',nome:'Carlos',oficio:'Instalador de piso vinílico'},{tel:'66999990005',nome:'Bia',oficio:'Designer de unhas'}]};
+  if(p==='/anuncios')return {ok:true,anuncios:[{vaga:1,nome:'Padaria Central',texto:'Pão quentinho toda hora',validade:Date.now()+86400000},{vaga:2,nome:'Mercado Vale',texto:'Ofertas da semana',validade:Date.now()+7200000}]};
+  if(p==='/admin/vozes')return {ok:true,itens:[{id:'v1',t:'Buraco na av. principal',reps:3,b:'Centro',oculto:false},{id:'v2',t:'Lâmpada queimada',reps:0,b:'Nova Barra',oculto:true}]};
+  if(p==='/admin/classificados')return {ok:true,itens:[{id:'c1',t:'Bicicleta aro 26',reps:2,nome:'Pedro',oculto:false}]};
+  if(p==='/admin/config')return {ok:true,itens:{meta:'{"txt":"exemplo"}',titulos:'{}',duelo:'{"id":"cidades"}'}};
+  if(p==='/admin/licencas')return {ok:true,itens:[{tipo:'conta',alvo:'66999990001',nome:'Maria Souza',dias:30,ate:Date.now()+9*86400000,status:'ativo',restantes:9},{tipo:'loja',alvo:'padaria-central-a1b2',nome:'Padaria Central',dias:7,ate:Date.now()-2*86400000,status:'vencido',restantes:-2}]};
+  if(p==='/admin/pagamentos')return {ok:true,total:342,itens:[{tipo:'anuncio',nome:'Padaria Central',valor:45,ts:Date.now()-3600000},{tipo:'apoio',nome:'Fulano',valor:20,ts:Date.now()-86400000},{tipo:'duelo',nome:'Beltrano',valor:5,ts:Date.now()-172800000}]};
+  return {ok:true};
+}
+/* ---------- requisição ---------- */
+async function req(path,body,method){
+  const m=method||(body?'POST':'GET');
+  if(SEM_LOGIN){log('[DEMO] '+m+' '+path);return {ok:true,j:mock(path)}}
+  try{
+    const r=await fetch(API+path,{method:m,headers:{'content-type':'application/json',...(TK?{authorization:'Bearer '+TK}:{})},body:body?JSON.stringify(body):undefined});
+    const j=await r.json().catch(()=>({}));
+    log(m+' '+path+' → '+r.status+(j.erro?' · '+j.erro:''),!r.ok);
+    if(r.status===401&&TK&&path!=='/admin/login'){sair();}
+    return {ok:r.ok,j};
+  }catch(e){log(m+' '+path+' → sem conexão',true);return {ok:false,j:{erro:'sem conexão'}}}
+}
+
+/* ---------- login ---------- */
+async function entrar(){
+  const s=$('#pw').value;if(!s)return;
+  $('#msg').textContent='';$('#go').disabled=true;
+  const r=await req('/admin/login',{senha:s});
+  $('#go').disabled=false;$('#pw').value='';
+  if(r.ok&&r.j.token){TK=r.j.token;try{sessionStorage.setItem('mh_admtk',TK);sessionStorage.setItem('mh_adm','1')}catch(e){}abrir();}
+  else $('#msg').textContent='ACESSO NEGADO'+(r.j.erro?' · '+r.j.erro:'');
+}
+function sair(){TK='';try{sessionStorage.removeItem('mh_admtk');sessionStorage.removeItem('mh_adm')}catch(e){}$('#app').classList.remove('on');$('#login').style.display='grid'}
+$('#go').onclick=entrar;$('#pw').onkeydown=e=>{if(e.key==='Enter')entrar()};
+
+/* ---------- chuva de código (só no login) ---------- */
+(function(){const c=$('#rain'),x=c.getContext('2d');let w,h,col,y;
+ const ch='01アイウエオカキクケコ#$%&<>{}';
+ function ini(){w=c.width=innerWidth;h=c.height=innerHeight;col=Math.floor(w/16);y=Array(col).fill(0).map(()=>Math.random()*h/16)}
+ ini();addEventListener('resize',ini);
+ setInterval(()=>{if($('#login').style.display==='none')return;x.fillStyle='rgba(3,8,6,.12)';x.fillRect(0,0,w,h);x.fillStyle='#2bff88';x.font='14px monospace';
+  y.forEach((v,i)=>{x.fillText(ch[Math.floor(Math.random()*ch.length)],i*16,v*16);y[i]=v*16>h&&Math.random()>.975?0:v+1})},60)})();
+
+/* ---------- módulos ---------- */
+const MODS=[
+ ['visao','/visao'],['pessoas','/pessoas'],['oficios','/oficios'],['anuncios','/anuncios'],
+ ['comandos','/comandos'],['denuncias','/denuncias'],['textos','/textos'],['meta','/meta'],['pagamentos','/pagamentos'],['planos','/planos'],['acessos','/acessos'],['config','/config'],
+];
+function menu(){
+  $('#nav').innerHTML='<h2 class="glow">MIHELP//ROOT</h2>'+MODS.map(m=>'<button data-m="'+m[0]+'">'+m[1]+'</button>').join('')
+   +'<div class="sp"></div><button class="am" id="bMi">↗ entrar no mihelp</button><button class="rd" id="bSair">⏻ sair</button>';
+  document.querySelectorAll('nav [data-m]').forEach(b=>b.onclick=()=>mod(b.dataset.m));
+  $('#bSair').onclick=sair;
+  $('#bMi').onclick=()=>{try{sessionStorage.setItem('mh_adm','1');sessionStorage.setItem('mh_admtk',TK)}catch(e){}window.open(SITE,'_blank')}; // a nova aba herda o sessionStorage (mesmo domínio)
+}
+function abrir(){$('#login').style.display='none';$('#app').classList.add('on');menu();mod('visao');log('sessão root aberta (12h)')}
+function mod(n){
+  document.querySelectorAll('nav [data-m]').forEach(b=>b.classList.toggle('on',b.dataset.m===n));
+  $('#main').innerHTML='<h3>'+n+'</h3><div id="c">carregando<span class="cur"></span></div>';
+  M[n]($('#c'));
+}
+const btn=(t,cls,fn)=>{const b=document.createElement('button');b.textContent=t;if(cls)b.className=cls;b.onclick=fn;return b};
+const conf=(b,t,fn)=>{b.onclick=()=>{if(b.dataset.c){fn();return}b.dataset.c=1;const o=b.textContent;b.textContent='confirmar?';setTimeout(()=>{delete b.dataset.c;b.textContent=o},3000)}};
+
+const M={
+ async visao(c){
+  const [s,k]=await Promise.all([req('/stats'),req('/config')]);
+  const j=s.j||{};
+  c.innerHTML='<div class="grid"><div class="card"><h4>CADASTROS</h4><div class="num">'+(j.cad??'—')+'</div></div><div class="card"><h4>HELPERS</h4><div class="num">'+(j.helpers??'—')+'</div></div><div class="card"><h4>LOJAS</h4><div class="num">'+(j.lojas??'—')+'</div></div></div>'
+   +'<div class="card"><h4>STATUS</h4>API: <b>'+(s.ok?'ONLINE':'OFFLINE')+'</b><br>'+esc(API)+'<br>Chaves públicas ativas: '+esc(Object.keys(k.j||{}).filter(x=>x!=='ok').join(', ')||'—')+'</div>';
+ },
+ async pessoas(c){
+  c.innerHTML='<div class="row"><input id="q" placeholder="nome ou telefone"><button id="bq">buscar</button></div><div id="res"></div>';
+  const busca=async()=>{const q=$('#q').value.trim();const r=await req('/admin/usuarios?q='+encodeURIComponent(q));const R=$('#res');R.innerHTML='';
+   (r.j.itens||[]).forEach(u=>{const d=document.createElement('div');d.className='it';d.innerHTML='<div>'+esc(u.nome)+' <small>'+esc(u.tel)+' · '+esc(u.papel)+' · '+esc(u.oficio||'sem ofício')+'</small></div>';
+    d.append(btn(u.papel==='helper'?'→ cliente':'→ helper','am',async()=>{const o=u.papel==='helper'?null:prompt('Ofício (ex: Pintor):','');if(u.papel!=='helper'&&!o)return;await req('/admin/usuario/mudar',{tel:u.tel,papel:u.papel==='helper'?'cliente':'helper',oficio:o||''});busca()}));
+    R.append(d)});if(!(r.j.itens||[]).length)R.textContent='nenhum resultado'};
+  $('#bq').onclick=busca;$('#q').onkeydown=e=>{if(e.key==='Enter')busca()};
+ },
+ async oficios(c){
+  const r=await req('/admin/oficios');c.innerHTML='';
+  (r.j.itens||[]).forEach(o=>{const d=document.createElement('div');d.className='it';d.innerHTML='<div>'+esc(o.oficio)+' <small>'+esc(o.nome)+' · '+esc(o.tel)+'</small></div>';
+   d.append(btn('aprovar','',async()=>{await req('/admin/oficios/decidir',{tel:o.tel,oficio:o.oficio,aprovar:true});mod('oficios')}),
+    btn('aprovar como…','am',async()=>{const n=prompt('Aprovar como:',o.oficio);if(n){await req('/admin/oficios/decidir',{tel:o.tel,oficio:o.oficio,aprovar:true,como:n});mod('oficios')}}),
+    btn('recusar','rd',async()=>{await req('/admin/oficios/decidir',{tel:o.tel,oficio:o.oficio,aprovar:false});mod('oficios')}));
+   c.append(d)});
+  if(!(r.j.itens||[]).length)c.textContent='nenhum ofício pendente ✔';
+ },
+ async anuncios(c){
+  c.innerHTML='<div class="card"><h4>NOVO ANÚNCIO</h4><div class="row"><input id="an" placeholder="nome"><input id="at" placeholder="texto (até 140)"></div><div class="row"><input id="al" placeholder="link https://"><input id="av" type="number" placeholder="vaga 1-30" value="1"><input id="am" type="number" placeholder="minutos" value="1440"><select id="ag"><option value="">pago</option><option value="cortesia">cortesia</option></select><button id="ab">publicar</button></div></div><div id="ls"></div><div class="row"><button class="rd" id="alp">limpar todos</button></div>';
+  $('#ab').onclick=async()=>{await req('/admin',{acao:'anuncio_add',dados:{nome:$('#an').value,texto:$('#at').value,link:$('#al').value,vaga:+$('#av').value,minutos:+$('#am').value,tag:$('#ag').value}});mod('anuncios')};
+  conf($('#alp'),'',async()=>{await req('/admin',{acao:'anuncio_limpar'});mod('anuncios')});
+  const r=await req('/anuncios');
+  (r.j.anuncios||[]).forEach(a=>{const d=document.createElement('div');d.className='it';d.innerHTML='<div>#'+a.vaga+' '+esc(a.nome)+' <small>'+esc(a.texto)+' · até '+new Date(a.validade).toLocaleString('pt-BR')+'</small></div>';
+   const b=btn('apagar vaga','rd');conf(b,'',async()=>{await req('/admin',{acao:'anuncio_del',dados:{vaga:a.vaga}});mod('anuncios')});d.append(b);$('#ls').append(d)});
+ },
+ comandos(c){
+  c.innerHTML='<div class="card"><h4>AVISO PARA TODOS OS APARELHOS</h4><div class="row"><input id="cv" maxlength="120" placeholder="mensagem"><input id="ct" type="number" placeholder="minutos (0=sem fim)" value="30"><button id="ca">enviar</button></div></div>'
+   +'<div class="card"><h4>BOTS</h4><div class="row"><button id="b1">ligar</button><button id="b0" class="rd">desligar</button></div></div>'
+   +'<div class="card"><h4>VERIFICAR PESSOA</h4><div class="row"><input id="vn" placeholder="nome exato"><button id="v1">dar selo</button><button id="v0" class="rd">tirar selo</button></div></div>'
+   +'<div class="card"><h4>LIMPAR (apaga em todos os aparelhos)</h4><div class="row" id="lp"></div></div>';
+  const cmd=async x=>{const r=await req('/admin/ctl',{cmd:x});if(r.ok)log('comando enviado: '+x.a)};
+  $('#ca').onclick=()=>cmd({a:'aviso',v:$('#cv').value,ate:+$('#ct').value?Date.now()+$('#ct').value*60000:0});
+  $('#b1').onclick=()=>cmd({a:'bots',v:true});$('#b0').onclick=()=>cmd({a:'bots',v:false});
+  $('#v1').onclick=()=>cmd({a:'verif',n:$('#vn').value,v:1});$('#v0').onclick=()=>cmd({a:'verif',n:$('#vn').value,v:0});
+  ['sala','salas','guilda','outdoor','tudo'].forEach(a=>{const b=btn(a,'rd');conf(b,'',()=>cmd({a:'limpar',alvo:a}));$('#lp').append(b)});
+ },
+ async denuncias(c){
+  const [v,k]=await Promise.all([req('/admin/vozes'),req('/admin/classificados')]);
+  c.innerHTML='<div class="card"><h4>VOZ DA CIDADE (mais denunciadas)</h4><div id="vz"></div></div><div class="card"><h4>CLASSIFICADOS (mais denunciados)</h4><div id="cl"></div></div>';
+  (v.j.itens||[]).slice(0,25).forEach(x=>{const d=document.createElement('div');d.className='it';d.innerHTML='<div>'+esc(x.t)+' <small>reps '+x.reps+' · '+esc(x.b)+(x.oculto?' · OCULTO':'')+'</small></div>';
+   d.append(btn(x.oculto?'mostrar':'ocultar','am',async()=>{await req('/admin/vozes/acao',{id:x.id,acao:'ocultar',v:!x.oculto});mod('denuncias')}));
+   const b=btn('apagar','rd');conf(b,'',async()=>{await req('/admin/vozes/acao',{id:x.id,acao:'apagar'});mod('denuncias')});d.append(b);$('#vz').append(d)});
+  (k.j.itens||[]).slice(0,25).forEach(x=>{const d=document.createElement('div');d.className='it';d.innerHTML='<div>'+esc(x.t)+' <small>reps '+x.reps+' · '+esc(x.nome)+(x.oculto?' · OCULTO':'')+'</small></div>';
+   d.append(btn(x.oculto?'mostrar':'ocultar','am',async()=>{await req('/admin/classificados/acao',{id:x.id,acao:'ocultar',v:!x.oculto});mod('denuncias')}));
+   const b=btn('apagar','rd');conf(b,'',async()=>{await req('/admin/classificados/acao',{id:x.id,acao:'apagar'});mod('denuncias')});d.append(b);$('#cl').append(d)});
+ },
+
+ async textos(c){
+  const r=await req('/admin/config');let cur={};try{cur=JSON.parse((r.j.itens||{}).textos||'{}')}catch(e){}
+  const D={'apoio.titulo':'Ajude o MiHelp a crescer','apoio.texto':'Toda ajuda mantém o MiHelp no ar.','apoio.botao':'Apoiar','apoio.link':''};
+  const R={'apoio.titulo':'Título','apoio.texto':'Texto','apoio.botao':'Botão','apoio.link':'Link do botão'};
+  c.innerHTML='<div class="grid" style="grid-template-columns:1fr 1fr"><div class="card"><h4>💛 CAIXINHA DE DOAÇÃO</h4><div id="tf"></div><div class="row"><button id="ts">salvar</button><button id="tr" class="rd">voltar ao original</button></div></div><div class="card"><h4>PRÉVIA</h4><div id="pv" style="border:1px solid var(--g2);padding:14px;text-align:center"></div></div></div>';
+  const I={};Object.keys(R).forEach(k=>{const l=document.createElement('label');l.textContent=R[k];const i=document.createElement(k==='apoio.texto'?'textarea':'input');i.value=cur[k]||D[k];i.style.cssText='width:100%;margin:4px 0 10px;min-height:'+(k==='apoio.texto'?'70px':'0');i.oninput=pv;I[k]=i;$('#tf').append(l,i)});
+  function pv(){$('#pv').innerHTML='<b style="color:var(--am)">'+esc(I['apoio.titulo'].value)+'</b><p>'+esc(I['apoio.texto'].value)+'</p><button>'+esc(I['apoio.botao'].value)+'</button><br><small>'+esc(I['apoio.link'].value)+'</small>'}pv();
+  $('#ts').onclick=async()=>{const o={};Object.keys(I).forEach(k=>{const v=I[k].value.trim().slice(0,200);if(v&&v!==D[k])o[k]=v});await req('/admin/config',{itens:{textos:JSON.stringify(o)}});log('textos salvos')};
+  $('#tr').onclick=async()=>{await req('/admin/config',{itens:{textos:'{}'}});mod('textos')};
+ },
+ async meta(c){
+  const r=await req('/admin/config');let m={alvo:5000,arrecadado:0,usos:[]};try{Object.assign(m,JSON.parse((r.j.itens||{}).meta||'{}'))}catch(e){}
+  c.innerHTML='<div class="card"><h4>META DE APOIO</h4><div class="row"><input id="ma" type="number" placeholder="meta R$"><input id="mr" type="number" placeholder="arrecadado R$"></div><div id="mu"></div><button id="ms">salvar</button></div><div class="card"><h4>ANDAMENTO</h4><div style="height:14px;border:1px solid var(--g2)"><div id="mb" style="height:100%;background:var(--g)"></div></div></div>';
+  $('#ma').value=m.alvo;$('#mr').value=m.arrecadado;
+  const U=(m.usos||[]).map(u=>{const d=document.createElement('div');d.className='row';const n=document.createElement('input'),q=document.createElement('input');n.value=u[0];q.type='number';q.value=u[1];d.append(n,q);$('#mu').append(d);return [n,q]});
+  const bar=()=>$('#mb').style.width=Math.min(100,(+$('#mr').value||0)/(+$('#ma').value||1)*100)+'%';bar();$('#mr').oninput=$('#ma').oninput=bar;
+  $('#ms').onclick=async()=>{if(!(+$('#ma').value>0))return log('a meta precisa ser maior que zero',true);await req('/admin/config',{itens:{meta:JSON.stringify({alvo:+$('#ma').value,arrecadado:Math.max(0,+$('#mr').value||0),usos:U.map(([n,q])=>[n.value.trim()||'Outro',+q.value||0])})}});log('meta salva')};
+ },
+ async pagamentos(c){
+  const r=await req('/admin/pagamentos');const j=r.j||{};
+  if(!r.ok||!j.itens){c.innerHTML='<div class="card">Rota <b>/admin/pagamentos</b> ainda não existe no worker. Cole o bloco v33 (arquivo worker-v33.js) no fim do worker.js.</div>';return}
+  c.innerHTML='<div class="grid"><div class="card"><h4>TOTAL CONFIRMADO</h4><div class="num">R$ '+(+j.total||0).toFixed(2).replace('.',',')+'</div></div></div><div class="card"><h4>ÚLTIMOS PAGAMENTOS (Pix confirmado no Mercado Pago)</h4><div id="pl"></div></div>';
+  j.itens.forEach(x=>{const d=document.createElement('div');d.className='it';d.innerHTML='<div>'+esc(x.tipo)+' · '+esc(x.nome)+' <small>'+new Date(x.ts).toLocaleString('pt-BR')+'</small></div><b>R$ '+(+x.valor).toFixed(2).replace('.',',')+'</b>';$('#pl').append(d)});
+ },
+ async planos(c){
+  const r=await req('/admin/config');let L=[];try{L=JSON.parse((r.j.itens||{}).planos||'[]')}catch(e){}
+  if(!L.length)L=[{app:'mesa',nome:'Básico',preco:49,desc:'Cardápio + pedidos'},{app:'domin',nome:'Pro',preco:99,desc:'PDV, estoque, equipe'}];
+  c.innerHTML='<div class="card"><h4>PLANOS DOS APPS (rascunho)</h4><p style="color:var(--mu)">Só define os planos. A cobrança e o bloqueio por plano vêm na próxima etapa.</p><div id="pp"></div><div class="row"><button id="pa">+ plano</button><button id="ps">salvar</button></div></div>';
+  const draw=()=>{$('#pp').innerHTML='';L.forEach((p,i)=>{const d=document.createElement('div');d.className='row';
+   const a=document.createElement('select');['mesa','domin','mihelp'].forEach(o=>{const e=document.createElement('option');e.textContent=o;a.append(e)});a.value=p.app;a.onchange=()=>p.app=a.value;
+   const n=document.createElement('input');n.value=p.nome;n.oninput=()=>p.nome=n.value;const q=document.createElement('input');q.type='number';q.value=p.preco;q.oninput=()=>p.preco=+q.value;
+   const t=document.createElement('input');t.value=p.desc;t.oninput=()=>p.desc=t.value;const x=btn('✕','rd',()=>{L.splice(i,1);draw()});d.append(a,n,q,t,x);$('#pp').append(d)})};draw();
+  $('#pa').onclick=()=>{L.push({app:'mesa',nome:'Novo',preco:0,desc:''});draw()};
+  $('#ps').onclick=async()=>{await req('/admin/config',{itens:{planos:JSON.stringify(L.slice(0,20))}});log('planos salvos')};
+ },
+
+ async acessos(c){
+  c.innerHTML='<div class="card"><h4>DAR / ESTENDER ACESSO</h4>'
+   +'<div class="row"><select id="aApp"><option value="mesa">MESA</option><option value="domin">DOMIN</option><option value="rivo">RIVO</option><option value="mihelp">MIHELP</option></select>'
+   +'<select id="aTipo"><option value="conta">conta (telefone)</option><option value="loja">loja (chave)</option></select>'
+   +'<input id="aAlvo" placeholder="telefone ou chave da loja"><input id="aDias" type="number" placeholder="dias" value="30" style="max-width:100px"></div>'
+   +'<div class="row"><button id="aDar">dar acesso</button><button id="aExt" class="am">estender</button></div></div>'
+   +'<div class="card"><h4>ACESSOS DESTE APP</h4><div id="aLs"></div></div>';
+  const carregar=async()=>{const r=await req('/admin/licencas?app='+$('#aApp').value);const L=$('#aLs');L.innerHTML='';
+   (r.j.itens||[]).forEach(x=>{const vencido=x.status!=='ativo';const d=document.createElement('div');d.className='it';
+    d.innerHTML='<div>'+(x.tipo==='conta'?'📱 ':'🏪 ')+esc(x.nome||x.alvo)+' <small>'+esc(x.alvo)+' · '+(x.status==='revogado'?'REVOGADO':x.status==='vencido'?'VENCIDO há '+Math.abs(x.restantes)+'d':x.restantes+'d restantes')+'</small></div>';
+    const cor=x.status==='ativo'?'':'rd';d.querySelector('div').style.color=x.status==='ativo'?'var(--g)':x.status==='vencido'?'var(--rd)':'var(--mu)';
+    const e7=btn('+7','',async()=>{await req('/admin/licenca',{app:$('#aApp').value,tipo:x.tipo,alvo:x.alvo,dias:7,acao:'estender'});carregar()});
+    const e30=btn('+30','',async()=>{await req('/admin/licenca',{app:$('#aApp').value,tipo:x.tipo,alvo:x.alvo,dias:30,acao:'estender'});carregar()});
+    const rv=btn('revogar','rd');conf(rv,'',async()=>{await req('/admin/licenca',{app:$('#aApp').value,tipo:x.tipo,alvo:x.alvo,acao:'revogar'});carregar()});
+    d.append(e7,e30,rv);L.append(d)});
+   if(!(r.j.itens||[]).length)L.textContent='nenhum acesso cadastrado para este app ainda'};
+  $('#aApp').onchange=carregar;
+  $('#aDar').onclick=async()=>{const alvo=$('#aAlvo').value.trim(),dias=+$('#aDias').value;if(!alvo||!(dias>0))return log('preencha o alvo e os dias',true);
+   const r=await req('/admin/licenca',{app:$('#aApp').value,tipo:$('#aTipo').value,alvo,dias,acao:'dar'});if(r.ok)$('#aAlvo').value='';carregar()};
+  $('#aExt').onclick=async()=>{const alvo=$('#aAlvo').value.trim(),dias=+$('#aDias').value;if(!alvo||!(dias>0))return log('preencha o alvo e os dias',true);
+   await req('/admin/licenca',{app:$('#aApp').value,tipo:$('#aTipo').value,alvo,dias,acao:'estender'});carregar()};
+  carregar();
+ },
+ async config(c){
+  const r=await req('/admin/config');const it=r.j.itens||{};
+  c.innerHTML='<div class="card"><h4>CHAVES DO AdminConfig</h4><div class="row"><select id="ck"></select><input id="nk" placeholder="ou nova chave"></div><textarea id="cvv" spellcheck="false"></textarea><div class="row"><button id="cs">gravar</button></div></div>';
+  const S=$('#ck');S.innerHTML=Object.keys(it).map(k=>'<option>'+esc(k)+'</option>').join('');
+  const pr=()=>{const v=it[S.value]||'';try{$('#cvv').value=JSON.stringify(JSON.parse(v),null,2)}catch(e){$('#cvv').value=v}};
+  S.onchange=pr;pr();
+  $('#cs').onclick=async()=>{const k=$('#nk').value.trim()||S.value;if(!k)return;let v=$('#cvv').value;try{v=JSON.stringify(JSON.parse(v))}catch(e){}
+   const o=await req('/admin/config',{itens:{[k]:v}});if(o.ok&&(o.j.recusadas||[]).length)log('recusada pelo servidor: '+o.j.recusadas.join(','),true);mod('config')};
+ }
+};
+
+if(SEM_LOGIN){abrir();log('MODO DEMO: sem login, dados de mentira')}else if(TK&&sessionStorage.getItem('mh_adm')==='1')abrir();else{$('#login').style.display='grid';$('#pw').focus()}
+</script>
+</body>
+</html>
