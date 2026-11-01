@@ -35,6 +35,7 @@ button,select,a{font:inherit;color:inherit}
 .btn.p{background:var(--cy);border-color:var(--cy);color:#031526;font-weight:700}
 .btn.dg{border-color:rgba(248,113,113,.55);color:var(--er)}.btn.dg:hover{background:rgba(248,113,113,.12)}.btn.dgs{background:var(--er);border-color:var(--er);color:#1a0505;font-weight:700}.btn.dgs:disabled{opacity:.4;cursor:not-allowed}
 .tile.dg{grid-column:1/-1;flex-direction:row;justify-content:center;gap:10px;min-height:56px;border-color:rgba(248,113,113,.35)}.tile.dg .ic,.tile.dg span{color:var(--er)}.tile.dg:hover{border-color:var(--er);background:rgba(248,113,113,.08)}
+.pt-map{height:340px;border-radius:14px;overflow:hidden;border:1px solid var(--ln);position:relative;z-index:0;isolation:isolate;margin-bottom:8px}
 .emp-l{display:block;padding:14px 0;border-top:1px solid var(--ln)}.emp-l:first-of-type{border-top:0}.emp-n{font-weight:700}.emp-cf{margin-top:10px;padding:12px;border:1px solid rgba(248,113,113,.45);border-radius:12px;background:rgba(248,113,113,.06)}.emp-cf input{width:100%;min-height:42px;margin:8px 0;padding:6px 10px;border-radius:10px;border:1px solid var(--ln);background:var(--bg);color:var(--tx)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .top select{min-height:42px;border-radius:10px;border:1px solid var(--ln);background:var(--sf);padding:0 10px;max-width:100%}
@@ -356,7 +357,7 @@ var MODS=[
  ['Começar',[['tutorial','📖','Como usar o Domin','real']]],
  ['Principal',[['visao','◧','Visão geral','real'],['empresa','🏢','Minha empresa','real'],['empresas','🗂','Minhas empresas','real'],['equipe','👥','Equipe','real'],['clientes','🤝','Clientes','real'],['servicos','🛠','Serviços e preços','real'],['orcamentos','🧾','Orçamentos e trabalhos','real'],['agenda','🗓','Agenda','real']]],
  ['Operação',[['financeiro','💰','Financeiro','real'],['estoque','📦','Estoque','real'],['relatorios','📊','Relatórios','real'],['automacoes','⚡','Automações','beta']]],
- ['Workforce',[['meutrabalho','🧑‍💼','Meu Trabalho','beta'],['escalas','📅','Escalas (turnos)','beta'],['chat','💬','Chat da equipe','beta'],['ponto','⏱','Ponto digital','demo'],['folha','💵','Folha de pagamento','beta'],['avaliacoes','🔒','Avaliações privadas','beta'],['passaporte','🪪','Passaporte Profissional','beta']]],
+ ['Workforce',[['meutrabalho','🧑‍💼','Meu Trabalho','beta'],['escalas','📅','Escalas (turnos)','beta'],['chat','💬','Chat da equipe','beta'],['ponto','⏱','Ponto digital','beta'],['folha','💵','Folha de pagamento','beta'],['avaliacoes','🔒','Avaliações privadas','beta'],['passaporte','🪪','Passaporte Profissional','beta']]],
  ['Sistema',[['studio','🎛','Personalização (Studio)','beta'],['config','⚙','Configurações','real'],['app','⬇','Download','real']]]
 ];
 var PROTO={
@@ -365,7 +366,7 @@ var PROTO={
  automacoes:['Automações','Regras simples, como avisar estoque baixo ou lembrar um orçamento pendente.',['Gatilho e ação','Avisos para a equipe'],'Sem especificação e sem backend. Não será construído antes disso.'],
  meutrabalho:['Meu Trabalho','Área do funcionário: jornada, escala, folgas, tarefas, comunicados e documentos, sem acessar o painel do patrão.',['Minha jornada e escala','Minhas folgas e solicitações','Minhas tarefas e comunicados','Documentos disponibilizados','Meu Passaporte Profissional'],'Precisa de vínculo funcionário-empresa com permissões próprias no Worker.'],
  escalas:['Escalas, folgas e ausências','Calendário semanal com turnos, folgas, pedidos e aprovações, com aviso de conflito de horário.',['Programado, em andamento, concluído','Pendente, aprovado, recusado','Necessita de revisão','Histórico de decisões'],'Precisa de coleções de turnos e solicitações no Worker. As regras de jornada variam por categoria profissional e precisam ser definidas.'],
- ponto:['Ponto digital','Registro de entrada, saída e intervalos, histórico e pedido de correção, para celular pessoal ou aparelho compartilhado.',['Entrada, saída e intervalos','Histórico e comprovantes','Pedido de correção'],'PROTÓTIPO. Não registra nada e não tem validade legal. O ponto eletrônico formal exige requisitos técnicos e legais próprios, e não há monitoramento contínuo.'],
+ ponto:['Ponto digital','Registro de entrada, saída e intervalos, histórico e pedido de correção, para celular pessoal ou aparelho compartilhado.',['Entrada, saída e intervalos','Histórico e comprovantes','Pedido de correção'],'Registro interno com localização só no momento de bater o ponto (sem monitoramento contínuo), selfie opcional, mapa da equipe e horas. Não tem validade legal por si só: o ponto eletrônico formal exige requisitos técnicos e legais próprios.'],
  avaliacoes:['Avaliações profissionais privadas','Avaliações internas da empresa, com critérios por função, resposta e contestação do trabalhador e registro de alterações.',['Critérios por função, sem nota única','Resposta e contestação','Acesso restrito','Janela de 18 meses para o indicador atual; o registro não é apagado'],'São independentes das avaliações públicas do MiHelp, que não alimentam este módulo. Precisa de backend com permissões e política de retenção.'],
  passaporte:['Passaporte Profissional','Histórico profissional complementar do trabalhador: declarado por ele, confirmado por empresas, certificações e referências autorizadas.',['Declarado pelo profissional','Experiências confirmadas','Certificações e competências','Referências autorizadas'],'Não substitui a Carteira de Trabalho Digital nem documentos oficiais. Avaliações internas não entram automaticamente.'],
  studio:['D’Castro Studio','Cada empresa escolhe os módulos e personaliza atalhos, cartões e aparência do painel.',['Ativar e desativar módulos','Organizar cartões e atalhos'],'Só a estrutura de navegação existe por enquanto.']
@@ -460,7 +461,7 @@ var Store={mem:{},q:Promise.resolve(),n:0,
  cur:function(){return this.mem[S.cur]},
  carregar:function(){var k=S.cur,m=this.mem;if(!k)return Promise.resolve();return api('/wf/dados?chave='+encodeURIComponent(k)).then(function(r){
   if(r.ok&&r.j&&r.j.ok)m[k]={d:r.j.dados,ts:r.j.ts||0,papel:r.j.papel,me:r.j.me||'',membros:r.j.membros||[]};else m[k]={off:1,erro:(r.j&&r.j.erro)||'indisponível'}})},
- get:function(){var c=this.cur();return JSON.parse(JSON.stringify((c&&c.d)||{v:1,seq:1,funcs:[],tarefas:[],marc:[],corr:[],avals:[],pass:[]}))},
+ get:function(){var c=this.cur();return JSON.parse(JSON.stringify((c&&c.d)||{v:1,seq:1,funcs:[],tarefas:[],marc:[],corr:[],avals:[],pass:[],locs:[]}))},
  set:function(d){var k=S.cur,c=this.cur(),self=this;if(!c||c.off)return false;c.d=d;self.n++;
   self.q=self.q.then(function(){var m=self.mem[k];return wfPost(k,d,m.ts).then(function(r){
    if(r.ok&&r.j.ok){m.ts=r.j.ts;if(m.papel!=='empregador')m.d=r.j.dados;if(k===S.cur&&WFV.indexOf(S.view)>-1&&!$('#view .fld')&&self.n===1)re()}
@@ -501,7 +502,7 @@ function form(title,fs,ok,init){var p=h('div','panel');p.append(h('h2',null,titl
  var a=h('div','acts');a.append(btn('Salvar',function(){var vals={},bad=0;fs.forEach(function(f){var x=els[f.k].value.trim();f.er.textContent='';
   if(f.req&&!x){f.er.textContent='Campo obrigatório.';bad=1}else if(f.min&&x.length<f.min){f.er.textContent='Escreva pelo menos '+f.min+' caracteres.';bad=1}vals[f.k]=x});if(!bad)ok(vals)},'p'),btn('Cancelar',re));
  p.append(a);return p}
-function wfHead(v,t,sub,note){v.append(head(t,sub,S.view==='ponto'?'demo':'real'));var l=loja();if(!l){v.append(empty('Sem empresa ativa.'));return false}
+function wfHead(v,t,sub,note){v.append(head(t,sub,'real'));var l=loja();if(!l){v.append(empty('Sem empresa ativa.'));return false}
  var c=Store.cur();if(!c){v.append(empty('Carregando…'));Store.carregar().then(function(){if($('#view'))re()});return false}
  if(c.off){v.append(empty('Não foi possível carregar: '+c.erro+'.'),btn('Tentar de novo',function(){delete Store.mem[S.cur];re()}));return false}
  v.append(h('div','note',note));return roleBar(v)}
@@ -543,22 +544,160 @@ function tarefaPanel(v,d,emp){var p=h('div','panel'),bar=h('div','acts'),f=opts(
 VIEWS.meutrabalho=function(v){if(!wfHead(v,'Trabalho e equipes','Funcionários e tarefas por empresa.','Dados salvos no servidor, por empresa. Escalas e folgas seguem como protótipo. Não cadastre CPF, RG ou outros documentos pessoais nesta etapa.'))return;
  var d=Store.get(),emp=ROLE==='empregador';if(emp)funcPanel(v,d);tarefaPanel(v,d,emp);};
 
-/* --- Ponto digital (simulado) --- */
+/* --- Ponto digital: localização só no toque de bater, cerca que avisa (nunca bloqueia), selfie opcional, mapa da equipe e horas --- */
 var TP=[['entrada','Entrada'],['saida_int','Saída para intervalo'],['retorno','Retorno do intervalo'],['saida_final','Saída final']],TN={};TP.forEach(function(t){TN[t[0]]=t[1]});
-function marcs(d,f,dia){return d.marc.filter(function(m){return m.f===f&&m.dia===dia}).sort(function(a,b){return a.hora<b.hora?-1:a.hora>b.hora?1:0})}
+function marcs(d,f,dia){return d.marc.filter(function(m){return m.f===f&&m.dia===dia&&!m.del}).sort(function(a,b){return a.hora<b.hora?-1:a.hora>b.hora?1:0})}
 function inc(ms,dia){var ok=TP.slice(0,ms.length).map(function(t){return t[0]}).join()===ms.map(function(m){return m.tipo}).join();if(!ok)return 'marcações fora de ordem';if(dia<hoje()&&ms.length<4)return 'jornada incompleta ('+ms.length+'/4)';return ''}
-VIEWS.ponto=function(v){if(!wfHead(v,'Ponto digital','Marcações simuladas, pedido de correção e aprovação.','Registro interno de marcações, sem homologação e sem validade legal por si só. A hora é registrada pelo servidor. O registro eletrônico de jornada exige validação técnica e jurídica (segurança, auditoria, privacidade/LGPD).'))return;
- var d=Store.get(),emp=ROLE==='empregador',ids=emp?d.funcs.map(function(f){return f.id}):[ME];
- if(!emp){var p=h('div','panel'),hj=marcs(d,ME,hoje()),a=h('div','acts');p.append(h('h2',null,'Hoje · '+fd(hoje())+' '),h('div','tg','A hora oficial da marcação é a do servidor.'));
-  TP.forEach(function(t,i){var b=btn(t[1],function(){var n=new Date();d.marc.push({id:nid(d),f:ME,dia:hoje(),hora:String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0'),tipo:t[0],sim:1});save(d,'Marcação registrada.')},i===hj.length?'p':'');b.disabled=i!==hj.length;a.append(b)});
-  p.append(a,btn('Pedir correção de marcação',function(){show(form('Pedido de correção',[{k:'dia',l:'Dia',t:'date',req:1,d:hoje()},{k:'tipo',l:'Marcação',t:'select',o:TP.map(function(t){return [t[0],t[1]]})},{k:'hora',l:'Hora correta',t:'time',req:1},{k:'motivo',l:'Motivo',t:'area',req:1,min:10}],function(x){
-   d.corr.push({id:nid(d),f:ME,dia:x.dia,tipo:x.tipo,hora:x.hora,motivo:x.motivo,st:'pendente',em:hoje()});save(d,'Pedido enviado ao responsável.')}))}));v.append(p)}
- var H=h('div','panel'),dias={};H.append(h('h2',null,'Histórico e inconsistências'));
- d.marc.forEach(function(m){if(ids.indexOf(m.f)>-1)dias[m.dia+'|'+m.f]=[m.dia,m.f]});var ks=Object.keys(dias).sort().reverse().slice(0,20);if(!ks.length)H.append(empty('Nenhuma marcação simulada ainda.'));
- ks.forEach(function(k){var x=dias[k],ms=marcs(d,x[1],x[0]),i=inc(ms,x[0]),r=h('div','li');r.append(h('span',null,fd(x[0])+(emp?' · '+nomeF(d,x[1]):'')+' · '+ms.map(function(m){return m.hora+' '+TN[m.tipo]+(m.corr?' (corrigida)':'')}).join(' · ')),h('span','chip '+(i?'wr':'ok'),i||'consistente'));H.append(r)});v.append(H);
+var PT={aba:'agora',mes:'',sel:'',t:null,mapa:null};
+function distM(la1,lo1,la2,lo2){var r=Math.PI/180,a=Math.sin((la2-la1)*r/2),b=Math.sin((lo2-lo1)*r/2),x=a*a+Math.cos(la1*r)*Math.cos(la2*r)*b*b;return Math.round(12742000*Math.asin(Math.min(1,Math.sqrt(x))))}
+function gpsAgora(){return new Promise(function(ok){if(!navigator.geolocation)return ok({erro:'Este aparelho não informa a localização.'});
+ navigator.geolocation.getCurrentPosition(function(p){ok({lat:Math.round(p.coords.latitude*1e6)/1e6,lng:Math.round(p.coords.longitude*1e6)/1e6,prec:Math.round(p.coords.accuracy||0)})},function(e){ok({erro:e&&e.code===1?'A permissão de localização foi negada neste aparelho.':'Não foi possível obter a localização agora.'})},{enableHighAccuracy:true,timeout:15000,maximumAge:0})})}
+function fotoReduz(f){return new Promise(function(ok,no){var fr=new FileReader();fr.onerror=no;fr.onload=function(){var im=new Image();im.onerror=no;im.onload=function(){var k=Math.min(1,240/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));c.getContext('2d').drawImage(im,0,0,c.width,c.height);ok(c.toDataURL('image/jpeg',.6))};im.src=fr.result};fr.readAsDataURL(f)})}
+function minHM(x){var a=String(x).split(':');return (+a[0]||0)*60+(+a[1]||0)}
+function fmtH(m){m=Math.round(m);return Math.floor(m/60)+'h'+String(m%60).padStart(2,'0')}
+function locNome(d,id){if(!id)return '';var l=(d.locs||[]).find(function(x){return x.id===id});return l?l.nome:'(local removido)'}
+function selo(m){if(m.fora===1)return h('span','chip wr','fora do local'+(m.dist!=null?' · '+m.dist+' m':''));if(m.fora===2)return h('span','chip wr','sem localização');if(m.lat!=null)return h('span','chip ok','no local'+(m.dist!=null?' · '+m.dist+' m':''));return null}
+function mapaUrl(la,lo){return 'https://www.openstreetmap.org/?mlat='+la+'&mlon='+lo+'#map=18/'+la+'/'+lo}
+function linkMapa(m){var a=h('a','btn','📍 Ver no mapa');a.href=mapaUrl(m.lat,m.lng);return nova(a)}
+function verFoto(mid){api('/wf/foto?chave='+encodeURIComponent(S.cur)+'&mid='+encodeURIComponent(mid)).then(function(r){if(!(r.ok&&r.j&&r.j.ok&&r.j.foto))return toast('Esta marcação não tem selfie.');
+ var o=h('div'),i=new Image();o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:9999;cursor:pointer';i.src=r.j.foto;i.alt='Selfie da marcação';i.style.cssText='max-width:90vw;max-height:80vh;border-radius:14px';o.append(i);o.onclick=function(){o.remove()};document.body.append(o)})}
+function btnFoto(m){return m.foto?btn('📷 Selfie',function(){verFoto(m.id)}):null}
+/* cálculo de horas: soma de entrada→saída e retorno→saída final; jornada aberta em dia passado é "incompleta" */
+function calcDia(ms,dia){var e=null,tot=0,ab=0,agora=0;ms.forEach(function(m){if(m.tipo==='entrada'||m.tipo==='retorno')e=minHM(m.hora);else if(e!=null){tot+=Math.max(0,minHM(m.hora)-e);e=null}});
+ if(e!=null){if(dia===hoje()){var n=new Date();tot+=Math.max(0,n.getHours()*60+n.getMinutes()-e);agora=1}else ab=1}return{min:tot,aberto:ab,agora:agora}}
+function resumoMes(d,fid,mes){var dias={},r={dias:0,min:0,inc:0,fora:0,sem:0,lista:[]};d.marc.forEach(function(m){if(m.f===fid&&!m.del&&String(m.dia).slice(0,7)===mes)(dias[m.dia]=dias[m.dia]||[]).push(m)});
+ Object.keys(dias).sort().forEach(function(k){var ms=marcs(d,fid,k),c=calcDia(ms,k),i=inc(ms,k);r.dias++;r.min+=c.min;if(i||c.aberto)r.inc++;ms.forEach(function(m){if(m.fora===1)r.fora++;else if(m.fora===2)r.sem++});r.lista.push({dia:k,ms:ms,c:c,i:i})});return r}
+function leaflet(cb){if(window.L)return cb(window.L);var c=document.createElement('link');c.rel='stylesheet';c.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css';document.head.append(c);
+ var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js';s.onload=function(){cb(window.L||null)};s.onerror=function(){cb(null)};document.head.append(s)}
+
+/* funcionário: confirmação de ponto (local, GPS, selfie opcional) */
+function baterSheet(d,t,alvo){alvo.textContent='';var P=h('div','panel'),est={gps:null,foto:''},gl=h('div','note','Obtendo sua localização…'),sel=null,ok=null,rt=null,pv=new Image(),fi=document.createElement('input'),locs=d.locs||[];
+ P.append(h('h2',null,'Confirmar: '+t[1]));
+ if(locs.length){var w=h('label','fld','Local de trabalho');sel=opts(locs.map(function(l){return [l.id,l.nome]}).concat([['','Outro lugar']]));w.append(sel);P.append(w)}
+ function dist(){if(!(est.gps&&!est.gps.erro))return;var l=sel&&sel.value?locs.find(function(x){return x.id===sel.value}):null,tx='Localização obtida · precisão ±'+est.gps.prec+' m';
+  if(l&&l.lat!=null){var dd=distM(est.gps.lat,est.gps.lng,l.lat,l.lng),rr=l.raio||100;tx+=' · a '+dd+' m de '+l.nome+(dd>rr?' (fora do raio de '+rr+' m: a marcação será sinalizada, mas vale)':'')}
+  gl.textContent=tx}
+ function pega(){est.gps=null;ok.disabled=true;rt.style.display='none';gl.style.color='';gl.textContent='Obtendo sua localização…';
+  gpsAgora().then(function(g){est.gps=g;if(g.erro){gl.textContent=g.erro+' Você ainda pode registrar; a marcação ficará sinalizada como “sem localização”.';gl.style.color='var(--wr)';rt.style.display=''}
+   else{if(sel){var b=null;locs.forEach(function(l){if(l.lat==null)return;var dd=distM(g.lat,g.lng,l.lat,l.lng);if(!b||dd<b.dd)b={l:l,dd:dd}});if(b)sel.value=b.l.id}dist()}ok.disabled=false})}
+ ok=btn('Confirmar marcação',function(){ok.disabled=true;var n=new Date(),m={id:nid(d),f:ME,dia:hoje(),hora:String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0'),tipo:t[0],sim:1,foto:est.foto?1:0};
+  if(est.gps&&!est.gps.erro){m.lat=est.gps.lat;m.lng=est.gps.lng;m.prec=est.gps.prec;if(sel&&sel.value)m.loc=sel.value}
+  d.marc.push(m);var foto=est.foto;save(d,'Marcação registrada.');
+  if(foto)Store.q.then(function(){var c=Store.cur();if(c&&c.d&&(c.d.marc||[]).some(function(x){return x.id===m.id}))return pj('/wf/foto',{chave:S.cur,mid:m.id,foto:foto}).then(function(r){if(!r.ok)toast('Ponto registrado, mas a selfie não foi enviada.')})})},'p');
+ rt=btn('Tentar a localização de novo',pega);rt.style.display='none';
+ fi.type='file';fi.accept='image/*';fi.setAttribute('capture','user');fi.style.display='none';
+ var sb=btn('📷 Tirar selfie (opcional)',function(){fi.click()});pv.alt='Prévia da selfie';pv.style.cssText='display:none;width:72px;height:72px;object-fit:cover;border-radius:12px';
+ fi.onchange=function(){var f=fi.files&&fi.files[0];if(!f)return;fotoReduz(f).then(function(u){est.foto=u;pv.src=u;pv.style.display='block';sb.textContent='📷 Tirar outra selfie'}).catch(function(){toast('Não foi possível ler a foto.')})};
+ if(sel)sel.onchange=dist;
+ var fr=h('div','acts');fr.style.alignItems='center';fr.append(sb,pv,fi);
+ P.append(gl,rt,fr,h('div','note','A localização e a selfie são registradas só agora, neste toque. Não há rastreamento contínuo. Só você e o empregador veem.'));
+ var ac=h('div','acts');ac.append(ok,btn('Cancelar',re));P.append(ac);alvo.append(P);pega()}
+
+function pontoFunc(v,d){var p=h('div','panel'),hj=marcs(d,ME,hoje()),a=h('div','acts'),box=h('div'),mes=hoje().slice(0,7),rm=resumoMes(d,ME,mes);
+ p.append(h('h2',null,'Hoje · '+fd(hoje())+' '),h('div','tg','A hora oficial da marcação é a do servidor. Ao bater, o app pede sua localização uma única vez.'));
+ TP.forEach(function(t,i){var b=btn(t[1],function(){baterSheet(d,t,box);box.scrollIntoView({block:'nearest'})},i===hj.length?'p':'');b.disabled=i!==hj.length;a.append(b)});
+ p.append(a,box,h('div','note','Neste mês: '+fmtH(rm.min)+' trabalhadas em '+rm.dias+' dia(s).'),btn('Pedir correção de marcação',function(){show(form('Pedido de correção',[{k:'dia',l:'Dia',t:'date',req:1,d:hoje()},{k:'tipo',l:'Marcação',t:'select',o:TP.map(function(t){return [t[0],t[1]]})},{k:'hora',l:'Hora correta',t:'time',req:1},{k:'motivo',l:'Motivo',t:'area',req:1,min:10}],function(x){
+   d.corr.push({id:nid(d),f:ME,dia:x.dia,tipo:x.tipo,hora:x.hora,motivo:x.motivo,st:'pendente',em:hoje()});save(d,'Pedido enviado ao responsável.')}))}));v.append(p);histCorr(v,d,false)}
+
+/* histórico por dia (com selos de local e selfie) e pedidos de correção */
+function histCorr(v,d,emp){var ids=emp?d.funcs.map(function(f){return f.id}):[ME],H=h('div','panel'),dias={};H.append(h('h2',null,'Histórico e inconsistências'));
+ d.marc.forEach(function(m){if(ids.indexOf(m.f)>-1&&!m.del)dias[m.dia+'|'+m.f]=[m.dia,m.f]});var ks=Object.keys(dias).sort().reverse().slice(0,20);if(!ks.length)H.append(empty('Nenhuma marcação ainda.'));
+ ks.forEach(function(k){var x=dias[k],ms=marcs(d,x[1],x[0]),i=inc(ms,x[0]),c=calcDia(ms,x[0]),w=h('div'),r=h('div','li');w.style.cssText='display:block;padding:10px 0;border-top:1px solid var(--ln)';
+  r.append(h('span',null,fd(x[0])+(emp?' · '+nomeF(d,x[1]):'')+' · '+fmtH(c.min)+(c.agora?' (em andamento)':'')),h('span','chip '+(i?'wr':'ok'),i||'consistente'));if(emp)r.append(btn('✏️ Editar dia',function(){PT.aba='edit';PT.ef=x[1];PT.ed=x[0];re()}));w.append(r);
+  ms.forEach(function(m){var l=h('div','m'),ac=h('span','acts');l.style.cssText='display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px';l.append(h('span',null,m.hora+' · '+TN[m.tipo]+(m.corr?' (corrigida)':'')+(m.ed?' (ajustada pelo empregador'+(m.orig?', era '+m.orig.hora+' '+TN[m.orig.tipo]:m.inc?', incluída':'')+')':'')));
+   var s=selo(m);if(s)l.append(s);if(m.loc)l.append(h('span','m',locNome(d,m.loc)));if(emp&&m.lat!=null)ac.append(linkMapa(m));var bf=btnFoto(m);if(bf&&(emp||m.f===ME))ac.append(bf);l.append(ac);w.append(l)});H.append(w)});v.append(H);
  var C=h('div','panel');C.append(h('h2',null,'Pedidos de correção'));var cs=d.corr.filter(function(c){return ids.indexOf(c.f)>-1}).reverse();if(!cs.length)C.append(empty('Nenhum pedido.'));
  cs.forEach(function(c){var r=h('div','li'),s=h('span','acts');r.append(h('span',null,fd(c.dia)+' · '+(emp?nomeF(d,c.f)+' · ':'')+TN[c.tipo]+' às '+c.hora+' · “'+c.motivo+'”'));s.append(h('span','chip '+(c.st==='aprovada'?'ok':c.st==='rejeitada'?'demo':'wr'),c.st));
-  if(emp&&c.st==='pendente'){s.append(btn('Aprovar',function(){d.marc.push({id:nid(d),f:c.f,dia:c.dia,hora:c.hora,tipo:c.tipo,sim:1,corr:1});c.st='aprovada';c.por=autor();save(d,'Ajuste aprovado.')}),btn('Rejeitar',function(){c.st='rejeitada';c.por=autor();save(d,'Ajuste rejeitado.')}))}r.append(s);C.append(r)});v.append(C)};
+  if(emp&&c.st==='pendente'){s.append(btn('Aprovar',function(){d.marc.push({id:nid(d),f:c.f,dia:c.dia,hora:c.hora,tipo:c.tipo,sim:1,corr:1});c.st='aprovada';c.por=autor();save(d,'Ajuste aprovado.')}),btn('Rejeitar',function(){c.st='rejeitada';c.por=autor();save(d,'Ajuste rejeitado.')}))}r.append(s);C.append(r)});v.append(C);audPanel(v,d,ids)}
+
+/* gestor: aba Agora (quem está em jornada + mapa) */
+function pontoAgora(v,d){var hj=hoje(),P=painel('Equipe agora · '+fd(hj),btn('Atualizar',function(){Store.carregar().then(re)})),pts=[];
+ if(!d.funcs.length)P.append(empty('Cadastre funcionários em Meu Trabalho para acompanhar o ponto.'));
+ d.funcs.forEach(function(f){var ms=marcs(d,f.id,hj),u=ms[ms.length-1],g=ms.slice().reverse().find(function(m){return m.lat!=null}),r=h('div'),top=h('div','li'),st,cl;
+  r.style.cssText='display:block;padding:10px 0;border-top:1px solid var(--ln)';
+  if(!u){st='Sem marcação hoje';cl='demo'}else if(u.tipo==='saida_int'){st='No intervalo';cl='wr'}else if(u.tipo==='saida_final'){st='Encerrou o dia';cl='demo'}else{st='Em jornada';cl='ok'}
+  top.append(h('b',null,f.nome),h('span','chip '+cl,st));r.append(top);
+  if(u){var l=h('div','m'),ac=h('span','acts');l.style.cssText='display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px';l.append(h('span',null,'Última marcação: '+u.hora+' · '+TN[u.tipo]+(u.loc?' · '+locNome(d,u.loc):'')));var s=selo(u);if(s)l.append(s);
+   if(g)ac.append(linkMapa(g));var bf=btnFoto(u);if(bf)ac.append(bf);l.append(ac);r.append(l)}
+  if(g)pts.push({nome:f.nome,m:g});P.append(r)});v.append(P);
+ var M=painel('Mapa da equipe'),mp=h('div','pt-map'),locs=(d.locs||[]).filter(function(l){return l.lat!=null&&l.lng!=null});
+ if(!pts.length&&!locs.length){v.append(M);M.append(empty('Ninguém marcou com localização hoje e ainda não há locais cadastrados.'));return}
+ M.append(mp,h('div','note','Cada ponto é a posição da última marcação de hoje. A localização só é coletada quando a pessoa bate o ponto: não é rastreamento contínuo. Os círculos tracejados são os locais de trabalho.'));v.append(M);
+ leaflet(function(L){if(!L||!document.body.contains(mp)){if(mp.isConnected){mp.textContent='Não foi possível carregar o mapa agora. Use os botões “Ver no mapa” da lista.';mp.style.cssText='height:auto;padding:16px'}return}
+  if(PT.mapa){try{PT.mapa.remove()}catch(e){}}var m=L.map(mp,{scrollWheelZoom:false}),bs=[];PT.mapa=m;
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(m);
+  function tip(t){var e=document.createElement('span');e.textContent=t;return e}
+  locs.forEach(function(l){L.circle([l.lat,l.lng],{radius:l.raio||100,color:'#2ea8ff',weight:1,dashArray:'4 4',fillOpacity:.06}).addTo(m).bindTooltip(tip(l.nome+' · raio '+(l.raio||100)+' m'));bs.push([l.lat,l.lng])});
+  pts.forEach(function(p){L.circleMarker([p.m.lat,p.m.lng],{radius:9,color:p.m.fora===1?'#fbbf24':'#4ade80',fillOpacity:.85,weight:2}).addTo(m).bindTooltip(tip(p.nome+' · '+p.m.hora+' · '+TN[p.m.tipo]));bs.push([p.m.lat,p.m.lng])});
+  if(bs.length===1)m.setView(bs[0],16);else m.fitBounds(bs,{padding:[30,30],maxZoom:17});setTimeout(function(){try{m.invalidateSize()}catch(e){}},50)})}
+
+/* gestor: aba Locais (cadastro de locais com raio) */
+function localForm(d,l){var P=h('div','panel'),er=h('div','err');P.append(h('h2',null,l?'Editar local':'Novo local de trabalho'));
+ function fc(lb,tp,val,ph){var w=h('label','fld',lb),i=document.createElement('input');i.type=tp;if(val!=null)i.value=val;if(ph)i.placeholder=ph;w.append(i);P.append(w);return i}
+ var nm=fc('Nome do local (ex.: Obra Centro, Loja 1)','text',l?l.nome:''),rd=fc('Raio aceito (metros)','number',l?l.raio||100:100),la=fc('Latitude','text',l&&l.lat!=null?l.lat:'','-15.601400'),lo=fc('Longitude','text',l&&l.lng!=null?l.lng:'','-56.097900'),gs=h('div','note');
+ P.append(btn('📍 Usar minha localização agora',function(){gs.textContent='Obtendo localização…';gpsAgora().then(function(g){if(g.erro){gs.textContent=g.erro;return}la.value=g.lat;lo.value=g.lng;gs.textContent='Preenchido com a sua posição atual (precisão ±'+g.prec+' m). Vá até o local para um resultado melhor.'})}),gs,er);
+ var ac=h('div','acts'),nu=function(x){return parseFloat(String(x).replace(',','.'))};
+ ac.append(btn('Salvar local',function(){var n=nm.value.trim(),r=Math.round(nu(rd.value)),a=nu(la.value),o=nu(lo.value);
+  if(n.length<2){er.textContent='Escreva o nome do local.';return}if(!(a>=-90&&a<=90&&o>=-180&&o<=180)){er.textContent='Informe latitude e longitude válidas (ou use sua localização atual).';return}if(!(r>=20&&r<=5000)){er.textContent='O raio deve ficar entre 20 e 5000 metros.';return}
+  d.locs=d.locs||[];if(l){var x=d.locs.find(function(y){return y.id===l.id});if(x){x.nome=n;x.raio=r;x.lat=a;x.lng=o}}else d.locs.push({id:nid(d),nome:n,raio:r,lat:a,lng:o});save(d,'Local salvo.')},'p'),btn('Cancelar',re));P.append(ac);show(P)}
+function pontoLocais(v,d){var P=painel('Locais de trabalho',btn('+ Novo local',function(){localForm(d)},'p')),ls=d.locs||[];
+ if(!ls.length)P.append(empty('Nenhum local cadastrado. Sem locais, o ponto registra só a posição, sem avisar quando alguém bate fora do lugar.'));
+ ls.forEach(function(l){var r=h('div','li'),s=h('span','acts');r.append(h('span',null,l.nome+' · raio '+(l.raio||100)+' m · '+(l.lat!=null?l.lat+', '+l.lng:'sem coordenadas')));
+  if(l.lat!=null)s.append(linkMapa(l));s.append(btn('Editar',function(){localForm(d,l)}),btn('Excluir',function(){if(confirm('Excluir o local “'+l.nome+'”? As marcações antigas continuam guardadas.')){d.locs=d.locs.filter(function(x){return x.id!==l.id});save(d,'Local excluído.')}}));r.append(s);P.append(r)});
+ P.append(h('div','note','Cerca virtual: quem bater o ponto fora do raio de todos os locais pode bater do mesmo jeito, mas a marcação fica sinalizada como “fora do local” para você revisar. Quem negar o GPS também fica sinalizado. O aparelho pode errar a posição em alguns metros e não dá para impedir uma localização falsa, então use como sinal, não como prova.'));v.append(P)}
+
+/* gestor: aba Horas (resumo mensal, detalhe por funcionário, CSV) */
+function pontoHoras(v,d){var mes=PT.mes||hoje().slice(0,7),P=painel('Horas trabalhadas'),mi=document.createElement('input'),rs={},cab=['funcionario','dia','entrada','saida_intervalo','retorno','saida_final','horas','situacao','fora_do_local','sem_localizacao'],linhas=[];
+ mi.type='month';mi.value=mes;mi.setAttribute('aria-label','Mês');mi.onchange=function(){PT.mes=mi.value||mes;PT.sel='';re()};
+ var bar=h('div','acts');bar.append(mi);P.append(bar);
+ if(!d.funcs.length)P.append(empty('Cadastre funcionários em Meu Trabalho.'));
+ d.funcs.forEach(function(f){var r=resumoMes(d,f.id,mes);rs[f.id]=r;
+  r.lista.forEach(function(x){var por={};x.ms.forEach(function(m){por[m.tipo]=m.hora});linhas.push([f.nome,x.dia,por.entrada||'',por.saida_int||'',por.retorno||'',por.saida_final||'',brNum(x.c.min/60),x.i||(x.c.aberto?'jornada aberta':x.c.agora?'em andamento':'ok'),x.ms.filter(function(m){return m.fora===1}).length,x.ms.filter(function(m){return m.fora===2}).length])})});
+ if(d.funcs.length)bar.append(btn('Exportar CSV',function(){baixaCsv('ponto-'+mes+'.csv',csvLinhas(cab,linhas))}));
+ d.funcs.forEach(function(f){var r=rs[f.id],li=h('div','li'),s=h('span','acts');li.append(h('span',null,f.nome+' · '+fmtH(r.min)+' em '+r.dias+' dia(s)'+(r.inc?' · '+r.inc+' incompleto(s)':'')+(r.fora?' · '+r.fora+' fora do local':'')+(r.sem?' · '+r.sem+' sem localização':'')));
+  s.append(btn(PT.sel===f.id?'Ocultar dias':'Ver dias',function(){PT.sel=PT.sel===f.id?'':f.id;re()}));li.append(s);P.append(li);
+  if(PT.sel===f.id){if(!r.lista.length)P.append(empty('Sem marcações neste mês.'));r.lista.forEach(function(x){var l=h('div','m');l.style.cssText='padding:6px 0 6px 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center';
+   l.append(h('span',null,fd(x.dia)+' · '+x.ms.map(function(m){return m.hora}).join(' → ')+' · '+fmtH(x.c.min)+(x.c.agora?' (em andamento)':'')));if(x.i||x.c.aberto)l.append(h('span','chip wr',x.i||'jornada aberta'));x.ms.forEach(function(m){var sl=(m.fora===1||m.fora===2)?selo(m):null;if(sl)l.append(sl)});P.append(l)})}});
+ P.append(h('div','note','Horas somadas a partir das marcações (entrada→saída para intervalo e retorno→saída final). É um apoio de conferência, não substitui a apuração legal da jornada.'));v.append(P)}
+
+/* gestor: aba Editar marcações. Corrige, inclui ou remove marcações de qualquer funcionário, sempre com motivo.
+   Nada se apaga de verdade: a hora original fica guardada (orig), a remoção só esconde (del) e cada ajuste entra na lista de alterações (aud), que o funcionário também enxerga. */
+function agoraHM(){var n=new Date();return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')}
+function audReg(d,f,dia,acao,de,para,motivo){d.aud=d.aud||[];d.aud.push({id:nid(d),f:f,dia:dia,acao:acao,de:de,para:para,motivo:motivo,por:autor(),em:hoje()+' '+agoraHM()})}
+function audPanel(v,d,ids){var L=(d.aud||[]).filter(function(a){return ids.indexOf(a.f)>-1}).slice().reverse().slice(0,30),P=painel('Alterações feitas pelo empregador');
+ if(!L.length)P.append(empty('Nenhuma marcação foi ajustada pelo empregador.'));
+ L.forEach(function(a){var r=h('div','li');r.style.cssText='display:block;padding:8px 0;border-top:1px solid var(--ln)';var q=h('div');q.append(h('b',null,fd(a.dia)+' · '+nomeF(d,a.f)+' · '+a.acao),h('span','chip',a.por+' · '+fd(a.em.slice(0,10))+' '+a.em.slice(11)));r.append(q,h('div','m',(a.de?'Antes: '+a.de+'. ':'')+(a.para?'Depois: '+a.para+'. ':'')+'Motivo: '+a.motivo));P.append(r)});
+ P.append(h('div','note','Esta lista não pode ser editada. O funcionário vê os ajustes feitos nas próprias marcações.'));v.append(P)}
+function pontoEditar(v,d){var P=painel('Editar marcações do ponto'),fs=d.funcs;
+ if(!fs.length){P.append(empty('Cadastre funcionários em Meu Trabalho para editar o ponto.'));v.append(P);return}
+ if(!PT.ef||!fs.some(function(f){return f.id===PT.ef}))PT.ef=fs[0].id;if(!PT.ed)PT.ed=hoje();
+ var sf=opts(fs.map(function(f){return [f.id,f.nome]})),di=document.createElement('input'),bar=h('div','acts');
+ sf.value=PT.ef;sf.setAttribute('aria-label','Funcionário');di.type='date';di.value=PT.ed;di.max=hoje();di.setAttribute('aria-label','Dia');
+ sf.onchange=function(){PT.ef=sf.value;re()};di.onchange=function(){PT.ed=di.value||hoje();re()};bar.append(sf,di);P.append(bar);
+ var ms=marcs(d,PT.ef,PT.ed),i=inc(ms,PT.ed),c=calcDia(ms,PT.ed),top=h('div','li');
+ top.append(h('span',null,nomeF(d,PT.ef)+' · '+fd(PT.ed)+' · '+fmtH(c.min)+(c.agora?' (em andamento)':'')),h('span','chip '+(i?'wr':'ok'),i||(ms.length?'consistente':'sem marcações')));P.append(top);
+ if(!ms.length)P.append(empty('Este funcionário não tem marcações neste dia. Use “Incluir marcação” se ele esqueceu de bater.'));
+ ms.forEach(function(m){var r=h('div','li'),s=h('span','acts'),tx=m.hora+' · '+TN[m.tipo];r.append(h('span',null,tx));var sl=selo(m);if(sl)r.append(sl);
+  if(m.ed)r.append(h('span','chip wr',m.inc?'incluída pelo empregador':'ajustada · era '+m.orig.hora+' '+TN[m.orig.tipo]));
+  s.append(btn('Editar',function(){show(form('Editar marcação · '+nomeF(d,m.f)+' · '+fd(m.dia),[{k:'tipo',l:'Marcação',t:'select',o:TP.map(function(t){return [t[0],t[1]]})},{k:'hora',l:'Hora correta',t:'time',req:1},{k:'motivo',l:'Motivo do ajuste',t:'area',req:1,min:10}],function(x){
+    var a=d.marc.find(function(y){return y.id===m.id});if(!a)return;if(a.hora===x.hora&&a.tipo===x.tipo){toast('Nada mudou.');return re()}
+    if(!a.inc&&!a.orig)a.orig={hora:a.hora,tipo:a.tipo};var de=a.hora+' '+TN[a.tipo];a.hora=x.hora;a.tipo=x.tipo;a.ed=1;audReg(d,a.f,a.dia,'editou',de,a.hora+' '+TN[a.tipo],x.motivo);save(d,'Marcação ajustada.')},{tipo:m.tipo,hora:m.hora}))}),
+   btn('Remover',function(){show(form('Remover marcação · '+nomeF(d,m.f)+' · '+fd(m.dia)+' · '+tx,[{k:'motivo',l:'Motivo da remoção',t:'area',req:1,min:10}],function(x){
+    var a=d.marc.find(function(y){return y.id===m.id});if(!a)return;a.del=1;a.ed=1;audReg(d,a.f,a.dia,'removeu',a.hora+' '+TN[a.tipo],'',x.motivo);save(d,'Marcação removida. O registro fica guardado na lista de alterações.')}))}));
+  r.append(s);P.append(r)});
+ P.append(btn('+ Incluir marcação',function(){show(form('Incluir marcação · '+nomeF(d,PT.ef)+' · '+fd(PT.ed),[{k:'tipo',l:'Marcação',t:'select',o:TP.map(function(t){return [t[0],t[1]]})},{k:'hora',l:'Hora',t:'time',req:1},{k:'motivo',l:'Motivo da inclusão',t:'area',req:1,min:10}],function(x){
+   var m={id:nid(d),f:PT.ef,dia:PT.ed,hora:x.hora,tipo:x.tipo,sim:1,ed:1,inc:1};d.marc.push(m);audReg(d,m.f,m.dia,'incluiu','',x.hora+' '+TN[x.tipo],x.motivo);save(d,'Marcação incluída.')},{tipo:TP[Math.min(ms.length,3)][0]}))},'p'));
+ P.append(h('div','note','Todo ajuste exige um motivo (mínimo de 10 letras). A hora original continua guardada, a marcação aparece como “ajustada pelo empregador” e o funcionário vê o ajuste no histórico dele. Remover só esconde a marcação das horas; o registro da remoção não some. É um apoio de conferência, sem validade legal por si só: guarde o motivo e combine as correções com o funcionário.'));v.append(P);audPanel(v,d,[PT.ef])}
+
+VIEWS.ponto=function(v){if(!wfHead(v,'Ponto digital','Bata o ponto com localização, acompanhe a equipe no mapa e veja as horas.','Registro interno de marcações, sem homologação e sem validade legal por si só. A hora é registrada pelo servidor. A localização (e a selfie, que é opcional) só é coletada no instante em que o funcionário bate o ponto, nunca de forma contínua: avise a equipe antes de usar (LGPD). O registro eletrônico de jornada exige validação técnica e jurídica.'))return;
+ var d=Store.get();d.locs=d.locs||[];var emp=ROLE==='empregador';
+ if(!emp){if(PT.t){clearInterval(PT.t);PT.t=null}return pontoFunc(v,d)}
+ var bar=h('div','acts');bar.style.marginBottom='12px';[['agora','📍 Agora'],['locais','🏢 Locais'],['horas','⏱ Horas'],['hist','🧾 Histórico e correções'],['edit','✏️ Editar marcações']].forEach(function(a){bar.append(btn(a[1],function(){PT.aba=a[0];re()},PT.aba===a[0]?'p':''))});v.append(bar);
+ if(PT.t&&PT.aba!=='agora'){clearInterval(PT.t);PT.t=null}
+ if(PT.aba==='locais')return pontoLocais(v,d);if(PT.aba==='horas')return pontoHoras(v,d);if(PT.aba==='hist')return histCorr(v,d,true);if(PT.aba==='edit')return pontoEditar(v,d);
+ pontoAgora(v,d);
+ if(!PT.t)PT.t=setInterval(function(){if(S.view!=='ponto'||PT.aba!=='agora'){clearInterval(PT.t);PT.t=null;return}if(document.hidden||Store.n>0||$('#view .fld'))return;
+  var keep=Store.mem[S.cur],n0=((keep&&keep.d&&keep.d.marc)||[]).length;Store.carregar().then(function(){var c=Store.cur();if(!c||c.off){Store.mem[S.cur]=keep;return}if(((c.d&&c.d.marc)||[]).length!==n0&&S.view==='ponto'&&PT.aba==='agora'&&!$('#view .fld'))re()})},45000)};
 
 /* --- Avaliações privadas (regra dos 18 meses) --- */
 var CR=['Qualidade do trabalho','Pontualidade','Trabalho em equipe'];
@@ -1224,6 +1363,269 @@ function lerCamera(onCod){if(!('BarcodeDetector' in window)||!navigator.mediaDev
  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(function(s2){stm=s2;vd.srcObject=s2;vd.play();dg.showModal();
   (function loop(){if(!on)return;det.detect(vd).then(function(r){var c=r&&r[0]&&r[0].rawValue;if(c&&(c!==ult||Date.now()-tu>1800)){ult=c;tu=Date.now();onCod(c)}}).catch(function(){}).then(function(){setTimeout(loop,200)})})()}).catch(function(){dg.remove();toast('Não consegui abrir a câmera. Libere a permissão do navegador.')})}
 S.lote=S.lote||[];
+/* ===== Importação de planilhas (Excel .xlsx, CSV, Word .docx ou colado) para Estoque e Folha, e etiquetas de gôndola =====
+   Tudo roda no navegador, sem biblioteca externa: .xlsx e .docx são lidos abrindo o próprio arquivo (zip). */
+var IMP={E:null,F:null};
+IMP.nn=function(s){return String(s==null?'':s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()};
+IMP.vazio=function(v){return v===undefined||v===null||String(v).trim()===''};
+IMP.n=function(v){if(typeof v==='number')return isFinite(v)?v:NaN;var s=String(v==null?'':v).replace(/R\$|\s/g,'');if(!s)return NaN;if(s.indexOf(',')>-1)s=s.replace(/\./g,'').replace(',','.');else if(/^\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,'');return /^-?\d+(\.\d+)?$/.test(s)?Number(s):NaN};
+IMP.cod=function(v){if(IMP.vazio(v))return '';var s=typeof v==='number'?String(Math.round(v)):String(v).trim();s=s.replace(/\s+/g,'').replace(/\.0+$/,'');if(/^\d{12}$/.test(s)&&eanOk('0'+s))s='0'+s;return s.slice(0,40)};
+IMP.letra=function(i){var s='';i++;while(i>0){var m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s};
+IMP.str=function(n){return String(n).replace('.',',')};
+/* --- leitura dos formatos --- */
+IMP.csv=function(t,sep){t=String(t||'').replace(/^\ufeff/,'');
+ if(!sep){var f=t.slice(0,4000),c={'\t':0,';':0,',':0},i0;for(i0=0;i0<f.length;i0++)if(c.hasOwnProperty(f[i0]))c[f[i0]]++;sep=c['\t']>0&&c['\t']>=c[';']&&c['\t']>=c[',']?'\t':(c[';']>=c[','])&&c[';']>0?';':','}
+ var rows=[],row=[],cur='',q=false,i,ch;
+ for(i=0;i<t.length;i++){ch=t[i];
+  if(q){if(ch==='"'){if(t[i+1]==='"'){cur+='"';i++}else q=false}else cur+=ch}
+  else if(ch==='"'&&cur==='')q=true;
+  else if(ch===sep){row.push(cur);cur=''}
+  else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&t[i+1]==='\n')i++;row.push(cur);cur='';rows.push(row);row=[]}
+  else cur+=ch}
+ if(cur!==''||row.length){row.push(cur);rows.push(row)}
+ return rows.filter(function(r){return r.some(function(x){return String(x).trim()!==''})})};
+IMP.zip=function(buf){var u=new Uint8Array(buf),dv=new DataView(buf),n=u.length,i,e=-1;
+ for(i=n-22;i>=Math.max(0,n-65557);i--){if(dv.getUint32(i,true)===0x06054b50){e=i;break}}
+ if(e<0)throw new Error('Este arquivo não parece um .xlsx ou .docx válido.');
+ var cnt=dv.getUint16(e+10,true),p=dv.getUint32(e+16,true),ent={},k;
+ for(k=0;k<cnt;k++){if(dv.getUint32(p,true)!==0x02014b50)break;var meth=dv.getUint16(p+10,true),csz=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),el=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true),nome=new TextDecoder().decode(u.subarray(p+46,p+46+nl));ent[nome]={m:meth,c:csz,o:lo};p+=46+nl+el+cl}
+ return{get:function(nome){var f=ent[nome];if(!f)return Promise.resolve(null);var nl2=dv.getUint16(f.o+26,true),el2=dv.getUint16(f.o+28,true),st=f.o+30+nl2+el2,data=u.subarray(st,st+f.c);
+  if(f.m===0)return Promise.resolve(new TextDecoder().decode(data));
+  if(f.m!==8||typeof DecompressionStream==='undefined')return Promise.reject(new Error('Este navegador não abre esse arquivo. Salve a planilha como CSV.'));
+  var ds=new DecompressionStream('deflate-raw'),w=ds.writable.getWriter();w.write(data);w.close();
+  return new Response(ds.readable).arrayBuffer().then(function(b){return new TextDecoder().decode(b)})}}};
+IMP.xlsx=function(buf){var z=IMP.zip(buf),P=new DOMParser();
+ return Promise.all([z.get('xl/sharedStrings.xml'),z.get('xl/workbook.xml'),z.get('xl/_rels/workbook.xml.rels')]).then(function(a){
+  var ss=[],sh=[];
+  if(a[0]){[].forEach.call(P.parseFromString(a[0],'application/xml').getElementsByTagName('si'),function(si){ss.push([].map.call(si.getElementsByTagName('t'),function(t){return t.textContent}).join(''))})}
+  if(a[1]&&a[2]){var rel={};[].forEach.call(P.parseFromString(a[2],'application/xml').getElementsByTagName('Relationship'),function(r){rel[r.getAttribute('Id')]=r.getAttribute('Target')});
+   [].forEach.call(P.parseFromString(a[1],'application/xml').getElementsByTagName('sheet'),function(s){var t=rel[s.getAttribute('r:id')]||'';t=t.replace(/^\/?(xl\/)?/,'');if(t)sh.push({nome:s.getAttribute('name')||'Planilha',path:'xl/'+t})})}
+  if(!sh.length)sh=[{nome:'Planilha 1',path:'xl/worksheets/sheet1.xml'}];
+  return{z:z,ss:ss,sheets:sh}})};
+IMP.xlsRows=function(x,i){var P=new DOMParser();return x.z.get(x.sheets[i].path).then(function(t){if(!t)throw new Error('Não achei os dados dessa aba.');var rows=[];
+ [].forEach.call(P.parseFromString(t,'application/xml').getElementsByTagName('row'),function(r){var row=[],run=0;
+  [].forEach.call(r.getElementsByTagName('c'),function(c){var ref=c.getAttribute('r'),ix=run,m=/^([A-Z]+)/.exec(ref||''),ty=c.getAttribute('t'),ve=c.getElementsByTagName('v')[0],v=ve?ve.textContent:'',val;
+   if(m){ix=0;for(var q=0;q<m[1].length;q++)ix=ix*26+m[1].charCodeAt(q)-64;ix--}run=ix+1;
+   if(ty==='s')val=ss0(v);else if(ty==='inlineStr')val=[].map.call(c.getElementsByTagName('t'),function(t2){return t2.textContent}).join('');else if(ty==='b')val=v==='1'?'sim':'não';else if(ty==='str'||ty==='e')val=v;else val=v===''?'':parseFloat(v);
+   while(row.length<ix)row.push('');row[ix]=val});
+  function ss0(k){var s=x.ss[+k];return s==null?'':s}
+  rows.push(row)});
+ return rows.filter(function(r){return r.some(function(c){return String(c).trim()!==''})})})};
+IMP.docx=function(buf){var z=IMP.zip(buf);return z.get('word/document.xml').then(function(t){if(!t)throw new Error('Não consegui abrir esse documento do Word.');
+ var d=new DOMParser().parseFromString(t,'application/xml');
+ function tx(el){var s='';[].forEach.call(el.getElementsByTagName('*'),function(n){if(n.nodeName==='w:t')s+=n.textContent;else if(n.nodeName==='w:tab')s+='\t'});return s}
+ var best=null;
+ [].forEach.call(d.getElementsByTagName('w:tbl'),function(tb){var rows=[];[].forEach.call(tb.childNodes,function(tr){if(tr.nodeName!=='w:tr')return;var row=[];[].forEach.call(tr.childNodes,function(tc){if(tc.nodeName!=='w:tc')return;row.push([].map.call(tc.getElementsByTagName('w:p'),function(p){return tx(p)}).join(' ').trim())});rows.push(row)});
+  rows=rows.filter(function(r){return r.some(function(c){return c!==''})});if(!best||rows.length>best.length)best=rows});
+ if(best&&best.length)return best;
+ var ps=[];[].forEach.call(d.getElementsByTagName('w:p'),function(p){var s=tx(p).trim();if(s)ps.push(s.split(/\t| {2,}|;/).map(function(c){return c.trim()}))});
+ if(!ps.length)throw new Error('Esse documento do Word não tem tabela nem linhas para importar.');return ps})};
+IMP.decod=function(buf){try{return new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch(e){return new TextDecoder('windows-1252').decode(buf)}};
+IMP.ler=function(f){return new Promise(function(ok,no){var r=new FileReader();r.onerror=function(){no(new Error('Não consegui ler o arquivo.'))};r.onload=function(){ok(r.result)};r.readAsArrayBuffer(f)})};
+IMP.arquivo=function(f){var n=(f.name||'').toLowerCase();
+ if(/\.(xlsx|xlsm)$/.test(n))return IMP.ler(f).then(IMP.xlsx).then(function(x){return{xl:x}});
+ if(/\.docx$/.test(n))return IMP.ler(f).then(IMP.docx).then(function(r){return{rows:r}});
+ if(/\.(csv|txt|tsv)$/.test(n))return IMP.ler(f).then(function(b){return{rows:IMP.csv(IMP.decod(b))}});
+ return Promise.reject(new Error('Formato não aceito. Use .xlsx, .csv ou .docx. Para arquivo antigo (.xls ou .doc), abra no Excel ou Word, use Salvar como e escolha .xlsx ou .docx.'))};
+/* --- colunas: reconhecimento automático pelo cabeçalho --- */
+IMP.auto=function(head,campos){var sc=[],map={};
+ campos.forEach(function(c){head.forEach(function(hd,ci){var t=IMP.nn(hd),b=0;if(!t)return;c.syn.forEach(function(s){var x=IMP.nn(s);if(t===x)b=Math.max(b,100);else if(x.length>=3&&(' '+t+' ').indexOf(' '+x+' ')>-1)b=Math.max(b,50+x.length);else if(x.length>=3&&t.indexOf(x)>-1)b=Math.max(b,45)});if(b>=45)sc.push({k:c.k,c:ci,s:b})})});
+ sc.sort(function(a,b){return b.s-a.s});var uk={},uc={};campos.forEach(function(c){map[c.k]=-1});
+ sc.forEach(function(x){if(uk[x.k]||uc[x.c])return;uk[x.k]=1;uc[x.c]=1;map[x.k]=x.c});return map};
+IMP.mapa=function(st,campos){var head=st.rows[0]||[],am=IMP.auto(head,campos),hit=campos.some(function(c){return am[c.k]>-1});
+ if(st.hdrAuto!==false){st.hdr=hit}
+ if(st.hdr)st.map=am;else{st.map={};campos.forEach(function(c,i){st.map[c.k]=i<IMP.ncols(st)?i:-1})}};
+IMP.ncols=function(st){var n=0;st.rows.slice(0,50).forEach(function(r){if(r.length>n)n=r.length});return n};
+IMP.g=function(st,r,k){var i=st.map[k];return i>=0?r[i]:undefined};
+IMP.dados=function(st){return st.rows.slice(st.hdr?1:0)};
+IMP.aplica=function(st,res,campos){st.hdrAuto=true;
+ if(res.xl){st.xl=res.xl;st.sheet=0;return IMP.xlsRows(res.xl,0).then(function(r){st.rows=r;IMP.mapa(st,campos)})}
+ st.xl=null;st.rows=res.rows||[];IMP.mapa(st,campos);return Promise.resolve()};
+/* --- interface comum: arquivo/colar → colunas → conferir → importar --- */
+IMP.ui=function(box,st,cfg){box.textContent='';
+ if(st.res)return IMP.uiRes(box,st,cfg);
+ if(!st.rows.length)return IMP.uiIn(box,st,cfg);
+ var top=h('div','acts'),campos=cfg.campos,prev=h('div'),op=h('div');
+ top.append(h('span','chip ok',(st.nome||'Dados colados')+' · '+IMP.dados(st).length+' linha(s)'),btn('Trocar arquivo',function(){st.rows=[];st.res=null;IMP.ui(box,st,cfg)}));
+ if(st.xl&&st.xl.sheets.length>1){var ss=sel(st.xl.sheets.map(function(s,i){return[String(i),s.nome]}),String(st.sheet));ss.setAttribute('aria-label','Aba da planilha');ss.onchange=function(){st.sheet=+ss.value;IMP.xlsRows(st.xl,st.sheet).then(function(r){st.rows=r;IMP.mapa(st,campos);IMP.ui(box,st,cfg)}).catch(function(e){toast(e.message)})};top.append(lab('Aba',ss))}
+ box.append(top);
+ var hl=h('label','tg'),hk=document.createElement('input');hk.type='checkbox';hk.checked=!!st.hdr;hk.onchange=function(){st.hdrAuto=false;st.hdr=hk.checked;if(st.hdr){st.map=IMP.auto(st.rows[0]||[],campos)}else{st.map={};campos.forEach(function(c,i){st.map[c.k]=i<IMP.ncols(st)?i:-1})}IMP.ui(box,st,cfg)};hl.append(hk,document.createTextNode(' A primeira linha é o cabeçalho (nome das colunas)'));box.append(hl);
+ var gr=h('div');gr.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px;margin:10px 0';
+ var nc=IMP.ncols(st),ex=IMP.dados(st)[0]||[];
+ campos.forEach(function(c){var os=[['-1','— não usar —']],i;for(i=0;i<nc;i++){var rot=st.hdr&&!IMP.vazio((st.rows[0]||[])[i])?String(st.rows[0][i]):'Coluna '+IMP.letra(i),amo=IMP.vazio(ex[i])?'':' (ex.: '+String(ex[i]).slice(0,18)+')';os.push([String(i),rot+amo])}
+  var s=sel(os,String(st.map[c.k]==null?-1:st.map[c.k]));s.setAttribute('aria-label',c.l);s.onchange=function(){st.map[c.k]=+s.value;pinta()};gr.append(lab(c.l+(c.req?' *':''),s))});
+ box.append(h('div','note','Confira em qual coluna da sua planilha está cada informação. O Domin já tentou adivinhar pelo cabeçalho.'),gr,op,prev);
+ cfg.opcoes(op,st,pinta);
+ function pinta(){prev.textContent='';var pl=cfg.plano(st);st.plano=pl;cfg.previa(prev,pl,st,function(){IMP.ui(box,st,cfg)})}
+ pinta()};
+IMP.uiIn=function(box,st,cfg){box.append(h('div','note',cfg.dica));
+ var fi=document.createElement('input');fi.type='file';fi.accept='.xlsx,.xlsm,.csv,.txt,.tsv,.docx';fi.setAttribute('aria-label','Escolher arquivo');
+ fi.onchange=function(){var f=fi.files&&fi.files[0];if(!f)return;st.nome=f.name;IMP.arquivo(f).then(function(r){return IMP.aplica(st,r,cfg.campos)}).then(function(){if(!st.rows.length)throw new Error('Não encontrei linhas nesse arquivo.');IMP.ui(box,st,cfg)}).catch(function(e){toast(e.message||'Não consegui abrir o arquivo.')})};
+ box.append(lab('Escolha o arquivo (Excel .xlsx, CSV ou Word .docx)',fi));
+ var ta=h('textarea');ta.rows=4;ta.placeholder='Ou copie as células no Excel (ou a tabela no Word) e cole aqui';ta.setAttribute('aria-label','Colar dados');ta.style.cssText='width:100%;background:var(--sf2);color:var(--tx);border:1px solid var(--ln);border-radius:8px;padding:8px;margin-top:8px';
+ var ac=h('div','acts');ac.append(btn('Usar o que colei',function(){var r=IMP.csv(ta.value);if(!r.length)return toast('Cole as células copiadas do Excel ou do Word primeiro.');st.nome='';st.xl=null;st.rows=r;st.hdrAuto=true;IMP.mapa(st,cfg.campos);IMP.ui(box,st,cfg)},'p'));
+ cfg.extra(ac);box.append(ta,ac);
+ var u=cfg.undo&&cfg.undo();if(u)box.append(u)};
+IMP.uiRes=function(box,st,cfg){var r=st.res,P=h('div');
+ P.append(h('h3',null,'Importação concluída'),h('div','li',r.ok+' registro(s) gravado(s)'+(r.falhas.length?' · '+r.falhas.length+' com problema':'')));
+ r.falhas.slice(0,15).forEach(function(f){P.append(h('div','li','Linha '+f.lin+' · '+f.nome+' · '+f.msg))});
+ if(r.falhas.length>15)P.append(h('div','sub','e mais '+(r.falhas.length-15)+'…'));
+ var ac=h('div','acts');cfg.depois(ac,r,st);ac.append(btn('Concluir',function(){st.res=null;st.rows=[];IMP.ui(box,st,cfg)},'p'));P.append(ac);
+ var u=cfg.undo&&cfg.undo();if(u)P.append(u);box.append(P)};
+IMP.tabela=function(cab,linhas){var w=h('div'),t=h('table'),th=h('tr');w.style.overflowX='auto';w.className='imp';cab.forEach(function(c){th.append(h('th',null,c))});var hd=h('thead');hd.append(th);t.append(hd);var bd=h('tbody');
+ linhas.forEach(function(l){var tr=h('tr');l.forEach(function(c){var td=h('td');if(c&&typeof c==='object')td.append(c);else td.textContent=c==null?'':c;tr.append(td)});bd.append(tr)});t.append(bd);w.append(t);return w};
+(function(){var st=document.createElement('style');st.textContent='.imp table{width:100%;border-collapse:collapse;font-size:12px}.imp th,.imp td{padding:5px 8px;border-top:1px solid var(--ln,rgba(255,255,255,.1));text-align:left;vertical-align:top}.imp th{font-weight:700;white-space:nowrap}';document.head.append(st)})();
+
+/* ================= ESTOQUE ================= */
+IMP.camposE=[
+ {k:'nome',l:'Nome do produto',req:1,syn:['produto','nome','descricao','nome do produto','item','mercadoria','descricao do produto','desc']},
+ {k:'cod',l:'Código de barras',syn:['codigo de barras','cod barras','codigo barras','ean','gtin','barras','codigo','cod','cod produto']},
+ {k:'venda',l:'Preço de venda',syn:['preco de venda','preco venda','valor de venda','valor venda','vlr venda','pvp','preco','venda','valor']},
+ {k:'custo',l:'Custo (preço de compra)',syn:['preco de custo','custo','preco compra','preco de compra','valor de compra','vlr custo','compra']},
+ {k:'qtd',l:'Quantidade em estoque',syn:['quantidade','qtd','qtde','estoque','saldo','qte','quant','estoque atual']},
+ {k:'min',l:'Avisar estoque baixo em',syn:['estoque minimo','minimo','min','aviso','estoque min']}];
+IMP.ultKey=function(){return 'dl_imp_ult_'+S.cur};IMP.undoKey=function(){return 'dl_imp_undo_'+S.cur};
+IMP.lerLS=function(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}};
+IMP.gravaLS=function(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}};
+IMP.planoE=function(st,pr){var o=st.o,porCod={},porNome={},items=[],seen={},tot={novo:0,atual:0,igual:0,erro:0,pula:0,rep:0};
+ pr.forEach(function(p){if(p.cod)porCod[String(p.cod)]=p;porNome[IMP.nn(p.nome)]=p});
+ IMP.dados(st).forEach(function(r,ix){var g=function(k){return IMP.g(st,r,k)},it={lin:ix+(st.hdr?2:1),nome:String(IMP.vazio(g('nome'))?'':g('nome')).trim(),cod:IMP.cod(g('cod')),acao:'',det:'',mud:[]};
+  if(!it.nome&&!it.cod&&['venda','custo','qtd','min'].every(function(k){return IMP.vazio(g(k))}))return;
+  var bad='',num={};['venda','custo','qtd','min'].forEach(function(k){var v=g(k);if(IMP.vazio(v))return;var n=IMP.n(v);if(isNaN(n)||n<0)bad=bad||('valor inválido em '+k);else num[k]=k==='qtd'||k==='min'?Math.round(n):Math.round(n*100)/100});
+  var ex=it.cod?porCod[it.cod]:null;if(!ex&&it.nome)ex=porNome[IMP.nn(it.nome)]||null;
+  if(!bad&&!ex&&it.nome.length<2)bad='sem nome do produto';
+  if(bad){it.acao='erro';it.det=bad;tot.erro++;items.push(it);return}
+  var key=it.cod||IMP.nn(it.nome);if(seen[key]!=null){var pa=items[seen[key]].acao,mp={novo:'novo',atualiza:'atual',igual:'igual',pula:'pula'}[pa];if(mp)tot[mp]--;items[seen[key]].acao='rep';items[seen[key]].det='repetido na planilha (vale a última linha)';tot.rep++}seen[key]=items.length;
+  it.ex=ex;it.num=num;
+  if(!ex){if(o.modo==='atualizar'){it.acao='pula';it.det='não existe no estoque';tot.pula++}else{it.acao='novo';it.fin={nome:it.nome,cod:it.cod,qtd:num.qtd||0,custo:num.custo||0,venda:num.venda||0,min:num.min||0};it.det=(it.fin.venda?R(it.fin.venda):'sem preço')+' · '+it.fin.qtd+' un';it.preco=it.fin.venda>0;tot.novo++}}
+  else if(o.modo==='novos'){it.acao='pula';it.det='já existe: '+ex.nome;tot.pula++}
+  else{var f={nome:ex.nome,cod:ex.cod||'',qtd:Number(ex.qtd)||0,custo:Number(ex.custo)||0,venda:Number(ex.venda)||0,min:Number(ex.min)||0},mud=[];
+   if(o.preco&&num.venda!=null&&num.venda!==f.venda){mud.push('venda '+R(f.venda)+' → '+R(num.venda));f.venda=num.venda;it.preco=1}
+   if(o.preco&&num.custo!=null&&num.custo!==f.custo){mud.push('custo '+R(f.custo)+' → '+R(num.custo));f.custo=num.custo}
+   if(num.qtd!=null&&o.qtdEx==='somar'&&num.qtd!==0){mud.push('estoque '+f.qtd+' → '+(f.qtd+num.qtd));f.qtd+=num.qtd}
+   if(num.qtd!=null&&o.qtdEx==='subst'&&num.qtd!==f.qtd){mud.push('estoque '+f.qtd+' → '+num.qtd);f.qtd=num.qtd}
+   if(num.min!=null&&num.min!==f.min){mud.push('aviso '+f.min+' → '+num.min);f.min=num.min}
+   if(o.nomeEx&&it.nome&&it.nome!==f.nome){mud.push('nome “'+f.nome+'” → “'+it.nome+'”');f.nome=it.nome}
+   if(it.cod&&!f.cod){mud.push('código '+it.cod);f.cod=it.cod}
+   it.fin=f;it.mud=mud;if(mud.length){it.acao='atualiza';it.det=ex.nome+': '+mud.join(' · ');tot.atual++}else{it.acao='igual';it.det=ex.nome+': sem mudança';tot.igual++}}
+  items.push(it)});
+ return{items:items,tot:tot}};
+IMP.opcoesE=function(box,st,pinta){var o=st.o=st.o||{modo:'ambos',qtdEx:'nao',preco:true,nomeEx:false};
+ var m=sel([['ambos','Criar os novos e atualizar os que já existem'],['novos','Só criar os produtos novos'],['atualizar','Só atualizar os que já existem']],o.modo),q=sel([['nao','Não mexer na quantidade dos que já existem'],['somar','Somar a quantidade da planilha (entrada de mercadoria)'],['subst','Trocar pela quantidade da planilha (contagem de estoque)']],o.qtdEx);
+ m.onchange=function(){o.modo=m.value;pinta()};q.onchange=function(){o.qtdEx=q.value;pinta()};
+ function ck(t,k){var l=h('label','tg'),i=document.createElement('input');i.type='checkbox';i.checked=!!o[k];i.onchange=function(){o[k]=i.checked;pinta()};l.append(i,document.createTextNode(' '+t));l.style.display='block';l.style.margin='6px 0';return l}
+ box.append(lab('O que fazer',m),lab('Quantidade dos produtos que já existem',q),ck('Atualizar preço de venda e custo dos que já existem','preco'),ck('Trocar também o nome dos que já existem','nomeEx'))};
+IMP.previaE=function(box,pl,st,redesenha){var t=pl.tot,L=pl.items.filter(function(x){return x.acao!=='igual'}),k=h('div','acts');
+ k.append(h('span','chip ok',t.novo+' novo(s)'),h('span','chip ok',t.atual+' atualização(ões)'),h('span','chip',t.igual+' sem mudança'));if(t.pula)k.append(h('span','chip',t.pula+' ignorado(s)'));if(t.rep)k.append(h('span','chip wr',t.rep+' repetido(s)'));if(t.erro)k.append(h('span','chip wr',t.erro+' com problema'));
+ box.append(h('h3',null,'Conferência antes de gravar'),k);
+ var ST={novo:'novo',atualiza:'atualiza',erro:'problema',pula:'ignorado',rep:'repetido'};
+ box.append(IMP.tabela(['Linha','Produto','O que acontece','Detalhe'],L.slice(0,40).map(function(x){var c=h('span','chip '+(x.acao==='erro'||x.acao==='rep'?'wr':x.acao==='pula'?'':'ok'),ST[x.acao]);return[x.lin,x.nome||(x.ex&&x.ex.nome)||x.cod,c,x.det]})));
+ if(L.length>40)box.append(h('div','sub','Mostrando 40 de '+L.length+' linhas. As outras também serão processadas.'));
+ var n=t.novo+t.atual,ac=h('div','acts'),go2=btn('Importar '+n+' produto(s)',function(){IMP.rodaE(st,pl,redesenha)},'p');go2.disabled=!n;ac.append(go2);box.append(ac);
+ box.append(h('div','note','Antes de gravar nada, você vê tudo acima. Depois da importação dá para desfazer. Quantidade fracionada é arredondada para unidade.'))};
+IMP.rodaE=function(st,pl,fim){var l=loja(),pr=(S.res&&S.res.produtos)||[],prevIds={},todo=pl.items.filter(function(x){return x.acao==='novo'||x.acao==='atualiza'}),falhas=[],ok=0,i=0,run=0,undoUpd=[],precoIds=[];
+ pr.forEach(function(p){prevIds[p.id]=1});
+ todo.forEach(function(x){if(x.acao==='atualiza'){var e=x.ex;undoUpd.push({id:e.id,nome:e.nome,qtd:e.qtd,custo:e.custo,venda:e.venda,min:e.min,cod:e.cod||''});if(x.preco)precoIds.push(e.id)}});
+ var info=h('div','note','Importando 0/'+todo.length+'…');
+ var P=$('#view');if(P)P.prepend(info);
+ function um(x){var f=x.fin,body={chave:l.chave,nome:f.nome,qtd:f.qtd,custo:f.custo,venda:f.venda,min:f.min,cod:f.cod};if(x.acao==='atualiza')body.id=x.ex.id;
+  return chama8('/gestao/produto',body).then(function(r){if(r.ok&&r.j&&r.j.ok)return r;return chama8('/gestao/produto',body)}).then(function(r){if(r.ok&&r.j&&r.j.ok)ok++;else falhas.push({lin:x.lin,nome:f.nome,msg:(r.j&&r.j.erro)||'o servidor não aceitou'})})}
+ return new Promise(function(done){function prox(){if(i>=todo.length&&run===0)return done();while(run<3&&i<todo.length){var x=todo[i++];run++;um(x).then(function(){run--;info.textContent='Importando '+(ok+falhas.length)+'/'+todo.length+'…';prox()})}}prox()}).then(function(){
+  info.remove();return refresh().then(load).then(function(){var depois=(S.res&&S.res.produtos)||[],novos=depois.filter(function(p){return !prevIds[p.id]}),nomesNovos={};
+   pl.items.forEach(function(x){if(x.acao==='novo'&&x.preco)nomesNovos[x.fin.cod||IMP.nn(x.fin.nome)]=1});novos.forEach(function(p){if(nomesNovos[p.cod||IMP.nn(p.nome)])precoIds.push(p.id)});
+   IMP.gravaLS(IMP.ultKey(),{t:Date.now(),ids:precoIds});IMP.gravaLS(IMP.undoKey(),{t:Date.now(),upd:undoUpd,novos:novos.map(function(p){return p.id})});
+   st.res={ok:ok,falhas:falhas,precoIds:precoIds};toast('Importação concluída.');re()})})};
+IMP.undoE=function(){var u=IMP.lerLS(IMP.undoKey());if(!u||(!u.upd.length&&!u.novos.length))return null;var l=loja(),w=h('div','note'),d=new Date(u.t);
+ w.append('Última importação: '+d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+' ('+u.novos.length+' criado(s), '+u.upd.length+' atualizado(s)). ');
+ w.append(btn('Desfazer essa importação',function(){if(!confirm('Apagar os '+u.novos.length+' produto(s) criados e voltar os '+u.upd.length+' atualizados ao que eram antes?'))return;
+  var jobs=u.upd.map(function(p){return function(){return chama8('/gestao/produto',{chave:l.chave,id:p.id,nome:p.nome,qtd:p.qtd,custo:p.custo,venda:p.venda,min:p.min,cod:p.cod})}}).concat(u.novos.map(function(id){return function(){return chama8('/gestao/apagar',{chave:l.chave,id:id})}}));
+  var i=0,run=0;new Promise(function(done){function prox(){if(i>=jobs.length&&run===0)return done();while(run<3&&i<jobs.length){var j=jobs[i++];run++;j().then(function(){run--;prox()})}}prox()}).then(function(){try{localStorage.removeItem(IMP.undoKey());localStorage.removeItem(IMP.ultKey())}catch(e){}toast('Importação desfeita.');return refresh().then(load).then(re)})}));return w};
+IMP.exportaE=function(pr){var cab=['codigo_de_barras','produto','preco_de_venda','custo','quantidade','estoque_minimo'];baixaCsv('estoque-'+hoje()+'.csv',csvLinhas(cab,pr.map(function(p){return[p.cod||'',p.nome,brNum(p.venda),brNum(p.custo),p.qtd,p.min||0]})))};
+IMP.modeloE=function(){baixaCsv('modelo-estoque.csv',csvLinhas(['codigo_de_barras','produto','preco_de_venda','custo','quantidade','estoque_minimo'],[['7891000100103','Arroz 5 kg',brNum(28.9),brNum(22),40,10],['7891000315507','Feijão carioca 1 kg',brNum(8.5),brNum(6.2),60,15],['','Sacola plástica',brNum(0.15),brNum(0.08),500,100]]))};
+function impEstPanel(l,pr){var p=painel('Importar estoque de uma planilha (Excel, CSV ou Word)'),box=h('div');IMP.E=IMP.E||{rows:[],o:null};var st=IMP.E;
+ var cfg={campos:IMP.camposE,dica:'Traga o estoque que você já tem: o Domin lê Excel (.xlsx), CSV ou uma tabela do Word, reconhece as colunas e mostra tudo antes de gravar. Mande de novo a mesma planilha com preços novos para atualizar tudo de uma vez.',
+  opcoes:IMP.opcoesE,plano:function(s){return IMP.planoE(s,(S.res&&S.res.produtos)||[])},previa:IMP.previaE,undo:IMP.undoE,
+  extra:function(ac){ac.append(btn('Baixar planilha modelo',IMP.modeloE),btn('Exportar meu estoque (para editar preços)',function(){IMP.exportaE((S.res&&S.res.produtos)||[])}))},
+  depois:function(ac,r){if(r.precoIds.length)ac.append(btn('Imprimir etiquetas dos '+r.precoIds.length+' preço(s) alterado(s)',function(){imprimeGondola(((S.res&&S.res.produtos)||[]).filter(function(x){return r.precoIds.indexOf(x.id)>-1}).map(function(x){return{nome:x.nome,venda:x.venda,cod:x.cod,n:1}}),{tam:'med',estilo:'branca',cod:true})}))}};
+ IMP.cfgE=cfg;p.append(box);IMP.ui(box,st,cfg);return p}
+/* ----- etiquetas de gôndola ----- */
+function imprimeGondola(L,op){var w=window.open('','_blank');if(!w){toast('O navegador bloqueou a janela. Libere os pop-ups para imprimir.');return}
+ var T={peq:{w:63.5,h:38.1,nm:9,pr:20,cs:11},med:{w:95,h:55,nm:13,pr:34,cs:17},gra:{w:190,h:90,nm:26,pr:80,cs:38}}[op.tam]||{w:95,h:55,nm:13,pr:34,cs:17},g='',n=0,sem=0;
+ L.forEach(function(x){if(!(x.venda>0)){sem++;return}for(var i=0;i<(x.n||1)&&n<600;i++,n++){var v=Math.round(x.venda*100),int=Math.floor(v/100),ce=String(v%100).padStart(2,'0');
+  g+='<div class="e'+(op.estilo==='oferta'?' of':'')+'">'+(op.estilo==='oferta'?'<div class="tg">OFERTA</div>':'')+'<div class="nm">'+esc8(x.nome)+'</div><div class="pr"><span class="rs">R$</span><span class="in">'+int.toLocaleString('pt-BR')+'</span><span class="ce">,'+ce+'</span></div>'+(op.cod&&eanOk(x.cod)?'<div class="bc">'+ean13svg(x.cod,40)+'</div>':'')+'</div>'}});
+ if(!n){w.close();toast('Nenhum produto com preço de venda para imprimir.');return}
+ w.document.write('<!doctype html><meta charset="utf-8"><title>Etiquetas de gôndola</title><style>@page{size:A4;margin:8mm}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}.g{display:flex;flex-wrap:wrap;align-content:flex-start}.e{width:'+T.w+'mm;height:'+T.h+'mm;border:1px dashed #999;padding:2mm;text-align:center;display:flex;flex-direction:column;justify-content:space-between;align-items:center;overflow:hidden;position:relative;break-inside:avoid;background:#fff;color:#000}.e.of{background:#ffe600;border:1px solid #c00}.tg{position:absolute;top:0;left:0;background:#c00;color:#fff;font-weight:800;font-size:'+Math.max(7,T.nm*.7)+'pt;padding:.6mm 2mm}.nm{font-size:'+T.nm+'pt;font-weight:700;line-height:1.1;max-height:2.3em;overflow:hidden;margin-top:'+(op.estilo==='oferta'?T.nm*.35:0)+'mm}.pr{display:flex;align-items:flex-start;justify-content:center;line-height:1;font-weight:800}.of .pr{color:#c00}.rs{font-size:'+T.cs+'pt;margin-top:'+T.pr*.08+'pt}.in{font-size:'+T.pr+'pt}.ce{font-size:'+T.cs+'pt;margin-top:'+T.pr*.08+'pt}.bc svg{height:'+(T.h*.2)+'mm;width:auto;max-width:100%}@media print{.no{display:none}.e{border-color:#fff}.e.of{border-color:#c00}}.no{padding:8px;font-size:13px}</style><div class="no"><button onclick="print()">Imprimir</button> <small>Tamanho real (100%), sem cabeçalho e rodapé. '+n+' etiqueta(s)'+(sem?'; '+sem+' produto(s) sem preço foram pulados':'')+'.</small></div><div class="g">'+g+'</div>');w.document.close()}
+function gondolaPanel(l,pr){var p=painel('Etiquetas de preço de gôndola'),ult=IMP.lerLS(IMP.ultKey()),nAlt=ult?pr.filter(function(x){return ult.ids.indexOf(x.id)>-1}).length:0,
+ qual=sel([['todos','Todos os produtos'],['busca','Os produtos da busca atual da lista'],['alterados','Só os de preço alterado na última importação ('+nAlt+')']],'todos'),
+ tam=sel([['peq','Pequena · 63×38 mm · 21 por folha A4'],['med','Média · 95×55 mm · 10 por folha A4'],['gra','Grande (cartaz) · 190×90 mm · 3 por folha A4']],'med'),
+ est=sel([['branca','Branca'],['oferta','Amarela de OFERTA']],'branca'),cp=fl('Cópias de cada','number',{min:1,max:20,value:1}),cb=h('label','tg'),ck=document.createElement('input'),cnt=h('div','note');
+ ck.type='checkbox';ck.checked=true;cb.append(ck,document.createTextNode(' Mostrar o código de barras'));cb.style.display='block';
+ function lista(){var t=(S.qEst||'').trim().toLowerCase();var a=pr.filter(function(x){return x.venda>0});if(qual.value==='busca')a=a.filter(function(x){return !t||x.nome.toLowerCase().indexOf(t)>-1||(x.cod||'').indexOf(t)>-1});if(qual.value==='alterados')a=a.filter(function(x){return ult&&ult.ids.indexOf(x.id)>-1});return a}
+ function conta(){var a=lista();cnt.textContent=a.length+' produto(s) com preço. Produtos sem preço de venda não saem na etiqueta.'}
+ qual.onchange=conta;conta();
+ p.append(h('div','note','Etiquetas para colocar na prateleira ou gôndola, com o nome e o preço em destaque. Depois de importar uma planilha com preços novos, imprima só as etiquetas que mudaram.'),lab('Quais produtos',qual),lab('Tamanho',tam),lab('Estilo',est),cp.l,cb,cnt,
+  btn('Imprimir etiquetas de gôndola',function(){var a=lista();if(!a.length)return toast('Nenhum produto com preço nessa seleção.');imprimeGondola(a.map(function(x){return{nome:x.nome,venda:x.venda,cod:x.cod,n:Math.max(1,Math.min(20,Math.floor(+cp.i.value)||1))}}),{tam:tam.value,estilo:est.value,cod:ck.checked})},'p'));return p}
+
+/* ================= FOLHA ================= */
+IMP.camposF=[
+ {k:'nome',l:'Nome do funcionário',req:1,syn:['nome','funcionario','colaborador','empregado','nome do funcionario']},
+ {k:'cargo',l:'Cargo / função',syn:['cargo','funcao','função','ocupacao']},
+ {k:'sal',l:'Salário base',syn:['salario base','salario','vencimento','remuneracao','salario bruto','base']},
+ {k:'dep',l:'Dependentes',syn:['dependentes','dependente','qtd dependentes','dep']},
+ {k:'vt',l:'Vale-transporte (sim/não)',syn:['vale transporte','vale-transporte','vt','transporte','v t']},
+ {k:'he50',l:'Horas extras 50% (horas)',syn:['horas extras 50','he 50','h e 50','hora extra 50','extras 50','he50']},
+ {k:'he100',l:'Horas extras 100% (horas)',syn:['horas extras 100','he 100','h e 100','hora extra 100','extras 100','he100']},
+ {k:'fal',l:'Faltas (dias)',syn:['faltas','falta','dias de falta','faltas dias']},
+ {k:'pr',l:'Outros proventos',syn:['outros proventos','proventos','gratificacao','bonus','adicional','premio']},
+ {k:'com',l:'Comissão',syn:['comissao','comissoes']},
+ {k:'ds',l:'Outros descontos',syn:['outros descontos','descontos','desconto']},
+ {k:'vale',l:'Vale-funcionário a descontar',syn:['vale funcionario','vale func','consumo','vale']},
+ {k:'adi',l:'Adiantamento já pago',syn:['adiantamento','adiant','adiantamentos']}];
+IMP.simNao=function(v){if(typeof v==='number')return v>0;var s=IMP.nn(v);return ['sim','s','1','x','true','yes','y'].indexOf(s)>-1};
+IMP.planoF=function(st,d,o,mes){var por={},mv=o.mov[mes]||{},items=[],seen={},tot={novo:0,atual:0,erro:0,pula:0,liq:0,bruto:0};
+ d.funcs.forEach(function(f){por[IMP.nn(f.nome)]=f});
+ IMP.dados(st).forEach(function(r,ix){var g=function(k){return IMP.g(st,r,k)},nome=String(IMP.vazio(g('nome'))?'':g('nome')).trim(),it={lin:ix+(st.hdr?2:1),nome:nome,cad:{},mov:{},cargo:IMP.vazio(g('cargo'))?'':String(g('cargo')).trim(),acao:'',det:''};
+  if(!nome&&['sal','cargo'].every(function(k){return IMP.vazio(g(k))}))return;
+  var bad='';if(nome.length<2)bad='sem nome';else if(seen[IMP.nn(nome)])bad='nome repetido na planilha';seen[IMP.nn(nome)]=1;
+  ['sal','he50','he100','fal','pr','com','ds','vale','adi'].forEach(function(k){var v=g(k);if(IMP.vazio(v))return;var n=IMP.n(v);if(isNaN(n)||n<0){bad=bad||('valor inválido em '+k);return}if(k==='sal')it.cad.sal=IMP.str(n);else it.mov[k]=IMP.str(n)});
+  if(!IMP.vazio(g('dep'))){var dp=IMP.n(g('dep'));if(isNaN(dp)||dp<0)bad=bad||'dependentes inválido';else it.cad.dep=String(Math.floor(dp))}
+  if(!IMP.vazio(g('vt')))it.cad.vt=IMP.simNao(g('vt'));
+  if(bad){it.acao='erro';it.det=bad;tot.erro++;items.push(it);return}
+  var ex=por[IMP.nn(nome)]||null;it.func=ex;
+  if(!ex&&!st.o.criar){it.acao='pula';it.det='não está cadastrado (marque “cadastrar quem não existe”)';tot.pula++;items.push(it);return}
+  it.acao=ex?'atualiza':'novo';ex?tot.atual++:tot.novo++;
+  var cad=Object.assign({},(ex&&o.cad[ex.id])||{},it.cad),mov=Object.assign({},(ex&&mv[ex.id])||{},it.mov);
+  it.calc=FOLHA.calc({id:'x',nome:nome,cargo:it.cargo||(ex&&ex.cargo)||''},cad,mov);tot.liq=FOLHA.r2(tot.liq+it.calc.liq);tot.bruto=FOLHA.r2(tot.bruto+it.calc.bruto);
+  it.det=(ex?'':'novo funcionário · ')+(it.cad.sal?'salário '+R(FOLHA.n(it.cad.sal)):'sem salário na planilha')+(Object.keys(it.mov).length?' · '+Object.keys(it.mov).length+' lançamento(s) do mês':'');
+  items.push(it)});
+ return{items:items,tot:tot}};
+IMP.opcoesF=function(box,st,pinta){var o=st.o=st.o||{criar:true},l=h('label','tg'),i=document.createElement('input');i.type='checkbox';i.checked=!!o.criar;i.onchange=function(){o.criar=i.checked;pinta()};l.append(i,document.createTextNode(' Cadastrar como funcionário quem ainda não existe'));l.style.display='block';l.style.margin='6px 0';
+ box.append(l,h('div','note','Salário, dependentes e vale-transporte ficam no cadastro da folha. Horas extras (em horas), faltas (em dias), proventos, comissão, descontos, vale e adiantamento entram no mês de competência escolhido no alto da folha ('+FOLHA.mes.split('-').reverse().join('/')+').'))};
+IMP.previaF=function(box,pl,st,redesenha){var t=pl.tot,k=h('div','acts');
+ k.append(h('span','chip ok',t.atual+' já cadastrado(s)'),h('span','chip ok',t.novo+' novo(s)'));if(t.pula)k.append(h('span','chip',t.pula+' ignorado(s)'));if(t.erro)k.append(h('span','chip wr',t.erro+' com problema'));
+ box.append(h('h3',null,'Conferência e cálculo automático'),k);
+ var ST={novo:'novo',atualiza:'atualiza',erro:'problema',pula:'ignorado'};
+ box.append(IMP.tabela(['Linha','Funcionário','Situação','Bruto','INSS','IRRF','Líquido','Detalhe'],pl.items.slice(0,60).map(function(x){var c=h('span','chip '+(x.acao==='erro'?'wr':x.acao==='pula'?'':'ok'),ST[x.acao]),a=x.calc;return[x.lin,x.nome,c,a?R(a.bruto):'',a?R(a.ins):'',a?R(a.ir):'',a?R(a.liq):'',x.det]})));
+ if(pl.items.length>60)box.append(h('div','sub','Mostrando 60 de '+pl.items.length+' linhas. As outras também entram.'));
+ if(t.novo+t.atual)box.append(h('div','note','Total da folha com esses dados: bruto '+R(t.bruto)+' · líquido '+R(t.liq)+'. O cálculo usa as mesmas regras da folha (INSS, IRRF, FGTS, vale-transporte).'));
+ var ac=h('div','acts'),n=t.novo+t.atual,b=btn('Importar para a folha ('+n+')',function(){IMP.rodaF(st,pl)},'p');b.disabled=!n;ac.append(b);box.append(ac)};
+IMP.rodaF=function(st,pl){var d=Store.get(),c=FOLHA.cur(),o=c&&c.d,mes=FOLHA.mes,nv=0,at=0;if(!o||c.off)return toast('A folha não está carregada.');if(o.fech[mes])return toast('Este mês está fechado. Reabra para importar.');
+ if(!o.mov[mes])o.mov[mes]={};
+ pl.items.forEach(function(x){if(x.acao!=='novo'&&x.acao!=='atualiza')return;var f=null;
+  if(x.acao==='novo'){f={id:nid(d),nome:x.nome,cargo:x.cargo||'A definir',depto:'',adm:'',quem:''};d.funcs.push(f);nv++}
+  else{f=d.funcs.find(function(y){return y.id===x.func.id});if(!f)return;at++;if(x.cargo&&(!f.cargo||f.cargo==='A definir'))f.cargo=x.cargo}
+  if(Object.keys(x.cad).length)o.cad[f.id]=Object.assign(o.cad[f.id]||{},x.cad);
+  if(Object.keys(x.mov).length)o.mov[mes][f.id]=Object.assign(o.mov[mes][f.id]||{},x.mov)});
+ st.rows=[];st.res=null;IMP.F=null;
+ FOLHA.sv(1).then(function(){if(nv){save(d,'Importado: '+nv+' novo(s) e '+at+' atualizado(s).')}else{toast('Importado: '+at+' funcionário(s) atualizado(s).');re()}})};
+IMP.modeloF=function(){baixaCsv('modelo-folha.csv',csvLinhas(['nome','cargo','salario','dependentes','vale_transporte','horas_extras_50','horas_extras_100','faltas_dias','outros_proventos','comissao','outros_descontos','vale','adiantamento'],[['Maria da Silva','Caixa',brNum(1621),1,'sim',4,0,0,0,0,0,0,0],['João Souza','Repositor',brNum(1800),0,'não',0,0,1,0,brNum(150),0,brNum(40),0]]))};
+IMP.abreF=function(){var d=Store.get(),c=FOLHA.cur(),o=c&&c.d,P=h('div','panel'),box=h('div');IMP.F=IMP.F||{rows:[],o:null};var st=IMP.F;
+ P.append(h('h2',null,'Importar folha de pagamento de uma planilha'),h('div','note','Mês de competência: '+FOLHA.mes.split('-').reverse().join('/')+'. Para outro mês, volte e troque o mês no alto da folha.'),box);
+ var cfg={campos:IMP.camposF,dica:'Traga os salários e os lançamentos do mês do Excel, CSV ou tabela do Word. O Domin reconhece as colunas, cadastra quem ainda não existe e já mostra o bruto, os descontos e o líquido de cada um, calculados automaticamente.',
+  opcoes:IMP.opcoesF,plano:function(s){return IMP.planoF(s,Store.get(),FOLHA.cur().d,FOLHA.mes)},previa:IMP.previaF,
+  extra:function(ac){ac.append(btn('Baixar planilha modelo',IMP.modeloF))},depois:function(){}};
+ IMP.ui(box,st,cfg);var vb=h('div','acts');vb.append(btn('Voltar para a folha',function(){IMP.F=null;re()}));P.append(vb);show(P)};
+
 VIEWS.estoque=function(v){var l=loja();v.append(head('Estoque',l?l.nome:'','real'));if(!l)return noLoja(v);if(!S.res)return semRes(v);
  var pr=S.res.produtos||[],ed=S.ped&&pr.find(function(x){return x.id===S.ped})||null,porCod={},usados={};pr.forEach(function(x){if(x.cod){porCod[x.cod]=x;usados[x.cod]=1}});
  /* --- entrada por código de barras --- */
@@ -1247,7 +1649,7 @@ VIEWS.estoque=function(v){var l=loja();v.append(head('Estoque',l?l.nome:'','real
     if(r.ok&&r.j&&r.j.ok){S.lote=[];toast('Entrada registrada: '+(r.j.un||0)+' un ('+(r.j.novos||0)+' novo(s), '+(r.j.somados||0)+' somado(s)).');return refresh().then(load).then(re)}
     toast((r.j&&r.j.erro)||'Não foi possível dar entrada.')})},'p');
   fm.append(cf,btn('Limpar lista',function(){if(confirm('Limpar a lista bipada?')){S.lote=[];pintaLote()}}))}
- pintaLote();v.append(en);
+ pintaLote();v.append(en);v.append(impEstPanel(l,pr));
  /* --- cadastro manual --- */
  var p=h('div','panel'),er=h('span','err');
  var n=fl('Produto','text',{maxLength:60,value:ed?ed.nome:''}),q=fl('Quantidade','number',{min:0,value:ed?ed.qtd:0}),c=fl('Custo (R$)','text',{inputMode:'decimal',value:ed?String(ed.custo||'').replace('.',','):''}),vd=fl('Venda (R$)','text',{inputMode:'decimal',value:ed?String(ed.venda||'').replace('.',','):''}),m=fl('Avisar quando chegar em','number',{min:0,value:ed?ed.min:0}),cd=fl('Código de barras (opcional: bipe aqui ou gere um)','text',{maxLength:40,autocomplete:'off',value:ed?ed.cod||'':''});
@@ -1258,6 +1660,8 @@ VIEWS.estoque=function(v){var l=loja();v.append(head('Estoque',l?l.nome:'','real
  p.append(h('h2',null,ed?'Editar produto':'Novo produto (digitando)'),n.l,q.l,c.l,vd.l,m.l,cd.l,gb,pv,er);mostraCod();
  var a=h('div','acts'),sv=btn(ed?'Salvar':'Adicionar',function(){if(n.i.value.trim().length<2){er.textContent='Escreva o nome.';return}sv.disabled=true;S.ped=null;acao('/gestao/produto',{chave:l.chave,id:ed?ed.id:undefined,nome:n.i.value,qtd:q.i.value,custo:num8(c.i.value),venda:num8(vd.i.value),min:m.i.value,cod:cd.i.value.trim().replace(/\s+/g,'')},'Produto salvo.').then(function(){sv.disabled=false})},'p');a.append(sv);
  if(ed)a.append(btn('Cancelar',function(){S.ped=null;re()}));p.append(a);v.append(p);
+ /* --- etiquetas de gôndola --- */
+ v.append(gondolaPanel(l,pr));
  /* --- lista --- */
  var L=h('div','panel'),sem=pr.filter(function(x){return !x.cod}),bf=h('div','acts'),bs=fl('Buscar produto ou código','search',{value:S.qEst||''}),box=h('div');
  L.append(h('h2',null,'Produtos ('+pr.length+')'));
@@ -1381,7 +1785,7 @@ VIEWS.financeiro=function(v){var l=loja(),semEmp=!l||(l.vinc&&!l.gestor);if(!S.f
 /* ===== Tutorial: como o Domin funciona ===== */
 MCAT.tutorial={e:'real',core:1,dep:[]};
 ICN.tutorial='<path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H20v15H5.5A1.5 1.5 0 0 0 4 19.5z"/><path d="M4 19.5A1.5 1.5 0 0 0 5.5 21H20v-3M8 7h8M8 11h5"/>';
-(function(){var st=document.createElement('style');st.textContent='.tut .lead{max-width:760px;line-height:1.55}.tut ol.passos{margin:0;padding:0;list-style:none;counter-reset:p}.tut ol.passos li{counter-increment:p;display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--ln,rgba(255,255,255,.1))}.tut ol.passos li:first-child{border-top:0}.tut ol.passos li:before{content:counter(p);flex:0 0 28px;height:28px;border-radius:50%;display:grid;place-items:center;font:700 14px system-ui;background:rgba(46,168,255,.16);color:#7fcbff;border:1px solid rgba(46,168,255,.4)}.tut .pt{flex:1;min-width:0}.tut .pt b{display:block;margin-bottom:2px}.tut .pt span{line-height:1.5}.tut .pt .acts{margin-top:8px}.tut details.mod{border:1px solid var(--ln,rgba(255,255,255,.12));border-radius:12px;padding:10px 14px;margin:8px 0}.tut details.mod[open]{border-color:rgba(46,168,255,.4)}.tut details.mod summary{cursor:pointer;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-weight:700}.tut details.mod p{margin:10px 0;line-height:1.5}.tut .tips{margin:0;padding-left:20px;line-height:1.7}.tut .dois{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tut .dois>div{border:1px solid var(--ln,rgba(255,255,255,.12));border-radius:12px;padding:12px 14px;line-height:1.5}.tut .dois b{display:block;margin-bottom:4px}@media(max-width:640px){.tut .dois{grid-template-columns:1fr}}';document.head.append(st)})();
+(function(){var st=document.createElement('style');st.textContent='.tut .lead{max-width:760px;line-height:1.55}.tut ol.passos{margin:0;padding:0;list-style:none;counter-reset:p}.tut ol.passos li{counter-increment:p;display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--ln,rgba(255,255,255,.1))}.tut ol.passos li:first-child{border-top:0}.tut ol.passos li:before{content:counter(p);flex:0 0 28px;height:28px;border-radius:50%;display:grid;place-items:center;font:700 14px system-ui;background:rgba(46,168,255,.16);color:#7fcbff;border:1px solid rgba(46,168,255,.4)}.tut .pt{flex:1;min-width:0}.tut .pt b{display:block;margin-bottom:2px}.tut .pt span{line-height:1.5}.tut .pt .acts{margin-top:8px}.tut details.mod{border:1px solid var(--ln,rgba(255,255,255,.12));border-radius:12px;padding:10px 14px;margin:8px 0}.tut details.mod[open]{border-color:rgba(46,168,255,.4)}.tut details.mod summary{cursor:pointer;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-weight:700}.tut details.mod p{margin:10px 0;line-height:1.5}.tut .tips{margin:0;padding-left:20px;line-height:1.7}.tut details.mod ul.tips{margin:4px 0 12px}.tut .dois ul.tips{padding-left:18px}.tut .dois ul.tips li{margin-bottom:4px}.tut .dois{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tut .dois>div{border:1px solid var(--ln,rgba(255,255,255,.12));border-radius:12px;padding:12px 14px;line-height:1.5}.tut .dois b{display:block;margin-bottom:4px}@media(max-width:640px){.tut .dois{grid-template-columns:1fr}}';document.head.append(st)})();
 VIEWS.app=function(v){
  var win=/win/i.test(navigator.platform||navigator.userAgent||'');
  v.append(head('Download','Baixe o Domin em qualquer computador, sem pendrive. O Domin como programa do caixa: abre em janela própria, imprime a nota e abre a gaveta sem janela de impressão.','real'));
@@ -1418,7 +1822,8 @@ VIEWS.tutorial=function(v){
  var dois=h('div','dois'),a=h('div'),b2=h('div');
  a.append(h('b',null,'MiHelp = a vitrine'),h('span',null,'É onde as pessoas encontram lojas e profissionais. Foto, portfólio, contatos e o perfil público são editados lá, em “Minha vitrine”.'));
  b2.append(h('b',null,'Domin = a gestão'),h('span',null,'É onde você controla o dinheiro, o estoque, os serviços, a agenda e a equipe. Os dados de gestão ficam aqui e não aparecem no perfil público.'));
- dois.append(a,b2);p1.append(dois);wrap.append(p1);
+ dois.append(a,b2);p1.append(dois);
+ p1.append(h('p','sub','Dá para usar o Domin pelo navegador, instalar no celular pelo botão “Instalar o Domin” ou baixar o programa para Windows na aba Download (o melhor para o caixa).'));wrap.append(p1);
  /* 2. primeiros passos */
  var p2=painel('Primeiros passos'),ol=h('ol','passos');
  function passo(tit,txt,id,bt){var li=h('li'),d=h('div','pt');d.append(h('b',null,tit),h('span',null,txt));if(id){var ac=h('div','acts');ac.append(abrir(id,bt));d.append(ac)}li.append(d);ol.append(li)}
@@ -1427,14 +1832,19 @@ VIEWS.tutorial=function(v){
  passo('Complete os dados do negócio','Endereço, link do mapa, WhatsApp, descrição curta, logo e horário de funcionamento. Escolha também se o cliente fala com a equipe por conversa ou marcando horário.','empresa','Abrir Minha empresa');
  passo('Cadastre os serviços e os preços','Nome, duração (de 10 a 480 minutos) e valor. Esses serviços aparecem no perfil público e deixam o cliente reservar um horário.','servicos','Abrir Serviços e preços');
  passo('Chame a equipe','Convide pessoas para trabalhar com você. Quem aceita entra na equipe, e você define o cargo de cada um.','equipe','Abrir Equipe');
+ passo('Cadastre os funcionários','Em Meu Trabalho, cadastre cada funcionário com nome, cargo e equipe. Ele passa a aparecer no Ponto, na Escala e na Folha.','meutrabalho','Abrir Meu Trabalho');
+ passo('Configure o ponto digital','Cadastre os locais de trabalho com raio, para o Domin avisar quando alguém bater o ponto fora do lugar. Avise a equipe antes de usar (LGPD).','ponto','Abrir Ponto digital');
+ passo('Monte a escala','Crie os turnos da semana, deixe turnos abertos para a equipe pegar e publique quando estiver pronto.','escalas','Abrir Escalas');
+ passo('Prepare o caixa da loja','Em Automações: dê as permissões, configure a impressora e a nota, abra o caixa e venda. Baixe o app para Windows para imprimir sem janela e abrir a gaveta.','automacoes','Abrir Automações');
  passo('Acompanhe o dia a dia','Veja os horários marcados na Agenda, lance entradas e saídas no Financeiro e cadastre os produtos no Estoque.','agenda','Abrir Agenda');
  passo('Confira os números','Nos Relatórios você vê o resumo do mês e compara com o mês anterior.','relatorios','Abrir Relatórios');
  p2.append(ol);wrap.append(p2);
  /* 3. módulos */
  var MD={
-  visao:'Painel inicial da empresa, com resumo e atalhos. Quem está começando vê aqui os próximos passos.',
-  empresa:'Dados da empresa: nome, tipo, cidade, endereço, link do mapa, WhatsApp, descrição, logo e horário. Também define como o cliente fala com a equipe (conversa ou marcação de horário) e se o dono e a equipe aparecem no perfil.',
-  equipe:'Convites e pedidos para entrar na equipe, com cargo de cada pessoa. Só o dono gerencia.',
+  visao:'A tela de abertura da empresa: resumo do negócio e atalhos. Em empresa nova, mostra o roteiro “Primeiros passos” para você ir completando.',
+  empresa:'Os dados do negócio: nome, tipo, cidade, endereço, link do mapa, WhatsApp, descrição, logo e horário. Também define como o cliente fala com a equipe (conversa ou marcação de horário) e se o dono e a equipe aparecem no perfil.',
+  empresas:'Lista todas as empresas da sua conta. Daqui você cria uma nova empresa ou apaga as que não quer mais.',
+  equipe:'Convites e pedidos para entrar na equipe, com o cargo de cada pessoa. Só o dono gerencia.',
   clientes:'Os clientes ficam na sua conta e usam os mesmos dados de Orçamentos e trabalhos. O cadastro de fornecedores ainda não existe.',
   servicos:'Lista de serviços com duração e preço. Só o dono edita. Aparece no perfil público e permite reservar horário.',
   orcamentos:'Clientes, orçamentos, trabalhos, recibos e metas do profissional.',
@@ -1442,39 +1852,106 @@ VIEWS.tutorial=function(v){
   financeiro:'Caixa e faturamento. Alterne entre “Pessoal” e “Empresa” no alto da tela para separar o seu dinheiro do dinheiro do negócio.',
   estoque:'Produtos com quantidade, custo e preço de venda. Você define o ponto de aviso de estoque baixo e ajusta as quantidades na hora. Dá para bipar o código de barras com o leitor para dar entrada e, para o produto que não tem código, gerar um e imprimir a etiqueta.',
   relatorios:'Resumo mensal com comparação com o mês anterior. Você escolhe o mês. Só dono e gestores veem.',
-  automacoes:'Frente de caixa (PDV), vale-funcionário, controle de caixa e integrações. Pix e cartão são lançados manualmente: ainda não há confirmação automática de provedor.',
-  meutrabalho:'Área do funcionário: funcionários e tarefas por empresa, sem entrar no painel do patrão.',
-  escalas:'Monte os turnos da semana, deixe turnos abertos para a equipe pegar e publique quando estiver pronto.',
-  chat:'Canal geral, grupos e conversa direta com a gerência. Participa quem aceitou o convite da equipe.',
-  ponto:'Marcações simuladas de entrada e saída, com pedido de correção. É um protótipo: não tem validade legal.',
+  automacoes:'O sistema de caixa da loja: frente de caixa (PDV) ligada ao estoque e ao financeiro, controle de caixa, vale-funcionário, impressora com gaveta, permissões e integrações. Pix e cartão são lançados manualmente: ainda não há confirmação automática de provedor.',
+  meutrabalho:'A base do Workforce: cadastro de funcionários e tarefas por empresa. O funcionário usa a área dele sem entrar no painel do patrão.',
+  escalas:'Calendário semanal de turnos, no estilo de aplicativos de escala: o dono monta, a equipe vê e pega turnos abertos.',
+  chat:'Conversa da equipe: canal geral, grupos e conversa direta com a gerência. Participa quem aceitou o convite da equipe.',
+  ponto:'Entrada, intervalo e saída com localização (só no toque de bater), selfie opcional e cerca virtual que avisa quando a pessoa bate fora do local. O empregador vê quem está em jornada, o mapa, os locais e as horas, trata os pedidos de correção e pode editar as marcações com motivo registrado. É registro interno: não tem validade legal por si só.',
   avaliacoes:'Avaliações internas e privadas da empresa, separadas das avaliações públicas do MiHelp, que nunca se misturam com estas. O indicador atual considera os últimos 18 meses; o histórico fica guardado.',
   folha:'Salários, INSS, IRRF, FGTS e líquido de cada funcionário, com lançamento de horas extras e faltas, fechamento do mês, holerite e cópia para o Excel. Só o empregador vê.',
   passaporte:'Histórico profissional complementar, declarado pelo próprio trabalhador. Não substitui a Carteira de Trabalho Digital.',
   studio:'Escolha a atividade da empresa e ative ou desative módulos. Os essenciais ficam sempre ativos e alguns módulos dependem de outros.',
-  config:'Ajustes gerais do Domin.'
+  config:'Ajustes gerais do Domin.',
+  app:'Baixe o Domin como programa para Windows: ele abre em janela própria e é o melhor jeito de usar o caixa, porque imprime a nota sem janela e abre a gaveta de dinheiro.'
+ };
+ var MS={
+  visao:['Use os atalhos e cartões para ir direto ao módulo que precisa.','Enquanto a empresa é nova, o roteiro “Primeiros passos” mostra o que falta completar.','Quem entrou como funcionário não vê esta tela: o menu dele começa em Meu Trabalho.'],
+  empresa:['Preencha nome, tipo, cidade e endereço; cole o link do mapa e o WhatsApp.','Escreva uma descrição curta, envie a logo e informe o horário de funcionamento.','Escolha se o cliente fala com a equipe por conversa ou marcando horário.','Decida se o dono e a equipe aparecem no perfil público.'],
+  empresas:['“＋ Nova empresa” cria outra empresa na mesma conta, com uma prévia de como ela aparece no MiHelp.','Cada empresa tem os próprios dados: equipe, estoque, caixa e ponto não se misturam.','Para apagar uma empresa, use o botão dela e confirme. Só aparecem aqui as empresas que são suas.'],
+  equipe:['Convide pessoas para trabalhar com você e acompanhe os pedidos de quem quer entrar.','Defina o cargo de cada pessoa. O cargo “gestor” libera o Financeiro da empresa e o Estoque.','Quem aceita o convite entra no Chat, nas Escalas e no menu de Workforce (Meu Trabalho, Ponto, Avaliações e Passaporte).'],
+  servicos:['Cadastre nome, duração (de 10 a 480 minutos) e valor de cada serviço.','Os serviços aparecem no perfil público e deixam o cliente reservar um horário.'],
+  agenda:['Veja a semana com os horários marcados.','Abra o perfil de quem marcou ou cancele um horário: a pessoa é avisada no MiHelp.'],
+  financeiro:['No alto, alterne entre “Pessoal” e “Empresa” para não misturar o seu dinheiro com o do negócio.','Lance entradas e saídas e acompanhe o faturamento.','O vale-funcionário só entra como receita aqui quando é quitado.'],
+  relatorios:['Escolha o mês para ver o resumo e a comparação com o mês anterior.','As horas do ponto ficam em Ponto digital › Horas, e o custo de mão de obra ainda não é calculado aqui.'],
+  automacoes:[
+   'Visão geral: situação do caixa (aberto ou fechado), vendas, dinheiro esperado na gaveta, Pix e cartão lançados à mão, valor vendido no vale e quais caixas estão abertos agora.',
+   'Frente de caixa: busque o produto pelo nome ou bipe o código de barras (F2 vai para a busca). Ajuste as quantidades, aplique desconto (só quem tem permissão; acima do máximo, só gestor ou dono), escolha a forma de pagamento (dinheiro com troco, Pix, débito, crédito ou vale) e finalize (F9). A venda baixa o estoque na hora. Os botões do alto abrem o Modo caixa em tela cheia, a gaveta e reimprimem a última nota.',
+   'Caixa: abra informando qual caixa você usa e o dinheiro inicial; registre sangria (retirada) e reforço (entrada); na hora de fechar, conte o dinheiro: o Domin mostra a diferença e pede justificativa se houver.',
+   'Histórico: todas as vendas (concluída, cancelada ou pendente), com reimpressão e cancelamento com motivo (a venda original é mantida), a auditoria que não pode ser editada e os fechamentos anteriores.',
+   'Vale-funcionário: o dono ou gestor autoriza cada pessoa da equipe e define o limite; na venda, escolha “vale” e o funcionário; depois use “Receber quitação” (dinheiro ou Pix lançado à mão). O vale baixa o estoque, mas só vira receita no Financeiro quando é quitado.',
+   'Impressora e nota: escolha como imprimir (app Domin para Windows, navegador ou direto por serial/USB), o papel (80 mm ou 58 mm), a impressora, o pino da gaveta, se a gaveta abre sozinha com venda em dinheiro e se a nota sai sozinha ao finalizar. A nota aceita nome da loja, linhas de texto, rodapé, logo e QR (redes sociais ou perfil MiHelp). Não é nota fiscal.',
+   'Permissões (só o dono): marque por pessoa Vender, Desconto, Cancelar, Caixa e Vale, ou use um modelo de função (Caixa, Atendente, Gerente ou Repositor sem caixa). Defina também o desconto máximo do operador.',
+   'Integrações e fiscal: mostra o que está ativo (leitor de código de barras) e o que ainda não está: Pix com confirmação automática, cartão/TEF e NFC-e/NF-e.'],
+  estoque:['Entrada por código de barras: passe o leitor em cada produto; código que já existe soma no estoque e código novo você nomeia uma vez só.','Importar planilha: envie o estoque que você já tem em Excel (.xlsx), CSV ou tabela do Word (ou cole as células). O Domin reconhece as colunas, mostra tudo antes de gravar, cria os produtos novos e atualiza os que já existem. Dá para desfazer a última importação.','Atualizar preços em lote: clique em “Exportar meu estoque”, mude os preços no Excel e importe de novo. Escolha se a quantidade dos que já existem fica como está, soma (entrada) ou é trocada (contagem).','Etiquetas de gôndola: imprima o preço em destaque (pequena, média ou grande), branca ou amarela de oferta, com ou sem código de barras. Dá para imprimir só os produtos que mudaram de preço na última importação.','As etiquetas de código de barras comuns (50×30 mm) continuam em “Etiqueta” em cada produto.'],
+  meutrabalho:['Empregador: cadastre funcionários (nome, cargo e equipe), pesquise, ordene por nome ou cargo, edite ou exclua.','Excluir um funcionário apaga também as tarefas, as marcações de ponto, os pedidos de correção e os itens do passaporte dele. As avaliações ficam no histórico.','Crie tarefas com prazo e acompanhe o estado de cada uma. O funcionário atualiza o estado das dele.','Funcionário: vê só as próprias tarefas. Se aparecer o aviso de que seu nome não foi vinculado, peça ao empregador para vincular a sua conta.','Não cadastre CPF, RG nem outros documentos pessoais.'],
+  escalas:['Navegue entre as semanas com “← Semana”, “Semana →” e “Hoje”.','Dono: toque em “+” na linha da pessoa e no dia para criar um turno. Turno sem pessoa fica aberto para a equipe pegar.','“Copiar semana anterior” traz os turnos como rascunho. “Publicar semana” mostra a escala para a equipe; rascunho ninguém vê.','Funcionário: vê só os turnos publicados e toca num turno aberto para pegá-lo.','As escalas ainda não entram nos relatórios nem calculam custo de mão de obra.'],
+  chat:['Use o canal geral para falar com todos, os grupos (ex.: Obra Centro, Repositores) e a conversa direta com a gerência.','Dono: “+ Grupo” cria um grupo escolhendo quem participa; “Editar grupo” muda os participantes ou exclui o grupo.','Escreva a mensagem e toque em “Enviar”.'],
+  ponto:['Funcionário: bate Entrada, Saída para intervalo, Retorno do intervalo e Saída final, vê o próprio histórico e pede correção quando precisa.','Empregador, aba 📍 Agora: quem está em jornada, no intervalo ou já encerrou, a última marcação de cada um e o mapa da equipe (atualiza sozinho a cada 45 segundos).','🏢 Locais: cadastre os locais de trabalho com nome, raio (de 20 a 5000 m) e coordenadas, ou use “Usar minha localização agora”.','⏱ Horas: escolha o mês, veja as horas de cada funcionário, abra “Ver dias” e exporte em CSV.','🧾 Histórico e correções: histórico dos dias, pedidos de correção para Aprovar ou Rejeitar e a lista de alterações feitas pelo empregador.','✏️ Editar marcações: corrija, inclua ou remova marcações de qualquer funcionário, sempre com motivo. O passo a passo está no quadro “Ponto digital: quem faz o quê”, mais abaixo.'],
+  avaliacoes:['Empregador: “+ Nova avaliação” pede funcionário, data, nota de 1 a 5 em Qualidade do trabalho, Pontualidade e Trabalho em equipe, e uma justificativa (mínimo de 10 letras).','Editar a justificativa guarda a versão anterior no histórico da avaliação.','Funcionário: vê só as suas avaliações e pode registrar a manifestação dele em “Manifestar-me”.','Depois de 18 meses a avaliação sai do indicador, mas continua no histórico.','Não existe nota pública e nada é compartilhado com outras empresas.'],
+  folha:['“📥 Importar planilha”: traga salários e lançamentos do mês do Excel, CSV ou tabela do Word. O Domin reconhece as colunas, cadastra quem ainda não existe e mostra o bruto, os descontos e o líquido de cada um já calculados antes de você confirmar. Horas extras entram em horas e faltas em dias.','Só o empregador vê. Os funcionários vêm de Meu Trabalho (se a lista estiver vazia, use “Trazer da equipe”).','O Domin calcula INSS progressivo, IRRF e FGTS de 8% com as tabelas de 2026; você lança horas extras e faltas.','“Puxar vale e comissão” traz para a folha os valores do vale-funcionário e das comissões do mês.','“Fechar folha do mês” congela os valores; “Reabrir mês” libera de novo. Dá para gerar o holerite, copiar para o Excel e lançar a folha no Financeiro.','É cálculo de referência: não inclui DSR sobre faltas, férias, 13º nem encargos patronais. Confira com a contabilidade antes de pagar.'],
+  passaporte:['Funcionário: “+ Novo item” cadastra experiência, competência, certificado ou curso, projeto ou reconhecimento, com título e ano.','Cada item tem a opção “compartilhar”: só o que o funcionário marcar aparece para o empregador.','Empregador: vê apenas os itens compartilhados.','Avaliações internas nunca entram aqui, e o passaporte não substitui a Carteira de Trabalho Digital.'],
+  studio:['Escolha a atividade principal e até 3 secundárias. Elas servem só para recomendar módulos e não bloqueiam nada.','Ligue ou desligue módulos. Os essenciais ficam sempre ativos, e ao ligar um módulo os que ele precisa ligam junto.','Só o dono altera.'],
+  app:['Clique em “Baixar o Domin para Windows” (Windows 10 ou 11). Se o Windows avisar “editor desconhecido”, clique em Mais informações e depois em Executar assim mesmo.','O programa se instala sozinho, cria o atalho “Domin” e abre em janela própria.','Em Automações › Impressora e nota, escolha a impressora térmica e teste “Abrir gaveta”.','O sistema continua online: as atualizações chegam sozinhas, sem baixar de novo. Em outro computador, entre na conta e baixe de novo.','No fim da página, “Personalizar para uma loja” gera o marca.json e o logo.png para o atalho e a janela ficarem com nome, cor e logo da loja.']
  };
  var ST={real:['real','dados reais'],beta:['beta','em teste'],demo:['demo','protótipo']};
- var p3=painel('Os módulos, um por um');
+ var p3=painel('Os módulos, um por um (menu da esquerda)');
  p3.append(h('div','note','“Dados reais” funciona de verdade. “Em teste” já funciona, mas ainda está sendo ajustado. “Protótipo” é só demonstração.'));
  MODS.forEach(function(g){if(g[0]==='Começar')return;
   p3.append(h('h3',null,g[0]));
   g[1].forEach(function(m){var id=m[0],d=h('details','mod'),s=h('summary'),c=ST[m[3]]||ST.real;
    s.append(icone(id,'ic'),h('span',null,m[2]),h('span','chip '+c[0],c[1]));
    var ac=h('div','acts');ac.append(abrir(id));
-   d.append(s,h('p',null,MD[id]||''),ac);p3.append(d)})});
+   d.append(s,h('p',null,MD[id]||''));var ms2=MS[id];if(ms2&&ms2.length){var ul2=h('ul','tips');ms2.forEach(function(t){ul2.append(h('li',null,t))});d.append(ul2)}d.append(ac);p3.append(d)})});
  wrap.append(p3);
+ /* 3b. fluxos principais */
+ var pPf=painel('Quem vê o quê'),ulp=h('ul','tips');
+ ['Dono: vê tudo da própria empresa, incluindo Folha de pagamento, Permissões do caixa, Personalização e Minhas empresas.',
+  'Gestor (cargo liberado pelo dono): também vê o Financeiro da empresa, o Estoque e os Relatórios. No caixa, pode tudo, menos mudar permissões.',
+  'Funcionário: Meu Trabalho, Ponto digital, Avaliações, Passaporte, Escalas, Chat e o Financeiro pessoal. As avaliações dele são só as dele e os itens do passaporte só vão ao empregador se ele marcar “compartilhar”.',
+  'Operador do caixa: vê Automações, mas só as áreas que o dono marcou (Vender, Desconto, Cancelar, Caixa, Vale).'].forEach(function(t){ulp.append(h('li',null,t))});
+ pPf.append(ulp,h('div','note','Quem pode o quê é conferido pelo servidor, por empresa e por papel. Esconder um módulo no menu não troca a permissão da pessoa.'));wrap.append(pPf);
+ var pPt=painel('Ponto digital: quem faz o quê'),dd=h('div','dois'),c1=h('div'),c2=h('div'),u1=h('ul','tips'),u2=h('ul','tips');
+ c1.append(h('b',null,'Funcionário'));c2.append(h('b',null,'Empregador'));
+ ['Abra Ponto digital. Aparecem 4 botões na ordem do dia: Entrada, Saída para intervalo, Retorno do intervalo e Saída final. Só o próximo da fila fica ativo.',
+  'Ao tocar, o Domin pede a localização uma única vez. Escolha o local de trabalho, tire a selfie se quiser (é opcional) e toque em “Confirmar marcação”. A hora oficial é a do servidor.',
+  'Se negar o GPS ou bater fora do raio, o ponto vale do mesmo jeito, mas fica sinalizado para o empregador revisar.',
+  'Bateu errado ou esqueceu? Toque em “Pedir correção de marcação”, informe dia, marcação, hora certa e o motivo (mínimo de 10 letras). O pedido fica pendente até o empregador decidir.',
+  'No histórico, ao lado de cada dia, você vê as horas, o selo do local e qualquer ajuste feito pelo empregador, com o motivo.'].forEach(function(t){u1.append(h('li',null,t))});
+ ['Cadastre os funcionários em Meu Trabalho e os locais de trabalho na aba 🏢 Locais.',
+  'Acompanhe em 📍 Agora quem está em jornada, no intervalo ou encerrou, com o mapa da equipe.',
+  'Em ⏱ Horas, escolha o mês, abra “Ver dias” e exporte o CSV.',
+  'Em 🧾 Histórico e correções, toque em Aprovar ou Rejeitar nos pedidos. Aprovar cria a marcação com a hora pedida.',
+  'Para editar direto, abra ✏️ Editar marcações (ou “✏️ Editar dia” no histórico), escolha o funcionário e o dia e use: Editar (muda o tipo e a hora), Remover ou + Incluir marcação (quando ele esqueceu de bater).',
+  'Todo ajuste pede um motivo de pelo menos 10 letras. A hora original fica guardada, a marcação aparece como “ajustada pelo empregador”, a remoção só esconde a marcação das horas e tudo entra na lista “Alterações feitas pelo empregador”, que não pode ser editada.'].forEach(function(t){u2.append(h('li',null,t))});
+ c1.append(u1);c2.append(u2);dd.append(c1,c2);pPt.append(dd,h('div','note','O ponto digital é um registro interno de apoio. A localização e a selfie só são coletadas no instante em que o funcionário bate o ponto, nunca de forma contínua. Não tem validade legal por si só: o ponto eletrônico formal exige validação técnica e jurídica.'));wrap.append(pPt);
+ var pCx=painel('Dia a dia do caixa (Automações)'),olc=h('ol','passos');
+ function pc(tit,txt){var li=h('li'),d2=h('div','pt');d2.append(h('b',null,tit),h('span',null,txt));li.append(d2);olc.append(li)}
+ pc('Permissões','O dono marca, em Permissões, o que cada pessoa pode fazer e o desconto máximo do operador.');
+ pc('Impressora e nota','Escolha como imprimir e a impressora térmica, teste “Abrir gaveta” e monte a nota (nome da loja, rodapé, logo e QR).');
+ pc('Abrir o caixa','Na aba Caixa, diga qual caixa você usa hoje e quanto dinheiro tem na gaveta.');
+ pc('Vender','Na Frente de caixa, busque ou bipe o produto, confira o carrinho, escolha a forma de pagamento e finalize com F9. O troco aparece na tela e a nota sai sozinha se estiver ligada.');
+ pc('Durante o dia','Registre sangria quando tirar dinheiro e reforço quando colocar. Para vender no vale, o funcionário precisa estar autorizado.');
+ pc('Fechar o caixa','Conte o dinheiro, compare com o esperado e justifique se houver diferença.');
+ pc('Conferir','No Histórico, reimprima notas, cancele vendas com motivo e veja a auditoria e os fechamentos anteriores.');
+ pCx.append(olc,h('div','note','Sem internet, as vendas em dinheiro, Pix e cartão (lançados à mão) ficam guardadas neste computador e são enviadas quando a conexão volta. Vale-funcionário, cancelamento, abrir e fechar caixa e sangria precisam de internet, e não dá para fechar o caixa com vendas offline pendentes.'));wrap.append(pCx);
  /* 4. atalhos */
  var p4=painel('Atalhos que ajudam'),ul=h('ul','tips');
  ['Busca no alto da tela: procure módulo, cliente, produto ou horário.',
   'Botão “Criar”: nova empresa, novo orçamento, novo cliente, lançar no caixa, novo produto, novo serviço ou chamar alguém para a equipe.',
   'Quem tem mais de uma empresa troca a empresa ativa no seletor do alto. Para abrir outra empresa, use Criar › Nova empresa ou a opção “＋ Nova empresa” no seletor.',
   'O sino mostra os avisos. “← MiHelp” abre a vitrine em outra aba.',
-  'No celular, o botão de menu (☰) abre a lista de módulos.'].forEach(function(t){ul.append(h('li',null,t))});
+  'No celular, o botão de menu (☰) abre a lista de módulos.',
+  'Botão “Instalar o Domin”: coloca um ícone do Domin na tela inicial do celular. No computador de caixa, prefira o programa para Windows (aba Download).'].forEach(function(t){ul.append(h('li',null,t))});
  p4.append(ul);wrap.append(p4);
  /* 5. dúvidas */
  var p5=painel('Dúvidas comuns');
  [['Quem vê o quê?','O dono vê tudo. O funcionário vê a área de trabalho e o Financeiro pessoal. O gestor liberado pelo dono vê também Financeiro da empresa, Estoque e Relatórios.'],
-  ['O ponto digital vale como ponto legal?','Não. Hoje ele é um protótipo, sem validade legal.'],
+  ['O ponto digital vale como ponto legal?','Não por si só. É um registro interno de marcações; o ponto eletrônico formal exige validação técnica e jurídica. A localização é coletada só quando a pessoa bate o ponto.'],
+  ['O empregador pode corrigir o ponto de um funcionário?','Pode, em Ponto digital › ✏️ Editar marcações: edita, inclui ou remove uma marcação, sempre com motivo. A hora original e o motivo ficam guardados e o funcionário vê o ajuste no histórico dele.'],
+  ['Funciona sem internet?','A venda na frente de caixa funciona: dinheiro, Pix e cartão (lançados à mão) ficam numa fila no computador e são enviados quando a conexão volta. O resto do Domin precisa de internet.'],
+  ['O vale-funcionário desconta sozinho do salário?','Não. O vale vira uma dívida do funcionário até ser quitado. Na Folha você usa “Puxar vale e comissão” para trazer os valores, e o desconto só pode ser feito com autorização do funcionário: combine a política com a contabilidade.'],
+  ['Como migro minha planilha de produtos ou de funcionários para o Domin?','No Estoque use “Importar estoque de uma planilha” e na Folha use “📥 Importar planilha”. Aceita Excel (.xlsx), CSV, tabela do Word ou células coladas. Você confere tudo antes de gravar e dá para desfazer a importação do estoque. Arquivo antigo (.xls ou .doc): abra no Excel ou Word e salve como .xlsx ou .docx.'],
+  ['Posso usar o Domin como programa no computador do caixa?','Sim. Na aba Download você baixa o Domin para Windows: ele abre em janela própria, imprime a nota sem janela e abre a gaveta de dinheiro.'],
   ['O Pix é confirmado sozinho?','Ainda não. Pix e cartão são lançados manualmente, sem confirmação automática de provedor.'],
   ['Onde troco foto, portfólio e contatos?','No MiHelp, em “Minha vitrine”. O Domin cuida só da gestão.'],
   ['Posso esconder módulos que não uso?','Sim, em Personalização. Os essenciais não saem do menu.']].forEach(function(q){var d=h('details','mod'),s=h('summary',null,q[0]);d.append(s,h('p',null,q[1]));p5.append(d)});
@@ -1591,7 +2068,7 @@ function relMonta(box,G,P){
   if(!W2.total)K.append(empty('Nenhuma tarefa criada ainda.'));
   else{[['Abertas',String(W2.ab)],['Atrasadas (prazo vencido e não concluídas)',String(W2.at.length)],['Concluídas (total, sem data de conclusão)',String(W2.conc)]].forEach(function(k){var r=h('div','li');r.append(h('span',null,k[0]),h('span','m',k[1]));K.append(r)});
    Object.keys(W2.por).sort().forEach(function(k){var o=W2.por[k];if(!o.ab)return;var r=h('div','li');r.append(h('span',null,k),h('span','m',o.ab+' aberta(s)'+(o.at?' · '+o.at+' atrasada(s)':'')));K.append(r)})}
-  aviso(K,'Ponto digital e escalas ainda são protótipo e não entram nos relatórios. Horas trabalhadas e custo de mão de obra só serão calculados quando o ponto for real.')}
+  aviso(K,'Escalas ainda são protótipo e não entram nos relatórios. As horas trabalhadas do ponto ficam em Ponto digital, na aba Horas (com exportação em CSV); o custo de mão de obra ainda não é calculado aqui.')}
  box.append(K);
  /* critérios */
  var Q=painel('Como calculamos');
@@ -2124,7 +2601,7 @@ VIEWS.folha=function(v){
  if(!wfHead(v,'Folha de pagamento','Salários, descontos e fechamento mensal, sem somar à mão.','Cálculo de referência com as tabelas de 2026: INSS progressivo, IRRF com redutor da Lei 15.270/2025 e FGTS de 8%. Não inclui DSR sobre faltas, férias, 13º nem encargos patronais; confira com a contabilidade antes de pagar. Vale-funcionário e adiantamento só podem ser descontados com autorização do funcionário; confirme com a contabilidade. Salários e lançamentos ficam salvos no servidor, visíveis só para o empregador.'))return;
  if(ROLE!=='empregador'){v.append(empty('A folha de pagamento é visível só para o empregador desta empresa.'));return}
  var d=Store.get();
- if(!d.funcs.length){v.append(empty('Cadastre os funcionários em Meu Trabalho primeiro. Eles aparecem aqui automaticamente.',btn('Trazer da equipe',trazEquipe,'p'),btn('Ir para Meu Trabalho',function(){go('meutrabalho')})));return}
+ if(!d.funcs.length){v.append(empty('Cadastre os funcionários em Meu Trabalho primeiro. Eles aparecem aqui automaticamente. Ou importe a lista de uma planilha.',btn('Trazer da equipe',trazEquipe,'p')));var ia=h('div','acts');ia.append(btn('Ir para Meu Trabalho',function(){go('meutrabalho')}),btn('📥 Importar funcionários de uma planilha',function(){var ir=function(){if(FOLHA.cur()&&!FOLHA.cur().off)IMP.abreF();else toast('A folha não está disponível agora.')};if(FOLHA.cur())ir();else FOLHA.carregar().then(ir)}));v.append(ia);return}
  var c=FOLHA.cur();
  if(!c){v.append(empty('Carregando a folha…'));FOLHA.carregar().then(function(){if(S.view==='folha'&&$('#view'))re()});return}
  if(c.off){v.append(empty('Não foi possível carregar a folha: '+c.erro+'.'),btn('Tentar de novo',function(){delete FOLHA.mem[S.cur];re()}));return}
@@ -2133,7 +2610,7 @@ VIEWS.folha=function(v){
  mi.type='month';mi.value=mes;mi.onchange=function(){if(mi.value){FOLHA.mes=mi.value;re()}};lb.append(mi);ac.append(lb);
  if(fc)ac.append(h('span','chip ok','mês fechado'),btn('Reabrir mês',function(){delete o.fech[mes];FOLHA.sv(1).then(function(){if(o.lanc[mes])toast('Atenção: este mês já foi lançado no Financeiro. Se mudar valores, ajuste o gasto lá.');re()})}),o.lanc[mes]?h('span','chip ok','lançado no Financeiro'):btn('Lançar no Financeiro',function(){FOLHA.lancar(o,mes,o.fech[mes],re)}));
  else ac.append(btn('Puxar vale e comissão',function(){FOLHA.puxar(d,o,mes,re)}),btn('Fechar folha do mês',function(){o.fech[mes]=FOLHA.rows(d,o,mes);FOLHA.sv(1).then(function(){toast('Mês fechado. Os valores ficam congelados.');re();if(!o.lanc[mes])setTimeout(function(){FOLHA.lancar(o,mes,o.fech[mes],re)},400)})},'p'));
- ac.append(btn('Copiar para Excel',function(){FOLHA.copia(box,FOLHA.rows(d,o,mes))}));var stt=h('span','tg',c.ts?'Salvo no servidor':'Ainda não salvo');stt.id='fst';ac.append(stt);top.append(ac);v.append(top);
+ if(!fc)ac.append(btn('📥 Importar planilha',IMP.abreF));ac.append(btn('Copiar para Excel',function(){FOLHA.copia(box,FOLHA.rows(d,o,mes))}));var stt=h('span','tg',c.ts?'Salvo no servidor':'Ainda não salvo');stt.id='fst';ac.append(stt);top.append(ac);v.append(top);
  var cards=h('div','grid');v.append(cards);
  var rows=FOLHA.rows(d,o,mes),pn=h('div','panel'),wr=h('div'),tb=h('table','fp'),hd=h('tr'),bd=h('tbody'),ft=h('tr'),cells=[],fcell={};
  wr.style.overflowX='auto';
