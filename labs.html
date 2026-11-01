@@ -371,7 +371,7 @@ window.addEventListener('appinstalled',function(){PWA.ev=null;PWA.pinta();toast(
 var S={cat:{tipos:[],cidades:{}},conv:[],transf:[],lojas:[],cur:null,res:null,resErr:'',rs:null,nome:'',view:'visao'};
 var MODS=[
  ['Começar',[['tutorial','📖','Como usar o Domin','real']]],
- ['Principal',[['visao','◧','Visão geral','real'],['empresa','🏢','Minha empresa','real'],['empresas','🗂','Minhas empresas','real'],['equipe','👥','Equipe','real'],['clientes','🤝','Clientes','real'],['servicos','🛠','Serviços e preços','real'],['orcamentos','🧾','Orçamentos e trabalhos','real'],['agenda','🗓','Agenda','real']]],
+ ['Principal',[['visao','◧','Visão geral','real'],['empresa','🏢','Minha empresa','real'],['empresas','🗂','Minhas empresas','real'],['rede','🌐','Rede de lojas','real'],['equipe','👥','Equipe','real'],['clientes','🤝','Clientes','real'],['servicos','🛠','Serviços e preços','real'],['orcamentos','🧾','Orçamentos e trabalhos','real'],['agenda','🗓','Agenda','real']]],
  ['Operação',[['financeiro','💰','Financeiro','real'],['estoque','📦','Estoque','real'],['relatorios','📊','Relatórios','real'],['automacoes','⚡','Automações','beta']]],
  ['Workforce',[['meutrabalho','🧑‍💼','Meu Trabalho','beta'],['escalas','📅','Escalas (turnos)','beta'],['chat','💬','Chat da equipe','beta'],['ponto','⏱','Ponto digital','beta'],['folha','💵','Folha de pagamento','beta'],['avaliacoes','🔒','Avaliações privadas','beta'],['passaporte','🪪','Passaporte Profissional','beta']]],
  ['Sistema',[['studio','🎛','Personalização (Studio)','beta'],['config','⚙','Configurações','real'],['app','⬇','Download','real']]]
@@ -1264,11 +1264,69 @@ VIEWS.empresas=function(v){v.append(head('Minhas empresas','Veja todas as empres
  if(outras)v.append(h('div','note','Há '+outras+' empresa(s) em que você é funcionário. Elas não aparecem aqui: só o dono pode apagar uma empresa.'))};
 VIEWS.novaempresa=function(v){v.append(head('Nova empresa','Crie mais uma empresa na sua conta. Você vê, na prévia, como vai aparecer no MiHelp antes de criar.'));formEmpresa(v,null)};
 
+/* ===== Rede de lojas: visão da matriz sobre todas as lojas, royalties estimados e preço/catálogo padrão (usa só rotas que já existem) ===== */
+var REDE={k:'dl_rede_cfg',rs:[]};
+REDE.cfg=function(){var c={roy:0,fp:0};try{var o=JSON.parse(localStorage.getItem(REDE.k)||'{}');c.roy=Math.max(0,Math.min(30,+o.roy||0));c.fp=Math.max(0,Math.min(30,+o.fp||0))}catch(e){}return c};
+REDE.lojas=function(){return S.lojas.filter(function(x){return !x.vinc||x.gestor}).map(function(x){return{chave:x.chave,nome:String(x.nome||x.chave).replace(/ \(como funcionário\)$/,''),cidade:x.cidade||'',gest:!!x.vinc}})};
+REDE.ler=function(l){return Promise.all([api('/gestao/resumo?chave='+encodeURIComponent(l.chave)),api('/pdv/estado?chave='+encodeURIComponent(l.chave))]).then(function(a){return{l:l,G:a[0].ok&&a[0].j&&a[0].j.ok?a[0].j:null,E:a[1].ok&&a[1].j&&a[1].j.ok?a[1].j:null}})};
+REDE.todas=function(ls){var out=[],i=0,run=0;return new Promise(function(done){function prox(){if(i>=ls.length&&run===0)return done(out);while(run<3&&i<ls.length){(function(ix){run++;REDE.ler(ls[ix]).then(function(r){out[ix]=r;run--;prox()})})(i++)}}prox()})};
+REDE.linha=function(r){var x=(r.G&&r.G.resumo)||{},p=(r.G&&r.G.produtos)||[];return{l:r.l,ok:!!r.G,ent:Number(x.entradas)||0,hj:Number(x.hoje)||0,sai:(Number(x.saidas)||0)+(Number(x.gastos)||0),res:Number(x.resultado)||0,low:p.filter(function(q){return Number(q.min)>0&&Number(q.qtd)<=Number(q.min)}).length,cx:(r.E&&r.E.caixa)||null}};
+REDE.dif=function(o,d){var m={};(d.G.produtos||[]).forEach(function(p){if(p.cod)m['c'+String(p.cod).trim()]=p;m['n'+String(p.nome||'').trim().toLowerCase()]=p});var novos=[],preco=[];(o.G.produtos||[]).forEach(function(p){var q=(p.cod&&m['c'+String(p.cod).trim()])||m['n'+String(p.nome||'').trim().toLowerCase()];if(!q)novos.push(p);else if(Math.round(Number(q.venda)*100)!==Math.round(Number(p.venda)*100))preco.push({p:p,q:q})});return{novos:novos,preco:preco}};
+REDE.aplica=async function(ol,dl,res){res.textContent='';res.append(h('p','sub','Relendo as lojas antes de aplicar…'));
+ var a=await REDE.todas([ol].concat(dl)),o=a[0],jobs=[],det=[];res.textContent='';
+ if(!o||!o.G){toast('Não consegui ler a loja modelo agora.');return}
+ a.slice(1).forEach(function(d){if(!d||!d.G){if(d&&d.l)det.push(d.l.nome+': não consegui ler, pulada');return}var df=REDE.dif(o,d);det.push(d.l.nome+': '+df.novos.length+' novo(s), '+df.preco.length+' preço(s)');
+  df.novos.forEach(function(p){jobs.push({n:d.l.nome+' · '+p.nome,b:{chave:d.l.chave,nome:p.nome,qtd:0,custo:p.custo,venda:p.venda,min:p.min,cod:p.cod||''}})});
+  df.preco.forEach(function(x){jobs.push({n:d.l.nome+' · '+x.q.nome,b:{chave:d.l.chave,id:x.q.id,nome:x.q.nome,qtd:x.q.qtd,custo:x.q.custo,venda:x.p.venda,min:x.q.min,cod:x.q.cod||''}})})});
+ if(!jobs.length){toast('Nada para aplicar: já está igual.');return}
+ if(!await dlgC('Padronizar a rede com o catálogo e os preços de “'+ol.nome+'”?\n\n'+det.join('\n')+'\n\nProduto novo entra com estoque 0 e com o custo da loja modelo. Estoque, nome e custo dos produtos que já existem não mudam. Não dá para desfazer sozinho.','Aplicar','Cancelar'))return;
+ var ok=0,fal=[],i=0,run=0,info=h('p','sub','Aplicando…');res.append(info);
+ await new Promise(function(done){function prox(){if(i>=jobs.length&&run===0)return done();while(run<3&&i<jobs.length){(function(j){run++;chama8('/gestao/produto',j.b).then(function(r){return(r.ok&&r.j&&r.j.ok)?r:chama8('/gestao/produto',j.b)}).then(function(r){if(r.ok&&r.j&&r.j.ok)ok++;else fal.push(j.n+': '+((r.j&&r.j.erro)||'o servidor não aceitou'))}).then(function(){run--;info.textContent='Aplicando '+(ok+fal.length)+'/'+jobs.length+'…';prox()})})(jobs[i++])}}prox()});
+ info.remove();res.append(h('div','note',ok+' de '+jobs.length+' alteração(ões) feitas.'+(fal.length?' Falharam: '+fal.slice(0,5).join('; ')+(fal.length>5?'…':''):'')));
+ if(ol.chave===S.cur||dl.some(function(x){return x.chave===S.cur}))await load()};
+VIEWS.rede=function(v){v.append(head('Rede de lojas','Todas as suas lojas numa tela: vendas, caixa, estoque, royalties estimados e preço padrão.','real'));
+ var ls=REDE.lojas();
+ if(ls.length<2){v.append(empty('Você tem '+ls.length+' loja por aqui. A Rede aparece com 2 ou mais. Crie a próxima em “Nova empresa”. Se a loja for de um franqueado, peça para ele adicionar você como Gestor na equipe dele: ela passa a aparecer aqui.',btn('＋ Nova empresa',function(){go('novaempresa')})));return}
+ var cfg=REDE.cfg(),ac=h('div','acts'),topo=h('div'),cb=h('div'),tab=h('div'),cat=h('div');ac.style.marginBottom='12px';v.append(ac,topo,cb,tab,cat);
+ function linhas(){return REDE.rs.filter(Boolean).map(REDE.linha).sort(function(a,b){return b.ent-a.ent})}
+ function okl(){return REDE.rs.filter(function(r){return r&&r.G})}
+ function pinta(){topo.textContent='';tab.textContent='';
+  var L=linhas(),T={ent:0,hj:0,res:0,low:0,cx:0},m0=okl()[0],mes=m0?m0.G.mes||'':'';
+  L.forEach(function(x){T.ent+=x.ent;T.hj+=x.hj;T.res+=x.res;T.low+=x.low;if(x.cx)T.cx++});
+  var g=h('div','grid');g.append(card('Lojas',String(L.length),L.filter(function(x){return x.ok}).length+' lidas agora'),card('Entradas do mês',R(T.ent),mes),card('Entradas de hoje',R(T.hj)),card('Resultado estimado',R(T.res),'soma das lojas'),card('Caixas abertos',T.cx+' de '+L.length),card('Estoque baixo',String(T.low),'produtos no mínimo ou abaixo'));topo.append(g);
+  var p=painel('Lojas da rede ('+L.length+')');
+  L.forEach(function(x){var r=h('div','emp-l'),t=h('div','emp-n',x.l.nome),sub=[x.l.cidade,x.l.gest?'acesso de gestor':''].filter(Boolean).join(' · ');
+   t.append(h('span','chip '+(x.cx?'ok':''),x.cx?' caixa aberto':' caixa fechado'));if(!x.ok)t.append(h('span','chip wr',' não consegui ler'));if(x.low)t.append(h('span','chip wr',' '+x.low+' em falta'));
+   var d=x.ok?'Mês '+R(x.ent)+' · hoje '+R(x.hj)+' · resultado '+R(x.res)+((cfg.roy||cfg.fp)?' · royalty '+R(x.ent*cfg.roy/100)+' · propaganda '+R(x.ent*cfg.fp/100):''):'Sem dados desta loja agora.';
+   var a2=h('div','acts');a2.style.marginTop='8px';a2.append(btn('Abrir',function(){S.cur=x.l.chave;try{sessionStorage.setItem('dl_loja',x.l.chave)}catch(e){}var s2=$('#ws');if(s2)s2.value=x.l.chave;load().then(function(){go('visao')})}));
+   r.append(t,h('div','m',sub),h('div','m',d),a2);p.append(r)});tab.append(p)}
+ function pct(s){var n=parseFloat(String(s).replace(',','.'));return isFinite(n)?Math.max(0,Math.min(30,n)):0}
+ var pc=painel('Royalties e propaganda (estimativa)'),fr=fl('Royalty (% sobre as entradas do mês)','text',{inputMode:'decimal',value:String(cfg.roy).replace('.',',')}),ff=fl('Fundo de propaganda (%)','text',{inputMode:'decimal',value:String(cfg.fp).replace('.',',')});
+ function salva(){cfg.roy=pct(fr.i.value);cfg.fp=pct(ff.i.value);try{localStorage.setItem(REDE.k,JSON.stringify(cfg))}catch(e){}pinta()}
+ fr.i.onchange=salva;ff.i.onchange=salva;pc.append(fr.l,ff.l,h('div','note','Só uma conta de conferência. O percentual e a base de cálculo valem o que o contrato de franquia disser. Fica guardado neste computador. Para loja própria, deixe 0.'));cb.append(pc);
+ function catal(){cat.textContent='';var pn=painel('Preço e catálogo padrão'),ok=okl();
+  pn.append(h('p','sub','Escolha a loja modelo. O Domin compara os produtos (por código ou nome) e mostra o que falta e o que está com preço diferente nas outras. Ao aplicar, o produto novo entra com estoque 0 e o preço da loja modelo passa a valer nas outras.'));
+  var so=document.createElement('select');ok.forEach(function(r){so.add(new Option(r.l.nome,r.l.chave))});if(ok.some(function(r){return r.l.chave===S.cur}))so.value=S.cur;
+  var dv=h('div'),res=h('div'),sel={};
+  function dests(){dv.textContent='';okl().filter(function(r){return r.l.chave!==so.value}).forEach(function(r){var c=document.createElement('input');c.type='checkbox';c.checked=sel[r.l.chave]!==false;c.onchange=function(){sel[r.l.chave]=c.checked};var l=h('label','fld');l.style.cssText='display:flex;gap:8px;align-items:center';l.append(c,document.createTextNode(r.l.nome));dv.append(l)})}
+  so.onchange=function(){res.textContent='';dests()};dests();
+  var bd=btn('Ver diferenças',function(){res.textContent='';var o=okl().find(function(r){return r.l.chave===so.value}),ds=okl().filter(function(r){return r.l.chave!==so.value&&sel[r.l.chave]!==false});
+   if(!o||!ds.length){res.append(h('p','sub','Marque ao menos uma loja para comparar.'));return}
+   var tot=0;ds.forEach(function(d){var df=REDE.dif(o,d);tot+=df.novos.length+df.preco.length;var li=h('div','li');li.append(h('span',null,d.l.nome),h('span','m',df.novos.length+' produto(s) novo(s) · '+df.preco.length+' preço(s) diferente(s)'));res.append(li)});
+   if(!tot){res.append(h('div','note','Tudo igual: catálogo e preços já estão padronizados.'));return}
+   res.append(btn('Aplicar nas lojas marcadas',function(){REDE.aplica(o.l,ds.map(function(d){return d.l}),res).then(atual)},'p'))});
+  pn.append(lab('Loja modelo (matriz)',so),h('div','note','Aplicar em:'),dv,bd,res);cat.append(pn)}
+ function atual(){return REDE.todas(ls).then(function(rs){REDE.rs=rs;pinta()})}
+ function ler(){topo.textContent='';tab.textContent='';cat.textContent='';tab.append(h('p','sub','Lendo as lojas…'));atual().then(catal)}
+ ac.append(btn('Atualizar',ler),btn('Exportar CSV',function(){var L=linhas();baixaCsv('rede-de-lojas-'+hoje()+'.csv',csvLinhas(['loja','cidade','caixa','entradas_mes','entradas_hoje','saidas_e_gastos','resultado','estoque_baixo','royalty_pct','royalty_valor','propaganda_pct','propaganda_valor'],L.map(function(x){return[x.l.nome,x.l.cidade,x.cx?'aberto':'fechado',brNum(x.ent),brNum(x.hj),brNum(x.sai),brNum(x.res),x.low,brNum(cfg.roy),brNum(x.ent*cfg.roy/100),brNum(cfg.fp),brNum(x.ent*cfg.fp/100)]})))}));
+ ler()};
+
 /* ===== Agenda do Domin: igual ao "Meus horários" do MiHelp, com ver perfil e cancelar ===== */
 /* ===== UI2: ícones de linha, busca global, notificações reais, Visão geral e Agenda ===== */
 var ICN={visao:'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
  empresa:'<path d="M4 21V5l8-2v18M12 9h8v12M3 21h18M8 8h1M8 12h1M8 16h1M16 13h1M16 17h1"/>',
  empresas:'<path d="M3 21V8l6-3v16M9 21V10l6-2v13M15 21h6V12l-6-2M2 21h20"/>',
+ rede:'<circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v5M12 12l-6 5M12 12l6 5"/>',
  lixeira:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>',
  equipe:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M17 14c2.5 0 4 1.8 4 4.5"/>',
  clientes:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.6-1.7 1.8-2.5 3-2.5s2.4.8 3 2.5M14 10h4M14 14h4"/>',
@@ -1809,7 +1867,7 @@ VIEWS.financeiro=function(v){var l=loja();v.append(head('Financeiro',l?l.nome:''
 /* ===== Catálogo de módulos e personalização por atividade (rotas /org/config do Worker v21) =====
    Ativar ou ocultar um módulo só muda o que aparece na navegação. Quem pode usar o quê é decidido pelo servidor, por papel. */
 var ATIV={geral:['Geral / outro',['servicos','orcamentos','agenda','financeiro','estoque','clientes']],autonomo:['Profissional autônomo',['clientes','orcamentos','agenda','financeiro']],construcao:['Construção e reformas',['clientes','orcamentos','servicos','financeiro','estoque','equipe']],beleza:['Beleza e estética',['agenda','servicos','clientes','financeiro','estoque','equipe']],comercio:['Comércio e varejo',['estoque','financeiro','clientes','equipe']],oficina:['Oficina e manutenção',['orcamentos','clientes','estoque','financeiro','agenda']],alimentacao:['Alimentação (restaurante, lanchonete)',['estoque','financeiro','equipe','clientes']],saude:['Saúde e bem-estar',['agenda','clientes','servicos','financeiro']],escritorio:['Escritório e serviços',['clientes','orcamentos','agenda','financeiro','equipe']]};
-var MCAT={visao:{e:'real',core:1,dep:[]},empresas:{e:'real',core:1,dep:[]},studio:{e:'real',core:1,dep:[]},config:{e:'real',core:1,dep:[]},empresa:{e:'real',dep:[]},equipe:{e:'real',dep:['empresa']},clientes:{e:'parcial',dep:[]},servicos:{e:'real',dep:['empresa']},orcamentos:{e:'real',dep:['clientes']},agenda:{e:'real',dep:['servicos']},financeiro:{e:'real',dep:['empresa']},estoque:{e:'real',dep:['empresa']},relatorios:{e:'real',dep:['financeiro','estoque']},automacoes:{e:'proto',dep:[]},meutrabalho:{e:'parcial',dep:['equipe']},escalas:{e:'parcial',dep:['meutrabalho']},chat:{e:'parcial',dep:['meutrabalho']},ponto:{e:'parcial',dep:['meutrabalho']},avaliacoes:{e:'parcial',dep:['meutrabalho']},passaporte:{e:'parcial',dep:['meutrabalho']},folha:{e:'parcial',dep:['meutrabalho']}};
+var MCAT={visao:{e:'real',core:1,dep:[]},empresas:{e:'real',core:1,dep:[]},rede:{e:'real',dep:[]},studio:{e:'real',core:1,dep:[]},config:{e:'real',core:1,dep:[]},empresa:{e:'real',dep:[]},equipe:{e:'real',dep:['empresa']},clientes:{e:'parcial',dep:[]},servicos:{e:'real',dep:['empresa']},orcamentos:{e:'real',dep:['clientes']},agenda:{e:'real',dep:['servicos']},financeiro:{e:'real',dep:['empresa']},estoque:{e:'real',dep:['empresa']},relatorios:{e:'real',dep:['financeiro','estoque']},automacoes:{e:'proto',dep:[]},meutrabalho:{e:'parcial',dep:['equipe']},escalas:{e:'parcial',dep:['meutrabalho']},chat:{e:'parcial',dep:['meutrabalho']},ponto:{e:'parcial',dep:['meutrabalho']},avaliacoes:{e:'parcial',dep:['meutrabalho']},passaporte:{e:'parcial',dep:['meutrabalho']},folha:{e:'parcial',dep:['meutrabalho']}};
 function modNome(id){var n=id;MODS.forEach(function(g){g[1].forEach(function(m){if(m[0]===id)n=m[2]})});return n}
 function atalhosAtiv(){var a=ATIV[((S.cfg||{}).ativ||{}).p];if(!a)return[['financeiro','Financeiro'],['estoque','Estoque'],['equipe','Equipe'],['agenda','Agenda'],['servicos','Serviços'],['orcamentos','Orçamentos']];return a[1].slice(0,6).map(function(m){return[m,modNome(m)]})}
 function modOculto(id){if(id==='tutorial'||id==='app')return false;var l=loja();if(l&&l.vinc)return !(WFV.indexOf(id)>-1||MBR.indexOf(id)>-1||id==='financeiro'||(l.gestor&&id==='estoque')||(l.pdv&&id==='automacoes'));var m=S.cfg&&S.cfg.mods;return !!(m&&m[id]===0&&!(MCAT[id]&&MCAT[id].core))}
@@ -1951,6 +2009,7 @@ VIEWS.tutorial=function(v){
   visao:'A tela de abertura da empresa: resumo do negócio e atalhos. Em empresa nova, mostra o roteiro “Primeiros passos” para você ir completando.',
   empresa:'Os dados do negócio: nome, tipo, cidade, endereço, link do mapa, WhatsApp, descrição, logo e horário. Também define como o cliente fala com a equipe (conversa ou marcação de horário) e se o dono e a equipe aparecem no perfil.',
   empresas:'Lista todas as empresas da sua conta. Daqui você cria uma nova empresa ou apaga as que não quer mais.',
+  rede:'Para quem tem mais de uma loja ou franquia: vê todas numa tela (entradas do mês e de hoje, resultado, caixa aberto ou fechado, estoque baixo), estima royalties e fundo de propaganda e padroniza preço e catálogo a partir de uma loja modelo. Loja de franqueado entra na lista quando ele adiciona você como Gestor na equipe dele.',
   equipe:'Convites e pedidos para entrar na equipe, com o cargo de cada pessoa. Só o dono gerencia.',
   clientes:'Os clientes ficam na sua conta e usam os mesmos dados de Orçamentos e trabalhos. O cadastro de fornecedores ainda não existe.',
   servicos:'Lista de serviços com duração e preço. Só o dono edita. Aparece no perfil público e permite reservar horário.',
@@ -2519,7 +2578,7 @@ VIEWS.chat=function(v){
   var box=h('div');v.append(box);box.append(h('p','sub','Carregando…'));
   function carrega(){return api('/pdv/estado?chave='+encodeURIComponent(l.chave)).then(function(r){r=OFF.est(r);if(!(r.ok&&r.j&&r.j.ok)){box.textContent='';box.append(empty('Não foi possível abrir: '+((r.j&&r.j.erro)||'indisponível')+'. Se aparecer "rota não encontrada", o Worker v25 ainda não foi publicado.'));return}PD.E=r.j;OFF.refresh=carrega;desenha();OFF.sync(carrega)})}
   function desenha(){var E=PD.E,ab=[['visao','Visão geral'],['pdv','Frente de caixa'],['caixa','Caixa'],['hist','Histórico'],['vale','Vale-funcionário']];ab.push(['imp','Impressora e nota']);if(E.nivel!=='op')ab.push(['aparencia','Aparência do caixa']);if(E.nivel==='dono')ab.push(['perm','Permissões']);ab.push(['integ','Integrações e fiscal']);var PM={pdv:'vender',caixa:'caixa',vale:'vale'};ab=ab.filter(function(a){return PM[a[0]]?E.perms.indexOf(PM[a[0]])>-1:(a[0]==='integ'?E.nivel!=='op':true)});if(!ab.some(function(a){return a[0]===PD.tab}))PD.tab=ab[0][0];
-   box.textContent='';var t=h('div','acts');ab.forEach(function(a){t.append(btn(a[1],function(){PD.tab=a[0];desenha()},PD.tab===a[0]?'p':''))});box.append(t);OFF.banner(box);var c=h('div');box.append(c);
+   box.textContent='';var t=h('div','acts');t.style.cssText='margin-bottom:16px;flex-wrap:wrap;row-gap:8px';ab.forEach(function(a){t.append(btn(a[1],function(){PD.tab=a[0];desenha()},PD.tab===a[0]?'p':''))});box.append(t);OFF.banner(box);var c=h('div');box.append(c);
    ({visao:aVisao,pdv:aPdv,caixa:aCaixa,hist:aHist,vale:aVale,perm:aPerm,integ:aInteg,imp:PR.aba,aparencia:aAparencia}[PD.tab]||aVisao)(c,E)}
   function aAparencia(c,E){var cfg=FSA.ler(),p=painel('Aparência do Modo caixa (tela cheia)');
    p.append(h('p','sub','Aqui você põe o nome, a cor e a logo da loja só no Modo caixa em tela cheia. O resto do painel Domin continua como está. A escolha fica guardada neste computador: em cada computador de caixa, repita ou use “Copiar configuração” e “Colar configuração”.'));
