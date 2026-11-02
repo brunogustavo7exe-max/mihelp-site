@@ -406,6 +406,13 @@ function mhCarrega(){if(!tk()||MH.busy)return;MH.busy=1;
   return f.then(function(x){MH.busy=0;MH.minha=null;MH.fila=null;
    if(x&&x.ok&&x.j){if(r.j.ativa)MH.minha=x.j.entrega||null;else MH.fila=x.j.itens||[]}
    mhGps();mhAviso();mhDesenha()})}).catch(function(){MH.busy=0})}
+/* ---- etapas sem sinal: guarda e envia quando a conexão voltar ---- */
+var FILA_K='rivo_fila',filaBusy=0;
+function filaLer(){try{return JSON.parse(localStorage.getItem(FILA_K)||'[]')}catch(e){return[]}}
+function filaGrava(a){try{localStorage.setItem(FILA_K,JSON.stringify(a))}catch(e){}}
+function mhEtapa(st){return api('/rivo/etapa',{st:st}).then(function(r){if(r.status!==0)return r;var a=filaLer();a.push({st:st,ts:Date.now()});filaGrava(a);return{ok:false,j:{erro:'Sem sinal. Guardei a etapa e envio assim que a conexão voltar.'},fila:1}})}
+function filaEnvia(){if(filaBusy||!tk()||!filaLer().length)return;filaBusy=1;(function prox(){var x=filaLer()[0];if(!x){filaBusy=0;mhCarrega();return}api('/rivo/etapa',{st:x.st}).then(function(r){if(r.status===0){filaBusy=0;return}var b=filaLer();b.shift();filaGrava(b);prox()})})()}
+window.addEventListener('online',filaEnvia);setInterval(filaEnvia,15000);
 function mhRivo(v){var b=document.createElement('section');b.id='mhrivo';b.style.cssText='border:1px solid var(--ln);background:var(--sf);border-radius:12px;padding:14px;margin-bottom:14px';var hr=v.querySelector('.hero');if(hr)hr.after(b);else v.prepend(b);mhDesenha();
  if(!MH.t)MH.t=setInterval(function(){if(mhBox()&&!document.hidden)mhCarrega()},8000);mhCarrega()}
 function mhMapaLink(q){return'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(q)}
@@ -424,7 +431,7 @@ function mhPagar(){api('/rivo/mensalidade/pix',{}).then(function(r){
   f.append(btn('p','Copiar código Pix',function(){ta.select();try{navigator.clipboard.writeText(ta.value)}catch(e){document.execCommand('copy')}toast('Código copiado.')}),btn('','Fechar',fecha),st);
   var n=0;tm=setInterval(function(){n++;if(n>150){clearInterval(tm);st.textContent='O tempo acabou. Se já pagou, feche e atualize.';return}
    api('/pix/status?id='+encodeURIComponent(r.j.id)).then(function(x){if(x.ok&&x.j&&x.j.status==='approved'){clearInterval(tm);toast('Mensalidade paga! Acesso liberado.');close();mhCarrega()}})},4000)})})}
-function mhDesenha(){var b=mhBox();if(!b)return;b.textContent='';
+function mhDesenha(){heroSync();var b=mhBox();if(!b)return;b.textContent='';
  b.append(h('h3',null,'🛵 Novos chamados'));
  if(!tk()){b.append(h('p','m','Entre na conta para ver os chamados dos restaurantes e lojas do MiHelp.'));return}
  if(MH.erro){b.append(h('p','m',MH.erro));return}
@@ -456,9 +463,10 @@ function mhAtual(b,x){var c=document.createElement('div');c.style.cssText='borde
  var ac=h('div','acts');
  var alvo=col?(x.dest?x.dest.lat+','+x.dest.lng:(cl.end||'')):(x.loja.lat+','+x.loja.lng);
  if(alvo){var a=h('a','btn',col?'Abrir rota até o cliente':'Abrir rota até a loja');a.href=mhMapaLink(alvo);a.target='_blank';a.rel='noopener noreferrer';ac.append(a)}
- if(cl.tel){var t=h('a','btn','Ligar para o cliente');t.href='tel:'+cl.tel;ac.append(t)}
- if(!col){ac.append(btn('p','Peguei o pedido',function(){api('/rivo/etapa',{st:'coletada'}).then(function(r){toast(r.ok?'Boa! Agora leve ao cliente.':((r.j&&r.j.erro)||'Não deu.'));mhCarrega()})}),btn('','Desistir',function(){if(confirm('Desistir desta entrega? Ela volta para a fila.'))api('/rivo/desistir',{}).then(function(r){toast(r.ok?'Entrega devolvida à fila.':((r.j&&r.j.erro)||'Não deu.'));mhCarrega()})}))}
- else ac.append(btn('p','Entreguei ao cliente',function(){if(confirm('Confirmar que o pedido foi entregue ao cliente?\n\nSe o pedido tiver bebida alcoólica, só entregue a maiores de 18 anos, conferindo o documento.'))api('/rivo/etapa',{st:'entregue'}).then(function(r){toast(r.ok?'Entrega concluída!':((r.j&&r.j.erro)||'Não deu.'));mhCarrega()})}));
+ if(cl.tel){var t=h('a','btn','Ligar para o cliente');t.href='tel:'+cl.tel;ac.append(t);var wd=String(cl.tel).replace(/\D/g,'');if(wd.length<=11)wd='55'+wd;var wz=h('a','btn','WhatsApp do cliente');wz.href='https://wa.me/'+wd;wz.target='_blank';wz.rel='noopener noreferrer';ac.append(wz)}
+  if(x.loja&&x.loja.tel){var tl=h('a','btn','Ligar para a loja');tl.href='tel:'+x.loja.tel;ac.append(tl)}
+ if(!col){ac.append(btn('p','Peguei o pedido',function(){mhEtapa('coletada').then(function(r){toast(r.ok?'Boa! Agora leve ao cliente.':((r.j&&r.j.erro)||'Não deu.'));mhCarrega()})}),btn('','Desistir',function(){if(confirm('Desistir desta entrega? Ela volta para a fila.'))api('/rivo/desistir',{}).then(function(r){toast(r.ok?'Entrega devolvida à fila.':((r.j&&r.j.erro)||'Não deu.'));mhCarrega()})}))}
+ else ac.append(btn('p','Entreguei ao cliente',function(){if(confirm('Confirmar que o pedido foi entregue ao cliente?\n\nSe o pedido tiver bebida alcoólica, só entregue a maiores de 18 anos, conferindo o documento.'))mhEtapa('entregue').then(function(r){toast(r.ok?'Entrega concluída!':((r.j&&r.j.erro)||'Não deu.'));mhCarrega()})}));
  c.append(ac);
  c.append(h('p','m',MH.gpsErro||'📍 Sua posição está sendo enviada para o cliente e para a loja só durante esta entrega. Mantenha esta tela aberta e o celular com a tela ligada.'));
  b.append(c)}
@@ -466,12 +474,15 @@ function render(){if(!ID.ok)return;whoBar();side();var v=$('#view');v.textConten
 /* ---- entregas ---- */
 function linha(e,perfil){var d=drv(e.drv),c=h('div','card'),hd=h('div','ph');hd.append(h('b',null,'#'+e.n),chip(ST[e.status]),h('span','chip',PORTE[e.porte][0].split(' ')[0]+' · '+e.peso+' kg'),h('span','sp'),h('b',null,R(e.valor)));
  c.append(hd,h('div','m','Coleta: '+e.coleta));if(e.coletaGeo){var gl=h('a','m','Ver o local da loja no mapa'+(e.coletaGeo.acc?' (±'+e.coletaGeo.acc+' m'+(e.coletaGeo.antigo?', posição antiga':'')+')':''));gl.href=mapaLL(e.coletaGeo);gl.target='_blank';gl.rel='noopener';gl.style.cssText='display:block;color:var(--cy)';c.append(gl)}c.append(h('div','m','Entrega: '+e.dest+(e.quem?' · '+e.quem:'')));if(d)c.append(h('div','m','Entregador: '+d.nome));extraLinha(e,c);return c}
-/* ---- painel da rota (a bolinha) ---- */
-function hero(v){var n=function(l){return D.ents.filter(function(e){return l.indexOf(e.status)>=0}).length},hd=h('section','hero');
- hd.append(h('div','ey','Operação do dia'),h('h1',null,n(EM)?n(EM)+(n(EM)===1?' entrega na rua agora':' entregas na rua agora'):'Nenhuma entrega na rua agora'),h('p',null,n(['solicitada'])?n(['solicitada'])+' aguardando entregador.':'Os chamados novos aparecem logo abaixo. Fique disponível para recebê-los.'));
+/* ---- painel da rota (a bolinha): mostra a entrega do MiHelp em andamento ---- */
+function heroEl(){var n=function(l){return D.ents.filter(function(e){return l.indexOf(e.status)>=0}).length},m=MH.minha,col=m&&m.st==='coletada',hd=h('section','hero');
+ hd.append(h('div','ey',m?'Entrega em andamento':'Operação do dia'),h('h1',null,m?(col?'Levando o pedido ao cliente':'Indo buscar o pedido na loja'):(n(EM)?n(EM)+(n(EM)===1?' entrega na rua agora':' entregas na rua agora'):'Nenhuma entrega na rua agora')),h('p',null,m?((m.loja&&m.loja.nome?m.loja.nome+' · ':'')+'corrida de '+R(m.taxa)):(n(['solicitada'])?n(['solicitada'])+' aguardando entregador.':'Os chamados novos aparecem logo abaixo. Fique disponível para recebê-los.')));
+ var p=m?(col?0.72:0.2):null,mo=p==null?'':' keyPoints="'+p+';'+p+'" keyTimes="0;1" calcMode="linear"';
  var s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','0 0 640 92');s.setAttribute('preserveAspectRatio','none');s.setAttribute('aria-hidden','true');
- s.innerHTML='<path class="rb" d="M20 70 C140 70 160 22 300 30 S 500 74 620 24"/><path id="rtp" class="rt" d="M20 70 C140 70 160 22 300 30 S 500 74 620 24"/><path d="M20 70h0" fill="none" stroke="#ffb800" stroke-width="22" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M20 70h0" fill="none" stroke="#14171c" stroke-width="10" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M620 24h0" fill="none" stroke="#ffb800" stroke-width="20" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M0 0h0" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round" vector-effect="non-scaling-stroke"><animateMotion dur="6s" repeatCount="indefinite"><mpath href="#rtp"/></animateMotion></path><path d="M0 0h0" fill="none" stroke="#4aa8ff" stroke-width="12" stroke-linecap="round" vector-effect="non-scaling-stroke"><animateMotion dur="6s" repeatCount="indefinite"><mpath href="#rtp"/></animateMotion></path>';
- hd.append(s);v.append(hd)}
+ s.innerHTML='<path class="rb" d="M20 70 C140 70 160 22 300 30 S 500 74 620 24"/><path id="rtp" class="rt" d="M20 70 C140 70 160 22 300 30 S 500 74 620 24"/><path d="M20 70h0" fill="none" stroke="#ffb800" stroke-width="22" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M20 70h0" fill="none" stroke="#14171c" stroke-width="10" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M620 24h0" fill="none" stroke="#ffb800" stroke-width="20" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M0 0h0" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round" vector-effect="non-scaling-stroke"><animateMotion dur="6s" repeatCount="indefinite"'+mo+'><mpath href="#rtp"/></animateMotion></path><path d="M0 0h0" fill="none" stroke="#4aa8ff" stroke-width="12" stroke-linecap="round" vector-effect="non-scaling-stroke"><animateMotion dur="6s" repeatCount="indefinite"'+mo+'><mpath href="#rtp"/></animateMotion></path>';
+ hd.append(s);return hd}
+function hero(v){v.append(heroEl())}
+function heroSync(){var o=document.querySelector('.hero');if(o)o.replaceWith(heroEl())}
 V.inicio=function(v){hero(v);topAl(v,'op',2);var hoje=new Date().toDateString(),n=function(l){return D.ents.filter(function(e){return l.indexOf(e.status)>=0}).length};
  var k=h('div','kpis');[['Aguardando',n(['solicitada']),'entregas','aguardando'],['Alertas',nA(),'alertas',''],['Em andamento',n(EM),'entregas','andamento'],['Entregues hoje',D.ents.filter(function(e){return e.status==='entregue'&&new Date(e.log[e.log.length-1][1]).toDateString()===hoje}).length,'entregas','entregue'],['Entregadores livres',D.drv.filter(livre).length,'entregadores','']].forEach(function(x){var c=h('button','card kb');c.type='button';c.setAttribute('aria-label',x[0]+': '+x[1]+'. Abrir');c.append(h('div','m',x[0]),h('div','kv',String(x[1])));c.onclick=function(){cur=x[2];if(x[3])FLT=x[3];render();window.scrollTo(0,0)};k.append(c)});v.append(k);painelEntregador(v)};
 V.entregas=function(v){var b=h('div','ph'),f=h('div','tabs');f.style.padding='0';[['ativas','Ativas'],['aguardando','Aguardando'],['andamento','Em andamento'],['entregue','Entregues'],['cancelada','Canceladas'],['todas','Todas']].forEach(function(x){var p=h('button','pill',x[1]);p.type='button';p.setAttribute('aria-pressed',FLT===x[0]);p.onclick=function(){FLT=x[0];render()};f.append(p)});
@@ -605,7 +616,7 @@ window.addEventListener('appinstalled',function(){INST=null;toast('RIVO instalad
 function jaInstalado(){return NATIVE||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true}
 function passos(t,l){var c=h('div','card');c.append(h('h3',null,t));var o=h('ol');o.style.cssText='margin:8px 0 0;padding-left:20px;color:var(--tx2)';l.forEach(function(x){o.append(h('li',null,x))});c.append(o);return c}
 function cardApp(curto){var w=h('div');
- if(jaInstalado()){w.append(h('div','note',NATIVE?'Você já está no app Android do RIVO. Ele segue protegendo sua entrega com a tela apagada.':'O RIVO já está instalado neste aparelho.'));if(curto)return w}
+ if(jaInstalado()){w.append(h('div','note',NATIVE?'Você já está no app Android do RIVO. Ele segue protegendo sua entrega com a tela apagada. Se o GPS parar com a tela apagada, abra Configurações > Apps > RIVO > Bateria e escolha “Sem restrições”.':'O RIVO já está instalado neste aparelho.'));if(curto)return w}
  var ua=navigator.userAgent||'',ios=/iPhone|iPad|iPod/.test(ua),and=/Android/i.test(ua);
  var a=h('div','card');a.append(h('h3',null,'App Android (recomendado para entregadores)'),h('p','mut','Mais segurança na hora de aceitar e fazer entregas: o RIVO funciona estável mesmo com a tela apagada ou com outro app aberto, só durante uma entrega aceita. Entre com o mesmo cadastro do MiHelp.'));
  var d=h('a','btn p','Baixar o RIVO para Android');d.href=APK_URL;d.setAttribute('download','rivo.apk');d.style.marginTop='10px';a.append(d);
