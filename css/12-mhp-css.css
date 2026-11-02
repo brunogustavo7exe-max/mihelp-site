@@ -1,5 +1,28 @@
 
-.mhp-tiles{margin:16px 0}.mhp-tiles h4{margin:0 0 8px;font-size:16px;color:var(--gold2)}
+.mhp-tiles{margin:16px 0}
+/* Meu painel: seta para esconder/mostrar os botões */
+.mhp-tiles h4{margin:0 0 8px}
+.mhp-tiles h4 .mhp-tg{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--surf);color:var(--gold2);font:800 16px var(--sans);cursor:pointer;text-align:left}
+.mhp-tiles h4 .mhp-tg i{font-style:normal;font-size:18px;transition:transform .2s}
+.mhp-tiles.fechado h4 .mhp-tg i{transform:rotate(-90deg)}
+.mhp-tiles.fechado .mhp-g{display:none}
+@media(prefers-reduced-motion:reduce){.mhp-tiles h4 .mhp-tg i{transition:none}}
+/* Estabelecimentos e Profissionais em caixas, no mesmo estilo dos andares da tela inicial */
+#praca,#prof{border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,rgba(var(--gold-rgb),.06),transparent 55%),var(--surf);overflow:hidden;padding:0 0 14px;margin:14px 0}
+#praca .pc-head,#prof .prof-head{margin:0 0 12px;padding:10px 14px;border-bottom:1px solid var(--line);background:rgba(var(--gold-rgb),.07)}
+#praca>*:not(.pc-head),#prof>*:not(.prof-head){margin-left:14px;margin-right:14px}
+#prof #profQ{width:calc(100% - 28px)}
+/* "Do que você precisa?" na mesma caixa dos andares */
+#need{border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,rgba(var(--gold-rgb),.06),transparent 55%),var(--surf);overflow:hidden;padding:0 0 14px}
+#need .need-l.need-tg{padding:10px 14px;margin:0 0 12px;background:rgba(var(--gold-rgb),.07);border-bottom:1px solid var(--line);font:800 17px/1.2 var(--sans);border-radius:0}
+#need[data-min="1"]{padding-bottom:0}
+#need[data-min="1"] .need-l.need-tg{margin-bottom:0;border-bottom:0}
+#need>*:not(.need-l){margin-left:14px;margin-right:14px}
+#need .need-tabs{margin-bottom:12px}
+
+#praca h2,#prof .prof-t{margin:0;font:800 17px/1.2 var(--sans);color:var(--text)}
+#praca .pc-sub,#prof .prof-s{margin:3px 0 0;font:500 12.5px/1.35 var(--sans);color:var(--mute)}
+
 .mhp-g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mhp-g button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 8px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:700 15px var(--sans);cursor:pointer;text-align:center}
 .mhp-g button span{font-size:28px}.mhp-g button:hover{border-color:var(--gold)}.mhp-g button:active{transform:scale(.97)}

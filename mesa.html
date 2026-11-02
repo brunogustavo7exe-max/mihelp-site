@@ -404,6 +404,7 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
   const DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'], ORDEM_DIAS = [1, 2, 3, 4, 5, 6, 0];
   function cidMinha(o) { let sel = null; try { sel = JSON.parse(localStorage.getItem('mh_cidade_sel') || 'null'); } catch (e) {} const r = {}; if (sel && sel.slug && sel.nome) r[sel.slug] = sel.nome; Object.keys(o || {}).forEach((k) => { if (!r[k]) r[k] = o[k]; }); return r; }
   const eco = {
+    rv: {},   // entrega do RIVO de cada pedido (só na memória; vem do servidor a cada 15 s)
     form: { tel: '', senha: '', nome: '', email: '', aceite: false, keep: (() => { try { return localStorage.getItem('mh_keep') !== '0'; } catch (_) { return true; } })(), tipo: '', cidade: '' },
     st: { msg: '', ocupado: false, lojas: null, cat: null, carregando: false, erro: '', ultimo: 0, repetir: false, modo: 'entrar' },
     token() { try { return localStorage.getItem('mh_tk') || sessionStorage.getItem('mh_tk') || ''; } catch (_) { return ''; } },
@@ -559,6 +560,68 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
         if (n) { eco.bip(); aviso(n === 1 ? `Novo pedido do MiHelp: #${ultimo}` : `${n} novos pedidos do MiHelp`); if (estado.visao === 'pedidos' || estado.visao === 'conexao') renderizar(); }
       } finally { eco.st.buscando = false; }
     },
+    /* ---- RIVO: a loja chama um entregador e acompanha. Os dados vêm do servidor; nada disso é gravado no pedido. ---- */
+    async rivoSync() {
+      const e = estado.config.eco;
+      if (!e || !e.chave || !eco.token() || eco.st.rivoBusy) return;
+      const lista = estado.pedidos.filter((p) => p.origem === 'mihelp' && p.rid && p.tipo === 'entrega' && ['novo', 'preparando', 'pronto', 'a_caminho'].includes(p.status)).slice(0, 10);
+      if (!lista.length) return;
+      eco.st.rivoBusy = true;
+      let mudou = false;
+      try {
+        for (const p of lista) {
+          const r = await eco.req('/rivo/loja?chave=' + encodeURIComponent(e.chave) + '&rid=' + encodeURIComponent(p.rid));
+          if (!(r.ok && r.j && r.j.ok)) continue;
+          const rv = r.j.rivo || null, antes = JSON.stringify(eco.rv[p.rid] || null);
+          eco.rv[p.rid] = rv;
+          if (JSON.stringify(rv) !== antes) mudou = true;
+          if (rv && rv.st === 'coletada' && ['novo', 'preparando', 'pronto'].includes(p.status)) { p.status = 'a_caminho'; mudou = true; }
+          if (rv && rv.st === 'entregue' && p.status !== 'entregue') { p.status = 'entregue'; p.entregueEm = Date.now(); eco.faturar(p); mudou = true; }
+        }
+        if (mudou) { salvar('pedidos'); renderizar(); }
+      } finally { eco.st.rivoBusy = false; }
+    },
+    mapaRivo(p, chave) {
+      const d = document.createElement('dialog');
+      d.style.cssText = 'width:min(680px,94vw);padding:12px;border-radius:14px;border:1px solid #555;background:#1b1e24;color:#fff';
+      const tit = document.createElement('b'), info = document.createElement('p'), box = document.createElement('div'), fechar = document.createElement('button');
+      tit.textContent = 'Entrega do pedido #' + p.id; info.className = 'mu sm'; info.setAttribute('role', 'status'); info.textContent = 'Carregando…';
+      box.style.cssText = 'height:340px;border-radius:10px;overflow:hidden;background:#222;margin:8px 0'; fechar.className = 'btn'; fechar.textContent = 'Fechar';
+      d.append(tit, info, box, fechar); document.body.append(d); d.showModal();
+      let tm = null, mapa = null, ajustou = '';
+      const mk = {};
+      const fim = () => { clearInterval(tm); try { d.close(); } catch (_) { /* já fechado */ } d.remove(); };
+      fechar.onclick = fim; d.addEventListener('cancel', () => { clearInterval(tm); setTimeout(() => d.remove(), 0); });
+      const pino = (t, cor) => L.divIcon({ className: '', html: '<div style="width:30px;height:30px;border-radius:50%;background:' + cor + ';color:#111;font:700 15px/30px system-ui;text-align:center;border:2px solid #fff">' + t + '</div>', iconSize: [30, 30], iconAnchor: [15, 15] });
+      const leaflet = () => window.L ? Promise.resolve() : new Promise((ok, no) => {
+        const c = document.createElement('link'); c.rel = 'stylesheet'; c.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css'; document.head.append(c);
+        const j = document.createElement('script'); j.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'; j.onload = ok; j.onerror = no; document.head.append(j);
+      });
+      const atualiza = async () => {
+        if (!d.isConnected) { clearInterval(tm); return; }
+        const r = await eco.req('/rivo/loja?chave=' + encodeURIComponent(chave) + '&rid=' + encodeURIComponent(p.rid));
+        const rv = r.ok && r.j && r.j.rivo;
+        if (!rv) { info.textContent = 'Sem dados da entrega agora.'; return; }
+        eco.rv[p.rid] = rv;
+        const pts = [], ponto = (k, ll, ic, tt) => { if (!ll) return; if (mk[k]) mk[k].setLatLng([ll.lat, ll.lng]); else mk[k] = L.marker([ll.lat, ll.lng], { icon: ic }).addTo(mapa).bindPopup(tt); pts.push([ll.lat, ll.lng]); };
+        ponto('loja', rv.loja, pino('🍽', '#f5e000'), 'Loja');
+        if (rv.dest) ponto('dest', rv.dest, pino('🏠', '#7fd6ff'), 'Cliente');
+        if (rv.pos) ponto('drv', rv.pos, pino('🛵', '#7dff9a'), rv.drv ? rv.drv.nome : 'Entregador');
+        else if (mk.drv) { mapa.removeLayer(mk.drv); delete mk.drv; }
+        const seg = rv.pos ? Math.round((Date.now() - rv.pos.ts) / 1000) : 0, dn = rv.drv;
+        info.textContent = rv.st === 'procurando' ? 'Procurando entregador…'
+          : rv.st === 'entregue' ? 'Entrega concluída.' : rv.st === 'cancelada' ? 'Chamada cancelada.'
+          : (dn ? dn.nome + (dn.veic ? ' · ' + dn.veic : '') + (dn.placa ? ' · ' + dn.placa : '') + ' · ' : '') + (rv.st === 'aceita' ? 'indo à loja' : 'com o pedido, a caminho do cliente')
+            + (!rv.pos ? ' · aguardando a posição' : seg > 90 ? ' · ⚠ sem sinal há ' + Math.round(seg / 60) + ' min, ligue para ele' : ' · posição atualizada');
+        mapa.invalidateSize();
+        const k = pts.length + ':' + (rv.pos ? 1 : 0);
+        if (pts.length && ajustou !== k) { ajustou = k; pts.length > 1 ? mapa.fitBounds(pts, { padding: [30, 30], maxZoom: 17 }) : mapa.setView(pts[0], 16); }
+      };
+      leaflet().then(() => {
+        mapa = L.map(box); L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(mapa);
+        atualiza(); tm = setInterval(atualiza, 5000);
+      }).catch(() => { info.textContent = 'Não consegui carregar o mapa agora.'; });
+    },
     async enviarStatus() {   // devolve ao cliente a etapa em que o pedido está (preparando, pronto, a caminho…)
       const e = estado.config.eco;
       if (!e || !e.chave || !eco.token() || eco.st.devolvendo) return;
@@ -677,55 +740,69 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
         let n = 0; estado.pedidos.forEach((p) => { if (p.fat === 2) { delete p.fat; n++; } });
         repositorio.salvar('pedidos', estado.pedidos).catch(() => {}); aviso(n ? n + ' pedido(s) antigo(s) na fila para o DOMIN.' : 'Nada antigo para enviar.'); eco.enviarPendentes();
       },
+      async rivoChamar(t) {
+        const p = buscarPedido(t.dataset.id), e = estado.config.eco;
+        if (!p || !p.rid || !e || !e.chave) { aviso('Conecte a loja ao MiHelp para chamar o RIVO.'); return false; }
+        const corpo = { chave: e.chave, rid: p.rid };
+        for (let i = 0; i < 3; i++) {
+          const r = await eco.req('/rivo/chamar', corpo);
+          if (r.ok && r.j && r.j.ok) { aviso('RIVO chamado. Procurando entregador…'); await eco.rivoSync(); return; }
+          if (r.j && r.j.semLocal) {
+            if (!confirm('Para o entregador e o cliente verem o mapa, o RIVO precisa saber onde a loja fica.\n\nMarcar agora a localização deste aparelho como a da loja? Faça isso estando na loja.')) return false;
+            const pos = await new Promise((ok) => { if (!navigator.geolocation) return ok(null); navigator.geolocation.getCurrentPosition((x) => ok({ lat: x.coords.latitude, lng: x.coords.longitude }), () => ok(null), { enableHighAccuracy: true, timeout: 15000 }); });
+            if (!pos) { aviso('Não consegui pegar a localização. Ative o GPS e tente de novo.'); return false; }
+            const l = await eco.req('/rivo/loja-local', { chave: e.chave, lat: pos.lat, lng: pos.lng });
+            if (!(l.ok && l.j && l.j.ok)) { aviso(eco.erro(l)); return false; }
+            continue;
+          }
+          if (r.j && r.j.pedeTaxa) {
+            const v = prompt('Quanto vale a corrida do entregador? (R$)', '5,00');
+            if (v == null) return false;
+            const c = Math.round(Number(String(v).replace(/\./g, '').replace(',', '.')) * 100);
+            if (!(c > 0)) { aviso('Valor inválido.'); return false; }
+            corpo.taxaCentavos = c; continue;
+          }
+          aviso(eco.erro(r)); return false;
+        }
+        return false;
+      },
+      async rivoCancelar(t) {
+        const p = buscarPedido(t.dataset.id), e = estado.config.eco;
+        if (!p || !p.rid || !e || !e.chave || !confirm('Cancelar a chamada do RIVO para este pedido?')) return false;
+        const r = await eco.req('/rivo/cancelar', { chave: e.chave, rid: p.rid });
+        if (!(r.ok && r.j && r.j.ok)) { aviso(eco.erro(r)); return false; }
+        aviso('Chamada cancelada.'); await eco.rivoSync();
+      },
+      rivoMapa(t) {
+        const p = buscarPedido(t.dataset.id), e = estado.config.eco;
+        if (!p || !p.rid || !e || !e.chave) return false;
+        eco.mapaRivo(p, e.chave); return false;
+      },
       ecoTrocar() { estado.config.eco = null; eco.st.lojas = null; eco.gravarCfg(); eco.abrirTela(); },
       ecoSair() { eco.guardar(''); estado.config.eco = null; eco.st.lojas = null; eco.st.erro = ''; eco.st.modo = 'entrar'; eco.gravarCfg(); aviso('Você saiu da conta.'); },
     },
   };
 
-  /* ---------- ponte MESA → RIVO ----------
-     Hoje a chamada vai por uma fila no localStorage ('rivo_fila_v1'), que o RIVO lê quando os dois estão abertos no mesmo
-     navegador e no mesmo endereço (modo de teste). Com o servidor do RIVO, trocar pedir() e ler() por chamadas à API;
-     o resto (botão, etiqueta, estados) continua igual. */
-  const rivo = {
-    FILA: 'rivo_fila_v1', ST: 'rivo_status_v1',
-    ROT: { solicitada: 'Procurando entregador', atribuida: 'Entregador encontrado', a_coleta: 'Indo buscar o pedido', coletado: 'Pegou o pedido', em_rota: 'A caminho do cliente', entregue: 'Entregue', cancelada: 'Chamada cancelada' },
-    rd(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (_) { return null; } },
-    pode(o) { return o.tipo === 'entrega' && (o.status === 'preparando' || o.status === 'pronto') && !o.rivo; },
-    local() {   // posição do aparelho que está pedindo (a loja); se negar ou falhar, usa a última guardada
-      const ult = estado.config.geo || null;
-      return new Promise((ok) => {
-        if (!navigator.geolocation) { ok(ult ? { ...ult, antigo: true } : null); return; }
-        navigator.geolocation.getCurrentPosition(
-          (p) => { const g = { lat: +p.coords.latitude.toFixed(6), lng: +p.coords.longitude.toFixed(6), acc: Math.round(p.coords.accuracy || 0), ts: Date.now() }; estado.config.geo = g; salvar('config'); ok(g); },
-          () => ok(ult ? { ...ult, antigo: true } : null),
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
-      });
-    },
-    pedir(o, g) {
-      const c = estado.config, rid = 'mesa-' + ((c.eco && c.eco.chave) || 'local') + '-' + o.id;
-      const fila = Array.isArray(rivo.rd(rivo.FILA)) ? rivo.rd(rivo.FILA) : [];
-      if (!fila.some((x) => x.rid === rid)) fila.push({ rid, loja: c.nome, cidade: c.cidade || '', telLoja: c.contato || '', n: o.id, cliente: o.nome, tel: o.tel, dest: o.endereco, valor: o.taxaEntregaCentavos || 0, obs: o.obs || '', pag: o.pagamento, pronto: o.status === 'pronto', geo: g || null, ts: Date.now() });
-      try { localStorage.setItem(rivo.FILA, JSON.stringify(fila)); } catch (_) { return false; }
-      o.rivo = { rid, st: 'solicitada', nome: '', ts: Date.now() }; return true;
-    },
-    ler() {
-      const mp = rivo.rd(rivo.ST) || {}; let mudou = false;
-      estado.pedidos.forEach((o) => { if (!o.rivo) return; const r = mp[o.rivo.rid]; if (r && (r.st !== o.rivo.st || (r.nome || '') !== (o.rivo.nome || ''))) { o.rivo.st = r.st; o.rivo.nome = r.nome || ''; mudou = true; } });
-      if (mudou) { salvar('pedidos'); renderizar(); }
-    },
-  };
-
   /* ---------- telas ---------- */
   const linkar = (t) => esc(t).replace(/📍 (https:\/\/maps\.google\.com\/\?q=[-0-9.,]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--ac)">📍 Abrir no mapa</a>');   // localização enviada pelo cliente do MiHelp
+  function rivoBloco(o) {
+    if (o.origem !== 'mihelp' || !o.rid || o.tipo !== 'entrega' || ['entregue', 'cancelado'].includes(o.status)) return '';
+    const rv = eco.rv[o.rid];
+    if (!rv || ['cancelada', 'expirada'].includes(rv.st)) return `<div class="acts2"><button class="btn full" data-a="rivoChamar" data-id="${o.id}">🛵 ${rv ? 'Chamar o RIVO de novo' : 'Chamar RIVO'}</button></div>`;
+    const d = rv.drv, pos = rv.pos, min = pos ? Math.round((Date.now() - pos.ts) / 60000) : 0, nome = esc(d ? d.nome : 'Entregador');
+    const nota = d && d.n ? '⭐ ' + String(d.nota).replace('.', ',') : 'novo';
+    const txt = rv.st === 'procurando' ? '🛵 RIVO: procurando entregador…' : rv.st === 'aceita' ? `🛵 ${nome} (${nota}) está indo à loja` : rv.st === 'coletada' ? `🛵 ${nome} (${nota}) saiu com o pedido` : '🛵 RIVO: ' + esc(rv.st);
+    const alerta = (rv.st === 'aceita' || rv.st === 'coletada') ? (!pos ? 'Aguardando a posição do entregador.' : min >= 2 ? `⚠ Sem sinal do entregador há ${min} min. Ligue para ele.` : '') : '';
+    return `<p class="mu sm">${txt}${alerta ? `<br><b>${alerta}</b>` : ''}</p><div class="acts2"><button class="btn full" data-a="rivoMapa" data-id="${o.id}">Ver no mapa</button>${rv.st === 'procurando' || rv.st === 'aceita' ? `<button class="btn full" data-a="rivoCancelar" data-id="${o.id}">Cancelar chamada</button>` : ''}</div>`;
+  }
   function cartaoPedido(o) {
     const min = Pedidos.minutosDesde(o), prox = Pedidos.proximaEtapa(o);
     return `<article class="oc${estado.novos.has(o.id) ? ' fresh' : ''}"><div class="r"><b>#${o.id} ${esc(o.nome)}</b><span class="age ${Pedidos.nivelAtraso(min)}" data-id="${o.id}">${min} min</span></div>
 <div><span class="tg">${o.tipo === 'entrega' ? 'Entrega' : 'Retirada'}</span>${o.origem === 'simulador' ? '<span class="tg test">Teste</span>' : ''}${o.origem === 'mihelp' ? '<span class="tg mh">via MiHelp</span>' : ''}<span class="mu sm">${esc(o.pagamento)}</span></div>
 <ul>${o.itens.map((i) => `<li>${i.qtd}× ${esc(i.nome)}${i.adicionais && i.adicionais.length ? `<div class="mu sm">+ ${i.adicionais.map(esc).join(', ')}</div>` : ''}${i.obs ? `<div class="note">“${esc(i.obs)}”</div>` : ''}</li>`).join('')}</ul>
-${o.obs ? `<p class="note">“${esc(o.obs)}”</p>` : ''}${o.tipo === 'entrega' ? `<p class="mu sm">${linkar(o.endereco)}</p>` : ''}
+${o.obs ? `<p class="note">“${esc(o.obs)}”</p>` : ''}${o.tipo === 'entrega' ? `<p class="mu sm">${linkar(o.endereco)}</p>` : ''}${rivoBloco(o)}
 <div class="r"><b>${Money.formatar(Pedidos.total(o))}</b><span class="mu sm">${esc(o.tel)}</span></div>
-${o.tipo === 'entrega' && o.rivo ? `<p class="mu sm">RIVO: ${esc(rivo.ROT[o.rivo.st] || o.rivo.st)}${o.rivo.nome ? ' · ' + esc(o.rivo.nome) : ''}</p>` : ''}
-<div class="acts2">${rivo.pode(o) ? `<button class="btn full" data-a="chamarEntregador" data-id="${o.id}">Solicitar entregador</button>` : ''}${prox ? `<button class="btn pri full" data-a="avancar" data-id="${o.id}">${prox.acao}</button>` : ''}${Pedidos.podeRecusar(o) ? `<button class="btn full" data-a="recusar" data-id="${o.id}">Recusar</button>` : ''}</div></article>`;
+<div class="acts2">${prox ? `<button class="btn pri full" data-a="avancar" data-id="${o.id}">${prox.acao}</button>` : ''}${Pedidos.podeRecusar(o) ? `<button class="btn full" data-a="recusar" data-id="${o.id}">Recusar</button>` : ''}</div></article>`;
   }
 
   function telaPedidos() {
@@ -1061,20 +1138,7 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
     avancar(t) {
       const p = buscarPedido(t.dataset.id), prox = p && Pedidos.proximaEtapa(p);
       if (!prox) return false;
-      p.status = prox.para; if (p.status === 'entregue') { p.entregueEm = Date.now(); eco.faturar(p); } salvar('pedidos'); aviso(`Pedido #${p.id} atualizado`); eco.enviarStatus();
-    },
-    chamarEntregador(t) {
-      const p = buscarPedido(t.dataset.id);
-      if (!p || !rivo.pode(p)) return false;
-      aviso('Pegando a localização da loja…');
-      rivo.local().then((g) => {
-        if (!rivo.pode(p)) return;
-        if (!rivo.pedir(p, g)) { aviso('Não consegui registrar a chamada neste navegador.'); return; }
-        salvar('pedidos');
-        aviso(g ? `Entregador solicitado para o pedido #${p.id}, com a localização da loja${g.antigo ? ' (a última guardada)' : ''}.` : `Entregador solicitado para o pedido #${p.id}. Sem localização: ele verá só o nome da loja.`);
-        renderizar();
-      });
-      return false;
+      p.status = prox.para; if (p.status === 'entregue') { p.entregueEm = Date.now(); eco.faturar(p); const rv = eco.rv[p.rid], ce = estado.config.eco; if (rv && ce && ce.chave && ['procurando', 'aceita', 'coletada'].includes(rv.st)) eco.req('/rivo/cancelar', { chave: ce.chave, rid: p.rid }).catch(() => {}); } salvar('pedidos'); aviso(`Pedido #${p.id} atualizado`); eco.enviarStatus();
     },
     recusar(t) {
       const p = buscarPedido(t.dataset.id);
@@ -1282,9 +1346,8 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
     repositorio.aoMudarExternamente(async () => { await carregarEstado(); renderizar(); });
     setInterval(atualizarTempos, 30000);
     setInterval(eco.tic, 60000); eco.tic();
-    setInterval(rivo.ler, 4000); window.addEventListener('storage', (e) => { if (e.key === rivo.ST) rivo.ler(); });
-    setInterval(() => { eco.buscar(); eco.enviarStatus(); }, 15000);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) { eco.buscar(); eco.enviarStatus(); } });
+    setInterval(async () => { await eco.buscar(); await eco.rivoSync(); eco.enviarStatus(); }, 15000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) { eco.buscar(); eco.rivoSync(); eco.enviarStatus(); } });
   }
   iniciar();
 })(window.MESA);

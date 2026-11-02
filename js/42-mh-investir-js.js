@@ -120,8 +120,10 @@ function render(box,q){S.box=box;S.q=q||'';box.textContent='';const w=mk('sectio
  /* empresas */
  const em=mk('div','inv-bloco');em.append(mk('h4',null,'Quer divulgar sua franquia ou expansão?'),mk('p','note','Cadastre a oportunidade. O MiHelp analisa e publica; nada vai ao ar sem aprovação.'));
  const ac=mk('div','inv-acts');ac.style.cssText='display:flex;gap:8px;flex-wrap:wrap';ac.append(btn('Cadastrar minha oportunidade','p',()=>formItem(null,false)));if(isAdm())ac.append(btn('🛠 Administrar Investir','',()=>admin()));em.append(ac);
- const pl=mk('div','inv-pl');pl.style.marginTop='12px';PLANOS.forEach(([k,n,fs2])=>{const c=mk('div');c.append(mk('b',null,'Plano '+n));const u=mk('ul');fs2.forEach(f=>u.append(mk('li',null,f)));c.append(u,mk('p','note',(D.precos&&D.precos[k])||'Preço a definir.'));pl.append(c)});
- em.append(pl,mk('p','note','Planos de divulgação comercial. Pagamento ainda não existe nesta versão: o MiHelp define o plano de cada empresa depois da aprovação. Todo conteúdo patrocinado é identificado.'));w.append(em)}
+ /* Planos ocultos por enquanto: troque para true para a vitrine mostrar Básico, Destaque e Exclusivo. O admin continua definindo plano e patrocínio de cada anúncio. */
+ const MOSTRAR_PLANOS=false;
+ if(MOSTRAR_PLANOS){const pl=mk('div','inv-pl');pl.style.marginTop='12px';PLANOS.forEach(([k,n,fs2])=>{const c=mk('div');c.append(mk('b',null,'Plano '+n));const u=mk('ul');fs2.forEach(f=>u.append(mk('li',null,f)));c.append(u,mk('p','note',(D.precos&&D.precos[k])||'Preço a definir.'));pl.append(c)});em.append(pl)}
+ em.append(mk('p','note',MOSTRAR_PLANOS?'Planos de divulgação comercial. Pagamento ainda não existe nesta versão: o MiHelp define o plano de cada empresa depois da aprovação. Todo conteúdo patrocinado é identificado.':'Depois que o MiHelp aprovar a publicação, as condições da divulgação são combinadas direto com você. Todo conteúdo patrocinado é identificado.'));w.append(em)}
 function redraw(){if(S.box)render(S.box,S.q)}
 
 /* ---------- perfil e interesse ---------- */

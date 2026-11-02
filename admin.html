@@ -89,7 +89,7 @@ function mock(path){
   const p=path.split('?')[0];
   if(p==='/stats')return {ok:true,cad:128,helpers:61,lojas:14};
   if(p==='/config')return {ok:true,meta:'x',titulos:'x',duelo:'x'};
-  if(p==='/admin/usuarios')return {ok:true,itens:[{nome:'Maria Souza',tel:'66999990001',papel:'helper',oficio:'Pintor'},{nome:'João Lima',tel:'66999990002',papel:'cliente',oficio:''},{nome:'Ana Reis',tel:'66999990003',papel:'helper',oficio:'Eletricista'}]};
+  if(p==='/admin/usuarios')return {ok:true,itens:[{nome:'Maria Souza',tel:'66999990001',papel:'helper',oficio:'Pintor'},{nome:'João Lima',tel:'66999990002',papel:'helper',oficio:''},{nome:'Ana Reis',tel:'66999990003',papel:'helper',oficio:'Eletricista'}]};
   if(p==='/admin/oficios')return {ok:true,itens:[{tel:'66999990004',nome:'Carlos',oficio:'Instalador de piso vinílico'},{tel:'66999990005',nome:'Bia',oficio:'Designer de unhas'}]};
   if(p==='/anuncios')return {ok:true,anuncios:[{vaga:1,nome:'Padaria Central',texto:'Pão quentinho toda hora',validade:Date.now()+86400000},{vaga:2,nome:'Mercado Vale',texto:'Ofertas da semana',validade:Date.now()+7200000}]};
   if(p==='/admin/vozes')return {ok:true,itens:[{id:'v1',t:'Buraco na av. principal',reps:3,b:'Centro',oculto:false},{id:'v2',t:'Lâmpada queimada',reps:0,b:'Nova Barra',oculto:true}]};
@@ -164,8 +164,8 @@ const M={
  async pessoas(c){
   c.innerHTML='<div class="row"><input id="q" placeholder="nome ou telefone"><button id="bq">buscar</button></div><div id="res"></div>';
   const busca=async()=>{const q=$('#q').value.trim();const r=await req('/admin/usuarios?q='+encodeURIComponent(q));const R=$('#res');R.innerHTML='';
-   (r.j.itens||[]).forEach(u=>{const d=document.createElement('div');d.className='it';d.innerHTML='<div>'+esc(u.nome)+' <small>'+esc(u.tel)+' · '+esc(u.papel)+' · '+esc(u.oficio||'sem ofício')+'</small></div>';
-    d.append(btn(u.papel==='helper'?'→ cliente':'→ helper','am',async()=>{const o=u.papel==='helper'?null:prompt('Ofício (ex: Pintor):','');if(u.papel!=='helper'&&!o)return;await req('/admin/usuario/mudar',{tel:u.tel,papel:u.papel==='helper'?'cliente':'helper',oficio:o||''});busca()}));
+   (r.j.itens||[]).forEach(u=>{const d=document.createElement('div');d.className='it';d.innerHTML='<div>'+esc(u.nome)+' <small>'+esc(u.tel)+' · '+'helper · '+esc(u.oficio||'sem ofício')+'</small></div>';
+    d.append(btn('mudar ofício','am',async()=>{const o=prompt('Ofício (ex: Pintor):',u.oficio||'');if(o===null)return;await req('/admin/usuario/mudar',{tel:u.tel,papel:'helper',oficio:o.trim()});busca()}));
     R.append(d)});if(!(r.j.itens||[]).length)R.textContent='nenhum resultado'};
   $('#bq').onclick=busca;$('#q').onkeydown=e=>{if(e.key==='Enter')busca()};
  },
@@ -291,12 +291,15 @@ const M={
  },
 
  async acessos(c){
-  c.innerHTML='<div class="card"><h4>DAR / ESTENDER ACESSO</h4>'
+  c.innerHTML='<div class="card"><h4>MENSALIDADE DO ENTREGADOR (RIVO)</h4><p style="color:var(--mu)">Valor cobrado por 30 dias, por Pix. Sem comissão por corrida. Zero = ainda não definido (ninguém consegue pagar).</p><div class="row"><input id="rvMensal" type="number" min="0" max="1000" step="0.01" placeholder="R$ por mês" style="max-width:140px"><button id="rvSalvar">salvar valor</button></div></div>'
+   +'<div class="card"><h4>DAR / ESTENDER ACESSO</h4>'
    +'<div class="row"><select id="aApp"><option value="mesa">MESA</option><option value="domin">DOMIN</option><option value="rivo">RIVO</option><option value="mihelp">MIHELP</option></select>'
    +'<select id="aTipo"><option value="conta">conta (telefone)</option><option value="loja">loja (chave)</option></select>'
    +'<input id="aAlvo" placeholder="telefone ou chave da loja"><input id="aDias" type="number" placeholder="dias" value="30" style="max-width:100px"></div>'
    +'<div class="row"><button id="aDar">dar acesso</button><button id="aExt" class="am">estender</button></div></div>'
    +'<div class="card"><h4>ACESSOS DESTE APP</h4><div id="aLs"></div></div>';
+  req('/admin/rivo/config').then(r=>{if(r.ok&&r.j&&r.j.ok)$('#rvMensal').value=r.j.mensal||''});
+  $('#rvSalvar').onclick=async()=>{const v=+$('#rvMensal').value;if(!(v>=0&&v<=1000))return log('valor inválido',true);const r=await req('/admin/rivo/config',{mensal:v});if(r.ok)log('mensalidade salva')};
   const carregar=async()=>{const r=await req('/admin/licencas?app='+$('#aApp').value);const L=$('#aLs');L.innerHTML='';
    (r.j.itens||[]).forEach(x=>{const vencido=x.status!=='ativo';const d=document.createElement('div');d.className='it';
     d.innerHTML='<div>'+(x.tipo==='conta'?'📱 ':'🏪 ')+esc(x.nome||x.alvo)+' <small>'+esc(x.alvo)+' · '+(x.status==='revogado'?'REVOGADO':x.status==='vencido'?'VENCIDO há '+Math.abs(x.restantes)+'d':x.restantes+'d restantes')+'</small></div>';

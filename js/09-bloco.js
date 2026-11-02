@@ -602,7 +602,7 @@ function desenharProf(){
  if(V8.tab==='invest'&&window.MH_INVESTIR8){box.textContent='';pg.textContent='';box.style.gridTemplateColumns='1fr';MH_INVESTIR8.render(box,profQ);return}
  box.style.gridTemplateColumns='';
  const q=norm(profQ).trim();const itens=[];
- if(V8.tab==='helpers'||V8.tab==='fav')listaHelpers().filter(h=>(V8.tab!=='fav'||ehFav(h.nome))&&(!q||norm(h.nome).includes(q)||norm(h.work).includes(q))).forEach(h=>{const r=resumo(h.nome);itens.push({t:'h',h,v:verificado(h.nome)?1:0,nota:r?r.m:0,n:r?r.n:0,nome:h.nome})});
+ if(V8.tab==='helpers'||V8.tab==='fav')listaHelpers().filter(h=>(V8.tab!=='fav'||ehFav(h.nome))&&(V8.tab!=='helpers'||(h.work&&h.work.toLowerCase()!=='helper'))&&(!q||norm(h.nome).includes(q)||norm(h.work).includes(q))).forEach(h=>{const r=resumo(h.nome);itens.push({t:'h',h,v:verificado(h.nome)?1:0,nota:r?r.m:0,n:r?r.n:0,nome:h.nome})});
  if(V8.tab!=='helpers')V8.lojas.filter(l=>(V8.tab!=='fav'||V8.fav.lojas.has(l.chave))&&(V8.tab!=='lojas'||!V8.tipoF||l.tipo===V8.tipoF)&&(V8.tab!=='invest'||l.invest)&&(!q||norm(l.nome).includes(q)||norm(l.tipo).includes(q))).forEach(l=>itens.push({t:'e',l,v:0,nota:l.nota||0,n:l.n||0,nome:l.nome}));
  itens.sort((a,b)=>(b.v-a.v)||(b.nota-a.nota)||(b.n-a.n)||a.nome.localeCompare(b.nome,'pt-BR'));
  const tot=Math.max(1,Math.ceil(itens.length/PROF_N));if(profPag>=tot)profPag=tot-1;
@@ -653,12 +653,12 @@ setTimeout(()=>{try{desenharPraca()}catch(e){}},0);
 function montaProf(){const need=document.getElementById('need');if(!need||document.getElementById('prof'))return;
  const s=document.createElement('section');s.id='prof';s.className='prof';s.setAttribute('aria-label','Profissionais da Região');
  const h=mk8('h2','prof-t','Profissionais da Região');
- const p=mk8('p','prof-s','Helpers e estabelecimentos da região. Toque em "Chamar" ou "Ver perfil".');
+ const p=mk8('p','prof-s','Helpers com profissão cadastrada e oportunidades de investimento. Toque em "Chamar".');
  const top=mk8('div','v8top');top.id='profTop';
  const i=document.createElement('input');i.type='search';i.id='profQ';i.placeholder='Buscar: nome ou ofício';i.setAttribute('aria-label','Buscar profissional');i.autocomplete='off';
  i.addEventListener('input',()=>{profQ=i.value;profPag=0;desenharProf()});
  const l=document.createElement('div');l.id='profList';const g=document.createElement('div');g.id='profPg';g.className='ppg';
- s.append(h,p,top,i,l,g);need.after(s);desenharProf();carregaV8();carregaFav8();abrirLinkV8();setInterval(()=>{if(!document.hidden){carregaV8();carregaFav8()}},60000)}
+ const hd=mk8('div','prof-head');hd.append(h,p);s.append(hd,top,i,l,g);(document.getElementById('praca')||need).after(s);desenharProf();carregaV8();carregaFav8();abrirLinkV8();setInterval(()=>{if(!document.hidden){carregaV8();carregaFav8()}},60000)}
 setTimeout(montaProf,0);
 
 /* ===== v8: perfil do estabelecimento ===== */
@@ -1105,7 +1105,7 @@ const FORM8={},ENV8={},CLI29='mh_cli_ped',ENVK29='mh_ped_env',FINAL29=['entregue
 const lsJ29=(k,pad)=>{try{const v=JSON.parse(localStorage.getItem(k)||'null');return v==null?pad:v}catch(e){return pad}};
 const lsW29=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 const envLer29=ch=>{if(ENV8[ch])return ENV8[ch];const x=lsJ29(ENVK29,[]).find(y=>y&&y.ch===ch&&Date.now()-y.ts<8*3600e3);if(x)ENV8[ch]=x;return x||null};
-const envGrava29=x=>{const o={ch:x.ch,rid:x.rid,ts:x.ts,tipo:x.tipo,nome:x.nome,total:x.total,itens:x.itens,st:x.st,num:x.num,conf:x.conf,av:x.av};lsW29(ENVK29,lsJ29(ENVK29,[]).filter(y=>y&&y.ch!==x.ch).concat([o]).slice(-6))};
+const envGrava29=x=>{const o={ch:x.ch,rid:x.rid,ts:x.ts,tipo:x.tipo,nome:x.nome,total:x.total,itens:x.itens,st:x.st,num:x.num,conf:x.conf,av:x.av,drv:x.drv||null};lsW29(ENVK29,lsJ29(ENVK29,[]).filter(y=>y&&y.ch!==x.ch).concat([o]).slice(-6))};
 const envLimpa29=ch=>{delete ENV8[ch];lsW29(ENVK29,lsJ29(ENVK29,[]).filter(y=>y&&y.ch!==ch))};
 const ETP29={novo:x=>x.num?'✅ Pedido #'+x.num+' recebido pela loja':'📨 Enviado. Aguardando a loja confirmar',preparando:()=>'👨‍🍳 A loja está preparando o seu pedido',
  pronto:x=>x.tipo==='retirada'?'✅ Pronto! Pode retirar na loja':'📦 Pronto, esperando sair para entrega',a_caminho:()=>'🛵 Saiu para entrega',entregue:x=>x.tipo==='retirada'?'🎉 Retirado. Bom apetite!':'🎉 Entregue. Bom apetite!',cancelado:()=>'A loja não pôde aceitar este pedido. Fale com ela pelo WhatsApp.'};
@@ -1114,8 +1114,11 @@ function envPoll29(pane,d,L,x,redesenha){clearTimeout(x._t);
  const passo=async()=>{if(!d.isConnected||!d.open||ENV8[x.ch]!==x||FINAL29.includes(x.st))return;
   const r=await chama8('/cardapio/pedido?chave='+encodeURIComponent(x.ch)+'&rid='+encodeURIComponent(x.rid));
   if(!d.isConnected||!d.open||ENV8[x.ch]!==x)return;
-  if(r.ok&&r.j&&r.j.ok&&(r.j.st!==x.st||r.j.num!==x.num)){x.st=r.j.st;x.num=r.j.num||0;envGrava29(x);if(pane.isConnected)redesenha()}
-  if(!FINAL29.includes(x.st))x._t=setTimeout(passo,15000)};
+  if(r.ok&&r.j&&r.j.ok){const rv=r.j.rivo||null,sig=JSON.stringify(rv);
+   if(rv&&rv.drv)x.drv=rv.drv;
+   if(r.j.st!==x.st||r.j.num!==x.num||sig!==x._rvs){x.st=r.j.st;x.num=r.j.num||0;x.rivo=rv;x._rvs=sig;envGrava29(x);if(pane.isConnected)redesenha()}}
+  const rapido=x.rivo&&(x.rivo.st==='aceita'||x.rivo.st==='coletada');
+  if(!FINAL29.includes(x.st))x._t=setTimeout(passo,rapido?5000:15000)};
  x._t=setTimeout(passo,3000)}
 /* ===== v30: quem pediu confirma o recebimento; depois avalia o lanche (loja) e a entrega (entregador) ===== */
 const AVK30='mh_aval_entrega';
@@ -1136,19 +1139,48 @@ function confView30(w,d,L,x,temNovo,volta,redesenha){
   zap('\ud83d\udcac Falar com a loja no WhatsApp','cta2');ac.append(botao8('Na verdade, recebi','more',()=>manda(true)),botao8('Fechar','more',()=>{x.av=1;envGrava29(x);redesenha()}))}
  else{
   box.append(mk8('div','lj-ok','\ud83c\udf89'),mk8('h4',null,'Pedido recebido. Bom apetite!'),mk8('p','note','Conta como foi? Leva 10 segundos.'));
-  const b1=estrelas30('\ud83c\udf54 O lanche — '+L.nome,'Sabor, capricho e como veio embalado.'),b2=entrega?estrelas30('\ud83d\udef5 A entrega — entregador','Rapidez e cuidado do entregador.'):null;
+  const b1=estrelas30('\ud83c\udf54 O lanche — '+L.nome,'Sabor, capricho e como veio embalado.'),b2=entrega?estrelas30('\ud83d\udef5 A entrega — '+(x.drv?x.drv.nome+(x.drv.n?' · \u2605 '+String(x.drv.nota).replace('.',',')+' ('+x.drv.n+')':' · novo no RIVO'):'entregador'),'Rapidez e cuidado do entregador.'):null;
   box.append(b1.el);if(b2)box.append(b2.el);
   const msg=mk8('p','note');msg.setAttribute('role','status');box.append(msg);
   const ok=botao8('Enviar avaliações','cta2 lj-send',async()=>{
    if(!b1.nota()&&!(b2&&b2.nota())){msg.style.color='var(--red)';msg.textContent='Toque nas estrelas para avaliar.';return}
    ok.disabled=true;msg.style.color='';msg.textContent='Enviando…';let falha='';
    if(b1.nota()){const r=await chama8('/avaliar',{chave:x.ch,estrelas:b1.nota(),comentario:b1.txt()});if(!(r.ok&&r.j&&r.j.ok))falha=erro8(r)}
-   if(b2&&b2.nota()){const reg={ch:x.ch,rid:x.rid,estrelas:b2.nota(),comentario:b2.txt(),ts:Date.now()};lsW29(AVK30,lsJ29(AVK30,[]).concat([reg]).slice(-20));chama8('/cardapio/pedido/avaliar-entrega',reg).catch(()=>{})}
+   if(b2&&b2.nota()){const reg={ch:x.ch,rid:x.rid,estrelas:b2.nota(),comentario:b2.txt(),ts:Date.now()};lsW29(AVK30,lsJ29(AVK30,[]).concat([reg]).slice(-20));chama8('/cardapio/pedido/avaliar-entrega',Object.assign({chave:x.ch},reg)).catch(()=>{})}
+   if(falha&&/trabalha na loja|pr[oó]pria loja|dono/i.test(falha)){msg.style.color='';msg.textContent='Você faz parte da equipe desta loja, então só a avaliação do entregador vale.';setTimeout(()=>{x.av=1;envGrava29(x);redesenha()},2200);return}
    if(falha){ok.disabled=false;msg.style.color='var(--red)';msg.textContent=falha+' Dá para tentar de novo ou pular.';return}
    x.av=1;envGrava29(x);redesenha()});
   ac.append(ok,botao8('Pular','more',()=>{x.av=1;envGrava29(x);redesenha()}))}
  if(temNovo)ac.append(botao8('\u2190 Voltar ao meu novo pedido','more',volta));
  w.append(box,ac)}
+/* ===== v36: RIVO na tela do pedido (mapa com a loja, o destino e o entregador depois que ele aceita) ===== */
+function leaflet36(){if(window.L)return Promise.resolve();if(window._lfp)return window._lfp;
+ return window._lfp=new Promise((ok,no)=>{const c=document.createElement('link');c.rel='stylesheet';c.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';document.head.append(c);
+  const j=document.createElement('script');j.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';j.onload=ok;j.onerror=()=>{window._lfp=null;no()};document.head.append(j)})}
+const pino36=(t,cor)=>L.divIcon({className:'',html:'<div style="width:30px;height:30px;border-radius:50%;background:'+cor+';color:#111;font:700 15px/30px system-ui;text-align:center;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5)">'+t+'</div>',iconSize:[30,30],iconAnchor:[15,15]});
+function kmLinha36(a,b){const R=6371,r=Math.PI/180,dl=(b.lat-a.lat)*r,dn=(b.lng-a.lng)*r,h=Math.sin(dl/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
+function rivoCard31(x){const rv=x.rivo,card=mk8('div','lj-rivo');card.style.cssText='margin:12px 0;padding:12px;border:1px solid var(--line,#444);border-radius:14px;text-align:left';
+ const emRota=rv.st==='aceita'||rv.st==='coletada',d=rv.drv;
+ card.append(mk8('b',null,'🛵 RIVO está mapeando a sua entrega'));
+ const txt=rv.st==='procurando'?'Procurando um entregador perto da loja…':rv.st==='aceita'?(d?d.nome:'O entregador')+' aceitou e está indo buscar o seu pedido.':rv.st==='coletada'?(d?d.nome:'O entregador')+' saiu com o seu pedido.':'Entrega concluída.';
+ const t=mk8('p','lj-es',txt);t.setAttribute('role','status');card.append(t);
+ if(d&&emRota)card.append(mk8('p','note','⭐ '+(d.n?String(d.nota).replace('.',',')+' ('+d.n+' avaliações)':'novo no RIVO')+(d.veic?' · '+d.veic:'')+(d.placa?' · placa '+d.placa:'')));
+ if(rv.st==='procurando'||emRota){
+  const box=x._mapEl||(x._mapEl=document.createElement('div'));box.style.cssText='height:220px;border-radius:10px;overflow:hidden;margin-top:8px;background:#222';card.append(box);
+  leaflet36().then(()=>{if(!box.isConnected)return;
+   if(!x._map){x._map=L.map(box,{zoomControl:true,attributionControl:true});L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(x._map);x._mk={}}
+   const m=x._map,pts=[],ponto=(k,ll,ic,tt)=>{if(!ll)return;if(x._mk[k])x._mk[k].setLatLng([ll.lat,ll.lng]);else x._mk[k]=L.marker([ll.lat,ll.lng],{icon:ic}).addTo(m).bindPopup(tt);pts.push([ll.lat,ll.lng])};
+   ponto('loja',rv.loja,pino36('🍽','#f5e000'),'Loja: '+(rv.loja&&rv.loja.nome||''));
+   if(rv.dest)ponto('dest',rv.dest,pino36('🏠','#7fd6ff'),'Entrega');
+   if(rv.pos)ponto('drv',rv.pos,pino36('🛵','#7dff9a'),(d?d.nome:'Entregador'));else if(x._mk.drv){m.removeLayer(x._mk.drv);delete x._mk.drv}
+   m.invalidateSize();if(pts.length){const nova=pts.length+':'+(rv.pos?1:0);if(x._fit!==nova){x._fit=nova;pts.length>1?m.fitBounds(pts,{padding:[30,30],maxZoom:17}):m.setView(pts[0],16)}}}).catch(()=>{box.textContent='Não consegui carregar o mapa agora.'});
+  if(emRota){const p=rv.pos;let l='';
+   if(!p)l='Aguardando a primeira posição do entregador…';
+   else{const seg=Math.max(0,Math.round((Date.now()-p.ts)/1000));l=seg>60?'⚠ Última atualização há '+Math.round(seg/60)+' min. A posição pode estar desatualizada.':'Posição atualizada agora há pouco.';
+    if(rv.dest&&rv.st==='coletada')l+=' · a cerca de '+kmLinha36(p,rv.dest).toFixed(1).replace('.',',')+' km em linha reta de você';}
+   card.append(mk8('p','note',l))}
+ }
+ return card}
 function envView29(w,d,L,x,temNovo,volta,redesenha){
  if(redesenha&&x.st==='entregue'&&!x.av){confView30(w,d,L,x,temNovo,volta,redesenha);return}
  const fim=FINAL29.includes(x.st),ruim=x.st==='cancelado',box=mk8('div','lj-env'+(ruim?' bad':fim?' fim':''));
@@ -1156,6 +1188,7 @@ function envView29(w,d,L,x,temNovo,volta,redesenha){
  if(!ruim){const nomes=['Enviado','Preparando','Pronto',x.tipo==='retirada'?'Retirado':'A caminho'].concat(x.tipo==='retirada'?[]:['Entregue']);
   const idx=x.st==='novo'?0:x.st==='preparando'?1:x.st==='pronto'?2:x.st==='a_caminho'?3:nomes.length-1;
   const bar=mk8('div','lj-steps'),lb=mk8('div','lj-stl');bar.style.setProperty('--n',nomes.length);lb.style.setProperty('--n',nomes.length);nomes.forEach((n,k)=>{const i=mk8('i',k<=idx?'on':'');bar.append(i);lb.append(mk8('span',null,n))});box.append(bar,lb)}
+ if(!ruim&&!fim&&x.tipo!=='retirada'&&x.rivo&&x.rivo.on)box.append(rivoCard31(x));
  const ul=mk8('ul','lj-eul');(x.itens||[]).forEach(i=>ul.append(mk8('li',null,i.q+'× '+i.n+(i.ad&&i.ad.length?' (+ '+i.ad.join(', ')+')':''))));
  box.append(ul,mk8('strong','lj-et','Total: '+brlC8(x.total)),mk8('p','note',fim?'Pedido de '+x.nome+'.':'A loja já vê o seu pedido no painel dela. Esta tela se atualiza sozinha, não precisa recarregar.'));
  w.append(box);
@@ -1725,7 +1758,7 @@ async function abrirAdmOficios8(){
 /* ===== v8: admin — mudar tipo (Helper/Cliente) e ofício de uma pessoa ===== */
 async function abrirAdmPessoas8(){
  const d=admDlg8||(admDlg8=novoDlg8('Administração'));d.textContent='';
- d.append(mk8('h3',null,'Mudar tipo ou ofício de uma pessoa'));
+ d.append(mk8('h3',null,'Mudar o ofício de uma pessoa'));
  const st=mk8('p','note');st.setAttribute('role','status');
  const l=mk8('label',null,'Nome ou telefone');const q=document.createElement('input');q.type='text';q.maxLength=40;l.append(q);
  const res=mk8('div');
@@ -1733,10 +1766,9 @@ async function abrirAdmPessoas8(){
   const r=await MH_API.req('/admin/usuarios?q='+encodeURIComponent(q.value.trim()),{token:MH_API.admTk()});
   if(!r.ok||!(r.j&&r.j.ok)){st.style.color='var(--red)';st.textContent=erro8(r);return}
   st.textContent=r.j.itens.length?'':'Ninguém encontrado.';
-  r.j.itens.forEach(u=>{const row=mk8('div','v8card');row.append(mk8('b',null,u.nome),mk8('span','note',' · '+(u.tel||'')+' · '+(u.papel==='helper'?'Helper':'Membro')+(u.oficio?' · '+u.oficio:'')));
-   const sel=document.createElement('select');sel.setAttribute('aria-label','Tipo da conta');[['helper','Helper'],['cliente','Cliente']].forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;if(v===u.papel)o.selected=true;sel.append(o)});
+  r.j.itens.forEach(u=>{const row=mk8('div','v8card');row.append(mk8('b',null,u.nome),mk8('span','note',' · '+(u.tel||'')+' · '+'Helper'+(u.oficio?' · '+u.oficio:'')));
    const of=document.createElement('input');of.type='text';of.maxLength=60;of.value=u.oficio||'';of.placeholder='Ofício (ex.: Pintor)';of.setAttribute('aria-label','Ofício');
-   row.append(sel,of,botao8('Salvar','cta2',async()=>{const x=await MH_API.req('/admin/usuario/mudar',{token:MH_API.admTk(),body:{tel:u.tel,papel:sel.value,oficio:of.value.trim()}});st.style.color=x.ok?'':'var(--red)';st.textContent=x.ok?'Pronto, salvo.':erro8(x);if(x.ok)carregaV8()}));res.append(row)})};
+   row.append(of,botao8('Salvar','cta2',async()=>{const x=await MH_API.req('/admin/usuario/mudar',{token:MH_API.admTk(),body:{tel:u.tel,papel:'helper',oficio:of.value.trim()}});st.style.color=x.ok?'':'var(--red)';st.textContent=x.ok?'Pronto, salvo.':erro8(x);if(x.ok)carregaV8()}));res.append(row)})};
  q.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();busca()}});
  d.append(l,botao8('Buscar','cta2',busca),st,res,botao8('Fechar','more pa-close',()=>d.close()));if(!d.open)d.showModal()}
 
@@ -1857,7 +1889,7 @@ function abrirPerfilJanela(){
 function painelCliente8(){const w=mk8('div','mhp-tiles');w.append(mk8('h4',null,'Meu painel'));
  const g=mk8('div','mhp-g');
  [['🗓','Meus agendamentos',()=>abrirHorarios8()],['🔒','Conta e privacidade',()=>abrirEspaco8('conta')],['🤝','Minhas equipes',()=>abrirEspaco8('equipes')]].forEach(x=>{const b=document.createElement('button');b.type='button';const i=document.createElement('span');i.textContent=x[0];b.append(i,x[1]);b.onclick=x[2];g.append(b)});
- w.append(g);
+ w.append(g);const tg=(w,g)=>{const h=w.querySelector('h4'),t=document.createElement('button');t.type='button';t.className='mhp-tg';const txt=h.textContent,ar=document.createElement('i');ar.setAttribute('aria-hidden','true');ar.textContent='▾';  const ap=f=>{w.classList.toggle('fechado',f);t.setAttribute('aria-expanded',String(!f));try{localStorage.setItem('mh_painel_fechado',f?'1':'0')}catch(e){}};  t.append(txt,ar);h.textContent='';h.append(t);t.onclick=()=>ap(!w.classList.contains('fechado'));let f=false;try{f=localStorage.getItem('mh_painel_fechado')==='1'}catch(e){}w.classList.toggle('fechado',f);t.setAttribute('aria-expanded',String(!f))}; tg(w,g);
  const box=mk8('div');w.append(box);
  if(apiOn8()&&tk8()){chama8('/reservas/minhas').then(r=>{if(!r.ok||!(r.j&&r.j.ok))return;const l=(r.j.comoCliente||[]).slice(0,3);
   box.append(mk8('h4',null,'Onde estou agendado'));

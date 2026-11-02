@@ -6,7 +6,7 @@ try{(function(){
  sec.addEventListener('click',function(e){
   var b=e.target.closest&&e.target.closest('[data-rv]');if(!b||b.disabled)return;
   var k=b.getAttribute('data-rv');
-  if(k==='carona'){location.href='rivo.html#carona';return}
+  if(k==='carona'){if(!window.open('rivo.html#carona','_blank','noopener'))location.href='rivo.html#carona';return}
   if((k==='moto'||k==='entrega')&&CH){CH.abrir(k);return}
   var q=BUSCA[k];if(!q)return;
   if(typeof window.MH_verOficio==='function'){window.MH_verOficio(q[0],q[1]);return}

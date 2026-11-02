@@ -34,9 +34,9 @@ function abrir(){d.textContent='';
  ms.append(mgo,mk('p','ms-nota','Entra com a mesma conta do MiHelp. Se você ainda não entrou, o MESA pede o telefone e a senha ali mesmo.'),mk('p','ms-lema','Deixa aqui na minha mesa'));d.append(ms);
  const rv=mk('div','ap-c ap-rivo');
  const rl=new Image();rl.src=RLOGO;rl.alt='RIVO';rl.className='rv-logo';
- rv.append(mk('span','ap-tag rv-tag','Em desenvolvimento'),rl,mk('p',0,'O app de entregas e transporte do ecossistema, ainda em desenvolvimento. Vai levar o que você pede ou precisa mandar, de pedidos e encomendas a fretes e mudanças, e você acompanha tudo aqui no MiHelp.'));
+ rv.append(rl,mk('p',0,'O app de entregas e transporte do ecossistema. Vai levar o que você pede ou precisa mandar, de pedidos e encomendas a fretes e mudanças, e você acompanha tudo aqui no MiHelp.'));
  const rvl=mk('ul');['Entregas de pedidos, pacotes e objetos','Fretes e mudanças','Aluguel de veículos','Acompanhamento pelo MiHelp, sem instalar nada'].forEach(x=>rvl.append(mk('li',0,x)));rv.append(rvl);
- const rgo=mk('button','rv-go','Em breve');rgo.type='button';rgo.disabled=true;rv.append(rgo,mk('p','rv-lema','Tecnologia de transporte RIVO · D’Castro Labs'));d.append(rv);
+ const rgo=mk('a','rv-go','Abrir o Rivo →');rgo.href='rivo.html';rgo.target='_blank';rgo.rel='noopener';rv.append(rgo,mk('p','rv-lema','Tecnologia de transporte RIVO · D’Castro Labs'));d.append(rv);
  d.append(card('Novos apps','Planejado',false,'O ecossistema da D’Castro Labs vai ganhar outros apps, cada um com a sua função. O Domin continua sendo só a gestão financeira e empresarial.',null,null));
  {const f=document.getElementById('dcLogoFt');if(f){const w=mk('div','dc-by'),i=new Image();i.src=f.src;i.alt=f.alt;w.append(i);d.append(w)}}
  const bar=mk('div','dbt');const cx=mk('button','cx','Fechar');cx.type='button';cx.onclick=()=>d.close();bar.append(cx);d.append(bar);
