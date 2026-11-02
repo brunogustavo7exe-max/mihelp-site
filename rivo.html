@@ -436,7 +436,7 @@ function mhDesenha(){var b=mhBox();if(!b)return;b.textContent='';
   b.append(h('p',null,m.status==='vencido'?'Sua mensalidade venceu.':m.status==='revogado'?'Seu acesso ao RIVO foi suspenso. Fale com o suporte.':'Para ver e aceitar entregas é preciso a mensalidade do RIVO.'));
   if(m.status!=='revogado'){b.append(h('p','m',m.preco>0?'Mensalidade: '+m.preco.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})+' por '+m.dias+' dias. Sem comissão por corrida.':'O valor da mensalidade ainda não foi definido.'));if(m.preco>0)b.append(btn('p','Pagar com Pix',mhPagar))}
   return}
- b.append(h('p','m','Mensalidade em dia · '+m.restantes+(m.restantes===1?' dia':' dias')+' restantes'));
+ if(!m.gratis)b.append(h('p','m','Mensalidade em dia · '+m.restantes+(m.restantes===1?' dia':' dias')+' restantes'));
  var x=MH.minha;
  if(x){mhAtual(b,x);return}
  var l=MH.fila||[];
