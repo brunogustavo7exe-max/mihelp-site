@@ -78,6 +78,7 @@ body{background:
 .kpis{gap:0;border:1px solid var(--ln);border-radius:10px;overflow:hidden;background:var(--sf);margin-bottom:14px}
 .kpis .card{border:0;border-radius:0;border-right:1px solid var(--ln);margin:0!important;background:transparent;padding:12px 14px}
 .kpis .card::before{display:none}
+.kpis .kb{display:block;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}.kpis .kb:hover{background:rgba(255,184,0,.07)}.kpis .kb:focus-visible{outline:2px solid var(--cy);outline-offset:-2px}
 .kpis .card .m{font-size:11px;text-transform:uppercase;letter-spacing:.09em}
 .kv{font:800 34px/1.1 var(--mono);color:var(--tx)}
 .pin{font-family:var(--mono)}
@@ -259,8 +260,31 @@ function tkSet(t,keep){try{localStorage.removeItem('mh_tk');sessionStorage.remov
 function api(path,body){var hd={'content-type':'application/json'},t=tk();if(t)hd.authorization='Bearer '+t;var ctl=new AbortController(),to=setTimeout(function(){ctl.abort()},15000);
  return fetch(API+path,{method:body?'POST':'GET',headers:hd,body:body?JSON.stringify(body):undefined,signal:ctl.signal}).then(function(r){return r.json().catch(function(){return{}}).then(function(j){clearTimeout(to);return{ok:r.ok,status:r.status,j:j}})}).catch(function(){clearTimeout(to);return{ok:false,status:0,j:{erro:'Sem conexão com o servidor. Se abriu o arquivo direto do computador, hospede o RIVO em dcastrolabs.com.'}}})}
 function chaveDe(tel,senha){var te=new TextEncoder();return crypto.subtle.importKey('raw',te.encode(senha),'PBKDF2',false,['deriveBits']).then(function(k){return crypto.subtle.deriveBits({name:'PBKDF2',salt:te.encode('mihelp:'+String(tel).trim().replace(/\s+/g,' ').toLowerCase()),iterations:120000,hash:'SHA-256'},k,256)}).then(function(b){return btoa(String.fromCharCode.apply(null,new Uint8Array(b)))})}
-function entrou(nome){ID.ok=1;ID.nome=nome||'';ID.erro='';try{if(nome)localStorage.setItem('rivo_nome',nome)}catch(e){}document.body.classList.remove('deslogado');$('#entrada').textContent='';render()}
-function sair(){if(!confirm('Sair do RIVO?\n\nComo a conta é a mesma, você também sai do MiHelp, do MESA e do DOMIN neste aparelho.'))return;tkSet('');ID.ok=0;ID.modo='entrar';ID.erro='';showGate()}
+/* ---- dados locais por conta: cada conta tem o seu entregador (ela mesma) e os seus dados; trocar de conta não mistura nada ---- */
+function trocaConta(acc,nome,tel){
+ if(!acc)return;
+ nome=String(nome||'').trim();
+ if(D.acc&&D.acc!==acc){
+  try{localStorage.setItem(KEY+':'+D.acc,JSON.stringify(D))}catch(e){}
+  var n={ents:[],drv:[],veh:[],res:[],seq:0,me:''};
+  try{var sv=localStorage.getItem(KEY+':'+acc);if(sv)n=Object.assign(n,JSON.parse(sv))}catch(e){}
+  D=n;fixD();
+ }
+ if(!D.acc){   /* dados antigos, sem dono: o entregador "minha conta" antigo só continua sendo desta conta se for a mesma pessoa */
+  var dg=String(tel||'').replace(/\D/g,'');
+  D.drv.forEach(function(d){if(d.mh&&!d.acc){var igual=(dg&&String(d.tel||'').replace(/\D/g,'')===dg)||(nome&&String(d.nome||'').trim().toLowerCase()===nome.toLowerCase());if(igual)d.acc=acc;else delete d.mh}});
+ }
+ D.acc=acc;
+ var eu=D.drv.filter(function(d){return d.mh&&d.acc===acc})[0];
+ if(!eu&&nome.length>=2){eu={id:uid(),agenda:[],disp:{},nome:nome,tel:tel||'',veic:'moto',cap:0,em:{nome:'',tel:''},mh:1,acc:acc};D.drv.push(eu)}
+ if(eu){eu.nome=nome||eu.nome;if(tel&&!eu.tel)eu.tel=tel;D.me=eu.id}
+ save();
+}
+function prepConta(nome){return api('/conta/eu').then(function(x){var j=(x.ok&&x.j)||{},tel=String(j.tel||j.telefone||'').trim();if(!tel){try{tel=localStorage.getItem('rivo_tel')||''}catch(e){}}
+ var acc=String(tel).replace(/\D/g,'')||String(j.id||j.uid||'');var nm=String(j.nome||nome||'').trim();trocaConta(acc,nm,tel);return nm})}
+function entrou(nome){ID.nome=nome||'';ID.erro='';try{if(nome)localStorage.setItem('rivo_nome',nome)}catch(e){}
+ prepConta(nome).then(function(nm){ID.ok=1;ID.nome=nm||ID.nome;try{if(nm)localStorage.setItem('rivo_nome',nm)}catch(e){}document.body.classList.remove('deslogado');$('#entrada').textContent='';render()})}
+function sair(){if(!confirm('Sair do RIVO?\n\nComo a conta é a mesma, você também sai do MiHelp, do MESA e do DOMIN neste aparelho.'))return;tkSet('');ID.ok=0;ID.nome='';ID.modo='entrar';ID.erro='';ID.f={tel:'',senha:'',nome:'',email:'',aceite:false};try{localStorage.removeItem('rivo_nome');localStorage.removeItem('rivo_tel')}catch(e){}try{if(typeof mhParaGps==='function')mhParaGps()}catch(e){}MH.eu=null;MH.fila=null;MH.minha=null;MH.erro='';MH.busy=0;MH.pos=null;CH.ids={};CH.pronto=0;$('#who').textContent='';$('#view').textContent='';showGate()}
 function lf(label,type,key,at){var w=h('label','fld',label),i=document.createElement('input');i.type=type;i.value=ID.f[key];Object.assign(i,at||{});i.oninput=function(){ID.f[key]=i.value};w.append(i);return w}
 function showGate(){document.body.classList.add('deslogado');var box=$('#entrada');box.textContent='';var cr=ID.modo==='criar',f=h('form','lg');f.noValidate=true;
  var w=h('img','lw'),n=h('img','ln');w.alt='';n.alt='RIVO';w.src=LOGO_W;n.src=LOGO_N;
@@ -299,23 +323,6 @@ function start(){if(!LOGIN_ATIVO){ID.ok=1;document.body.classList.remove('deslog
   if(c)return entrou(c);   /* sem internet: deixa entrar com o último nome conhecido; os dados do RIVO são locais */
   ID.erro=(r.j&&r.j.erro)||'Não consegui verificar sua conta.';showGate()})}
 function whoBar(){var w=$('#who');w.textContent='';if(!LOGIN_ATIVO)return;var u=h('span','u');u.append('Olá, ',h('b',null,(ID.nome||'').split(' ')[0]||'você'));w.append(u,btn('sm','Sair',sair))}
-/* ---- Ser entregador usando a conta do MiHelp (sem digitar nome e telefone) ---- */
-function serEntregador(){
- if(!tk()){toast('Entre na sua conta primeiro.');return}
- var ja=D.drv.filter(function(d){return d.mh})[0];
- function vai(d){D.me=d.id;M='dr';try{history.replaceState(null,'','#entregador')}catch(e){}save();render();window.scrollTo(0,0)}
- if(ja){vai(ja);return}
- api('/conta/eu').then(function(x){var j=(x.ok&&x.j)||{},nome=String(j.nome||ID.nome||'').trim(),tel=String(j.tel||j.telefone||'').trim();
-  if(!tel){try{tel=localStorage.getItem('rivo_tel')||''}catch(e){}}
-  if(nome.length<2){toast('Não consegui ler seu nome da conta. Use "Cadastrar entregador".');return}
-  var o={id:uid(),agenda:[],disp:{},nome:nome,tel:tel,veic:'moto',cap:0,em:{nome:'',tel:''},mh:1};
-  D.drv.push(o);toast('Pronto, '+nome.split(' ')[0]+'! Você é entregador. Ajuste o veículo quando quiser.');vai(o)})}
-function hero(v){var n=function(l){return D.ents.filter(function(e){return l.indexOf(e.status)>=0}).length},hd=h('section','hero');
- hd.append(h('div','ey','Central de despacho'),h('h1',null,n(EM)?n(EM)+(n(EM)===1?' entrega na rua agora':' entregas na rua agora'):'Nenhuma entrega na rua agora'),h('p',null,n(['solicitada'])?n(['solicitada'])+' aguardando entregador. Atribua para a rota começar.':'Crie uma entrega, escolha o entregador e acompanhe cada etapa até a porta do cliente.'));
- var a=h('div','acts');a.append(btn('p','+ Nova entrega',nova),btn('','Ser entregador (minha conta)',serEntregador),btn('','Cadastrar outro entregador',function(){editDrv()}));hd.append(a);
- var s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','0 0 640 92');s.setAttribute('preserveAspectRatio','none');s.setAttribute('aria-hidden','true');
- s.innerHTML='<path class="rb" d="M20 70 C140 70 160 22 300 30 S 500 74 620 24"/><path id="rtp" class="rt" d="M20 70 C140 70 160 22 300 30 S 500 74 620 24"/><path d="M20 70h0" fill="none" stroke="#ffb800" stroke-width="22" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M20 70h0" fill="none" stroke="#14171c" stroke-width="10" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M620 24h0" fill="none" stroke="#ffb800" stroke-width="20" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M0 0h0" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round" vector-effect="non-scaling-stroke"><animateMotion dur="6s" repeatCount="indefinite"><mpath href="#rtp"/></animateMotion></path><path d="M0 0h0" fill="none" stroke="#4aa8ff" stroke-width="12" stroke-linecap="round" vector-effect="non-scaling-stroke"><animateMotion dur="6s" repeatCount="indefinite"><mpath href="#rtp"/></animateMotion></path>';
- hd.append(s);v.append(hd)}
 
 
 /* ---- Meu negócio: perfil da empresa de transporte + tabela de preço por km ---- */
@@ -329,13 +336,13 @@ function tabelaPv(box){var n=neg(),L=n.faixas.slice().sort(function(a,b){return 
 /* ---- Como funciona (tutorial) ---- */
 var TUT={
  geral:{t:'O que é o RIVO',intro:'O RIVO é a parte de transporte do ecossistema. O cliente compra pelo MiHelp, o MESA cuida do cardápio e do pedido, o DOMIN cuida do estoque e do caixa, e o RIVO leva até a porta.',pass:[['Hoje: entrega urbana','Entrega de moto e encomenda dentro da cidade. É o que está sendo lapidado primeiro.'],['Depois: fretes e mudanças','Caminhão, carreta e carga entre cidades, com regras próprias.'],['Mais adiante: aluguel, corridas, caronas e passagens','Estão preparados na aba Módulos, mas ainda não valem de verdade.'],['Quem usa','Empresas de entrega e frete (a central), entregadores e freteiros, e o cliente, que acompanha tudo pelo MiHelp. A loja que vende usa o MESA e só pede a entrega.']]},
- loja:{t:'Sou a central (empresa de entrega ou frete)',intro:'Você coordena quem leva: recebe o pedido, escolhe o entregador, acompanha e fecha o dia. A loja que vende usa o MESA e só pede a entrega.',pass:[['Monte o perfil do negócio','Em “Perfil e preços”: nome, o que você faz, WhatsApp e a tabela de preço por km. É o que o cliente vai ver no MiHelp (a publicação ainda está em preparo).'],['Cadastre sua equipe','Em “Entregadores”: cada motoboy ou freteiro com veículo e telefone. Quando ele entrar, já lê as regras e fica ciente.'],['Receba o pedido','Hoje: pelo botão “Nova entrega”, colando a mensagem do WhatsApp. Depois: direto do MESA e do MiHelp.'],['Atribua o entregador','O valor sai da sua tabela por km. Só aparecem entregadores livres e com veículo compatível.'],['Acompanhe','Cada etapa até “Entregue”. Se algo atrasar ou parar, aparece em Alertas.'],['Feche o dia','Em “Fechamento do dia”: quantas entregas, quanto é de cada entregador e quanto cada loja deve.']]},
+ loja:{t:'Sou a central (empresa de entrega ou frete)',intro:'Você coordena quem leva: recebe o pedido, escolhe o entregador, acompanha e fecha o dia. A loja que vende usa o MESA e só pede a entrega.',pass:[['Monte o perfil do negócio','Em “Perfil e preços”: nome, o que você faz, WhatsApp e a tabela de preço por km. É o que o cliente vai ver no MiHelp (a publicação ainda está em preparo).'],['Cadastre sua equipe','Em “Entregadores”: cada motoboy ou freteiro com veículo e telefone. Quando ele entrar, já lê as regras e fica ciente.'],['Receba o pedido','Quem pede é o cliente, pelo MiHelp ou pelo MESA. O chamado aparece na Visão geral para você aceitar.'],['Atribua o entregador','O valor sai da sua tabela por km. Só aparecem entregadores livres e com veículo compatível.'],['Acompanhe','Cada etapa até “Entregue”. Se algo atrasar ou parar, aparece em Alertas.'],['Feche o dia','Em “Fechamento do dia”: quantas entregas, quanto é de cada entregador e quanto cada loja deve.']]},
  ent:{t:'Sou o entregador',intro:'Fique disponível, aceite o que combina com o seu veículo e conclua cada etapa com um toque. Pode ser moto, bicicleta ou até a pé: o que importa é chegar rápido e inteiro.',pass:[['Fique disponível','Na visão Entregador, toque em “Ficar disponível”. Offline não recebe nada.'],['Aceite uma entrega','Só aparecem as que cabem no seu veículo e na sua carga.'],['Vá até a loja','Toque em “Ir para a coleta” e depois “Cheguei na loja”. A espera é contada, e não é culpa sua.'],['Saia para entregar','Registre a coleta e toque em “Sair para entrega”. Abra a rota no mapa.'],['Confirme com o código','O cliente tem um código de 4 números. Peça ao entregar, e só então finalize.'],['Precisa parar?','Almoço e pausa não contam como falha. Em emergência, use o botão SOS.']]},
  cli:{t:'Sou o cliente',intro:'Você pede pelo MiHelp e acompanha sem precisar ligar para ninguém.',pass:[['Você pede','Escolhe na loja e envia o pedido.'],['Você vê o caminho','Cada etapa aparece: confirmada, entregador escolhido, coleta, em rota, entregue. Quando a localização estiver ligada, você vê onde ele está.'],['Você sabe quem vem','Aparece só o primeiro nome do entregador, com a nota. Sem placa e sem detalhe do veículo.'],['Você recebe com o código','Informe o código só na hora de receber. Isso protege o seu pedido.'],['Se atrasar','O prazo prometido fica visível. Passando do limite, a compensação (cupom) vem automática.']]}
 };
 function tutorial(v,k){k=k||'geral';var tb=h('div','tabs');tb.style.padding='0 0 10px';tb.style.borderBottom='0';[['geral','O app'],['loja','Central'],['ent','Entregador'],['cli','Cliente'],['rota','Rotas']].forEach(function(x){var b=h('button','pill',x[1]);b.type='button';b.setAttribute('aria-pressed',k===x[0]);b.onclick=function(){v.textContent='';tutorial(v,x[0])};tb.append(b)});
  var T=TUT[k],c=h('div','card tut');c.append(h('h2',null,T.t),h('p','m',T.intro));var ol=h('div','tl');T.pass.forEach(function(p,i){var r=h('div','st'),n=h('span','nb',String(i+1)),b=h('div');b.append(h('b',null,p[0]),h('div','m',p[1]));r.append(n,b);ol.append(r)});c.append(ol);
- v.append(tb,c,h('div','note','O que já funciona: criar entrega, atribuir, acompanhar etapas, alertas, código de entrega, pausas e SOS, tudo neste aparelho. O que falta: pedidos chegando sozinhos do MESA e do MiHelp, localização ao vivo no mapa e o servidor do RIVO.'))}
+ v.append(tb,c,h('div','note','O que já funciona: atribuir, acompanhar etapas, alertas, código de entrega, pausas e SOS, tudo neste aparelho. O que falta: pedidos chegando sozinhos do MESA e do MiHelp, localização ao vivo no mapa e o servidor do RIVO.'))}
 function boasVindas(){if(D.tut)return;D.tut=1;save();modal('Bem-vindo ao RIVO',function(f,close){f.append(h('p',null,'Transporte do ecossistema: a loja vende, o entregador leva e o cliente acompanha. Hoje começamos pela entrega urbana de moto.'),h('div','note','Quer ver como funciona? Leva um minuto, e fica sempre na aba “Como funciona”.'));var a=h('div','dact');a.append(btn('','Agora não',close),btn('p','Ver como funciona',function(){cur='ajuda';M='op';close();render()}));f.append(a)})}
 
 /* ---- menu lateral ---- */
@@ -370,7 +377,7 @@ var M=location.hash==='#entregador'?'dr':'op',cur=location.hash==='#carona'?'car
 /* ---- v36: entregas do MiHelp (fila, aceite, posição de verdade, mensalidade) ---- */
 var MH={eu:null,fila:null,minha:null,erro:'',w:null,lastPos:0,busy:0,t:null,pos:null,gpsErro:''};
 function mhBox(){return document.getElementById('mhrivo')}
-function mhPosAgora(){return new Promise(function(ok){if(!navigator.geolocation)return ok(null);navigator.geolocation.getCurrentPosition(function(p){MH.pos={lat:p.coords.latitude,lng:p.coords.longitude};ok(MH.pos)},function(){ok(MH.pos)},{maximumAge:60000,timeout:6000})})}
+function mhPosAgora(){return new Promise(function(ok){if(!navigator.geolocation)return ok(null);setTimeout(function(){ok(MH.pos||null)},8000);navigator.geolocation.getCurrentPosition(function(p){MH.pos={lat:p.coords.latitude,lng:p.coords.longitude};ok(MH.pos)},function(){ok(MH.pos)},{maximumAge:60000,timeout:6000})})}
 function mhParaGps(){if(MH.w!=null){try{gpsClear(MH.w)}catch(e){}MH.w=null}}
 function mhGps(){
  if(!MH.minha){mhParaGps();return}
@@ -418,8 +425,8 @@ function mhPagar(){api('/rivo/mensalidade/pix',{}).then(function(r){
   var n=0;tm=setInterval(function(){n++;if(n>150){clearInterval(tm);st.textContent='O tempo acabou. Se já pagou, feche e atualize.';return}
    api('/pix/status?id='+encodeURIComponent(r.j.id)).then(function(x){if(x.ok&&x.j&&x.j.status==='approved'){clearInterval(tm);toast('Mensalidade paga! Acesso liberado.');close();mhCarrega()}})},4000)})})}
 function mhDesenha(){var b=mhBox();if(!b)return;b.textContent='';
- b.append(h('h3',null,'🛵 Entregas do MiHelp'));
- if(!tk()){b.append(h('p','m','Entre na conta para ver as entregas dos restaurantes e lojas do MiHelp.'));return}
+ b.append(h('h3',null,'🛵 Novos chamados'));
+ if(!tk()){b.append(h('p','m','Entre na conta para ver os chamados dos restaurantes e lojas do MiHelp.'));return}
  if(MH.erro){b.append(h('p','m',MH.erro));return}
  var e=MH.eu;if(!e){b.append(h('p','m','Carregando…'));return}
  var top=h('p','m','⭐ '+(e.n?String(e.nota).replace('.',',')+' ('+e.n+' avaliações)':'Sem avaliações ainda')+' · '+(e.veic||'veículo não informado')+(e.placa?' · '+e.placa:'')+' ');
@@ -433,7 +440,7 @@ function mhDesenha(){var b=mhBox();if(!b)return;b.textContent='';
  var x=MH.minha;
  if(x){mhAtual(b,x);return}
  var l=MH.fila||[];
- b.append(h('h4',null,l.length?'Entregas esperando entregador':'Nenhuma entrega esperando agora'));
+ b.append(h('h4',null,l.length?'Chamados esperando entregador':'Nenhum chamado esperando agora'));
  var sb=btn('sm','Som de novos pedidos: '+(somOn()?'ligado':'desligado'),function(){try{localStorage.setItem('rivo_som',somOn()?'0':'1')}catch(e){}if(somOn())chime('entrega');mhDesenha()});sb.style.marginBottom='6px';b.append(sb);
  if(!l.length)b.append(h('p','m','Esta lista atualiza sozinha. Deixe esta tela aberta.'));
  l.forEach(function(i){var c=document.createElement('div');c.style.cssText='border:1px solid var(--ln);border-radius:10px;padding:10px;margin:8px 0';
@@ -459,28 +466,14 @@ function render(){if(!ID.ok)return;whoBar();var s=$('#seg');s.textContent='';[['
  side();
  var v=$('#view');v.textContent='';(M==='dr'?V.dr:M==='lj'?V.lj:V[cur])(v);if(M==='dr'||(M==='op'&&cur==='inicio'))mhRivo(v);if(M!=='op'){var hb=btn('sm','? Como funciona',function(){modal('Como funciona',function(f,close){var bx=h('div');tutorial(bx,'ent');f.append(bx,btn('','Fechar',close))})});hb.style.marginBottom='10px';v.prepend(hb)}document.title='RIVO · '+({dr:'Entregador',lj:'Loja'}[M]||'Operação')}
 /* ---- entregas ---- */
-function lerZap(t){var o={},m;String(t).split(/\r?\n/).forEach(function(l){if(m=l.match(/^\s*(coleta|retirada|buscar em|origem)\s*[:\-]\s*(.+)$/i))o.a=m[2].trim();else if(m=l.match(/^\s*(entrega|destino|entregar em)\s*[:\-]\s*(.+)$/i))o.b=m[2].trim();else if(m=l.match(/^\s*(quem recebe|receber|nome|cliente)\s*[:\-]\s*(.+)$/i))o.q=m[2].trim();else if(m=l.match(/^\s*(telefone|tel|whatsapp|fone)\s*[:\-]\s*(.+)$/i))o.t=m[2].trim();else if(m=l.match(/^\s*(obs|observa[cç][aã]o|instru[cç][oõ]es)\s*[:\-]\s*(.+)$/i))o.o=m[2].trim()});return o}
-function nova(){modal('Nova entrega',function(f,close){
- var zp=fld('Colar mensagem do WhatsApp (opcional)','text',{placeholder:'Coleta: ...\nEntrega: ...',rows:3},'textarea'),zb=btn('sm','Preencher com a mensagem',function(){var o=lerZap(zp.i.value);if(!(o.a||o.b)){toast('Não achei “Coleta:” nem “Entrega:” na mensagem.');return}if(o.a)a.i.value=o.a;if(o.b)b.i.value=o.b;if(o.q)q.i.value=o.q;if(o.t)tl.i.value=o.t;if(o.o)o.o&&(oo.i.value=o.o);toast('Preenchido. Confira os dados.')}),a=fld('Endereço de coleta','text',{maxLength:120,placeholder:'Rua, número, bairro'}),b=fld('Endereço de entrega','text',{maxLength:120,placeholder:'Rua, número, bairro'}),q=fld('Quem recebe (opcional)','text',{maxLength:40}),
- sv=sel('Tipo de serviço',[['entrega','Entrega'],['pega','Pega e leva (remédio, documento, algo emprestado)'],['frete','Frete de carga'],['mudanca','Mudança ou objeto grande']],'entrega'),p=sel('O que será levado',[['p',PORTE.p[0]],['m',PORTE.m[0]],['g',PORTE.g[0]]],'p'),ajd=fld('Ajudantes','text',{value:'0',inputMode:'numeric'}),acs=fld('Acesso (andar, escada, elevador)','text',{maxLength:80}),w=fld('Peso aproximado (kg)','text',{value:'1',inputMode:'decimal'}),v=fld('Valor da entrega (R$)','text',{placeholder:'0,00',inputMode:'decimal'}),km=fld('Distância aproximada (km)','text',{placeholder:'Ex.: 4,5 (calcula o valor pela sua tabela)',inputMode:'decimal'}),kd=h('div','m'),o=fld('Instruções (opcional)','text',{maxLength:140},'textarea'),oo=o,er=h('span','err'),ac=h('div','dact'),r=h('div','row2'),lj=fld('Loja (opcional)','text',{maxLength:40,placeholder:'Nome da loja que vai preparar o pedido'}),tl=fld('Telefone do cliente (opcional, para WhatsApp)','tel',{maxLength:16}),pz=fld('Prazo prometido ao cliente (min)','text',{value:String(D.cfg.prazo),inputMode:'numeric'}),pr=fld('Preparo previsto (min, se tiver loja)','text',{value:String(D.cfg.prepPad),inputMode:'numeric'}),chv=h('span');
- if(D.cfg.chuva){chv=h('div','note','Dia de chuva: sugerimos +'+D.cfg.chuvaPct+'% na taxa. ');chv.append(btn('sm','Aplicar',function(){var c0=cents(v.i.value);if(!isNaN(c0)&&c0>0)v.i.value=(Math.round(c0*(1+D.cfg.chuvaPct/100))/100).toFixed(2).replace('.',',')}))}
- km.i.oninput=function(){var k=parseFloat(String(km.i.value).replace(',','.')),c=precoKm(k);if(!(k>0)){kd.textContent='';return}if(c==null){kd.textContent=neg().faixas.length?'Fora da tabela: informe o valor à mão.':'Cadastre a tabela em Meu negócio para calcular sozinho.';return}v.i.value=(c/100).toFixed(2).replace('.',',');kd.textContent='Valor pela sua tabela: '+R(c)+'. Pode alterar.'};r.append(p.w,w.w);var ex=h('div');ex.hidden=true;ex.append(ajd.w,acs.w);sv.i.onchange=function(){var m={entrega:['p','m','g'],pega:['p','m'],frete:['c','x'],mudanca:['g','c']}[sv.i.value];p.i.textContent='';m.forEach(function(k){p.i.append(new Option(PORTE[k][0],k))});ex.hidden=['entrega','pega'].indexOf(sv.i.value)>=0};ac.append(btn('','Cancelar',close),btn('p','Criar entrega',function(){var pe=parseFloat(String(w.i.value).replace(',','.')),va=cents(v.i.value);
-  if(a.i.value.trim().length<5||b.i.value.trim().length<5){er.textContent='Preencha coleta e entrega.';return}if(!(pe>0)){er.textContent='Peso inválido.';return}if(isNaN(va)||va<=0){er.textContent='Informe o valor. Ex.: 12,50';return}
-  D.ents.push({id:uid(),n:++D.seq,ts:Date.now(),coleta:a.i.value.trim(),dest:b.i.value.trim(),quem:q.i.value.trim(),porte:p.i.value,srv:sv.i.value,ajud:+ajd.i.value||0,acesso:acs.i.value.trim(),peso:pe,valor:va,obs:o.i.value.trim(),status:'solicitada',drv:'',origem:'manual',loja:lj.i.value.trim(),tel:tl.i.value.trim(),prep:Math.max(1,+pr.i.value||+D.cfg.prepPad),prazo:Math.max(1,+pz.i.value||+D.cfg.prazo),prazoTs:Date.now()+Math.max(1,+pz.i.value||+D.cfg.prazo)*U(),pin:String(1000+Math.floor(Math.random()*9000)),sinal:Date.now(),ev:[{t:Date.now(),x:'Pedido recebido.',c:1}],log:[['solicitada',Date.now()]]});save();close();toast('Entrega #'+D.seq+' criada.');cur='entregas';FLT='ativas';render()}));
- f.append(zp.w,zb,sv.w,lj.w,a.w,b.w,q.w,tl.w,r,ex,km.w,kd,v.w,chv,pz.w,pr.w,o.w,er,ac)})}
 function linha(e,perfil){var d=drv(e.drv),c=h('div','card'),hd=h('div','ph');hd.append(h('b',null,'#'+e.n),chip(ST[e.status]),h('span','chip',PORTE[e.porte][0].split(' ')[0]+' · '+e.peso+' kg'),h('span','sp'),h('b',null,R(e.valor)));
  c.append(hd,h('div','m','Coleta: '+e.coleta));if(e.coletaGeo){var gl=h('a','m','Ver o local da loja no mapa'+(e.coletaGeo.acc?' (±'+e.coletaGeo.acc+' m'+(e.coletaGeo.antigo?', posição antiga':'')+')':''));gl.href=mapaLL(e.coletaGeo);gl.target='_blank';gl.rel='noopener';gl.style.cssText='display:block;color:var(--cy)';c.append(gl)}c.append(h('div','m','Entrega: '+e.dest+(e.quem?' · '+e.quem:'')));if(d)c.append(h('div','m','Entregador: '+d.nome));extraLinha(e,c);return c}
-V.inicio=function(v){topAl(v,'op',2);hero(v);var hoje=new Date().toDateString(),n=function(l){return D.ents.filter(function(e){return l.indexOf(e.status)>=0}).length};
- var k=h('div','kpis');[['Aguardando',n(['solicitada'])],['Alertas',nA()],['Em andamento',n(EM)],['Entregues hoje',D.ents.filter(function(e){return e.status==='entregue'&&new Date(e.log[e.log.length-1][1]).toDateString()===hoje}).length],['Entregadores livres',D.drv.filter(livre).length]].forEach(function(x){var c=h('div','card');c.style.marginBottom='0';c.append(h('div','m',x[0]),h('div','kv',String(x[1])));k.append(c)});v.append(k);
- var p=h('div','panel'),ph=h('div','ph');ph.append(h('h2',null,'Entregas ativas'),h('span','sp'),btn('p sm','+ Nova entrega',nova));p.append(ph);
- var L=D.ents.filter(function(e){return ATIVO.indexOf(e.status)>=0});if(!L.length)p.append(h('div','m','Nenhuma entrega ativa.'));
- L.forEach(function(e){var l=h('div','li'),d=h('div');d.append(h('b',null,'#'+e.n+' · '+e.dest),h('div','m',ST[e.status][0]+' · '+ago(e.log[e.log.length-1][1])));l.append(d,btn('sm','Detalhes',function(){detalhe(e)}));p.append(l)});v.append(p);
- if(!D.drv.length)v.append(h('div','note','Comece cadastrando um entregador na aba Entregadores.'));
- v.append(h('div','note','Pedidos do MESA chegam aqui sozinhos quando o MESA e o RIVO estão abertos no mesmo navegador e no mesmo endereço (modo de teste). Pedidos feitos pelo MiHelp passam pelo servidor (a API do MiHelp na Cloudflare) e aparecem no quadro "Entregas do MiHelp", no topo desta tela.'))};
-V.entregas=function(v){var b=h('div','ph'),f=h('div','tabs');f.style.padding='0';[['ativas','Ativas'],['todas','Todas'],['entregue','Entregues'],['cancelada','Canceladas']].forEach(function(x){var p=h('button','pill',x[1]);p.type='button';p.setAttribute('aria-pressed',FLT===x[0]);p.onclick=function(){FLT=x[0];render()};f.append(p)});
- b.append(f,h('span','sp'),btn('p','+ Nova entrega',nova));v.append(b);
- var L=D.ents.filter(function(e){return FLT==='todas'||(FLT==='ativas'?ATIVO.indexOf(e.status)>=0:e.status===FLT)}).sort(function(a,b){return b.ts-a.ts});
- if(!L.length)v.append(h('div','empty','Nenhuma entrega neste filtro.'));L.forEach(function(e){var c=linha(e),a=h('div','acts');a.style.marginTop='8px';a.append(btn('sm','Detalhes',function(){detalhe(e)}));c.append(a);v.append(c)})};
+V.inicio=function(v){topAl(v,'op',2);var hoje=new Date().toDateString(),n=function(l){return D.ents.filter(function(e){return l.indexOf(e.status)>=0}).length};
+ var k=h('div','kpis');[['Aguardando',n(['solicitada']),'entregas','aguardando'],['Alertas',nA(),'alertas',''],['Em andamento',n(EM),'entregas','andamento'],['Entregues hoje',D.ents.filter(function(e){return e.status==='entregue'&&new Date(e.log[e.log.length-1][1]).toDateString()===hoje}).length,'entregas','entregue'],['Entregadores livres',D.drv.filter(livre).length,'entregadores','']].forEach(function(x){var c=h('button','card kb');c.type='button';c.setAttribute('aria-label',x[0]+': '+x[1]+'. Abrir');c.append(h('div','m',x[0]),h('div','kv',String(x[1])));c.onclick=function(){cur=x[2];if(x[3])FLT=x[3];render();window.scrollTo(0,0)};k.append(c)});v.append(k)};
+V.entregas=function(v){var b=h('div','ph'),f=h('div','tabs');f.style.padding='0';[['ativas','Ativas'],['aguardando','Aguardando'],['andamento','Em andamento'],['entregue','Entregues'],['cancelada','Canceladas'],['todas','Todas']].forEach(function(x){var p=h('button','pill',x[1]);p.type='button';p.setAttribute('aria-pressed',FLT===x[0]);p.onclick=function(){FLT=x[0];render()};f.append(p)});
+ b.append(f);v.append(b);
+ var L=D.ents.filter(function(e){return FLT==='todas'||(FLT==='ativas'?ATIVO.indexOf(e.status)>=0:FLT==='aguardando'?e.status==='solicitada':FLT==='andamento'?EM.indexOf(e.status)>=0:e.status===FLT)}).sort(function(a,b){return b.ts-a.ts});
+ if(!L.length)v.append(h('div','empty','Nenhuma entrega neste filtro. Os chamados novos aparecem na Visão geral.'));L.forEach(function(e){var c=linha(e),a=h('div','acts');a.style.marginTop='8px';a.append(btn('sm','Detalhes',function(){detalhe(e)}));c.append(a);v.append(c)})};
 function fraseCli(e){var t=e.status;if(t==='cancelada')return'Pedido cancelado.';if(t==='entregue')return'Entregue. Bom proveito!';if(t==='em_rota')return'Seu pedido está a caminho.';if(t==='coletado')return'O entregador pegou o seu pedido.';if(t==='a_coleta')return'O entregador está indo buscar o seu pedido.';if(t==='atribuida')return'Entregador encontrado.';return e.aceite?(e.pronto?'Pedido pronto, esperando o entregador.':'A loja está preparando o seu pedido.'):'Pedido confirmado, esperando a loja.'}
 function trilha(e,box){var on=IDX[e.status],bar=h('div','steps'),lb=h('div','stl');['Confirmado','Entregador','Na loja','Coletado','A caminho','Entregue'].forEach(function(t,k){bar.append(h('i',k<=on&&e.status!=='cancelada'?'on':''));lb.append(h('span',null,t))});box.append(bar,lb);var fr=h('p',null,fraseCli(e));fr.style.fontWeight='700';box.append(fr);
  var d=drv(e.drv),vis=['a_coleta','coletado','em_rota'].indexOf(e.status)>=0,pos=vis&&d&&d.pos;
@@ -515,7 +508,7 @@ function ciente(d,v){if(d.ciente)return;var c=h('div','card'),L=['Sua localizaç
  var b=btn('p big','Li e entendi',function(){d.ciente=Date.now();save();render()});b.style.marginTop='12px';c.append(b);v.append(c)}
 function mapa(l){return 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(l)}
 V.dr=function(v){if(!D.drv.length){var e=h('div','empty');e.append(h('p',null,'Cadastre um entregador para usar esta tela.'),btn('p','+ Entregador',function(){editDrv()}));e.lastChild.style.marginTop='10px';v.append(e);return}
- var s=document.createElement('select'),w=h('label','fld','Entrar como (teste, sem senha)');D.drv.forEach(function(d){s.append(new Option(d.nome,d.id))});s.value=drv(D.me)?D.me:D.drv[0].id;D.me=s.value;s.onchange=function(){D.me=s.value;save();render()};w.append(s);v.append(w);
+ var s=document.createElement('select'),w=h('label','fld','Entrar como (teste, sem senha)');D.drv.forEach(function(d){s.append(new Option(d.nome,d.id))});s.value=drv(D.me)?D.me:D.drv[0].id;D.me=s.value;s.onchange=function(){D.me=s.value;save();render()};w.append(s);if(D.drv.length>1)v.append(w);
  var d=drv(D.me);ciente(d,v);var st=dst(d),c=h('div','card'),hd=h('div','ph');if(d.foto){var av=h('img','av');av.src=d.foto;av.alt='';hd.append(av)}hd.append(h('h2',null,'Olá, '+d.nome.split(' ')[0]),chip(st));c.append(hd);
  if(d.pausa){c.append(h('p',null,d.pausa.tipo+' até '+hm(d.pausa.fim)+'. Sem novas entregas nesse período.'),btn('p big','Voltar agora',function(){volta(d);render()}))}
  else{if(d.pend)c.append(h('p','m','Pausa de '+d.pend.tipo+' começa quando você concluir a entrega atual.'));
@@ -643,10 +636,6 @@ V.negocio=function(v){var n=neg();
  var ad=h('div','acts');ad.style.marginTop='10px';ad.append(btn('sm','+ Faixa',function(){var u=n.faixas.length?n.faixas[n.faixas.length-1]:{ate:0,preco:800};n.faixas.push({ate:u.ate+3,preco:u.preco+200});save();render()}));q.append(ad);
  var ac=fld('Acima da última faixa (R$, deixe vazio se não atende)','text',{value:n.acima?(n.acima/100).toFixed(2).replace('.',','):'',inputMode:'decimal'});ac.i.onchange=function(){var c=cents(ac.i.value);n.acima=isNaN(c)?0:c;save();drawPv()};q.append(ac.w);
  var ct=fld('Testar: quantos km?','text',{inputMode:'decimal',placeholder:'Ex.: 6,5'}),rs=h('div','m');ct.i.oninput=function(){var k=parseFloat(String(ct.i.value).replace(',','.')),c=precoKm(k);rs.textContent=isFinite(k)&&k>0?(c==null?'Fora da tabela: negocie o valor.':kmTxt(k)+' km = '+R(c)):''};q.append(ct.w,rs);v.append(q);
- var wp=h('div','panel'),mo=fld('Mensagem que o cliente recebe pronta para preencher','text',{value:n.modelo||'Pedido de entrega\nColeta: \nEntrega: \nQuem recebe: \nTelefone: \nObs: '},'textarea');mo.i.rows=6;mo.i.oninput=function(){n.modelo=mo.i.value;save();lk()};var lkb=h('div','m');lkb.style.cssText='word-break:break-all;margin:8px 0';
- function lkUrl(){return 'https://wa.me/'+fone(n.zap)+'?text='+encodeURIComponent(n.modelo||mo.i.value)}function lk(){lkb.textContent=fone(n.zap).length>=12?lkUrl():'Preencha o WhatsApp lá em cima para gerar o link.'}
- var wa=h('div','acts');wa.append(btn('sm','Copiar link',function(){if(fone(n.zap).length<12){toast('Falta o WhatsApp.');return}if(navigator.clipboard)navigator.clipboard.writeText(lkUrl()).then(function(){toast('Link copiado.')},function(){toast('Não consegui copiar.')})}));
- wp.append(h('b',null,'Receber pedidos pelo WhatsApp'),h('div','m','Mande este link para as lojas e clientes. Ele abre a conversa com você já com o modelo de pedido. Quando a mensagem chegar, é só colar em “Nova entrega”.'),mo.w,lkb,wa);lk();v.append(wp);
  drawPv();v.append(pvBox,h('div','note','Hoje o perfil fica só neste aparelho. Quando o servidor do RIVO existir, o botão de publicar manda nome, serviços e tabela para a sua página no MiHelp.'))};
 
 function ymd(t){var d=new Date(t),p=function(n){return(n<10?'0':'')+n};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())}
@@ -799,7 +788,7 @@ function opAcoes(e,f,close){var a=h('div','acts'),at=ATIVO.indexOf(e.status)>=0,
 
 /* ---- tela da loja ---- */
 V.lj=function(v){var nm=[];D.ents.forEach(function(e){if(e.loja&&nm.indexOf(e.loja)<0)nm.push(e.loja)});
- if(!nm.length){v.append(h('div','empty','Nenhuma loja ainda. Ao criar uma entrega, preencha o campo Loja (ou use o exemplo em Ajustes).'));return}
+ if(!nm.length){v.append(h('div','empty','Nenhuma loja ainda. As lojas aparecem aqui quando chegarem entregas (ou use o exemplo em Ajustes).'));return}
  if(nm.indexOf(D.lj)<0)D.lj=nm[0];
  var s=document.createElement('select'),w=h('label','fld','Loja (teste, sem senha)');nm.forEach(function(n){s.append(new Option(n,n))});s.value=D.lj;s.onchange=function(){D.lj=s.value;save();render()};w.append(s);v.append(w);
  var AL=alertas().filter(function(a){return a.para.indexOf('loja')>=0&&lojaDe(a)===D.lj});AL.slice(0,3).forEach(function(a){v.append(alCard(a))});if(AL.length>3)v.append(h('div','note','Mais '+(AL.length-3)+' alerta(s). Mostramos só os mais graves para não virar ruído.'));

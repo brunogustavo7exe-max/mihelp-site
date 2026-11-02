@@ -1155,8 +1155,8 @@ function confView30(w,d,L,x,temNovo,volta,redesenha){
  w.append(box,ac)}
 /* ===== v36: RIVO na tela do pedido (mapa com a loja, o destino e o entregador depois que ele aceita) ===== */
 function leaflet36(){if(window.L)return Promise.resolve();if(window._lfp)return window._lfp;
- return window._lfp=new Promise((ok,no)=>{const c=document.createElement('link');c.rel='stylesheet';c.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';document.head.append(c);
-  const j=document.createElement('script');j.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';j.onload=ok;j.onerror=()=>{window._lfp=null;no()};document.head.append(j)})}
+ return window._lfp=new Promise((ok,no)=>{const c=document.createElement('link');c.rel='stylesheet';const cp=new Promise(r=>{c.onload=r;c.onerror=r;setTimeout(r,4000)});c.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';document.head.append(c);
+  const j=document.createElement('script');j.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';j.onload=()=>cp.then(ok);j.onerror=()=>{window._lfp=null;no()};document.head.append(j)})}
 const pino36=(t,cor)=>L.divIcon({className:'',html:'<div style="width:30px;height:30px;border-radius:50%;background:'+cor+';color:#111;font:700 15px/30px system-ui;text-align:center;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5)">'+t+'</div>',iconSize:[30,30],iconAnchor:[15,15]});
 function kmLinha36(a,b){const R=6371,r=Math.PI/180,dl=(b.lat-a.lat)*r,dn=(b.lng-a.lng)*r,h=Math.sin(dl/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
 function rivoCard31(x){const rv=x.rivo,card=mk8('div','lj-rivo');card.style.cssText='margin:12px 0;padding:12px;border:1px solid var(--line,#444);border-radius:14px;text-align:left';
@@ -1166,7 +1166,7 @@ function rivoCard31(x){const rv=x.rivo,card=mk8('div','lj-rivo');card.style.cssT
  const t=mk8('p','lj-es',txt);t.setAttribute('role','status');card.append(t);
  if(d&&emRota)card.append(mk8('p','note','⭐ '+(d.n?String(d.nota).replace('.',',')+' ('+d.n+' avaliações)':'novo no RIVO')+(d.veic?' · '+d.veic:'')+(d.placa?' · placa '+d.placa:'')));
  if(rv.st==='procurando'||emRota){
-  const box=x._mapEl||(x._mapEl=document.createElement('div'));box.style.cssText='position:relative;z-index:0;isolation:isolate;height:220px;max-height:220px;border-radius:10px;overflow:hidden;margin-top:8px;background:#222';card.append(box);
+  const fr=x._mapFr||(x._mapFr=document.createElement('div'));fr.style.cssText='position:relative;z-index:0;isolation:isolate;contain:layout paint;transform:translateZ(0);height:220px;max-height:220px;border-radius:10px;overflow:hidden;margin-top:8px;background:#222';const box=x._mapEl||(x._mapEl=document.createElement('div'));box.style.cssText='position:absolute;top:0;left:0;right:0;bottom:0';if(box.parentNode!==fr)fr.append(box);card.append(fr);
   leaflet36().then(()=>{if(!box.isConnected)return;
    if(!x._map){x._map=L.map(box,{zoomControl:true,attributionControl:true});L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(x._map);x._mk={}}
    const m=x._map,pts=[],ponto=(k,ll,ic,tt)=>{if(!ll)return;if(x._mk[k])x._mk[k].setLatLng([ll.lat,ll.lng]);else x._mk[k]=L.marker([ll.lat,ll.lng],{icon:ic}).addTo(m).bindPopup(tt);pts.push([ll.lat,ll.lng])};
