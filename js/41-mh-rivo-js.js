@@ -35,6 +35,18 @@ try{(function(){
   function velo(rapido){[].forEach.call(sec.querySelectorAll('.rv-mo'),function(a){a.setAttribute('dur',rapido?'2.4s':'6s')})}
   if(reduz){[].forEach.call(sec.querySelectorAll('.rv-mo'),function(a){var c=a.parentNode;c.setAttribute('cx','12');c.setAttribute('cy','21');c.removeChild(a)})}
   function mm(ms){var s=Math.max(0,Math.floor(ms/1000));return Math.floor(s/60)+':'+('0'+s%60).slice(-2)}
+  function hh(t){try{return new Date(t).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}catch(e){return''}}
+  function etapas(st,s,k){
+   var L=k==='moto'?[['atribuida','Aceitou a corrida'],['a_coleta','A caminho de você'],['chegou','Chegou ao local'],['coletado','Corrida iniciada'],['em_rota','A caminho do destino'],['entregue','Corrida finalizada']]
+    :[['atribuida','Aceitou o chamado'],['a_coleta','A caminho do local de coleta'],['chegou','Chegou ao local'],['coletado','Saiu com o seu item'],['em_rota','A caminho do destino'],['entregue','Entregue']];
+   var ord=['solicitada','atribuida','a_coleta','coletado','em_rota','entregue'],ix=ord.indexOf(s),tm=(st&&st.tm)||{},ul=el('ol','rv-tl'),ult=-1,it=[];
+   L.forEach(function(x,i){var feito,ts;
+    if(x[0]==='chegou'){ts=st&&st.chegou;feito=!!ts||ix>=3}else{feito=ix>=ord.indexOf(x[0]);ts=tm[x[0]]}
+    if(feito)ult=i;it.push([x[1],feito,ts])});
+   it.forEach(function(x,i){var li=el('li',(x[1]?'ok':'')+(i===ult&&s!=='entregue'?' now':''));li.append(el('span','pt',x[1]?'✓':'·'),el('span','tx',x[0]));if(x[1]&&x[2])li.append(el('small',null,hh(x[2])));ul.append(li)});
+   return ul}
+  function avisos(st){var ms=(st&&st.msgs)||[];if(!ms.length)return null;var bx=el('div','rv-fd');bx.append(el('b',null,'Avisos do entregador'));
+   ms.slice(-6).reverse().forEach(function(z){var p=el('div','fl');p.append(el('small',null,hh(z[0])),document.createTextNode(z[1]));bx.append(p)});return bx}
   function digs(v){return String(v||'').replace(/\D/g,'')}
   function abrirTela(){sec.classList.add('rv-chon')}
   function fechar(){clearInterval(tm);tm=null;cur=null;ultimo='';try{localStorage.removeItem(KA)}catch(e){}sec.classList.remove('rv-chon');box.textContent='';velo(false)}
@@ -89,12 +101,14 @@ try{(function(){
   function tela(){
    if(!cur)return;
    var t=T[cur.tipo]||T.moto,mp=lg(KS,{}),st=mp[cur.rid]||null,s=cur.cancelado?'cancelada':(st&&st.st)||'enviando';
+   /* depois de entregue/cancelada o card nunca volta para "a caminho" */
+   if(!cur.cancelado){if(cur.fim)s=cur.fim;else if(s==='entregue'||s==='cancelada'){cur.fim=s;sv(KA,cur)}}
    if(Date.now()-cur.ts>432e5&&(s==='entregue'||s==='cancelada')){fechar();return}
-   var chave=s+'|'+(st&&st.nome||'')+'|'+(st&&st.pin||'');
+   var chave=s+'|'+(st&&st.nome||'')+'|'+(st&&st.pin||'')+'|'+(st&&st.chegou||0)+'|'+(st&&st.pinLib||0)+'|'+((st&&st.msgs&&st.msgs.length)?st.msgs[st.msgs.length-1][0]+'/'+st.msgs.length:0);
    var espera=Date.now()-cur.ts;
    if(chave===ultimo){var tt=box.querySelector('[data-tempo]');if(tt)tt.textContent=mm(espera);var lg2=box.querySelector('[data-longo]');if(lg2&&espera>12e4)lg2.hidden=false;return}
    ultimo=chave;abrirTela();box.textContent='';
-   var wrap=el('div','rv-st'),h1=el('b'),sub=el('span'),rad=el('div','rv-radar');rad.setAttribute('aria-hidden','true');
+   var ext=[],wrap=el('div','rv-st'),h1=el('b'),sub=el('span'),rad=el('div','rv-radar');rad.setAttribute('aria-hidden','true');
    var row=el('div','rv-row');
    var rota=el('div','rv-rs');rota.append(el('b',null,'De: '),document.createTextNode(cur.orig),document.createElement('br'),el('b',null,'Para: '),document.createTextNode(cur.dest),
      document.createElement('br'),el('b',null,'Valor: '),document.createTextNode(cur.valor?(cur.valor/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'a combinar'));
@@ -111,8 +125,9 @@ try{(function(){
     var fila=lg(KF,[]);if(Array.isArray(fila))sv(KF,fila.filter(function(x){return x&&x.rid!==cur.rid}));
     row.append(bt('p','Fazer novo chamado',function(){var k=cur.tipo;fechar();form(k)}),bt('','Voltar',fechar));
    }else{
-    var m=t.ok[s]||t.ok.atribuida;velo(s!=='entregue');wrap.className='rv-st ok';
-    h1.textContent=(s==='atribuida'||s==='a_coleta')?nome+' '+m[0]:m[0];sub.textContent=m[1];wrap.append(rad,h1,sub);
+    var m=t.ok[s]||t.ok.atribuida,cheg=(s==='a_coleta'&&st&&st.chegou);velo(s!=='entregue');wrap.className='rv-st ok';
+    h1.textContent=cheg?nome+' chegou':((s==='atribuida'||s==='a_coleta')?nome+' '+m[0]:m[0]);
+    sub.textContent=cheg?(cur.tipo==='moto'?'Ele está no local. Pode embarcar.':'Ele está no local. Entregue o item a ele.'):m[1];wrap.append(rad,h1,sub);
     if(st&&st.pin&&cur.tipo==='entrega'&&s!=='entregue'){wrap.append(el('span',null,'Código de confirmação (passe a quem recebe):'));wrap.append(el('b','rv-pin',st.pin))}
     var info=[];if(st&&st.nome)info.push(st.nome);if(st&&st.veic)info.push(st.veic);
     if(s==='entregue'){
@@ -123,8 +138,9 @@ try{(function(){
      if(s==='atribuida'||s==='a_coleta')row.append(bt('','Cancelar',cancelar));
     }
     if(info.length){var ic=el('div','rv-rs');ic.append(el('b',null,(cur.tipo==='moto'?'Mototaxista: ':'Entregador: ')),document.createTextNode(info.join(' · ')));wrap.append(ic)}
+    ext.push(etapas(st,s,cur.tipo));var av=avisos(st);if(av)ext.push(av);
    }
-   wrap.append(rota);box.append(wrap,row)}
+   wrap.append(rota);box.append(wrap);ext.forEach(function(x){box.append(x)});box.append(row)}
 
   window.addEventListener('storage',function(ev){if(cur&&(ev.key===KS||ev.key===null))tela()});
   /* retoma um chamado aberto se a página for recarregada */

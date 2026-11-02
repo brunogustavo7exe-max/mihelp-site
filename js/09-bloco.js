@@ -1166,14 +1166,14 @@ function rivoCard31(x){const rv=x.rivo,card=mk8('div','lj-rivo');card.style.cssT
  const t=mk8('p','lj-es',txt);t.setAttribute('role','status');card.append(t);
  if(d&&emRota)card.append(mk8('p','note','⭐ '+(d.n?String(d.nota).replace('.',',')+' ('+d.n+' avaliações)':'novo no RIVO')+(d.veic?' · '+d.veic:'')+(d.placa?' · placa '+d.placa:'')));
  if(rv.st==='procurando'||emRota){
-  const box=x._mapEl||(x._mapEl=document.createElement('div'));box.style.cssText='height:220px;border-radius:10px;overflow:hidden;margin-top:8px;background:#222';card.append(box);
+  const box=x._mapEl||(x._mapEl=document.createElement('div'));box.style.cssText='position:relative;z-index:0;isolation:isolate;height:220px;max-height:220px;border-radius:10px;overflow:hidden;margin-top:8px;background:#222';card.append(box);
   leaflet36().then(()=>{if(!box.isConnected)return;
    if(!x._map){x._map=L.map(box,{zoomControl:true,attributionControl:true});L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(x._map);x._mk={}}
    const m=x._map,pts=[],ponto=(k,ll,ic,tt)=>{if(!ll)return;if(x._mk[k])x._mk[k].setLatLng([ll.lat,ll.lng]);else x._mk[k]=L.marker([ll.lat,ll.lng],{icon:ic}).addTo(m).bindPopup(tt);pts.push([ll.lat,ll.lng])};
    ponto('loja',rv.loja,pino36('🍽','#f5e000'),'Loja: '+(rv.loja&&rv.loja.nome||''));
    if(rv.dest)ponto('dest',rv.dest,pino36('🏠','#7fd6ff'),'Entrega');
    if(rv.pos)ponto('drv',rv.pos,pino36('🛵','#7dff9a'),(d?d.nome:'Entregador'));else if(x._mk.drv){m.removeLayer(x._mk.drv);delete x._mk.drv}
-   m.invalidateSize();if(pts.length){const nova=pts.length+':'+(rv.pos?1:0);if(x._fit!==nova){x._fit=nova;pts.length>1?m.fitBounds(pts,{padding:[30,30],maxZoom:17}):m.setView(pts[0],16)}}}).catch(()=>{box.textContent='Não consegui carregar o mapa agora.'});
+   setTimeout(function(){try{m.invalidateSize()}catch(e){}},50);m.invalidateSize();if(pts.length){const nova=pts.length+':'+(rv.pos?1:0);if(x._fit!==nova){x._fit=nova;pts.length>1?m.fitBounds(pts,{padding:[30,30],maxZoom:17}):m.setView(pts[0],16)}}}).catch(()=>{box.textContent='Não consegui carregar o mapa agora.'});
   if(emRota){const p=rv.pos;let l='';
    if(!p)l='Aguardando a primeira posição do entregador…';
    else{const seg=Math.max(0,Math.round((Date.now()-p.ts)/1000));l=seg>60?'⚠ Última atualização há '+Math.round(seg/60)+' min. A posição pode estar desatualizada.':'Posição atualizada agora há pouco.';
