@@ -1,7 +1,7 @@
 
 /* ===== Esconder outdoors/letreiros e modo foco (valem em todos os temas) ===== */
 html.sem-outdoor .mq,html.sem-outdoor .tk,html.sem-outdoor #adtop,html.sem-outdoor .side,html.sem-outdoor #vagas,html.sem-outdoor #dock [data-dock=anunciar],
-html.modo-foco .mq,html.modo-foco .tk,html.modo-foco #adtop,html.modo-foco .side,html.modo-foco #vagas,html.modo-foco #dock [data-dock=anunciar],html.modo-foco #dock [data-dock=guia],html.modo-foco #dock [data-dock=carona]{display:none!important}
+html.modo-foco .mq,html.modo-foco .tk,html.modo-foco #adtop,html.modo-foco .side,html.modo-foco #vagas,html.modo-foco #dock [data-dock=anunciar],html.modo-foco #dock [data-dock=guia],html.modo-foco #dock [data-dock=rivo]{display:none!important}
 html.sem-outdoor .shell,html.modo-foco .shell{grid-template-columns:minmax(0,1040px)!important}
 html.sem-outdoor #dock{grid-template-columns:repeat(4,1fr)!important}
 html.modo-foco #dock{grid-template-columns:repeat(2,1fr)!important}

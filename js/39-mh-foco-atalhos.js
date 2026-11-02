@@ -5,7 +5,7 @@ const alvo=id=>id==='prof'?document.getElementById('need'):document.getElementBy
 const vis=e=>!!(e&&(e.offsetWidth||e.offsetHeight||e.getClientRects().length));
 document.addEventListener('click',e=>{if(!R.classList.contains('modo-foco'))return;
  const b=e.target.closest&&e.target.closest('#mhInicio button[data-go],#dock button[data-dock]');if(!b)return;
- const id=b.dataset.go||({conta:'cadWin',sala:'cw',guia:'vale',carona:'carona',anunciar:'vagas'})[b.dataset.dock]||'';
+ const id=b.dataset.go||({conta:'cadWin',sala:'cw',guia:'vale',rivo:'rivo',anunciar:'vagas'})[b.dataset.dock]||'';
  if(vis(alvo(id)))return;
  e.preventDefault();e.stopPropagation();pend=id;if(window.MH_avisoFoco)window.MH_avisoFoco()},true);
 new MutationObserver(()=>{if(R.classList.contains('modo-foco')||!pend)return;const id=pend;pend='';

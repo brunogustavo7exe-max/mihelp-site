@@ -11,8 +11,7 @@ const ITENS=[
  {i:'🧭',t:'Guia da Região',ok:()=>vivo('guia'),f:()=>dock('guia').click()},
  {i:'🎉',t:'Eventos',ok:()=>{const e=document.getElementById('cheers');return !!e&&!e.hidden},f:()=>document.getElementById('cheers').scrollIntoView({behavior:'smooth',block:'start'})},
  {i:'⭐',t:'Recomendar um lugar',ok:()=>vivo('guia')&&!!document.getElementById('vNovo'),f:()=>{dock('guia').click();clicaDepois('vNovo',700)}},
- {i:'🚗',t:'Caronas',ok:()=>vivo('carona'),f:()=>dock('carona').click()},
- {i:'🙋',t:'Oferecer carona',ok:()=>vivo('carona')&&!!document.getElementById('cNovo'),f:()=>{dock('carona').click();clicaDepois('cNovo',700)}},
+ {i:'🚗',t:'Ir e levar',ok:()=>vivo('rivo'),f:()=>dock('rivo').click()},
  {i:'📣',t:'Anunciar',ok:()=>vivo('anunciar'),f:()=>dock('anunciar').click()},
  {i:'⚙️',t:'Ajustes',ok:()=>!!document.getElementById('cfgBtn'),f:()=>{const b=document.getElementById('cfgBtn');if(b&&b.getAttribute('aria-expanded')!=='true')b.click()}}
 ];

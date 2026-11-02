@@ -69,7 +69,7 @@ function init(){
   var mq=document.querySelector('.mq');if(mq)mq.innerHTML=mq.innerHTML.split('BARRA DO GARÇAS · PONTAL DO ARAGUAIA · ARAGARÇAS').join(N.toUpperCase()+' · '+c.uf);
   var sb=document.querySelector('p.sub');if(sb)sb.textContent=sb.textContent.replace('de Barra do Garças, Pontal do Araguaia e Aragarças','de '+N);
   document.querySelectorAll('span').forEach(function(e){if(e.children.length===0&&e.textContent==='MiHelp · Barra do Garças e região')e.textContent='MiHelp · '+N});
-  var md=document.querySelector('meta[name=description]');if(md)md.content='MiHelp: quem precisa de ajuda encontra, quem sabe fazer trabalha. Profissionais, guia, caronas e chat em '+N+'.'}
+  var md=document.querySelector('meta[name=description]');if(md)md.content='MiHelp: quem precisa de ajuda encontra, quem sabe fazer trabalha. Profissionais, guia, mobilidade e chat em '+N+'.'}
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

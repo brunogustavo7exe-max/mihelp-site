@@ -468,8 +468,8 @@ async function definirFoto(nome,url){if(url)FOTO[nome]=url;else delete FOTO[nome
 /* Lista de profissionais: Helpers e Estabelecimentos (v8). Clientes só aparecem no chat.
    Com o worker ligado, a lista vem do servidor (/profissionais e /estabelecimentos): quem escondeu o perfil nem chega aqui. */
 let profPag=0,profQ='';const PROF_N=6;
-const V8={tab:'lojas',tipoF:'',lojas:[],lojasOk:false,fav:{lojas:new Set()},linkFeito:false};
-window.MH_LOJAS8=()=>V8.lojas;window.MH_TIPO8=t=>{V8.tab='lojas';V8.tipoF=t||'';profPag=0;desenharProf()};
+const V8={tab:'helpers',tipoF:'',lojas:[],lojasOk:false,fav:{lojas:new Set()},linkFeito:false};
+window.MH_LOJAS8=()=>V8.lojas;window.MH_ABA8=t=>{V8.tab=t;profPag=0;desenharProf()};
 const CID8={'barra-do-garcas':'Barra do Garças',aragarcas:'Aragarças','pontal-do-araguaia':'Pontal do Araguaia'};try{if(window.MH_CIDADE)CID8[MH_CIDADE.slug]=MH_CIDADE.nome;Object.assign(CID8,window.MH_REGIAO.nomes)}catch(e){}
 const mk8=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const apiOn8=()=>!!(window.MH_API&&MH_API.on());
@@ -586,18 +586,21 @@ function cardLoja8(l){
  c.append(t,bt);return c}
 function desenhaTopo8(){const top=document.getElementById('profTop');if(!top)return;top.textContent='';
  const tabs=mk8('div','v8tabs');tabs.setAttribute('role','tablist');
- [['lojas','🏪 Estabelecimentos'],['helpers','Helpers'],['invest','💰 Investir']].concat(eu&&apiOn8()?[['fav','★ Favoritos']]:[]).forEach(([k,t])=>{const b=mk8('button',k==='lojas'?'dest':null,t);b.type='button';b.setAttribute('role','tab');b.setAttribute('aria-selected',String(V8.tab===k));b.onclick=()=>{V8.tab=k;profPag=0;desenharProf()};tabs.append(b)});
+ [['helpers','Helpers'],['invest','💰 Investir']].concat(eu&&apiOn8()?[['fav','★ Favoritos']]:[]).forEach(([k,t])=>{const b=mk8('button',null,t);b.type='button';b.setAttribute('role','tab');b.setAttribute('aria-selected',String(V8.tab===k));b.onclick=()=>{V8.tab=k;profPag=0;desenharProf()};tabs.append(b)});
  top.append(tabs);
- if(V8.tab==='invest')top.append(mk8('p','note','Lojas e negócios pequenos que aceitam conversar com quem quer investir. O MiHelp só apresenta: não participa do negócio, não garante retorno e não guarda dinheiro. Converse, peça tudo por escrito e combine fora do app com cuidado.'));
  if(V8.tab==='lojas'){const ts={};V8.lojas.forEach(l=>{const t=l.tipo||'Outro';ts[t]=(ts[t]||0)+1});const ks=Object.keys(ts).sort((a,b)=>a.localeCompare(b,'pt-BR'));
   if(ks.length>1||V8.tipoF){const sl=document.createElement('select');sl.setAttribute('aria-label','Filtrar estabelecimentos por tipo');sl.add(new Option('Todos os tipos ('+V8.lojas.length+')',''));ks.forEach(k=>sl.add(new Option(k+' ('+ts[k]+')',k)));
    if(V8.tipoF&&!ts[V8.tipoF])sl.add(new Option(V8.tipoF+' (0)',V8.tipoF));sl.value=V8.tipoF;sl.onchange=()=>{V8.tipoF=sl.value;profPag=0;desenharProf()};top.append(sl)}}
  const ac=mk8('div','v8acts');
  if(apiOn8()&&window.MH_API.admTk()&&document.body.classList.contains('adm')){const b=mk8('button','more','🛠 Adm: ofícios');b.type='button';b.onclick=abrirAdmOficios8;ac.append(b);const b2=mk8('button','more','🛠 Adm: pessoas');b2.type='button';b2.onclick=abrirAdmPessoas8;ac.append(b2)}
+ if(window.MH_INVESTIR8&&document.body.classList.contains('adm')){const b3=mk8('button','more','🛠 Adm: Investir');b3.type='button';b3.onclick=()=>MH_INVESTIR8.admin();ac.append(b3)}
  if(ac.children.length)top.append(ac)}
 function desenharProf(){
+ try{desenharPraca()}catch(e){}
  const box=document.getElementById('profList'),pg=document.getElementById('profPg');if(!box||!pg)return;
  desenhaTopo8();
+ if(V8.tab==='invest'&&window.MH_INVESTIR8){box.textContent='';pg.textContent='';box.style.gridTemplateColumns='1fr';MH_INVESTIR8.render(box,profQ);return}
+ box.style.gridTemplateColumns='';
  const q=norm(profQ).trim();const itens=[];
  if(V8.tab==='helpers'||V8.tab==='fav')listaHelpers().filter(h=>(V8.tab!=='fav'||ehFav(h.nome))&&(!q||norm(h.nome).includes(q)||norm(h.work).includes(q))).forEach(h=>{const r=resumo(h.nome);itens.push({t:'h',h,v:verificado(h.nome)?1:0,nota:r?r.m:0,n:r?r.n:0,nome:h.nome})});
  if(V8.tab!=='helpers')V8.lojas.filter(l=>(V8.tab!=='fav'||V8.fav.lojas.has(l.chave))&&(V8.tab!=='lojas'||!V8.tipoF||l.tipo===V8.tipoF)&&(V8.tab!=='invest'||l.invest)&&(!q||norm(l.nome).includes(q)||norm(l.tipo).includes(q))).forEach(l=>itens.push({t:'e',l,v:0,nota:l.nota||0,n:l.n||0,nome:l.nome}));
@@ -610,6 +613,43 @@ function desenharProf(){
  if(tot>1){const a=document.createElement('button'),n2=document.createElement('button'),s=document.createElement('span');a.type=n2.type='button';a.textContent='Anterior';n2.textContent='Próxima';s.textContent=(profPag+1)+' de '+tot;a.disabled=profPag<=0;n2.disabled=profPag>=tot-1;
   a.onclick=()=>{profPag--;desenharProf()};n2.onclick=()=>{profPag++;desenharProf()};pg.append(a,s,n2)}}
 document.addEventListener('mh-selos',()=>{try{desenharProf()}catch(e){}});
+/* ===== 1º andar: Praça de alimentação (só estabelecimentos de comida e mercado) ===== */
+const PRACA8=[['todos','🏪','Tudo',null],
+ ['rest','🍽️','Restaurantes',['Restaurante','Churrascaria','Marmitaria','Buffet']],
+ ['lanche','🍔','Lanches e pizzas',['Lanchonete','Hamburgueria','Pastelaria','Pizzaria']],
+ ['padaria','🥖','Padarias e doces',['Padaria','Doceria e confeitaria']],
+ ['acai','🍦','Açaí e sorvete',['Açaiteria','Sorveteria']],
+ ['cafe','☕','Cafés e bares',['Cafeteria','Bar e petiscaria']],
+ ['mercado','🥩','Mercados e açougue',['Mercado e mercearia','Supermercado','Açougue','Peixaria','Hortifruti']],
+ ['farmacia','💊','Farmácias',['Farmácia']],
+ ['bebida','🥤','Bebidas e gás',['Distribuidora de bebidas','Distribuidora de gás','Depósito de água']],
+ ['pet','🐾','Pet shop',['Pet shop','Agropecuária']],
+ ['loja','🛍️','Lojas',['Loja','Loja de eletrônicos','Loja de eletrodomésticos','Loja de móveis','Loja de roupas','Loja de calçados','Loja de acessórios','Loja de cosméticos e perfumaria','Ótica','Joalheria e relojoaria','Papelaria','Livraria','Loja de brinquedos','Loja de presentes','Floricultura','Loja de materiais de construção']],
+ ['outros','🧰','Serviços e outros',null]];
+const PRACA_TODOS8=PRACA8.slice(1).flatMap(g=>g[3]||[]);
+let pcSel8='todos',pcPag8=0,pcTipoF8='';const PC_N8=6;
+const pcTipos8=k=>{const g=PRACA8.find(x=>x[0]===k);return g&&g[3]?g[3]:PRACA_TODOS8};
+const pcLojas8=k=>{let r;if(k==='todos')r=V8.lojas;else if(k==='outros')r=V8.lojas.filter(l=>!PRACA_TODOS8.includes(l.tipo));else{const ts=pcTipos8(k);r=V8.lojas.filter(l=>ts.includes(l.tipo))}return pcTipoF8?r.filter(l=>l.tipo===pcTipoF8):r};
+function desenharPraca(){
+ const sec=document.getElementById('praca'),box=document.getElementById('pcList');if(!sec||!box)return;
+ sec.hidden=!apiOn8();
+ const chips=document.getElementById('pcChips'),pg=document.getElementById('pcPg');
+ if(chips){chips.textContent='';PRACA8.forEach(g=>{const n=pcLojas8(g[0]).length,b=mk8('button',null,g[1]+' '+g[2]);b.type='button';b.setAttribute('aria-pressed',String(pcSel8===g[0]));if(n)b.append(mk8('b',null,String(n)));b.onclick=()=>{pcSel8=g[0];pcTipoF8='';pcPag8=0;desenharPraca()};chips.append(b)});if(pcTipoF8){const x=mk8('button',null,'✕ Só: '+pcTipoF8);x.type='button';x.setAttribute('aria-label','Tirar o filtro '+pcTipoF8);x.onclick=()=>{pcTipoF8='';pcPag8=0;desenharPraca()};chips.append(x)}}
+ document.querySelectorAll('#mhInicio [data-praca]').forEach(b=>{const e=b.querySelector('em');if(!e)return;const n=pcLojas8(b.dataset.praca).length;e.textContent=n?String(n):''});
+ const itens=pcLojas8(pcSel8).slice().sort((a,b)=>((b.nota||0)-(a.nota||0))||((b.n||0)-(a.n||0))||String(a.nome).localeCompare(String(b.nome),'pt-BR'));
+ const tot=Math.max(1,Math.ceil(itens.length/PC_N8));if(pcPag8>=tot)pcPag8=tot-1;
+ box.textContent='';
+ if(!itens.length){const g=PRACA8.find(x=>x[0]===pcSel8),nome=g&&g[3]?g[2].toLowerCase():'estabelecimentos';
+  box.style.gridTemplateColumns='1fr';
+  box.append(mk8('p','note',!V8.lojasOk?'Carregando os estabelecimentos…':'Ainda não tem '+nome+' cadastrados na região. Tem um negócio assim? Crie o seu em \"Meu espaço profissional\" e ele aparece aqui.'))}
+ else box.style.gridTemplateColumns='';
+ itens.slice(pcPag8*PC_N8,pcPag8*PC_N8+PC_N8).forEach(l=>box.append(cardLoja8(l)));
+ if(pg){pg.textContent='';if(tot>1){const a=document.createElement('button'),n2=document.createElement('button'),t=document.createElement('span');a.type=n2.type='button';a.textContent='Anterior';n2.textContent='Próxima';t.textContent=(pcPag8+1)+' de '+tot;a.disabled=pcPag8<=0;n2.disabled=pcPag8>=tot-1;
+  a.onclick=()=>{pcPag8--;desenharPraca()};n2.onclick=()=>{pcPag8++;desenharPraca()};pg.append(a,t,n2)}}}
+window.MH_PRACA8=k=>{pcSel8=PRACA8.some(g=>g[0]===k)?k:'todos';pcTipoF8='';pcPag8=0;desenharPraca()};
+window.MH_TIPO8=t=>{pcSel8='todos';pcTipoF8=t||'';pcPag8=0;desenharPraca()};
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-praca]');if(b)window.MH_PRACA8(b.dataset.praca)});
+setTimeout(()=>{try{desenharPraca()}catch(e){}},0);
 function montaProf(){const need=document.getElementById('need');if(!need||document.getElementById('prof'))return;
  const s=document.createElement('section');s.id='prof';s.className='prof';s.setAttribute('aria-label','Profissionais da Região');
  const h=mk8('h2','prof-t','Profissionais da Região');
@@ -1644,6 +1684,7 @@ function formLoja8(d,E,L){d.textContent='';d.append(mk8('h3',null,L?'Editar '+L.
  const eqCk=mk8('label','ck');const eqIn=document.createElement('input');eqIn.type='checkbox';eqIn.checked=L?L.equipeVisivel!==0:true;eqCk.append(eqIn,mk8('span',null,'Mostrar a equipe no perfil da loja (só lojas de conversa; loja com agenda sempre mostra)'));det.append(eqCk);
  const invCk=mk8('label','ck');const invIn=document.createElement('input');invIn.type='checkbox';invIn.checked=!!(L&&L.invest);invCk.append(invIn,mk8('span',null,'Aceito conversar com quem quiser investir'));det.append(invCk);
  const invL=mk8('label',null,'O que você diz a quem quer investir (opcional)');const invT=document.createElement('input');invT.type='text';invT.maxLength=200;invT.placeholder='Ex.: Quero ampliar a oficina; converso com quem se interessar';invT.value=(L&&L.invest&&L.invest!=='Aceito conversar com quem quiser investir.')?L.invest:'';invL.append(invT);det.append(invL);det.append(mk8('p','note','Quem investe combina tudo direto com você. O MiHelp não intermedia, não garante retorno e não recebe nada.'));
+ if(L&&window.MH_INVESTIR8){const eb=mk8('button','more','📈 Quero expandir meu negócio');eb.type='button';eb.onclick=()=>MH_INVESTIR8.expandir({nome:L.nome,tipo:L.tipo,cidade:L.cidade,chave:L.chave});det.append(eb,mk8('p','note','Cria um anúncio separado na aba Investir, com aprovação do MiHelp. O perfil comercial da loja não muda.'))}
  det.append(mk8('h4',null,'Horário de funcionamento (opcional)'));const hed=horarioEditor8(L&&L.horario);det.append(hed.el);alvo=d;
  let atende,fun;
  if(!L){const l=mk8('label','ck');atende=document.createElement('input');atende.type='checkbox';l.append(atende,mk8('span',null,'Eu também atendo aqui (aparece o meu nome na equipe)'));d.append(l);fun=campo('Minha função (opcional)','text',30,'','Ex.: Barbeiro, Dono')}

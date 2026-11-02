@@ -97,6 +97,7 @@ function mock(path){
   if(p==='/admin/config')return {ok:true,itens:{meta:'{"txt":"exemplo"}',titulos:'{}',duelo:'{"id":"cidades"}'}};
   if(p==='/admin/licencas')return {ok:true,itens:[{tipo:'conta',alvo:'66999990001',nome:'Maria Souza',dias:30,ate:Date.now()+9*86400000,status:'ativo',restantes:9},{tipo:'loja',alvo:'padaria-central-a1b2',nome:'Padaria Central',dias:7,ate:Date.now()-2*86400000,status:'vencido',restantes:-2}]};
   if(p==='/admin/pagamentos')return {ok:true,total:342,itens:[{tipo:'anuncio',nome:'Padaria Central',valor:45,ts:Date.now()-3600000},{tipo:'apoio',nome:'Fulano',valor:20,ts:Date.now()-86400000},{tipo:'duelo',nome:'Beltrano',valor:5,ts:Date.now()-172800000}]};
+  if(p==='/admin/investir')return {ok:true,itens:[{id:'x1',categoria:'franquia',nome:'Marca Exemplo',segmento:'Alimentação',status:'pendente',plano:'basico',ativo:true,cidades:['barra-do-garcas']}],interesses:[]};
   return {ok:true};
 }
 /* ---------- requisição ---------- */
@@ -134,7 +135,7 @@ $('#go').onclick=entrar;$('#pw').onkeydown=e=>{if(e.key==='Enter')entrar()};
 
 /* ---------- módulos ---------- */
 const MODS=[
- ['visao','/visao'],['pessoas','/pessoas'],['oficios','/oficios'],['anuncios','/anuncios'],
+ ['visao','/visao'],['pessoas','/pessoas'],['oficios','/oficios'],['investir','/investir'],['anuncios','/anuncios'],
  ['comandos','/comandos'],['denuncias','/denuncias'],['textos','/textos'],['meta','/meta'],['pagamentos','/pagamentos'],['planos','/planos'],['acessos','/acessos'],['config','/config'],
 ];
 function menu(){
@@ -176,6 +177,52 @@ const M={
     btn('recusar','rd',async()=>{await req('/admin/oficios/decidir',{tel:o.tel,oficio:o.oficio,aprovar:false});mod('oficios')}));
    c.append(d)});
   if(!(r.j.itens||[]).length)c.textContent='nenhum ofício pendente ✔';
+ },
+ async investir(c){
+  const [r,p]=await Promise.all([req('/admin/investir'),req('/investir')]);const j=r.j||{};
+  if(!r.ok||!j.itens){c.innerHTML='<div class="card">Rota <b>/admin/investir</b> ainda não existe no worker. Veja o arquivo INVESTIR-API.md.</div>';return}
+  const CAT={franquia:'Franquias',regiao:'Negócios da região',oportunidade:'Oportunidades'},PL=['basico','destaque','exclusivo'],
+   CID={'barra-do-garcas':'Barra do Garças-MT','pontal-do-araguaia':'Pontal do Araguaia-MT',aragarcas:'Aragarças-GO'},
+   GAR=/(retorno|lucro|rentabilidade|ganho|rendimento)s?\s+(garantid|certo|assegurad|fixo)|garant(e|imos|ido|ia)\s+(o\s+|de\s+)?(retorno|lucro|ganho|rendimento)|sem\s+risco|risco\s+zero|dinheiro\s+de\s+volta/i;
+  const L=j.itens,ints=j.interesses||[],cnt={};ints.forEach(x=>{cnt[x.opId]=(cnt[x.opId]||0)+1});
+  const pend=L.filter(i=>i.status==='pendente').length;
+  c.innerHTML='<div class="grid"><div class="card"><h4>PENDENTES</h4><div class="num">'+pend+'</div></div><div class="card"><h4>NO AR</h4><div class="num">'+L.filter(i=>i.status==='aprovado'&&i.ativo!==false).length+'</div></div><div class="card"><h4>INTERESSES</h4><div class="num">'+ints.length+'</div></div></div>'
+   +'<div class="card"><h4>OPORTUNIDADES</h4><div id="il"></div><div class="row"><button id="in">+ nova oportunidade</button></div></div><div class="card" id="ie" hidden></div>'
+   +'<div class="card"><h4>INTERESSADOS (dados pessoais: só root; cada pessoa autorizou o envio)</h4><div id="ii"></div></div><div class="card"><h4>DEMANDA POR TIPO DE NEGÓCIO</h4><div id="id"></div></div>';
+  const sv=async it=>{const o=await req('/admin/investir/salvar',it);if(o.ok)mod('investir');else log('não salvou',true)};
+  L.slice().sort((a,b)=>(a.status==='pendente'?0:1)-(b.status==='pendente'?0:1)||String(a.nome).localeCompare(String(b.nome))).forEach(i=>{
+   const d=document.createElement('div');d.className='it';
+   d.innerHTML='<div>'+esc(i.nome)+' <small>'+esc(CAT[i.categoria]||i.categoria)+' · '+esc(i.status)+' · plano '+esc(i.plano||'basico')+(i.patrocinado?' · PATROCINADA':'')+(i.ativo===false?' · DESATIVADA':'')+(i.views?' · 👁 '+i.views:'')+(cnt[i.id]?' · ✉ '+cnt[i.id]:'')+'</small></div>';
+   const up=ch=>sv(Object.assign({},i,ch));
+   if(i.status!=='aprovado')d.append(btn('aprovar','',()=>up({status:'aprovado'})));
+   if(i.status!=='rejeitado')d.append(btn('rejeitar','rd',()=>up({status:'rejeitado'})));
+   d.append(btn(i.ativo===false?'ativar':'desativar','am',()=>up({ativo:i.ativo===false})),btn(i.patrocinado?'tirar patrocínio':'patrocinar','am',()=>up({patrocinado:!i.patrocinado})));
+   const pl=document.createElement('select');PL.forEach(o=>pl.append(new Option('plano '+o,o)));pl.value=i.plano||'basico';pl.onchange=()=>up({plano:pl.value});d.append(pl,btn('editar','',()=>form(i)));
+   const x=btn('apagar','rd');conf(x,'',async()=>{await req('/admin/investir/apagar',{id:i.id});mod('investir')});d.append(x);$('#il').append(d)});
+  if(!L.length)$('#il').textContent='nenhuma oportunidade cadastrada';
+  function form(it){const o=it||{},E=$('#ie');E.hidden=false;
+   E.innerHTML='<h4>'+(it?'EDITAR':'NOVA')+' OPORTUNIDADE</h4>';
+   const F={},add=(k,lb,tag,opts)=>{const l=document.createElement('label');l.textContent=lb;const e=document.createElement(tag||'input');if(tag==='select')(opts||[]).forEach(v=>e.append(new Option(Array.isArray(v)?v[1]:v,Array.isArray(v)?v[0]:v)));if(tag==='textarea')e.style.minHeight='70px';e.style.cssText+='width:100%;margin:4px 0 10px';e.value=o[k]==null?'':o[k];F[k]=e;E.append(l,e)};
+   add('categoria','Categoria','select',Object.entries(CAT));add('nome','Nome *');add('segmento','Segmento *');add('cidadeOrigem','Cidade de origem','select',[['','—']].concat(Object.entries(CID)));
+   add('descricao','Descrição *','textarea');add('modelo','Modelo de operação / negócio','textarea');add('procura','Procura','select',[['franqueado','franqueado'],['socio','sócio'],['investidor','investidor'],['comprador','comprador']]);
+   add('tipoExpansao','Tipo de expansão');add('invest','Investimento estimado (como a empresa informa)');add('taxa','Taxa de franquia');add('area','Área necessária');add('requisitos','Requisitos','textarea');add('extra','Informações adicionais','textarea');add('site','Site https://');add('contato','WhatsApp');
+   const cs=Object.entries(CID).map(([k,n])=>{const l=document.createElement('label');l.style.marginRight='14px';const e=document.createElement('input');e.type='checkbox';e.value=k;e.checked=(o.cidades||[]).includes(k);l.append(e,' '+n);E.append(l);return e});
+   E.append(document.createElement('br'));add('plano','Plano','select',PL);add('status','Situação','select',['pendente','aprovado','rejeitado']);
+   if(!it)F.status.value='aprovado';
+   const pa=document.createElement('input');pa.type='checkbox';pa.checked=!!o.patrocinado;const at=document.createElement('input');at.type='checkbox';at.checked=o.ativo!==false;
+   const l1=document.createElement('label');l1.append(pa,' patrocinada');const l2=document.createElement('label');l2.style.marginLeft='14px';l2.append(at,' ativa');E.append(l1,l2,document.createElement('br'),document.createElement('br'));
+   const sb=btn('salvar','',()=>{const V=k=>F[k].value.trim();if(V('nome').length<2||V('segmento').length<2||V('descricao').length<10)return log('preencha nome, segmento e descrição (mín. 10 letras)',true);
+    if(V('site')&&!/^https?:\/\//i.test(V('site')))return log('site precisa começar com https://',true);
+    if(GAR.test(['nome','segmento','descricao','modelo','tipoExpansao','invest','taxa','requisitos','extra'].map(V).join(' ')))return log('texto promete retorno garantido: não pode',true);
+    const it2=Object.assign({},o);['categoria','nome','segmento','cidadeOrigem','descricao','modelo','procura','tipoExpansao','invest','taxa','area','requisitos','extra','site','contato','plano','status'].forEach(k=>it2[k]=V(k));
+    if(it2.categoria==='franquia')it2.procura='franqueado';it2.cidades=cs.filter(e=>e.checked).map(e=>e.value);it2.patrocinado=pa.checked;it2.ativo=at.checked;if(!it2.id)it2.id='o'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);it2.origem=o.origem||'admin';it2.ts=o.ts||Date.now();sv(it2)});
+   const row=document.createElement('div');row.className='row';row.append(sb,btn('cancelar','rd',()=>{E.hidden=true}));E.append(row);E.scrollIntoView({behavior:'smooth'})}
+  $('#in').onclick=()=>form(null);
+  ints.slice().reverse().slice(0,80).forEach(x=>{const op=L.find(i=>i.id===x.opId),d=document.createElement('div');d.className='it';d.innerHTML='<div>'+esc(x.nome)+' → '+esc(op?op.nome:x.opId)+' <small>'+esc([CID[x.cidade]||x.cidade,x.tel,x.tipo,x.faixa,x.msg].filter(Boolean).join(' · '))+'</small></div>';$('#ii').append(d)});
+  if(!ints.length)$('#ii').textContent='ninguém manifestou interesse ainda';
+  const dm={};((p.j&&p.j.demanda)||[]).forEach(x=>{dm[x.categoria]=(dm[x.categoria]||0)+(+x.n||0)});
+  Object.entries(dm).sort((a,b)=>b[1]-a[1]).forEach(([k,n])=>{const d=document.createElement('div');d.className='it';d.innerHTML='<div>'+esc(k)+'</div><b>'+n+'</b>';$('#id').append(d)});
+  if(!Object.keys(dm).length)$('#id').textContent='sem pedidos ainda';
  },
  async anuncios(c){
   c.innerHTML='<div class="card"><h4>NOVO ANÚNCIO</h4><div class="row"><input id="an" placeholder="nome"><input id="at" placeholder="texto (até 140)"></div><div class="row"><input id="al" placeholder="link https://"><input id="av" type="number" placeholder="vaga 1-30" value="1"><input id="am" type="number" placeholder="minutos" value="1440"><select id="ag"><option value="">pago</option><option value="cortesia">cortesia</option></select><button id="ab">publicar</button></div></div><div id="ls"></div><div class="row"><button class="rd" id="alp">limpar todos</button></div>';

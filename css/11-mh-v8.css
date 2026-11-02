@@ -1,13 +1,43 @@
 
 /* v8: abas, estabelecimentos, equipe e Meu espaço profissional */
 .v8top{margin:8px 0 10px}
-.mhi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:0 0 16px}
-.mhi button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:92px;padding:12px 8px;border-radius:16px;border:1px solid var(--line);background:var(--surf);color:var(--read);font:800 16px var(--sans);text-align:center;cursor:pointer;transition:transform .08s,border-color .15s}
-.mhi button span{font-size:32px;line-height:1}
-.mhi button:hover,.mhi button:focus-visible{border-color:var(--gold);color:var(--gold2);outline:none}
-.mhi button:active{transform:scale(.97)}
-.mhi button[hidden]{display:none}
-@media(min-width:700px){.mhi{grid-template-columns:repeat(4,1fr)}}
+/* ===== Andares: o início do MiHelp organizado como um prédio ===== */
+.mhi{display:flex;flex-direction:column;gap:12px;margin:0 0 18px}
+.mhi .andar{border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,rgba(var(--gold-rgb),.06),transparent 55%),var(--surf);overflow:hidden}
+.mhi .andar:not(:has(.andar-g button:not([hidden]))){display:none}
+.mhi .andar-h{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);background:rgba(var(--gold-rgb),.07)}
+.mhi .andar-n{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:linear-gradient(180deg,var(--gold2),var(--gold));color:var(--on-gold,#201804);font:800 16px var(--mono);box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
+.mhi .andar-ti{flex:1;min-width:0;display:flex;flex-direction:column;font:800 16px/1.2 var(--sans);color:var(--text)}
+.mhi .andar-ti small{margin-top:2px;font:500 12.5px/1.3 var(--sans);color:var(--mute)}
+.mhi .andar-k{flex:none;font:700 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--gold2)}
+.mhi .andar-g{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:10px}
+.mhi .andar.c3 .andar-g{grid-template-columns:repeat(3,1fr)}
+.mhi .andar-g button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:86px;padding:10px 6px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--read);font:800 15px/1.2 var(--sans);text-align:center;cursor:pointer;transition:transform .12s,border-color .12s}
+.mhi .andar-g button span{font-size:30px;line-height:1}
+.mhi .andar-g button:hover,.mhi .andar-g button:focus-visible{border-color:var(--gold);color:var(--gold2);outline:none}
+.mhi .andar-g button:active{transform:scale(.97)}
+.mhi .andar-g button[hidden]{display:none}
+.mhi .andar-p .andar-g button{flex-direction:row;justify-content:flex-start;min-height:56px;padding:8px 12px;gap:10px;text-align:left;font:700 14px/1.2 var(--sans)}
+.mhi .andar-p .andar-g button span{font-size:24px;flex:none}
+.mhi .andar-p .andar-g button em{margin-left:auto;font:700 12px var(--mono);font-style:normal;color:var(--gold2)}
+.mhi #jnTog{align-self:flex-end;display:inline-flex;flex-direction:row;align-items:center;gap:6px;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surf);color:var(--read);font:700 13px var(--sans);cursor:pointer}
+.mhi #jnTog span{font-size:16px;line-height:1}
+.mhi #jnTog:hover{border-color:var(--gold);color:var(--gold2)}
+@media(min-width:700px){.mhi .andar-g{grid-template-columns:repeat(4,1fr)}.mhi .andar.c3 .andar-g{grid-template-columns:repeat(3,1fr)}}
+/* Praça de alimentação (1º andar) */
+#praca{margin:18px 0}
+#praca[hidden]{display:none!important}
+#praca .pc-head{display:flex;align-items:center;gap:12px;margin:0 0 10px}
+#praca .pc-head .andar-n{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:linear-gradient(180deg,var(--gold2),var(--gold));color:var(--on-gold,#201804);font:800 16px var(--mono)}
+#praca h2{margin:0;font:800 20px var(--sans);color:var(--text)}
+#praca .pc-sub{margin:2px 0 0;color:var(--mute);font-size:14px}
+#pcChips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:thin}
+#pcChips button{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surf);color:var(--read);font:700 14px var(--sans);cursor:pointer;white-space:nowrap}
+#pcChips button b{font:700 12px var(--mono);opacity:.8}
+#pcChips button:hover{border-color:var(--gold)}
+#pcChips button[aria-pressed=true]{background:linear-gradient(180deg,var(--gold2),var(--gold));color:var(--on-gold,#201804);border-color:transparent}
+#pcList{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(max-width:640px){#pcList{grid-template-columns:1fr}}
 .vfil{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
 .vfil button{min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surf);color:var(--read);font:700 14px var(--sans);cursor:pointer}
 .vfil button[aria-pressed=true]{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#201804;border-color:transparent}

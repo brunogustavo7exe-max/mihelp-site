@@ -45,7 +45,7 @@ window.MH_JAN={
   /* 1º toque: janelas de informação · 2º: Guilda e Fliperama · 3º: Enquete e Cabo de guerra. Cada toque fecha o próximo grupo que ainda estiver aberto. */
   fecharTodas(){
     const G3=['duelo','enquete'],G2=['guilda','fliperama'];
-    const nivel=w=>{if(w.id==='cadWin'||w.id==='vagas'||chave(w)==='publicidade')return 0;const sc=w.closest('section[id]'),id=sc?sc.id:'';if(id==='vale'||id==='carona')return 0;return G3.includes(id)?3:G2.includes(id)?2:1};
+    const nivel=w=>{if(w.id==='cadWin'||w.id==='vagas'||chave(w)==='publicidade')return 0;const sc=w.closest('section[id]'),id=sc?sc.id:'';if(id==='vale'||id==='rivo')return 0;return G3.includes(id)?3:G2.includes(id)?2:1};
     const msgs={1:'Janelas de informação fechadas. Toque de novo para fechar Guilda e Fliperama.',2:'Guilda e Fliperama fechados. Toque de novo para fechar Enquete e Cabo de guerra.',3:'Enquete e Cabo de guerra fechados. Use \"Abrir tudo\" para voltar.'};
     for(const n of [1,2,3]){
       const ab=wins.filter(w=>nivel(w)===n&&!w.classList.contains('fechada')&&!w.closest('[hidden]'));

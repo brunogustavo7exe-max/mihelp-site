@@ -1,0 +1,94 @@
+
+/* =========================================================
+   PUBLICIDADE MOBILE — as vagas laterais sobem para o topo
+   ========================================================= */
+@media (max-width: 1199px){
+  #adtop{
+    display:block!important;
+    position:relative;
+    z-index:45;
+    padding:8px 10px 10px;
+    background:var(--deep);
+    border-bottom:1px solid var(--line);
+  }
+  #adtop[hidden]{display:block!important}
+  #adtop .adw{
+    display:flex;
+    gap:9px;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  #adtop .adw::-webkit-scrollbar{display:none}
+  #adtop .adc{
+    flex:0 0 min(88vw,360px);
+    min-height:74px;
+    box-sizing:border-box;
+    scroll-snap-align:start;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 11px;
+    border:1px solid var(--line);
+    border-radius:11px;
+    background:var(--bg);
+    color:var(--text);
+    text-align:left;
+    font:inherit;
+    cursor:pointer;
+    box-shadow:0 5px 16px rgba(0,0,0,.18);
+  }
+  #adtop .adc.open-ad{
+    border-color:rgba(220,177,53,.48);
+    background:linear-gradient(180deg,rgba(220,177,53,.08),var(--bg));
+  }
+  #adtop .ad-icon{
+    flex:none;
+    width:48px;
+    height:48px;
+    border-radius:9px;
+    display:grid;
+    place-items:center;
+    background:rgba(220,177,53,.12);
+    border:1px dashed var(--gold);
+    color:var(--gold2);
+    font:800 18px var(--mono);
+  }
+  #adtop .adt{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+  #adtop .adt small{font:700 9px var(--mono);color:var(--gold2);letter-spacing:.06em;text-transform:uppercase}
+  #adtop .adt b{font-size:14px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #adtop .adt span{font-size:12px;color:var(--read);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  #adtop .ad-arrow{flex:none;color:var(--gold2);font-size:20px;line-height:1}
+  #adtop .add{display:flex;justify-content:center;gap:5px;padding:6px 0 0}
+  #adtop .add i{width:5px;height:5px;border-radius:50%;background:var(--line)}
+  #adtop .add i.on{background:var(--gold)}
+}
+
+@media (max-width:640px){
+  /* A publicidade fica perto da primeira dobra, não escondida no rodapé. */
+  #adtop{margin:0}
+  #adtop .adc{flex-basis:calc(100vw - 42px);min-height:70px}
+
+  /* A grade enorme de vagas continua disponível no desktop/tablet,
+     mas no celular não ocupa uma página inteira. O carrossel do topo é a vitrine. */
+  #vagas .vgrid{display:none}
+  #vagas .vgi{margin-bottom:8px}
+  #vagas .mobile-ad-cta{
+    display:flex!important;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:10px;
+    padding:11px 12px;
+    border:1px dashed var(--line);
+    border-radius:9px;
+    background:var(--bg);
+  }
+  #vagas .mobile-ad-cta span{font-size:12px;color:var(--mute);line-height:1.35}
+  #vagas .mobile-ad-cta button{flex:none}
+}
+
+@media (min-width:641px){
+  #vagas .mobile-ad-cta{display:none!important}
+}

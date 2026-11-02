@@ -2,7 +2,7 @@
 try{(function(){
 const A=window.MH_API,$=id=>document.getElementById(id);
 if(!$('vale'))return;
-if(!A||!A.on()){$('vale').hidden=true;if($('carona'))$('carona').hidden=true;if($('cheers'))$('cheers').hidden=true;document.querySelectorAll('a[href="#vale"],a[href="#carona"]').forEach(n=>{n.style.display='none'});document.querySelectorAll('#dock [data-dock=guia],#dock [data-dock=carona]').forEach(b=>{b.style.display='none'});return}
+if(!A||!A.on()){$('vale').hidden=true;if($('rivo'))$('rivo').hidden=true;if($('cheers'))$('cheers').hidden=true;document.querySelectorAll('a[href="#vale"],a[href="#rivo"]').forEach(n=>{n.style.display='none'});document.querySelectorAll('#dock [data-dock=guia],#dock [data-dock=rivo]').forEach(b=>{b.style.display='none'});return}
 const CID=window.MH_REGIAO.slugs.map(s=>[s,window.MH_REGIAO.nomes[s]||s]);
 const CATS=['Restaurante','Lanchonete','Bar','Loja','Serviço','Turismo','Hotel/Pousada','Saúde','Outro'];
 const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
@@ -63,25 +63,7 @@ async function guia(){
   c.append(ac);box.append(c)};
  if(dest)pinta(dest,true);l.forEach(x=>pinta(x,false))}
 const fmt=x=>{const p=String(x.data).split('-'),dt=new Date(x.data+'T12:00:00');return ['dom','seg','ter','qua','qui','sex','sáb'][dt.getDay()]+' '+p[2]+'/'+p[1]+' às '+x.hora};
-async function caronas(){
- const box=$('cLista');box.textContent='Carregando…';
- const r=await A.req('/caronas',{token:A.usrTk()});box.textContent='';
- if(!r.ok){box.append(mk('p','note','Não consegui carregar agora. Tente de novo em instantes.'+dica(r)));return}
- const l=r.j.itens||[];
- if(!l.length){box.append(mk('p','note','Nenhuma carona marcada ainda. Vai viajar? Toque em "Oferecer carona".'));return}
- l.forEach(x=>{const c=mk('div','vcard');c.append(mk('b',0,x.origem+' → '+x.destino));
-  c.append(mk('span','vsub',fmt(x)+' · '+x.vagas+(x.vagas===1?' vaga':' vagas')+(x.valor?' · dividir custos: R$ '+x.valor+' por pessoa':' · sem custo')));
-  if(x.ponto)c.append(mk('p','vdesc','Encontro: '+x.ponto));
-  if(x.obs)c.append(mk('p','vdesc',x.obs));
-  c.append(mk('span','vsub','Motorista: '+x.autor));
-  const ac=mk('div','vac');const b=mk('button',0,x.meu?'Cancelar minha carona':'💬 Falar com o motorista');b.type='button';
-  b.onclick=async()=>{
-   if(x.meu){if(!confirm('Cancelar essa carona?'))return;const q=await A.req('/caronas/cancelar',{token:A.usrTk(),body:{id:x.id}});if(q.ok)caronas();else msgC('Não consegui cancelar agora.');return}
-   if(!logado()){msgC('Entre na sua conta para falar com o motorista.');return}
-   if(window.MH_chamar)MH_chamar({nome:x.autor,work:'Motorista'});else msgC('Chame '+x.autor+' pelo chat.')};
-  ac.append(b);
-  if(!x.meu&&A.admTk&&A.admTk()){const rm=mk('button',0,'🗑 Remover (adm)');rm.type='button';rm.onclick=async()=>{if(!confirm('Remover essa carona?'))return;const q=await A.req('/caronas/cancelar',{token:A.admTk(),body:{id:x.id}});if(q.ok&&q.j&&q.j.ok)caronas();else msgC('Não consegui remover agora.')};ac.append(rm)}
-  c.append(ac);box.append(c)})}
+
 function indicar(){
  if(!logado()){msg('Entre na sua conta para indicar um lugar.');return}
  form('Indicar um lugar','Qualquer pessoa pode indicar: o lugar aparece na hora. Se a equipe visitar, ele ganha a ⭐ estrela MiHelp.',
@@ -89,14 +71,7 @@ function indicar(){
   'Enviar indicação',async o=>{const r=await A.req('/lugares',{token:A.usrTk(),body:Object.assign(o,{cidade:cid})});
    if(r.ok&&r.j.ok){msg('Indicação publicada! Já aparece no Guia da Região.');return ''}
    return r.status===429?'Você já indicou muitos lugares hoje. Tente amanhã.':r.status===401?'Entre na sua conta.':(r.j&&r.j.erro)||'Não consegui enviar agora.'})}
-function oferecer(){
- if(!logado()){msgC('Entre na sua conta para oferecer uma carona.');return}
- const hoje=new Date().toISOString().slice(0,10);
- form('Oferecer carona','Carona é divisão de custos, não é serviço de transporte: o MiHelp não cobra nem guarda dinheiro. Combine tudo no chat privado e avise alguém de confiança sobre a viagem.',
-  [{k:'origem',l:'Saindo de',max:40,ph:'Ex.: Barra do Garças'},{k:'destino',l:'Indo para',max:40,ph:'Ex.: Goiânia'},{k:'data',l:'Dia',t:'date',min:hoje},{k:'hora',l:'Hora de saída',t:'time'},{k:'vagas',l:'Vagas livres',t:'number',min:1,mx:8,v:3},{k:'valor',l:'Dividir custos: R$ por pessoa (0 = sem custo)',t:'number',min:0,mx:1000,v:0},{k:'ponto',l:'Ponto de encontro',max:80},{k:'obs',l:'Observações (opcional)',max:140}],
-  'Publicar carona',async o=>{const r=await A.req('/caronas',{token:A.usrTk(),body:Object.assign(o,{cidade:cid})});
-   if(r.ok&&r.j.ok){msgC('Carona publicada!');caronas();return ''}
-   return r.status===429?'Você já tem 5 caronas abertas.':r.status===401?'Entre na sua conta.':(r.j&&r.j.erro)||'Não consegui publicar agora.'})}
+
 $('vCid').onchange=()=>{cid=$('vCid').value;try{localStorage.setItem('mh_cidade',cid)}catch(e){}guia();cheers()};
 $('vCat').onchange=()=>{cat=$('vCat').value;guia()};
 /* ===== Cheers: eventos das cidades ===== */
@@ -126,6 +101,6 @@ function divulgar(){
   'Publicar evento',async o=>{const r=await A.req('/eventos',{token:A.usrTk(),body:Object.assign(o,{cidade:cid})});
    if(r.ok&&r.j.ok){msgCh('Evento publicado!');cheers();return ''}
    return r.status===429?'Você já tem 8 eventos abertos.':r.status===401?'Entre na sua conta.':(r.j&&r.j.erro)||'Não consegui publicar agora.'})}
-$('vNovo').onclick=indicar;$('cNovo').onclick=oferecer;if($('chNovo'))$('chNovo').onclick=divulgar;
-guia();caronas();cheers();
+$('vNovo').onclick=indicar;if($('chNovo'))$('chNovo').onclick=divulgar;
+guia();cheers();
 })()}catch(e){console.error('MiHelp (vale):',e)}
