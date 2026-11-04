@@ -573,8 +573,13 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
           const r = await eco.req('/rivo/loja?chave=' + encodeURIComponent(e.chave) + '&rid=' + encodeURIComponent(p.rid));
           if (!(r.ok && r.j && r.j.ok)) continue;
           const rv = r.j.rivo || null, antes = JSON.stringify(eco.rv[p.rid] || null);
+          if (rv) rv.chat = r.j.chat || null;
           eco.rv[p.rid] = rv;
           if (JSON.stringify(rv) !== antes) mudou = true;
+          const ch = rv && rv.chat;
+          if (ch && ch.k !== 'l' && ch.last > (eco.st['cn' + p.rid] || 0) && ch.last > (eco.st['cs' + p.rid] || 0)) { eco.st['cn' + p.rid] = ch.last; aviso('💬 ' + (ch.k === 'd' ? 'Entregador' : 'Cliente') + ' (pedido #' + p.id + '): ' + ch.t); try { navigator.vibrate && navigator.vibrate(150); } catch (_) { /* sem vibração */ } }
+          const px = rivoPerto(rv);
+          if (px && px.naLoja && !eco.st['na' + p.rid]) { eco.st['na' + p.rid] = 1; aviso('📍 O entregador do pedido #' + p.id + ' chegou à loja. Entregue o pedido!'); try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch (_) { /* sem vibração */ } }
           if (rv && rv.st === 'coletada' && ['novo', 'preparando', 'pronto'].includes(p.status)) { p.status = 'a_caminho'; mudou = true; }
           if (rv && rv.st === 'entregue' && p.status !== 'entregue') { p.status = 'entregue'; p.entregueEm = Date.now(); eco.faturar(p); mudou = true; }
         }
@@ -613,6 +618,7 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
           : rv.st === 'entregue' ? 'Entrega concluída.' : rv.st === 'cancelada' ? 'Chamada cancelada.'
           : (dn ? dn.nome + (dn.veic ? ' · ' + dn.veic : '') + (dn.placa ? ' · ' + dn.placa : '') + ' · ' : '') + (rv.st === 'aceita' ? 'indo à loja' : 'com o pedido, a caminho do cliente')
             + (!rv.pos ? ' · aguardando a posição' : seg > 90 ? ' · ⚠ sem sinal há ' + Math.round(seg / 60) + ' min, ligue para ele' : ' · posição atualizada');
+        const px = rivoPerto(rv); if (px) info.textContent += ' · ' + px.txt;
         mapa.invalidateSize();
         const k = pts.length + ':' + (rv.pos ? 1 : 0);
         if (pts.length && ajustou !== k) { ajustou = k; pts.length > 1 ? mapa.fitBounds(pts, { padding: [30, 30], maxZoom: 17 }) : mapa.setView(pts[0], 16); }
@@ -773,6 +779,12 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
         if (!(r.ok && r.j && r.j.ok)) { aviso(eco.erro(r)); return false; }
         aviso('Chamada cancelada.'); await eco.rivoSync();
       },
+      rivoChat(t) {
+        const p = buscarPedido(t.dataset.id), e = estado.config.eco;
+        if (!p || !p.rid || !e || !e.chave) return false;
+        chat39({ titulo: 'Chat · pedido #' + p.id, dark: true, como: 'l', chave: e.chave, rid: p.rid, req: eco.req, vis: (n) => { eco.st['cs' + p.rid] = n; }, quick: ["O pedido está saindo agora", "Pode vir buscar, está pronto ✅", "Só mais uns minutinhos, já fica pronto", "Pode confirmar o endereço, por favor?", "Ligue para o cliente, por favor"] });
+        return false;
+      },
       rivoMapa(t) {
         const p = buscarPedido(t.dataset.id), e = estado.config.eco;
         if (!p || !p.rid || !e || !e.chave) return false;
@@ -785,15 +797,76 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
 
   /* ---------- telas ---------- */
   const linkar = (t) => esc(t).replace(/📍 (https:\/\/maps\.google\.com\/\?q=[-0-9.,]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--ac)">📍 Abrir no mapa</a>');   // localização enviada pelo cliente do MiHelp
+  /* ===== v39: chat da entrega (cliente · entregador · loja), uma conversa só por entrega ===== */
+  function chat39(o) {
+    var C = o.dark ? { bg: '#1b1e24', fg: '#fff', ln: '#555', me: '#2f6f4e', ot: '#2d323b' } : { bg: '#fff', fg: '#111', ln: '#cfd4dc', me: '#2563eb', ot: '#e8ecf2' };
+    var d = document.createElement('dialog'), last = 0, busy = 0, ativo = true, seen = {}, tm = null;
+    d.style.cssText = 'width:min(460px,94vw);padding:12px;border-radius:14px;border:1px solid ' + C.ln + ';background:' + C.bg + ';color:' + C.fg;
+    var el = function (t, css, x) { var e = document.createElement(t); if (css) e.style.cssText = css; if (x != null) e.textContent = x; return e; };
+    var pill = 'padding:6px 12px;border-radius:999px;border:1px solid ' + C.ln + ';background:transparent;color:inherit;font-size:13px;cursor:pointer';
+    var top = el('div', 'display:flex;justify-content:space-between;align-items:center;margin-bottom:8px'), fechar = el('button', pill, 'Fechar'); fechar.type = 'button';
+    top.append(el('b', '', o.titulo), fechar);
+    var box = el('div', 'height:240px;overflow:auto;display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid ' + C.ln + ';border-radius:10px');
+    box.setAttribute('role', 'log'); box.setAttribute('aria-live', 'polite');
+    var vazio = el('p', 'opacity:.65;font-size:13px;margin:auto;text-align:center', 'Nenhuma mensagem ainda. Toque numa resposta rápida ou escreva.'); box.append(vazio);
+    var qk = el('div', 'display:flex;flex-wrap:wrap;gap:6px;margin:8px 0');
+    var row = el('div', 'display:flex;gap:6px'), inp = el('input', 'flex:1;min-width:0;padding:9px 10px;border-radius:10px;border:1px solid ' + C.ln + ';background:transparent;color:inherit;font-size:15px'), sb = el('button', pill + ';font-weight:700', 'Enviar');
+    inp.type = 'text'; inp.maxLength = 200; inp.placeholder = 'Escreva uma mensagem…'; inp.setAttribute('aria-label', 'Mensagem'); sb.type = 'button'; row.append(inp, sb);
+    var st = el('p', 'font-size:12px;opacity:.8;margin:6px 0 0;min-height:16px'); st.setAttribute('role', 'status');
+    d.append(top, box, qk, row, st);
+    var nomes = { c: 'cliente', d: 'entregador', l: 'loja' };
+    function pinta(m) {
+      if (seen[m.id]) return; seen[m.id] = 1; if (vazio.parentNode) vazio.remove();
+      var mine = m.k === o.como, b = el('div', 'max-width:82%;padding:7px 10px;border-radius:12px;font-size:14px;word-break:break-word;align-self:' + (mine ? 'flex-end' : 'flex-start') + ';background:' + (mine ? C.me : C.ot) + ';color:' + (mine ? '#fff' : C.fg));
+      b.append(el('div', 'font-size:11px;opacity:.75;margin-bottom:2px', (mine ? 'Você' : m.n + ' (' + nomes[m.k] + ')') + ' · ' + new Date(m.ts).toTimeString().slice(0, 5)), el('div', '', m.t)); box.append(b);
+    }
+    function poll() {
+      if (busy || !d.isConnected) return; busy = 1;
+      o.req('/rivo/chat?chave=' + encodeURIComponent(o.chave) + '&rid=' + encodeURIComponent(o.rid) + '&como=' + o.como + '&desde=' + last).then(function (r) {
+        busy = 0;
+        if (!(r.ok && r.j && r.j.ok)) { st.textContent = (r.j && r.j.erro) || 'Sem conexão.'; return; }
+        var it = r.j.itens || [], perto = box.scrollHeight - box.scrollTop - box.clientHeight < 60 || !box.dataset.f;
+        it.forEach(function (m) { pinta(m); if (m.id > last) last = m.id; });
+        if (it.length && perto) { box.scrollTop = box.scrollHeight; box.dataset.f = 1; }
+        if (o.vis) o.vis(last);
+        ativo = r.j.ativo !== false; inp.disabled = sb.disabled = !ativo; if (!ativo) st.textContent = 'A entrega terminou: o chat foi encerrado.'; else if (/Sem conex|encerrad/.test(st.textContent)) st.textContent = '';
+      }).catch(function () { busy = 0; });
+    }
+    function envia(t, again) {
+      t = String(t || '').trim(); if (!t || !ativo) return; sb.disabled = true;
+      o.req('/rivo/chat/enviar', { chave: o.chave, rid: o.rid, como: o.como, t: t }).then(function (r) {
+        sb.disabled = !ativo;
+        if (r.ok && r.j && r.j.ok) { inp.value = ''; st.textContent = ''; poll(); return; }
+        if (!again && r.j && /ao mesmo tempo|Tente de novo/.test(r.j.erro || '')) return envia(t, 1);
+        st.textContent = (r.j && r.j.erro) || 'Não consegui enviar.';
+      });
+    }
+    (o.quick || []).forEach(function (q) { var b = el('button', pill, q); b.type = 'button'; b.onclick = function () { envia(q); }; qk.append(b); });
+    sb.onclick = function () { envia(inp.value); };
+    inp.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); envia(inp.value); } };
+    fechar.onclick = function () { d.close(); };
+    d.addEventListener('close', function () { clearInterval(tm); d.remove(); });
+    document.body.append(d); d.showModal(); poll(); tm = setInterval(poll, 3000);
+  }
+  
+  /* distância entregador ↔ loja/cliente (linha reta), para saber se ele já chegou */
+  function distM(a, b) { const r = (x) => x * Math.PI / 180, dl = r(b.lat - a.lat), dg = r(b.lng - a.lng), q = Math.sin(dl / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dg / 2) ** 2; return Math.round(12742000 * Math.asin(Math.min(1, Math.sqrt(q)))); }
+  const fmtDist = (m) => m < 1000 ? m + ' m' : (m / 1000).toFixed(1).replace('.', ',') + ' km';
+  function rivoPerto(rv) {
+    if (!rv || !rv.pos || !rv.loja || Date.now() - rv.pos.ts > 120000) return null;
+    if (rv.st === 'aceita') { const d = distM(rv.pos, rv.loja), naLoja = d <= Math.max(80, Math.min(Number(rv.pos.acc) || 0, 150)); return { naLoja, txt: naLoja ? '📍 na loja' : 'a ' + fmtDist(d) + ' da loja' }; }
+    if (rv.st === 'coletada' && rv.dest) return { naLoja: false, txt: 'a ' + fmtDist(distM(rv.pos, rv.dest)) + ' do cliente' };
+    return null;
+  }
   function rivoBloco(o) {
     if (o.origem !== 'mihelp' || !o.rid || o.tipo !== 'entrega' || ['entregue', 'cancelado'].includes(o.status)) return '';
     const rv = eco.rv[o.rid];
     if (!rv || ['cancelada', 'expirada'].includes(rv.st)) return `<div class="acts2"><button class="btn full" data-a="rivoChamar" data-id="${o.id}">🛵 ${rv ? 'Chamar o RIVO de novo' : 'Chamar RIVO'}</button></div>`;
     const d = rv.drv, pos = rv.pos, min = pos ? Math.round((Date.now() - pos.ts) / 60000) : 0, nome = esc(d ? d.nome : 'Entregador');
-    const nota = d && d.n ? '⭐ ' + String(d.nota).replace('.', ',') : 'novo';
-    const txt = rv.st === 'procurando' ? '🛵 RIVO: procurando entregador…' : rv.st === 'aceita' ? `🛵 ${nome} (${nota}) está indo à loja` : rv.st === 'coletada' ? `🛵 ${nome} (${nota}) saiu com o pedido` : '🛵 RIVO: ' + esc(rv.st);
-    const alerta = (rv.st === 'aceita' || rv.st === 'coletada') ? (!pos ? 'Aguardando a posição do entregador.' : min >= 2 ? `⚠ Sem sinal do entregador há ${min} min. Ligue para ele.` : '') : '';
-    return `<p class="mu sm">${txt}${alerta ? `<br><b>${alerta}</b>` : ''}</p><div class="acts2"><button class="btn full" data-a="rivoMapa" data-id="${o.id}">Ver no mapa</button>${rv.st === 'procurando' || rv.st === 'aceita' ? `<button class="btn full" data-a="rivoCancelar" data-id="${o.id}">Cancelar chamada</button>` : ''}</div>`;
+    const nota = d && d.n ? '⭐ ' + String(d.nota).replace('.', ',') : 'novo', px = rivoPerto(rv), cn = !!(rv.chat && rv.chat.k !== 'l' && rv.chat.last > (eco.st['cs' + o.rid] || 0));
+    const txt = rv.st === 'procurando' ? '🛵 RIVO: procurando entregador…' : rv.st === 'aceita' ? `🛵 ${nome} (${nota}) está indo à loja${px ? ' · ' + px.txt : ''}` : rv.st === 'coletada' ? `🛵 ${nome} (${nota}) saiu com o pedido${px ? ' · ' + px.txt : ''}` : '🛵 RIVO: ' + esc(rv.st);
+    const alerta = px && px.naLoja ? '📍 O entregador chegou! Entregue o pedido a ele agora.' : (rv.st === 'aceita' || rv.st === 'coletada') ? (!pos ? 'Aguardando a posição do entregador.' : min >= 2 ? `⚠ Sem sinal do entregador há ${min} min. Ligue para ele.` : '') : '';
+    return `<p class="mu sm">${txt}${alerta ? `<br><b>${alerta}</b>` : ''}</p><div class="acts2"><button class="btn full" data-a="rivoMapa" data-id="${o.id}">Ver no mapa</button>${rv.st === 'aceita' || rv.st === 'coletada' ? `<button class="btn full" data-a="rivoChat" data-id="${o.id}">💬 Chat${cn ? ' · nova mensagem' : ''}</button>` : ''}${rv.st === 'procurando' || rv.st === 'aceita' ? `<button class="btn full" data-a="rivoCancelar" data-id="${o.id}">Cancelar chamada</button>` : ''}</div>`;
   }
   function cartaoPedido(o) {
     const min = Pedidos.minutosDesde(o), prox = Pedidos.proximaEtapa(o);
