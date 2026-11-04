@@ -31,7 +31,8 @@
 #appsDlg .ap-rivo p{color:#b9c7dd}#appsDlg .ap-rivo ul{color:#eaf1fb}#appsDlg .ap-rivo li::marker{color:#2ea8ff}
 .ap-rivo .rv-tag{position:absolute;top:10px;right:10px;border-color:#2ea8ff;color:#7cc4ff;background:rgba(46,168,255,.08)}
 .ap-rivo .rv-logo{display:block;width:100%;max-width:340px;height:auto;margin:6px auto 12px}
-#appsDlg .ap-rivo .rv-go{display:flex;width:max-content;max-width:100%;margin:16px auto 6px;background:linear-gradient(180deg,#2ea8ff,#0a5ec2);color:#fff;border:1px solid #7cc4ff;gap:8px;box-shadow:0 0 14px rgba(46,168,255,.4)}
+#appsDlg .ap-rivo .rv-go{display:flex;width:max-content;max-width:100%;margin:16px auto 6px;padding:10px 30px;border-radius:999px;border:1px solid #2ea8ff;background:rgba(46,168,255,.1);color:#7cc4ff;font:700 14px var(--sans);text-decoration:none;cursor:pointer}
+#appsDlg .ap-rivo .rv-go:hover,#appsDlg .ap-rivo .rv-go:focus-visible{background:rgba(46,168,255,.22);outline:none}
 #appsDlg .ap-rivo .rv-lema{margin:12px 0 0;text-align:center;font:700 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#2ea8ff}
 .ap-mesa{background:#0d0b0a linear-gradient(160deg,#1f130a,#0d0b0a)!important;border-color:#f89f2e!important;box-shadow:0 0 0 1px rgba(248,159,46,.25),0 0 22px rgba(236,113,33,.2);position:relative}
 #appsDlg .ap-mesa p{color:#d8c9b6}#appsDlg .ap-mesa ul{color:#fdf5eb}#appsDlg .ap-mesa li::marker{color:#f89f2e}

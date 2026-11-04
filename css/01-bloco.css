@@ -793,6 +793,7 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 .gc.flash{outline:2px solid var(--gold2);outline-offset:2px}
 
 :root{--hov:#11203a}
+:root[data-tema=claro]{--gold-rgb:185,133,0;--logo-f:brightness(.9) saturate(1.1);--bg:#FBF6E6;--deep:#F5EDD3;--surf:#FFFDF6;--line:#E0D2A0;--gold:#B98500;--gold2:#7A5600;--text:#2A2310;--mute:#6B5E3C;--faint:#8C7E58;--read:#3A3220;--red:#B3452A;--hov:#F1E4B4;color-scheme:light;--on-gold:#201804}
 
 #temaBtn{position:fixed;left:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:44;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surf);color:var(--gold2);font-size:19px;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.35)}
 #temaBtn:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
@@ -885,20 +886,21 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 
 /* ===== TEMAS (engrenagem) ===== */
 .brand .logo{height:36px;width:auto;display:block;filter:var(--logo-f,none)}
-.brand .l-lt{display:none}:root[data-tema=neonclaro] .brand .l-dk{display:none}:root[data-tema=neonclaro] .brand .l-lt{display:block}
+.brand .l-lt{display:none}:root[data-tema=claro] .brand .l-dk,:root[data-tema=cristal] .brand .l-dk{display:none}:root[data-tema=claro] .brand .l-lt,:root[data-tema=cristal] .brand .l-lt{display:block}
 @media(max-width:640px){.brand .logo{height:28px}}
+:root[data-tema=miami]{--gold-rgb:255,79,163;--logo-f:hue-rotate(-72deg) saturate(1.25);--bg:#120A1F;--deep:#0B0615;--surf:#1B1030;--line:#3A2260;--gold:#FF4FA3;--gold2:#5EE7FF;--text:#FBEAFF;--mute:#B79AD6;--faint:#9A80BC;--read:#F2DDFF;--red:#FF7A59;--hov:#2A1850;--on-gold:#201804}
 
+:root[data-tema=brasil]{--gold-rgb:255,223,0;--logo-f:hue-rotate(12deg) saturate(1.2);--bg:#07140D;--deep:#040D08;--surf:#0E2216;--line:#1F4A2B;--gold:#FFDF00;--gold2:#7FC4FF;--text:#F2FFF5;--mute:#9CC7A8;--faint:#7FAA8B;--read:#E4F7E8;--red:#FF6B5E;--hov:#163A24;--on-gold:#201804}
 
+:root[data-tema=araguaia]{--gold-rgb:255,138,61;--logo-f:hue-rotate(-18deg) saturate(1.15);--bg:#1A0F1E;--deep:#12091A;--surf:#261629;--line:#4A2A45;--gold:#FF8A3D;--gold2:#FFB86B;--text:#FFF1E6;--mute:#D3A9A0;--faint:#B58A87;--read:#FFE3D3;--red:#FF5E7E;--hov:#3A2038;--on-gold:#201804}
 
+:root[data-tema=terminal]{--gold-rgb:57,255,20;--logo-f:hue-rotate(68deg) saturate(1.1);--bg:#050805;--deep:#020402;--surf:#0A120A;--line:#17331B;--gold:#39FF14;--gold2:#9CFFB0;--text:#CFFFD8;--mute:#6FB583;--faint:#5A9468;--read:#BDF5C9;--red:#FF6B5E;--hov:#0F2414;--on-gold:#201804}
 
 /* temas extras: Eclipse, Cristal, Voltagem, Sombra */
+:root[data-tema=eclipse]{--gold-rgb:178,107,255;--logo-f:hue-rotate(-40deg) saturate(1.2);--bg:#0E0716;--deep:#08040F;--surf:#170C26;--line:#38205A;--gold:#B26BFF;--gold2:#FF6EC7;--text:#F3E9FF;--mute:#AE98CF;--faint:#8F78B3;--read:#EADCFF;--red:#FF6B8A;--hov:#261540;--on-gold:#201804}
 
+:root[data-tema=cristal]{--gold-rgb:29,95,214;--logo-f:none;--bg:#F5F6F8;--deep:#ECEEF2;--surf:#FFFFFF;--line:#DDE1E8;--gold:#1D5FD6;--gold2:#174EAF;--text:#12161C;--mute:#4E5968;--faint:#677284;--read:#1E2530;--red:#C8341C;--hov:#EAF0FC;--sans:Inter,"SF Pro Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:var(--sans);color-scheme:light;--on-gold:#fff}
 
-/* ===== temas neon anos 80: Miami Neon, Terminal, Brasa e Neon Claro ===== */
-:root[data-tema=miami]{--gold-rgb:255,79,163;--logo-f:hue-rotate(-72deg) saturate(1.25);--bg:#120A1F;--deep:#0B0615;--surf:#1B1030;--line:#3A2260;--gold:#FF4FA3;--gold2:#5EE7FF;--text:#FBEAFF;--mute:#C3A8E0;--faint:#A68BC8;--read:#F2DDFF;--red:#FF7A59;--hov:#2A1850;--on-gold:#1A0B2E;--n1:#FF4FA3;--n2:#B26BFF;--n3:#5EE7FF;--n-rgb:255,79,163;--n2-rgb:94,231,255;--b1:#FF4FA3;--b2:#FFB347}
-:root[data-tema=terminal]{--gold-rgb:200,255,0;--logo-f:hue-rotate(27deg) saturate(1.15);--bg:#101010;--deep:#101010;--surf:#181818;--line:#2F3A10;--gold:#C8FF00;--gold2:#C8FF00;--text:#FFFFFF;--mute:#BDBDBD;--faint:#989898;--read:#F2F2F2;--red:#FF6B5E;--hov:#222A0C;--on-gold:#101010;--n1:#C8FF00;--n2:#00E5FF;--n3:#9B4DFF;--n-rgb:200,255,0;--n2-rgb:0,229,255;--b1:#C8FF00;--b2:#E4FF63}
-:root[data-tema=brasa]{--gold-rgb:255,88,37;--logo-f:hue-rotate(-31deg) saturate(1.2);--bg:#651424;--deep:#3A0C1E;--surf:#4A1026;--line:#8C3552;--gold:#FF5825;--gold2:#FF9470;--text:#FFFFFF;--mute:#EBC3D0;--faint:#D3A3B6;--read:#FFF0F4;--red:#FF9AA8;--hov:#5E1A36;--on-gold:#1C0409;--n1:#FF5825;--n2:#FF8FB1;--n3:#FFD0A8;--n-rgb:255,88,37;--n2-rgb:255,143,177;--b1:#FF5825;--b2:#FF8F6B}
-:root[data-tema=neonclaro]{--gold-rgb:212,16,127;--logo-f:hue-rotate(-75deg) saturate(1.3);--bg:#FFF4FB;--deep:#FFEAF6;--surf:#FFFFFF;--line:#F2B6DA;--gold:#D4107F;--gold2:#B00C6A;--text:#2A0B3D;--mute:#6A4A80;--faint:#82659A;--read:#3A1650;--red:#D6264A;--hov:#FFE0F3;--on-gold:#FFFFFF;--n1:#FF3EB5;--n2:#8E5BFF;--n3:#19C7E8;--n-rgb:255,62,181;--n2-rgb:25,199,232;--b1:#D4107F;--b2:#A23BE0;color-scheme:light}
 :root[data-tema=generico]{--gold-rgb:37,99,235;--logo-f:none;--bg:#FFFFFF;--deep:#F3F4F6;--surf:#FFFFFF;--line:#E5E7EB;--gold:#2563EB;--gold2:#1D4ED8;--text:#111827;--mute:#4B5563;--faint:#6B7280;--read:#1F2937;--red:#DC2626;--hov:#F3F4F6;--sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--mono:var(--sans);color-scheme:light;--on-gold:#fff}
 
 :root[data-tema=generico] .brand .l-dk{display:none}:root[data-tema=generico] .brand .l-lt{display:block}
@@ -968,11 +970,13 @@ body.adm .vg:not(.open):hover,body.adm .vg:not(.open):focus-visible{border-color
 /* Genérico Noturno: mesmo layout do Genérico, com cores escuras */
 :root[data-tema] body{background:var(--bg);background-image:none}
 :root[data-tema=generico-noturno] .brand .l-dk{display:block}:root[data-tema=generico-noturno] .brand .l-lt{display:none}
-:root[data-tema]:not([data-tema=neonclaro],[data-tema=generico]) .win{box-shadow:0 1px 3px rgba(0,0,0,.55)}
-:root[data-tema]:not([data-tema=neonclaro],[data-tema=generico]) #cfgBtn,:root[data-tema]:not([data-tema=neonclaro],[data-tema=generico]) #cfgPan{box-shadow:0 2px 12px rgba(0,0,0,.6)}
-:root[data-tema]:not([data-tema=neonclaro],[data-tema=generico]) #needRow button:hover,:root[data-tema]:not([data-tema=neonclaro],[data-tema=generico]) #needRow button:focus-visible{box-shadow:0 2px 10px rgba(0,0,0,.5)}
+:root[data-tema]:not([data-tema=claro],[data-tema=cristal],[data-tema=generico]) .win{box-shadow:0 1px 3px rgba(0,0,0,.55)}
+:root[data-tema]:not([data-tema=claro],[data-tema=cristal],[data-tema=generico]) #cfgBtn,:root[data-tema]:not([data-tema=claro],[data-tema=cristal],[data-tema=generico]) #cfgPan{box-shadow:0 2px 12px rgba(0,0,0,.6)}
+:root[data-tema]:not([data-tema=claro],[data-tema=cristal],[data-tema=generico]) #needRow button:hover,:root[data-tema]:not([data-tema=claro],[data-tema=cristal],[data-tema=generico]) #needRow button:focus-visible{box-shadow:0 2px 10px rgba(0,0,0,.5)}
 
+:root[data-tema=voltagem]{--gold-rgb:245,245,0;--logo-f:hue-rotate(20deg) saturate(1.3);--bg:#0D0F12;--deep:#07080A;--surf:#15181D;--line:#2C333D;--gold:#F5F500;--gold2:#00E5FF;--text:#EEF3F8;--mute:#93A0B0;--faint:#76838F;--read:#E1E8EF;--red:#FF4D6D;--hov:#1F242B;--on-gold:#201804}
 
+:root[data-tema=sombra]{--gold-rgb:255,59,59;--logo-f:hue-rotate(-30deg) saturate(1.4);--bg:#08080A;--deep:#000;--surf:#101012;--line:#2A2A2E;--gold:#FF3B3B;--gold2:#FFFFFF;--text:#EDEDED;--mute:#9A9AA0;--faint:#75757B;--read:#E0E0E0;--red:#FF8A00;--hov:#1A1A1D;--on-gold:#201804}
 
 /* SOS na linha das abas + janelinha do SOS */
 .tabrow{display:flex;align-items:flex-end;gap:8px;border-bottom:1px solid var(--line);background:var(--bg);padding-right:10px}

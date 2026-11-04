@@ -23,7 +23,6 @@
 .mhi #jnTog{align-self:flex-end;display:inline-flex;flex-direction:row;align-items:center;gap:6px;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surf);color:var(--read);font:700 13px var(--sans);cursor:pointer}
 .mhi #jnTog span{font-size:16px;line-height:1}
 .mhi #jnTog:hover{border-color:var(--gold);color:var(--gold2)}
-.mhi .andar-h #jnTog{align-self:center;flex:none;min-height:32px;padding:0 10px;font-size:12px;gap:4px}.mhi .andar-h #jnTog span{font-size:14px}
 @media(min-width:700px){.mhi .andar-g{grid-template-columns:repeat(4,1fr)}.mhi .andar.c3 .andar-g{grid-template-columns:repeat(3,1fr)}}
 /* Praça de alimentação (1º andar) */
 #praca{margin:18px 0}

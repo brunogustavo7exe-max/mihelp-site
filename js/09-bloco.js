@@ -1114,8 +1114,8 @@ function envPoll29(pane,d,L,x,redesenha){clearTimeout(x._t);
  const passo=async()=>{if(!d.isConnected||!d.open||ENV8[x.ch]!==x||FINAL29.includes(x.st))return;
   const r=await chama8('/cardapio/pedido?chave='+encodeURIComponent(x.ch)+'&rid='+encodeURIComponent(x.rid));
   if(!d.isConnected||!d.open||ENV8[x.ch]!==x)return;
-  if(r.ok&&r.j&&r.j.ok){const rv=r.j.rivo||null,sig=JSON.stringify(rv);
-   if(rv&&rv.drv)x.drv=rv.drv;
+  if(r.ok&&r.j&&r.j.ok){const rv=r.j.rivo||null,sig=JSON.stringify(rv)+JSON.stringify(r.j.chat||null);
+   if(rv&&rv.drv)x.drv=rv.drv;x.chat=r.j.chat||null;
    if(r.j.st!==x.st||r.j.num!==x.num||sig!==x._rvs){x.st=r.j.st;x.num=r.j.num||0;x.rivo=rv;x._rvs=sig;envGrava29(x);if(pane.isConnected)redesenha()}}
   const rapido=x.rivo&&(x.rivo.st==='aceita'||x.rivo.st==='coletada');
   if(!FINAL29.includes(x.st))x._t=setTimeout(passo,rapido?5000:15000)};
@@ -1159,6 +1159,57 @@ function leaflet36(){if(window.L)return Promise.resolve();if(window._lfp)return 
   const j=document.createElement('script');j.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';j.onload=()=>cp.then(ok);j.onerror=()=>{window._lfp=null;no()};document.head.append(j)})}
 const pino36=(t,cor)=>L.divIcon({className:'',html:'<div style="width:30px;height:30px;border-radius:50%;background:'+cor+';color:#111;font:700 15px/30px system-ui;text-align:center;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5)">'+t+'</div>',iconSize:[30,30],iconAnchor:[15,15]});
 function kmLinha36(a,b){const R=6371,r=Math.PI/180,dl=(b.lat-a.lat)*r,dn=(b.lng-a.lng)*r,h=Math.sin(dl/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
+/* ===== v39: chat da entrega (cliente · entregador · loja), uma conversa só por entrega ===== */
+function chat39(o) {
+  var C = o.dark ? { bg: '#1b1e24', fg: '#fff', ln: '#555', me: '#2f6f4e', ot: '#2d323b' } : { bg: '#fff', fg: '#111', ln: '#cfd4dc', me: '#2563eb', ot: '#e8ecf2' };
+  var d = document.createElement('dialog'), last = 0, busy = 0, ativo = true, seen = {}, tm = null;
+  d.style.cssText = 'width:min(460px,94vw);padding:12px;border-radius:14px;border:1px solid ' + C.ln + ';background:' + C.bg + ';color:' + C.fg;
+  var el = function (t, css, x) { var e = document.createElement(t); if (css) e.style.cssText = css; if (x != null) e.textContent = x; return e; };
+  var pill = 'padding:6px 12px;border-radius:999px;border:1px solid ' + C.ln + ';background:transparent;color:inherit;font-size:13px;cursor:pointer';
+  var top = el('div', 'display:flex;justify-content:space-between;align-items:center;margin-bottom:8px'), fechar = el('button', pill, 'Fechar'); fechar.type = 'button';
+  top.append(el('b', '', o.titulo), fechar);
+  var box = el('div', 'height:240px;overflow:auto;display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid ' + C.ln + ';border-radius:10px');
+  box.setAttribute('role', 'log'); box.setAttribute('aria-live', 'polite');
+  var vazio = el('p', 'opacity:.65;font-size:13px;margin:auto;text-align:center', 'Nenhuma mensagem ainda. Toque numa resposta rápida ou escreva.'); box.append(vazio);
+  var qk = el('div', 'display:flex;flex-wrap:wrap;gap:6px;margin:8px 0');
+  var row = el('div', 'display:flex;gap:6px'), inp = el('input', 'flex:1;min-width:0;padding:9px 10px;border-radius:10px;border:1px solid ' + C.ln + ';background:transparent;color:inherit;font-size:15px'), sb = el('button', pill + ';font-weight:700', 'Enviar');
+  inp.type = 'text'; inp.maxLength = 200; inp.placeholder = 'Escreva uma mensagem…'; inp.setAttribute('aria-label', 'Mensagem'); sb.type = 'button'; row.append(inp, sb);
+  var st = el('p', 'font-size:12px;opacity:.8;margin:6px 0 0;min-height:16px'); st.setAttribute('role', 'status');
+  d.append(top, box, qk, row, st);
+  var nomes = { c: 'cliente', d: 'entregador', l: 'loja' };
+  function pinta(m) {
+    if (seen[m.id]) return; seen[m.id] = 1; if (vazio.parentNode) vazio.remove();
+    var mine = m.k === o.como, b = el('div', 'max-width:82%;padding:7px 10px;border-radius:12px;font-size:14px;word-break:break-word;align-self:' + (mine ? 'flex-end' : 'flex-start') + ';background:' + (mine ? C.me : C.ot) + ';color:' + (mine ? '#fff' : C.fg));
+    b.append(el('div', 'font-size:11px;opacity:.75;margin-bottom:2px', (mine ? 'Você' : m.n + ' (' + nomes[m.k] + ')') + ' · ' + new Date(m.ts).toTimeString().slice(0, 5)), el('div', '', m.t)); box.append(b);
+  }
+  function poll() {
+    if (busy || !d.isConnected) return; busy = 1;
+    o.req('/rivo/chat?chave=' + encodeURIComponent(o.chave) + '&rid=' + encodeURIComponent(o.rid) + '&como=' + o.como + '&desde=' + last).then(function (r) {
+      busy = 0;
+      if (!(r.ok && r.j && r.j.ok)) { st.textContent = (r.j && r.j.erro) || 'Sem conexão.'; return; }
+      var it = r.j.itens || [], perto = box.scrollHeight - box.scrollTop - box.clientHeight < 60 || !box.dataset.f;
+      it.forEach(function (m) { pinta(m); if (m.id > last) last = m.id; });
+      if (it.length && perto) { box.scrollTop = box.scrollHeight; box.dataset.f = 1; }
+      if (o.vis) o.vis(last);
+      ativo = r.j.ativo !== false; inp.disabled = sb.disabled = !ativo; if (!ativo) st.textContent = 'A entrega terminou: o chat foi encerrado.'; else if (/Sem conex|encerrad/.test(st.textContent)) st.textContent = '';
+    }).catch(function () { busy = 0; });
+  }
+  function envia(t, again) {
+    t = String(t || '').trim(); if (!t || !ativo) return; sb.disabled = true;
+    o.req('/rivo/chat/enviar', { chave: o.chave, rid: o.rid, como: o.como, t: t }).then(function (r) {
+      sb.disabled = !ativo;
+      if (r.ok && r.j && r.j.ok) { inp.value = ''; st.textContent = ''; poll(); return; }
+      if (!again && r.j && /ao mesmo tempo|Tente de novo/.test(r.j.erro || '')) return envia(t, 1);
+      st.textContent = (r.j && r.j.erro) || 'Não consegui enviar.';
+    });
+  }
+  (o.quick || []).forEach(function (q) { var b = el('button', pill, q); b.type = 'button'; b.onclick = function () { envia(q); }; qk.append(b); });
+  sb.onclick = function () { envia(inp.value); };
+  inp.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); envia(inp.value); } };
+  fechar.onclick = function () { d.close(); };
+  d.addEventListener('close', function () { clearInterval(tm); d.remove(); });
+  document.body.append(d); d.showModal(); poll(); tm = setInterval(poll, 3000);
+}
 function rivoCard31(x){const rv=x.rivo,card=mk8('div','lj-rivo');card.style.cssText='margin:12px 0;padding:12px;border:1px solid var(--line,#444);border-radius:14px;text-align:left';
  const emRota=rv.st==='aceita'||rv.st==='coletada',d=rv.drv;
  card.append(mk8('b',null,'🛵 RIVO está mapeando a sua entrega'));
@@ -1180,6 +1231,7 @@ function rivoCard31(x){const rv=x.rivo,card=mk8('div','lj-rivo');card.style.cssT
     if(rv.dest&&rv.st==='coletada')l+=' · a cerca de '+kmLinha36(p,rv.dest).toFixed(1).replace('.',',')+' km em linha reta de você';}
    card.append(mk8('p','note',l))}
  }
+ if(emRota){const cn=x.chat&&x.chat.k!=='c'&&x.chat.last>(x.chatSeen||0);card.append(botao8('💬 Falar com o entregador'+(cn?' · nova mensagem':''),cn?'cta2':'more',()=>chat39({titulo:'Chat da entrega',como:'c',chave:x.ch,rid:x.rid,req:chama8,vis:n=>{x.chatSeen=n},quick:["Estou na porta 👋", "Já estou descendo", "Pode deixar na portaria", "Pode me ligar?", "Onde você está?", "Obrigado!"]})))}
  return card}
 function envView29(w,d,L,x,temNovo,volta,redesenha){
  if(redesenha&&x.st==='entregue'&&!x.av){confView30(w,d,L,x,temNovo,volta,redesenha);return}
