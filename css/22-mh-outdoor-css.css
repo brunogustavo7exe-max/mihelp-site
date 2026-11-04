@@ -1,0 +1,30 @@
+
+/* v40: caixas do outdoor combinando com o resto do site (usam as cores do tema, sem brilho e sem dourado fixo) */
+.side .vcol{gap:10px}
+.side .vcol::before{content:"PUBLICIDADE";display:block;text-align:center;font:700 10px var(--mono);letter-spacing:.14em;color:var(--faint)}
+html body .vcol .vg,html body #vgrid .vg{border-radius:14px;border:1px solid var(--line);background:var(--surf)}
+html body button.vg.open{display:grid;grid-template-columns:34px 1fr;grid-template-areas:"i t" "i s";column-gap:10px;row-gap:2px;align-items:center;justify-items:start;text-align:left;min-height:64px;padding:10px 12px;border:1px solid var(--line);background:var(--surf);box-shadow:none;transform:none}
+html body button.vg.open::before{grid-area:i;width:34px;height:34px;border-radius:10px;font:700 20px var(--sans);background:rgba(var(--gold-rgb),.12);color:var(--gold2);border:1px solid rgba(var(--gold-rgb),.35);box-shadow:none}
+html body button.vg.open b{grid-area:t;font-size:14px;line-height:1.2;color:var(--text)}
+html body button.vg.open small{grid-area:s;font:500 12px/1.3 var(--sans);color:var(--mute)}
+html body button.vg.open:hover,html body button.vg.open:focus-visible{border-style:solid;border-color:rgba(var(--gold-rgb),.6);background:rgba(var(--gold-rgb),.06);box-shadow:none;transform:none;outline:none}
+html body #adtop .adc{border-radius:14px;border:1px solid var(--line);background:var(--surf);box-shadow:none}
+html body #adtop .adc.open-ad{border-color:rgba(var(--gold-rgb),.35);background:linear-gradient(180deg,rgba(var(--gold-rgb),.08),var(--surf))}
+html body #adtop .ad-icon{border-radius:12px;background:rgba(var(--gold-rgb),.12);border:1px solid rgba(var(--gold-rgb),.35);color:var(--gold2)}
+html body #adtop .adt small{color:var(--gold2)}
+
+/* v41: estados vazios, esqueleto e topo mais limpo */
+.mh-esq{display:grid;gap:10px;grid-column:1/-1}
+.mh-esq i{display:block;height:72px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(90deg,var(--surf) 0,rgba(var(--gold-rgb),.12) 50%,var(--surf) 100%);background-size:200% 100%;animation:mhesq 1.3s linear infinite}
+@keyframes mhesq{from{background-position:200% 0}to{background-position:-200% 0}}
+.mh-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.mh-vazio{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:22px 16px;border:1px dashed rgba(var(--gold-rgb),.35);border-radius:16px;background:rgba(var(--gold-rgb),.04)}
+.mh-vazio .mh-vi{font-size:34px;line-height:1}
+.mh-vazio b{font:800 16px/1.25 var(--sans);color:var(--text)}
+.mh-vazio p{margin:0;max-width:34ch;font:500 13.5px/1.45 var(--sans);color:var(--mute)}
+.mh-vazio .mh-vb{margin-top:8px;min-height:44px;padding:0 18px;border-radius:999px;border:0;background:linear-gradient(180deg,var(--gold2),var(--gold));color:var(--on-gold,#201804);font:800 14px var(--sans);cursor:pointer}
+.mh-vazio.erro{border-color:rgba(248,113,113,.45);background:rgba(248,113,113,.05)}
+.mh-vazio.erro .mh-vb{background:transparent;border:1px solid var(--gold);color:var(--gold2)}
+.top-letreiros .mq{display:none!important}
+html body .top-letreiros .tkw{padding:5px 0}
+@media(prefers-reduced-motion:reduce){.mh-esq i{animation:none}}
