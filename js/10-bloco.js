@@ -616,6 +616,7 @@ function desenharProf(){
 document.addEventListener('mh-selos',()=>{try{desenharProf()}catch(e){}});
 /* ===== 1º andar: Praça de alimentação (só estabelecimentos de comida e mercado) ===== */
 const PRACA8=[['todos','🏪','Tudo',null],
+ ['online','🟢','Online agora',null],
  ['rest','🍽️','Restaurantes',['Restaurante','Churrascaria','Marmitaria','Buffet']],
  ['lanche','🍔','Lanches e pizzas',['Lanchonete','Hamburgueria','Pastelaria','Pizzaria']],
  ['padaria','🥖','Padarias e doces',['Padaria','Doceria e confeitaria']],
@@ -628,21 +629,33 @@ const PRACA8=[['todos','🏪','Tudo',null],
  ['loja','🛍️','Lojas',['Loja','Loja de eletrônicos','Loja de eletrodomésticos','Loja de móveis','Loja de roupas','Loja de calçados','Loja de acessórios','Loja de cosméticos e perfumaria','Ótica','Joalheria e relojoaria','Papelaria','Livraria','Loja de brinquedos','Loja de presentes','Floricultura','Loja de materiais de construção']],
  ['outros','🧰','Serviços e outros',null]];
 const PRACA_TODOS8=PRACA8.slice(1).flatMap(g=>g[3]||[]);
+/* aba "Online agora": loja aberta pelo horário ou recebendo pedidos (cardápio aberto), a mesma regra do selo verde do cartão */
+const CARDP8={};let pcCarga8=false;
+const lojaOn8=l=>{if(l.aberto===true)return true;if(l.aberto===false)return false;const c=CARD8[l.chave];return !!(c&&c.itens&&c.itens.length&&c.aberta!==false)};
+function carregaOn8(){
+ const falta=V8.lojas.filter(l=>(l.aberto===null||l.aberto===undefined)&&!CARD8[l.chave]&&!CARDP8[l.chave]).slice(0,60);
+ if(!falta.length)return;
+ pcCarga8=true;
+ const um=l=>CARDP8[l.chave]=chama8('/cardapio?chave='+encodeURIComponent(l.chave)).then(rc=>{const ok=rc&&rc.ok&&rc.j&&rc.j.ok&&!rc.j.vazio;if(ok)CARD8[l.chave]=rc.j;else if(CARD8[l.chave]===undefined)CARD8[l.chave]=null}).catch(()=>{});
+ let i=0;const lote=()=>{const parte=falta.slice(i,i+6);i+=6;return Promise.all(parte.map(um)).then(()=>i<falta.length?lote():0)};
+ lote().then(()=>{pcCarga8=false;try{desenharPraca()}catch(e){}},()=>{pcCarga8=false});
+}
 let pcSel8='todos',pcPag8=0,pcTipoF8='';const PC_N8=6;
 const pcTipos8=k=>{const g=PRACA8.find(x=>x[0]===k);return g&&g[3]?g[3]:PRACA_TODOS8};
-const pcLojas8=k=>{let r;if(k==='todos')r=V8.lojas;else if(k==='outros')r=V8.lojas.filter(l=>!PRACA_TODOS8.includes(l.tipo));else{const ts=pcTipos8(k);r=V8.lojas.filter(l=>ts.includes(l.tipo))}return pcTipoF8?r.filter(l=>l.tipo===pcTipoF8):r};
+const pcLojas8=k=>{let r;if(k==='todos')r=V8.lojas;else if(k==='online')r=V8.lojas.filter(lojaOn8);else if(k==='outros')r=V8.lojas.filter(l=>!PRACA_TODOS8.includes(l.tipo));else{const ts=pcTipos8(k);r=V8.lojas.filter(l=>ts.includes(l.tipo))}return pcTipoF8?r.filter(l=>l.tipo===pcTipoF8):r};
 function desenharPraca(){
  const sec=document.getElementById('praca'),box=document.getElementById('pcList');if(!sec||!box)return;
  sec.hidden=!apiOn8();
+ if(V8.lojasOk)carregaOn8();
  const chips=document.getElementById('pcChips'),pg=document.getElementById('pcPg');
- if(chips){chips.textContent='';PRACA8.forEach(g=>{const n=pcLojas8(g[0]).length,b=mk8('button',null,g[1]+' '+g[2]);b.type='button';b.setAttribute('aria-pressed',String(pcSel8===g[0]));if(n)b.append(mk8('b',null,String(n)));b.onclick=()=>{pcSel8=g[0];pcTipoF8='';pcPag8=0;desenharPraca()};chips.append(b)});if(pcTipoF8){const x=mk8('button',null,'✕ Só: '+pcTipoF8);x.type='button';x.setAttribute('aria-label','Tirar o filtro '+pcTipoF8);x.onclick=()=>{pcTipoF8='';pcPag8=0;desenharPraca()};chips.append(x)}}
+ if(chips){chips.textContent='';PRACA8.forEach(g=>{const n=pcLojas8(g[0]).length,b=mk8('button',null,g[1]+' '+g[2]);b.type='button';b.setAttribute('aria-pressed',String(pcSel8===g[0]));if(n&&!(g[0]==='online'&&pcCarga8))b.append(mk8('b',null,String(n)));b.onclick=()=>{pcSel8=g[0];pcTipoF8='';pcPag8=0;desenharPraca()};chips.append(b)});if(pcTipoF8){const x=mk8('button',null,'✕ Só: '+pcTipoF8);x.type='button';x.setAttribute('aria-label','Tirar o filtro '+pcTipoF8);x.onclick=()=>{pcTipoF8='';pcPag8=0;desenharPraca()};chips.append(x)}}
  document.querySelectorAll('#mhInicio [data-praca]').forEach(b=>{const e=b.querySelector('em');if(!e)return;const n=pcLojas8(b.dataset.praca).length;e.textContent=n?String(n):''});
  const itens=pcLojas8(pcSel8).slice().sort((a,b)=>((b.nota||0)-(a.nota||0))||((b.n||0)-(a.n||0))||String(a.nome).localeCompare(String(b.nome),'pt-BR'));
  const tot=Math.max(1,Math.ceil(itens.length/PC_N8));if(pcPag8>=tot)pcPag8=tot-1;
  box.textContent='';
  if(!itens.length){const g=PRACA8.find(x=>x[0]===pcSel8),nome=g&&g[3]?g[2].toLowerCase():'estabelecimentos';
   box.style.gridTemplateColumns='1fr';
-  if(!V8.lojasOk)MH_ESQ(box,3);else MH_VAZIO(box,{ic:'🏪',t:'Ainda não tem '+nome+' por aqui',p:'Tem um negócio assim? Crie o seu em "Meu espaço profissional" e ele aparece aqui, de graça.'})}
+  if(!V8.lojasOk||(pcSel8==='online'&&pcCarga8))MH_ESQ(box,3);else if(pcSel8==='online')MH_VAZIO(box,{ic:'🌙',t:'Ninguém online agora',p:'Quando um estabelecimento abrir ou estiver recebendo pedidos, ele aparece aqui.'});else MH_VAZIO(box,{ic:'🏪',t:'Ainda não tem '+nome+' por aqui',p:'Tem um negócio assim? Crie o seu em "Meu espaço profissional" e ele aparece aqui, de graça.'})}
  else box.style.gridTemplateColumns='';
  itens.slice(pcPag8*PC_N8,pcPag8*PC_N8+PC_N8).forEach(l=>box.append(cardLoja8(l)));
  if(pg){pg.textContent='';if(tot>1){const a=document.createElement('button'),n2=document.createElement('button'),t=document.createElement('span');a.type=n2.type='button';a.textContent='Anterior';n2.textContent='Próxima';t.textContent=(pcPag8+1)+' de '+tot;a.disabled=pcPag8<=0;n2.disabled=pcPag8>=tot-1;
@@ -988,7 +1001,7 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
   if(!E.lojas.length)s.append(mk8('p','note','Você ainda não criou nenhum. Barbearia, salão, loja de motos, oficina: crie e monte a sua equipe.'));
   E.lojas.forEach(L=>{
    const box=mk8('div','v8card');const row=mk8('div','v8row');row.append(mk8('b',null,L.nome),mk8('span','note',L.tipo+(CID8[L.cidade]?' · '+CID8[L.cidade]:'')));
-   const acts=mk8('div','v8acts');acts.append(botao8('👁 Ver perfil','more',()=>{d.close();abrirLoja8(L.chave)}),botao8('✏️ Editar','more',()=>formLoja8(d,E,L)),botao8('🍽 MESA','more',()=>{try{window.open(window.MH_MESA_URL||'mesa.html','_blank','noopener')}catch(e){}}),botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',L.tipo,linkLoja8(L.chave),m=>{st.style.color='';st.textContent=m})),botao2x8('🗑 Apagar','more',()=>envia('/estabelecimentos/apagar',{chave:L.chave},'Estabelecimento apagado.')));
+   const acts=mk8('div','v8acts');acts.append(botao8('👁 Ver perfil','more',()=>{d.close();abrirLoja8(L.chave)}),botao8('✏️ Editar','more',()=>formLoja8(d,E,L)),botao8('🧾 MESA','more',()=>{try{window.open(window.MH_MESA_URL||'mesa.html','_blank','noopener')}catch(e){}}),botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',L.tipo,linkLoja8(L.chave),m=>{st.style.color='';st.textContent=m})),botao2x8('🗑 Apagar','more',()=>envia('/estabelecimentos/apagar',{chave:L.chave},'Estabelecimento apagado.')));
    box.append(row,acts);if(L.favs>0)box.append(mk8('p','note','⭐ '+L.favs+(L.favs===1?' pessoa favoritou':' pessoas favoritaram')+' esta loja.'));
    
    s.append(box)});
