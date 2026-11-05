@@ -242,6 +242,14 @@ html{color-scheme:dark}
 /* ===== Modo caixa (tela cheia) ===== */
 .pdvfs{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;background:radial-gradient(900px 520px at 85% -10%,rgba(46,168,255,.16),transparent 60%),var(--bg);color:var(--tx)}
 .pdvfs .sp{flex:1}
+.fs-chatpop{position:absolute;top:58px;right:18px;width:min(380px,calc(100% - 24px));height:min(60vh,460px);display:flex;flex-direction:column;background:var(--sf);border:1px solid var(--ln);border-radius:16px;box-shadow:0 22px 44px rgba(0,0,0,.55);z-index:5;overflow:hidden}
+.fs-cph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--ln)}
+.fs-cph b{white-space:nowrap}
+.fs-cph select{flex:0 1 112px;min-width:0;min-height:36px;border-radius:8px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);padding:2px 6px;font:inherit}
+.fs-cpm{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:10px}
+.fs-cpr{display:flex;gap:8px;padding:8px 10px;border-top:1px solid var(--ln)}
+.fs-cpr input{flex:1;min-width:0;min-height:42px;border-radius:10px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);padding:6px 10px;font:inherit}
+.fs-chat.novo{box-shadow:0 0 0 3px rgba(255,77,109,.35)}
 .fs-top{display:flex;align-items:center;gap:14px;padding:8px 18px;border-bottom:1px solid var(--ln);background:var(--sf)}
 .fs-mark{height:34px;width:auto}.fs-title{font-size:15px;color:var(--tx2)}.fs-title b{color:var(--tx);font-size:17px}
 .fs-clock{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
@@ -473,7 +481,7 @@ var NOTIF={n:0,t:null,busy:0,
  vi:function(ch,c,ts){try{localStorage.setItem(NOTIF.k(ch,c),String(ts))}catch(e){}NOTIF.pinta(0)},
  pinta:function(n){if(n!=null&&n!==0)NOTIF.n=n;if(n===0&&S.view==='chat')NOTIF.n=0;
   var q=NOTIF.n;document.querySelectorAll('.nav[data-v=chat]').forEach(function(b){var o=b.querySelector('.nbolinha');if(o)o.remove();if(q>0){var d=h('span','dot nbolinha',q>9?'9+':String(q));d.style.cssText='margin-left:auto;background:#ff4d6d;border-color:#ff4d6d;color:#fff;font-weight:700;min-width:18px;text-align:center';d.setAttribute('aria-label',q+' mensagem(ns) nova(s) no chat');b.append(d)}});
-  var fs=document.querySelector('.pdvfs .fs-chat');if(fs){fs.textContent=q>0?'💬 '+q+' nova'+(q>1?'s':''):'💬 Chat';fs.style.background=q>0?'#ff4d6d':'';fs.style.color=q>0?'#fff':''}},
+  var fs=document.querySelector('.pdvfs .fs-chat');if(fs){fs.textContent=q>0?'💬 '+q+' nova'+(q>1?'s':''):'💬 Chat';fs.style.background=q>0?'#ff4d6d':'';fs.style.color=q>0?'#fff':'';fs.classList.toggle('novo',q>0)}},
  checa:function(){var l=loja();if(!l||!tk()||NOTIF.busy||document.hidden||S.off)return;NOTIF.busy=1;var ch=l.chave;
   api('/eq/canais?chave='+encodeURIComponent(ch)).then(function(r){if(!r.ok||!r.j||!r.j.ok)return;
    return Promise.all((r.j.canais||[]).map(function(c){var v=NOTIF.ler(ch,c.id);
@@ -2109,7 +2117,7 @@ VIEWS.chat=function(v){
    var top=h('div','fs-top'),relo=h('span','fs-clock'),lg=new Image();lg.src=MARK;lg.alt='Domin';lg.className='fs-mark';
    var ti=h('div','fs-title');ti.append(h('b',null,'Modo caixa'),h('span',null,' · '+E().caixa.term+' · '+E().caixa.nome+' · '+l.nome));
    var sair=btn('Sair do modo caixa',function(){fecha()});sair.title='Sair do modo caixa (os itens da venda ficam guardados)';
-   var bg=btn('Gaveta (F10)',function(){PR.gaveta()}),br=btn('Reimprimir (F1)',function(){PR.ultima()});var cb=btn('💬 Chat',function(){fecha();go('chat')});cb.classList.add('fs-chat');cb.title='Abrir o chat da equipe (sai do modo caixa; a venda atual fica guardada)';top.append(lg,ti,h('span','sp'),relo,cb,bg,br,sair);NOTIF.pinta();
+   var bg=btn('Gaveta (F10)',function(){PR.gaveta()}),br=btn('Reimprimir (F1)',function(){PR.ultima()});var cb=btn('💬 Chat',function(){abreChat()});cb.classList.add('fs-chat');cb.setAttribute('aria-haspopup','dialog');cb.setAttribute('aria-expanded','false');cb.title='Abrir o chat da equipe numa janelinha (a venda continua aberta)';top.append(lg,ti,h('span','sp'),relo,cb,bg,br,sair);NOTIF.pinta();
    var body=h('div','fs-body'),esq=h('div','fs-left'),dir=h('div','fs-right');
    var bq=document.createElement('input');bq.type='text';bq.className='fs-scan';bq.autocomplete='off';bq.setAttribute('aria-label','Buscar ou ler produto');bq.placeholder='Passe ou digite o produto (F2) · ex.: 3*caneta';
    var msg=h('div','fs-msg');msg.setAttribute('role','status');msg.setAttribute('aria-live','polite');
@@ -2181,7 +2189,7 @@ VIEWS.chat=function(v){
      if(r.ok&&r.j&&r.j.ok){var v=r.j.venda||{};if(v.id){PD.last=v;PR.apos(v)}st.fim={n:v.n,troco:v.troco||0,total:T.total,t:Date.now()};PD.cart=[];PD.pag=[];PD.desc='';PD.mot='';PD.vale='';PD.rid=uid8();st.ult=null;st.sug=[];st.forma=null;aviso('');pinta();return carrega()}
      aviso(r.status===0?'Sem resposta do servidor. Aperte Finalizar de novo: a venda não duplica.':((r.j&&r.j.erro)||'Não foi possível concluir.'),'err');pPay();if(r.status===409)carrega()})}
    function pinta(){pSug();pUlt();pLista();pTot();pPay()}
-   function tecla(e){if(!document.body.contains(ov))return;if(e.key==='F10'){e.preventDefault();PR.gaveta();return}if(e.key==='F1'){e.preventDefault();PR.ultima();return}
+   function tecla(e){if(!document.body.contains(ov))return;if(document.querySelector('.dlgw'))return;if(cp){if(e.key==='Escape'){e.preventDefault();fechaChat();return}if(e.target&&e.target.closest&&e.target.closest('.fs-chatpop'))return}if(e.key==='F10'){e.preventDefault();PR.gaveta();return}if(e.key==='F1'){e.preventDefault();PR.ultima();return}
     if(st.fim){if(['Shift','Control','Alt','Meta','Tab'].indexOf(e.key)>-1)return;var rec=Date.now()-st.fim.t<700;if(/^F\d+$/.test(e.key)||((e.key==='Enter'||e.key==='Escape')&&rec)){e.preventDefault();return}st.fim=null;pinta();bq.focus();if(e.key==='Enter'||e.key==='Escape')e.preventDefault();return}
     var F={F4:'dinheiro',F5:'pix',F6:'debito',F7:'credito',F8:'vale'};
     if(e.key==='F2'){e.preventDefault();bq.focus();bq.select()}
@@ -2190,8 +2198,32 @@ VIEWS.chat=function(v){
     else if(e.key==='F9'){e.preventDefault();if(!st.forma)finaliza()}
     else if(e.key==='Escape'){e.preventDefault();if(st.forma){st.forma=null;pPay();bq.focus()}else{bq.value='';st.sug=[];pSug();bq.focus()}}}
    document.addEventListener('keydown',tecla,true);
-   function fecha(){clearInterval(iv);document.removeEventListener('keydown',tecla,true);try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen()}catch(e){}
+   function fecha(){clearInterval(iv);if(cpT)clearInterval(cpT);document.removeEventListener('keydown',tecla,true);try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen()}catch(e){}
     ov.remove();document.body.style.overflow='';PD.fs=false;if(PD.E)desenha()}
+   /* janelinha do chat: fica por cima do Modo caixa, não sai da tela cheia e não mexe na venda em andamento */
+   var cp=null,cpT=0;
+   function fechaChat(){if(cpT){clearInterval(cpT);cpT=0}if(cp){cp.remove();cp=null}cb.setAttribute('aria-expanded','false');bq.focus();setTimeout(function(){NOTIF.checa()},300)}
+   function abreChat(){if(cp)return fechaChat();
+    cp=h('div','fs-chatpop');cp.setAttribute('role','dialog');cp.setAttribute('aria-label','Chat da equipe');
+    var hd=h('div','fs-cph'),sl=document.createElement('select'),xb=btn('✕',function(){fechaChat()}),ms=h('div','fs-cpm'),row=h('div','fs-cpr'),inp=document.createElement('input'),env=btn('Enviar',null,'p'),ult=0,J=null;
+    xb.setAttribute('aria-label','Fechar o chat');xb.title='Fechar o chat (Esc)';sl.setAttribute('aria-label','Canal do chat');sl.hidden=true;
+    hd.append(h('b',null,'💬 Chat da equipe'),h('span','sp'),sl,xb);
+    inp.type='text';inp.maxLength=500;inp.autocomplete='off';inp.placeholder='Escreva e aperte Enter';inp.setAttribute('aria-label','Mensagem');row.append(inp,env);
+    ms.append(h('div','note','Carregando…'));cp.append(hd,ms,row);ov.append(cp);cb.setAttribute('aria-expanded','true');
+    var meu=cp;
+    function bol(m){var n=ms.querySelector('.note');if(n)n.remove();var b=h('div');b.style.cssText='max-width:88%;padding:6px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.14);'+(m.mine?'align-self:flex-end;background:rgba(124,92,255,.22)':'align-self:flex-start');b.append(h('div','m',m.nome+' · '+hhmm2(m.ts)),h('div',null,m.texto));ms.append(b)}
+    function puxar(reset){if(reset){ms.textContent='';ult=0}
+     api('/eq/msgs?chave='+encodeURIComponent(l.chave)+'&canal='+encodeURIComponent(CC)+'&desde='+ult).then(function(r){if(cp!==meu)return;
+      if(!r.ok||!r.j.ok){if(reset)ms.append(empty((r.j&&r.j.erro)||'Erro ao abrir o chat.'));return}
+      var fim=ms.scrollTop+ms.clientHeight>=ms.scrollHeight-30;if(reset&&!r.j.itens.length)ms.append(h('div','note','Nenhuma mensagem ainda.'));
+      r.j.itens.forEach(function(m){ult=Math.max(ult,m.ts);bol(m)});if(fim||reset)ms.scrollTop=ms.scrollHeight;if(ult){NOTIF.vi(l.chave,CC,ult);NOTIF.n=0;NOTIF.pinta();setTimeout(function(){NOTIF.checa()},400)}})}
+    function enviar(){var t=inp.value.trim();if(!t||!J)return;inp.value='';pj('/eq/enviar',{chave:l.chave,canal:CC,texto:t}).then(function(r){if(r.ok)puxar(0);else toast(r.j.erro||'Não enviou.')})}
+    env.onclick=enviar;inp.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();enviar()}};
+    api('/eq/canais?chave='+encodeURIComponent(l.chave)).then(function(r){if(cp!==meu)return;
+     if(!r.ok||!r.j.ok){ms.textContent='';ms.append(empty('Não foi possível abrir o chat: '+((r.j&&r.j.erro)||'erro')+'.'));return}
+     J=r.j;if(!J.canais.some(function(c){return c.id===CC}))CC='geral';
+     J.canais.forEach(function(c){sl.add(new Option(c.nome,c.id))});sl.value=CC;sl.hidden=J.canais.length<2;sl.onchange=function(){CC=sl.value;puxar(1);inp.focus()};
+     puxar(1);inp.focus();cpT=setInterval(function(){if(cp!==meu){clearInterval(cpT);return}puxar(0)},5000)})}
    pinta();bq.focus()}
   carrega()};
 
