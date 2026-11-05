@@ -250,6 +250,9 @@ html{color-scheme:dark}
 .fs-cpr{display:flex;gap:8px;padding:8px 10px;border-top:1px solid var(--ln)}
 .fs-cpr input{flex:1;min-width:0;min-height:42px;border-radius:10px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);padding:6px 10px;font:inherit}
 .fs-chat.novo{box-shadow:0 0 0 3px rgba(255,77,109,.35)}
+.btn.dg{border-color:rgba(248,113,113,.55);color:var(--er)}.btn.dg:hover{background:rgba(248,113,113,.12)}.btn.dgs{background:var(--er);border-color:var(--er);color:#1a0505;font-weight:700}.btn.dgs:disabled{opacity:.4;cursor:not-allowed}
+.tile.dg{grid-column:1/-1;flex-direction:row;justify-content:center;gap:10px;min-height:56px;border-color:rgba(248,113,113,.35)}.tile.dg .ic,.tile.dg span{color:var(--er)}.tile.dg:hover{border-color:var(--er);background:rgba(248,113,113,.08)}
+.emp-l{display:block;padding:14px 0;border-top:1px solid var(--ln)}.emp-l:first-of-type{border-top:0}.emp-n{font-weight:700}.emp-cf{margin-top:10px;padding:12px;border:1px solid rgba(248,113,113,.45);border-radius:12px;background:rgba(248,113,113,.06)}.emp-cf input{width:100%;min-height:42px;margin:8px 0;padding:6px 10px;border-radius:10px;border:1px solid var(--ln);background:var(--bg);color:var(--tx)}
 .fs-top{display:flex;align-items:center;gap:14px;padding:8px 18px;border-bottom:1px solid var(--ln);background:var(--sf)}
 .fs-mark{height:34px;width:auto}.fs-title{font-size:15px;color:var(--tx2)}.fs-title b{color:var(--tx);font-size:17px}
 .fs-clock{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
@@ -359,7 +362,7 @@ window.addEventListener('appinstalled',function(){PWA.ev=null;PWA.pinta();toast(
 var S={cat:{tipos:[],cidades:{}},conv:[],transf:[],lojas:[],cur:null,res:null,resErr:'',rs:null,nome:'',view:'visao'};
 var MODS=[
  ['Começar',[['tutorial','📖','Como usar o Domin','real']]],
- ['Principal',[['visao','◧','Visão geral','real'],['empresa','🏢','Minha empresa','real'],['equipe','👥','Equipe','real'],['clientes','🤝','Clientes','real'],['servicos','🛠','Serviços e preços','real'],['orcamentos','🧾','Orçamentos e trabalhos','real'],['agenda','🗓','Agenda','real']]],
+ ['Principal',[['visao','◧','Visão geral','real'],['empresa','🏢','Minha empresa','real'],['empresas','🗂','Minhas empresas','real'],['equipe','👥','Equipe','real'],['clientes','🤝','Clientes','real'],['servicos','🛠','Serviços e preços','real'],['orcamentos','🧾','Orçamentos e trabalhos','real'],['agenda','🗓','Agenda','real']]],
  ['Operação',[['financeiro','💰','Financeiro','real'],['estoque','📦','Estoque','real'],['relatorios','📊','Relatórios','real'],['automacoes','⚡','Automações','beta']]],
  ['Workforce',[['meutrabalho','🧑‍💼','Meu Trabalho','beta'],['escalas','📅','Escalas (turnos)','beta'],['chat','💬','Chat da equipe','beta'],['ponto','⏱','Ponto digital','demo'],['folha','💵','Folha de pagamento','beta'],['avaliacoes','🔒','Avaliações privadas','beta'],['passaporte','🪪','Passaporte Profissional','beta']]],
  ['Sistema',[['studio','🎛','Personalização (Studio)','beta'],['config','⚙','Configurações','real'],['app','⬇','Download','real']]]
@@ -435,7 +438,7 @@ var VIEWS={
   a.forEach(function(x){var r=h('div','li');r.append(h('span',null,x.dia.split('-').reverse().join('/')+' · '+hhmm(x.ini)+' · '+x.servico),h('span','m',x.clienteNome+' · '+x.estNome));p.append(r)});v.append(p)},
  config:function(v){v.append(head('Configurações','Sessão e espaço de trabalho.','real'));var p=h('div','panel');
   [['Conta',S.nome||'—'],['Empresa ativa',(loja()||{}).nome||'—'],['Empresas na conta',String(S.lojas.length)]].forEach(function(k){var r=h('div','li');r.append(h('span','m',k[0]),h('span',null,k[1]));p.append(r)});
-  p.append(h('div','note','Permissões são verificadas no servidor (Worker). Esta tela só guarda no navegador a empresa selecionada, nada sensível.'),lnk('Voltar ao MiHelp','index.html',1));v.append(p)}
+  p.append(btn('🗑 Apagar empresas',function(){go('empresas')},'dg'));p.append(h('div','note','Permissões são verificadas no servidor (Worker). Esta tela só guarda no navegador a empresa selecionada, nada sensível.'),lnk('Voltar ao MiHelp','index.html',1));v.append(p)}
 };
 function protoView(id,v){var d=PROTO[id];v.append(head(d[0],d[1],'demo'));var p=h('div','panel');p.append(h('h2',null,'O que este módulo terá'));d[2].forEach(function(t){var r=h('div','li');r.append(h('span',null,t));p.append(r)});
  p.append(h('div','note',d[3]));
@@ -1167,6 +1170,28 @@ VIEWS.empresa=function(v){var l=loja();v.append(head('Minha empresa',l?l.nome:''
  if(l.vinc)return v.append(empty('Só o dono edita os dados da empresa.'));
  var a=h('div','acts');a.style.marginBottom='12px';a.append(btn('＋ Nova empresa',function(){go('novaempresa')}));v.append(a);
  formEmpresa(v,l)};
+VIEWS.empresas=function(v){v.append(head('Minhas empresas','Veja todas as empresas da sua conta e apague as que não quiser mais.','real'));
+ var minhas=S.lojas.filter(function(x){return !x.vinc}),outras=S.lojas.length-minhas.length;
+ var a=h('div','acts');a.style.marginBottom='12px';a.append(btn('＋ Nova empresa',function(){go('novaempresa')}));v.append(a);
+ var p=painel('Empresas da conta ('+minhas.length+')');
+ if(!minhas.length)p.append(empty('Você não tem empresa própria para apagar.'));
+ minhas.forEach(function(l){var r=h('div','emp-l'),t=h('div','emp-n',l.nome),sub=[l.tipo,l.cidade].filter(Boolean).join(' · '),ac=h('div','acts'),cf=h('div','emp-cf');
+  ac.style.marginTop='8px';cf.style.display='none';
+  if(S.cur===l.chave)t.append(h('span','chip',' ativa'));
+  ac.append(btn('Abrir',function(){S.cur=l.chave;try{sessionStorage.setItem('dl_loja',l.chave)}catch(e){}var s2=$('#ws');if(s2)s2.value=l.chave;load().then(function(){go('empresa')})}),
+   btn('🗑 Apagar empresa',function(){cf.style.display=cf.style.display==='none'?'block':'none'},'dg'));
+  var msg=h('div',null,'Isto apaga a empresa “'+l.nome+'”, a equipe cadastrada e as avaliações dela. Não dá para desfazer. Para confirmar, digite o nome da empresa:'),
+   inp=document.createElement('input'),ok=btn('Apagar definitivamente',function(){},'dgs'),no=btn('Cancelar',function(){cf.style.display='none';inp.value='';ok.disabled=true}),ac2=h('div','acts');
+  inp.type='text';inp.autocomplete='off';inp.placeholder=l.nome;inp.setAttribute('aria-label','Digite o nome da empresa para confirmar');ok.disabled=true;
+  inp.oninput=function(){ok.disabled=inp.value.trim().toLowerCase()!==String(l.nome).trim().toLowerCase()};
+  ok.onclick=function(){if(ok.disabled)return;ok.disabled=true;ok.textContent='Apagando…';
+   chama8('/estabelecimentos/apagar',{chave:l.chave}).then(function(res){
+    if(!(res.ok&&res.j&&res.j.ok)){toast((res.j&&res.j.erro)||'Não foi possível apagar agora.');ok.textContent='Apagar definitivamente';ok.disabled=false;return}
+    return refresh().then(function(){if(!S.lojas.some(function(z){return z.chave===S.cur})){S.cur=((S.lojas.find(function(z){return !z.vinc})||S.lojas[0])||{}).chave||null;try{sessionStorage.setItem('dl_loja',S.cur||'')}catch(e){}}
+     shell();return load().then(function(){toast('Empresa apagada.');go(S.lojas.length?'empresas':'visao')})})})};
+  ac2.append(ok,no);cf.append(msg,inp,ac2);r.append(t,h('div','m',sub),ac,cf);p.append(r)});
+ v.append(p);
+ if(outras)v.append(h('div','note','Há '+outras+' empresa(s) em que você é funcionário. Elas não aparecem aqui: só o dono pode apagar uma empresa.'))};
 VIEWS.novaempresa=function(v){v.append(head('Nova empresa','Crie mais uma empresa na sua conta. Você vê, na prévia, como vai aparecer no MiHelp antes de criar.'));formEmpresa(v,null)};
 
 /* ===== Agenda do Domin: igual ao "Meus horários" do MiHelp, com ver perfil e cancelar ===== */
@@ -1187,6 +1212,8 @@ VIEWS.agenda=function(v){var l=loja();v.append(head('Agenda',l?l.nome:'','real')
 /* ===== UI2: ícones de linha, busca global, notificações reais, Visão geral e Agenda ===== */
 var ICN={visao:'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
  empresa:'<path d="M4 21V5l8-2v18M12 9h8v12M3 21h18M8 8h1M8 12h1M8 16h1M16 13h1M16 17h1"/>',
+ empresas:'<path d="M3 21V8l6-3v16M9 21V10l6-2v13M15 21h6V12l-6-2M2 21h20"/>',
+ lixeira:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>',
  equipe:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M17 14c2.5 0 4 1.8 4 4.5"/>',
  clientes:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.6-1.7 1.8-2.5 3-2.5s2.4.8 3 2.5M14 10h4M14 14h4"/>',
  servicos:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/>',
@@ -1313,7 +1340,7 @@ VIEWS.visao=function(v){var l=loja();v.append(head('Visão geral',l?l.nome:'','r
  var hj=new Date(),pc2=painel(MESES[hj.getMonth()]+' '+hj.getFullYear());pc2.append(calMes(hj.getFullYear(),hj.getMonth(),contaPorDia(),'',function(k2){S.agSel=k2;go('agenda')}));dir.append(pc2);
  var pa=painel('Atenção'),al=alertas().filter(function(x){return x.go!=='agenda'});if(!al.length)pa.append(empty('Nada precisando de atenção.'));
  al.slice(0,6).forEach(function(x){var rr=h('div','li'),tx=h('div');tx.append(h('div',null,x.t),h('div','m',x.s));rr.append(tx,btn('Abrir',function(){go(x.go)}));pa.append(rr)});dir.append(pa);
- var pt=painel('Atalhos'),tl=h('div','tiles');atalhosAtiv().forEach(function(x){var b=h('button','tile');b.type='button';b.append(icone(x[0]),h('span',null,x[1]));b.onclick=function(){go(x[0])};tl.append(b)});pt.append(tl);dir.append(pt);
+ var pt=painel('Atalhos'),tl=h('div','tiles');atalhosAtiv().concat([['empresas','Apagar empresas']]).forEach(function(x){var ap=x[0]==='empresas',b=h('button','tile'+(ap?' dg':''));b.type='button';b.append(icone(ap?'lixeira':x[0]),h('span',null,x[1]));b.onclick=function(){go(x[0])};tl.append(b)});pt.append(tl);dir.append(pt);
  cols.append(esq,dir);v.append(cols)};
 
 /* ----- Agenda: semana, dia, calendário e disponibilidade ----- */
@@ -1461,7 +1488,7 @@ VIEWS.financeiro=function(v){var l=loja();v.append(head('Financeiro',l?l.nome:''
 /* ===== Catálogo de módulos e personalização por atividade (rotas /org/config do Worker v21) =====
    Ativar ou ocultar um módulo só muda o que aparece na navegação. Quem pode usar o quê é decidido pelo servidor, por papel. */
 var ATIV={geral:['Geral / outro',['servicos','orcamentos','agenda','financeiro','estoque','clientes']],autonomo:['Profissional autônomo',['clientes','orcamentos','agenda','financeiro']],construcao:['Construção e reformas',['clientes','orcamentos','servicos','financeiro','estoque','equipe']],beleza:['Beleza e estética',['agenda','servicos','clientes','financeiro','estoque','equipe']],comercio:['Comércio e varejo',['estoque','financeiro','clientes','equipe']],oficina:['Oficina e manutenção',['orcamentos','clientes','estoque','financeiro','agenda']],alimentacao:['Alimentação (restaurante, lanchonete)',['estoque','financeiro','equipe','clientes']],saude:['Saúde e bem-estar',['agenda','clientes','servicos','financeiro']],escritorio:['Escritório e serviços',['clientes','orcamentos','agenda','financeiro','equipe']]};
-var MCAT={visao:{e:'real',core:1,dep:[]},studio:{e:'real',core:1,dep:[]},config:{e:'real',core:1,dep:[]},empresa:{e:'real',dep:[]},equipe:{e:'real',dep:['empresa']},clientes:{e:'parcial',dep:[]},servicos:{e:'real',dep:['empresa']},orcamentos:{e:'real',dep:['clientes']},agenda:{e:'real',dep:['servicos']},financeiro:{e:'real',dep:['empresa']},estoque:{e:'real',dep:['empresa']},relatorios:{e:'real',dep:['financeiro','estoque']},automacoes:{e:'proto',dep:[]},meutrabalho:{e:'parcial',dep:['equipe']},escalas:{e:'parcial',dep:['meutrabalho']},chat:{e:'parcial',dep:['meutrabalho']},ponto:{e:'parcial',dep:['meutrabalho']},avaliacoes:{e:'parcial',dep:['meutrabalho']},passaporte:{e:'parcial',dep:['meutrabalho']},folha:{e:'parcial',dep:['meutrabalho']}};
+var MCAT={visao:{e:'real',core:1,dep:[]},studio:{e:'real',core:1,dep:[]},config:{e:'real',core:1,dep:[]},empresas:{e:'real',core:1,dep:[]},empresa:{e:'real',dep:[]},equipe:{e:'real',dep:['empresa']},clientes:{e:'parcial',dep:[]},servicos:{e:'real',dep:['empresa']},orcamentos:{e:'real',dep:['clientes']},agenda:{e:'real',dep:['servicos']},financeiro:{e:'real',dep:['empresa']},estoque:{e:'real',dep:['empresa']},relatorios:{e:'real',dep:['financeiro','estoque']},automacoes:{e:'proto',dep:[]},meutrabalho:{e:'parcial',dep:['equipe']},escalas:{e:'parcial',dep:['meutrabalho']},chat:{e:'parcial',dep:['meutrabalho']},ponto:{e:'parcial',dep:['meutrabalho']},avaliacoes:{e:'parcial',dep:['meutrabalho']},passaporte:{e:'parcial',dep:['meutrabalho']},folha:{e:'parcial',dep:['meutrabalho']}};
 function modNome(id){var n=id;MODS.forEach(function(g){g[1].forEach(function(m){if(m[0]===id)n=m[2]})});return n}
 function atalhosAtiv(){var a=ATIV[((S.cfg||{}).ativ||{}).p];if(!a)return[['financeiro','Financeiro'],['estoque','Estoque'],['equipe','Equipe'],['agenda','Agenda'],['servicos','Serviços'],['orcamentos','Orçamentos']];return a[1].slice(0,6).map(function(m){return[m,modNome(m)]})}
 function modOculto(id){if(id==='tutorial'||id==='app')return false;var l=loja();if(l&&l.vinc)return !(WFV.indexOf(id)>-1||MBR.indexOf(id)>-1||id==='financeiro'||(l.gestor&&id==='estoque')||(l.pdv&&id==='automacoes'));var m=S.cfg&&S.cfg.mods;return !!(m&&m[id]===0&&!(MCAT[id]&&MCAT[id].core))}
@@ -1596,6 +1623,7 @@ VIEWS.tutorial=function(v){
  var MD={
   visao:'Painel inicial da empresa, com resumo e atalhos. Quem está começando vê aqui os próximos passos.',
   empresa:'Dados da empresa: nome, tipo, cidade, endereço, link do mapa, WhatsApp, descrição, logo e horário. Também define como o cliente fala com a equipe (conversa ou marcação de horário) e se o dono e a equipe aparecem no perfil.',
+  empresas:'Lista todas as empresas da sua conta. Daqui você cria uma nova empresa ou apaga as que não quer mais.',
   equipe:'Convites e pedidos para entrar na equipe, com cargo de cada pessoa. Só o dono gerencia.',
   clientes:'Os clientes ficam na sua conta e usam os mesmos dados de Orçamentos e trabalhos. O cadastro de fornecedores ainda não existe.',
   servicos:'Lista de serviços com duração e preço. Só o dono edita. Aparece no perfil público e permite reservar horário.',
