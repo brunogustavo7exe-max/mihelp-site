@@ -12,6 +12,22 @@
 #praca .pc-head,#prof .prof-head{margin:0 0 12px;padding:10px 14px;border-bottom:1px solid var(--line);background:rgba(var(--gold-rgb),.07)}
 #praca>*:not(.pc-head),#prof>*:not(.prof-head){margin-left:14px;margin-right:14px}
 #prof #profQ{width:calc(100% - 28px)}
+/* v39: todas as seções da página em caixas, no mesmo estilo de Estabelecimentos e Profissionais */
+:is(#rivo,#vale,#cheers,#classificados,#voz,#duelo,#enquete,#hoje,#tutorial,#aovivo,#guilda,#reputacao,#saiba,#taxas,#guia-chat,#seguranca,#privacidade,#fliperama,#duvidas,#quem,#apoie,#patrocinio){border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,rgba(var(--gold-rgb),.06),transparent 55%),var(--surf);overflow:hidden;padding:0 0 14px;margin:14px 0}
+:is(#rivo,#vale,#cheers,#classificados,#voz,#duelo,#enquete,#hoje,#tutorial,#aovivo,#guilda,#reputacao,#saiba,#taxas,#guia-chat,#seguranca,#privacidade,#fliperama,#duvidas,#quem,#apoie,#patrocinio)>h2{margin:0 0 12px;padding:10px 14px;border-bottom:1px solid var(--line);background:rgba(var(--gold-rgb),.07);font:800 17px/1.2 var(--sans);color:var(--text)}
+:is(#rivo,#vale,#cheers,#classificados,#voz,#duelo,#enquete,#hoje,#tutorial,#aovivo,#guilda,#reputacao,#saiba,#taxas,#guia-chat,#seguranca,#privacidade,#fliperama,#duvidas,#quem,#apoie,#patrocinio)>*:not(h2){margin-left:14px;margin-right:14px}
+:is(#rivo,#vale,#cheers,#classificados,#voz,#duelo,#enquete,#hoje,#tutorial,#aovivo,#guilda,#reputacao,#saiba,#taxas,#guia-chat,#seguranca,#privacidade,#fliperama,#duvidas,#quem,#apoie,#patrocinio)>.jn-bar{padding-top:10px;margin-bottom:0}
+
+/* janela dupla: a seção já é a caixa (título + conteúdo), então a janela interna vira só conteúdo */
+:root :is(#vale,#cheers)>.win{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;overflow:visible!important;animation:none!important}
+:root :is(#vale,#cheers)>.win>.bar{display:none!important}
+:root :is(#vale,#cheers)>.win>.body{padding:2px 0 0!important}
+
+/* Rivo: o próprio widget já é a janela, então a seção fica sem caixa, título e texto visíveis (continuam para leitores de tela) */
+:root #rivo{border:0!important;background:none!important;padding:0!important;overflow:visible!important;box-shadow:none!important}
+:root #rivo>h2,:root #rivo>.lead{position:absolute!important;width:1px;height:1px;margin:-1px!important;padding:0!important;border:0!important;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:root #rivo>.rv-win{margin-left:0!important;margin-right:0!important}
+
 /* "Do que você precisa?" na mesma caixa dos andares */
 #need{border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,rgba(var(--gold-rgb),.06),transparent 55%),var(--surf);overflow:hidden;padding:0 0 14px}
 #need .need-l.need-tg{padding:10px 14px;margin:0 0 12px;background:rgba(var(--gold-rgb),.07);border-bottom:1px solid var(--line);font:800 17px/1.2 var(--sans);border-radius:0}

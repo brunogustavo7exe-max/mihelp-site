@@ -25,10 +25,6 @@
    #rivo .rv-t[disabled]:hover{border-color:var(--rv-ln);background:var(--rv-sf)}
    #rivo .rv-t[disabled]:hover::before{background:var(--rv-ln)}
    #rivo .rv-body .note{color:var(--rv-tx2)}
-   #rivo .rv-a{margin-top:12px;display:flex;justify-content:flex-end}
-   #rivo .rv-open{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:8px;background:var(--rv-am);color:#14110a;font:800 14px var(--sans);letter-spacing:.02em;text-decoration:none}
-   #rivo .rv-open:hover{filter:brightness(1.08)}
-   #rivo .rv-open:focus-visible{outline:2px solid #fff;outline-offset:2px}
      #rivo .rv-rt{animation:rvdash 1.2s linear infinite}
    @keyframes rvdash{to{stroke-dashoffset:-14}}
    @media(prefers-reduced-motion:reduce){#rivo .rv-rt{animation:none}}
