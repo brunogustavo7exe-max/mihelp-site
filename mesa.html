@@ -561,6 +561,15 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
       } finally { eco.st.buscando = false; }
     },
     /* ---- RIVO: a loja chama um entregador e acompanha. Os dados vêm do servidor; nada disso é gravado no pedido. ---- */
+    async rivoCfg() {
+      const e = estado.config.eco;
+      if (!e || !e.chave || !eco.token() || eco.st.rcfg || eco.st.rcfgBusy) return;
+      eco.st.rcfgBusy = true;
+      try {
+        const r = await eco.req('/rivo/loja-cfg?chave=' + encodeURIComponent(e.chave));
+        if (r.ok && r.j && r.j.ok) { eco.st.rcfg = { auto: r.j.auto !== false, teto: Number(r.j.teto) || 0 }; renderizar(); }
+      } finally { eco.st.rcfgBusy = false; }
+    },
     async rivoSync() {
       const e = estado.config.eco;
       if (!e || !e.chave || !eco.token() || eco.st.rivoBusy) return;
@@ -576,6 +585,9 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
           if (rv) rv.chat = r.j.chat || null;
           eco.rv[p.rid] = rv;
           if (JSON.stringify(rv) !== antes) mudou = true;
+          const np = rv && Array.isArray(rv.props) ? rv.props.length : 0;
+          if (np > (eco.st['pp' + p.rid] || 0)) { const q = rv.props[np - 1]; aviso('🛵 ' + q.nome + ' propôs R$ ' + (q.valor / 100).toFixed(2).replace('.', ',') + ' (pedido #' + p.id + ')'); try { navigator.vibrate && navigator.vibrate([150, 80, 150]); } catch (_) { /* sem vibração */ } }
+          eco.st['pp' + p.rid] = np;
           const ch = rv && rv.chat;
           if (ch && ch.k !== 'l' && ch.last > (eco.st['cn' + p.rid] || 0) && ch.last > (eco.st['cs' + p.rid] || 0)) { eco.st['cn' + p.rid] = ch.last; aviso('💬 ' + (ch.k === 'd' ? 'Entregador' : 'Cliente') + ' (pedido #' + p.id + '): ' + ch.t); try { navigator.vibrate && navigator.vibrate(150); } catch (_) { /* sem vibração */ } }
           const px = rivoPerto(rv);
@@ -772,6 +784,15 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
         }
         return false;
       },
+      async rivoProp(t) {
+        const p = buscarPedido(t.dataset.id), e = estado.config.eco, aceitar = t.dataset.ok === '1';
+        if (!p || !p.rid || !e || !e.chave) return false;
+        const r = await eco.req('/rivo/proposta/responder', { chave: e.chave, rid: p.rid, id: t.dataset.pid, aceitar });
+        if (r.ok && r.j && r.j.ok) aviso(aceitar ? 'Proposta aceita! A entrega é do entregador.' : 'Proposta recusada.');
+        else aviso((r.j && r.j.erro) || 'Não consegui responder a proposta.');
+        await eco.rivoSync();
+        return false;
+      },
       async rivoCancelar(t) {
         const p = buscarPedido(t.dataset.id), e = estado.config.eco;
         if (!p || !p.rid || !e || !e.chave || !confirm('Cancelar a chamada do RIVO para este pedido?')) return false;
@@ -783,6 +804,20 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
         const p = buscarPedido(t.dataset.id), e = estado.config.eco;
         if (!p || !p.rid || !e || !e.chave) return false;
         chat39({ titulo: 'Chat · pedido #' + p.id, dark: true, como: 'l', chave: e.chave, rid: p.rid, req: eco.req, vis: (n) => { eco.st['cs' + p.rid] = n; }, quick: ["O pedido está saindo agora", "Pode vir buscar, está pronto ✅", "Só mais uns minutinhos, já fica pronto", "Pode confirmar o endereço, por favor?", "Ligue para o cliente, por favor"] });
+        return false;
+      },
+      async rivoModo(t) {
+        const e = estado.config.eco;
+        if (!e || !e.chave) { aviso('Conecte a loja ao MiHelp primeiro.'); return false; }
+        const auto = t.dataset.v === 'auto', teto = (eco.st.rcfg && eco.st.rcfg.teto) || 0;
+        const r = await eco.req('/rivo/loja-cfg', { chave: e.chave, auto, tetoCentavos: teto });
+        if (r.ok && r.j && r.j.ok) { eco.st.rcfg = { auto, teto }; aviso(auto ? 'Os pedidos de entrega chamam o RIVO sozinhos.' : 'Pronto: você usa o seu próprio entregador. O RIVO só é chamado se você apertar "Chamar RIVO".'); renderizar(); }
+        else aviso((r.j && r.j.erro) || 'Não consegui salvar.');
+        return false;
+      },
+      rivoPerfil(t) {
+        const p = buscarPedido(t.dataset.id), rv = p && p.rid && eco.rv[p.rid];
+        if (rv && rv.drv) perfilEnt39(rv.drv, true); else aviso('O entregador ainda não aceitou a entrega.');
         return false;
       },
       rivoMapa(t) {
@@ -797,7 +832,28 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
 
   /* ---------- telas ---------- */
   const linkar = (t) => esc(t).replace(/📍 (https:\/\/maps\.google\.com\/\?q=[-0-9.,]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--ac)">📍 Abrir no mapa</a>');   // localização enviada pelo cliente do MiHelp
-  /* ===== v39: chat da entrega (cliente · entregador · loja), uma conversa só por entrega ===== */
+  /* ===== perfil do entregador (cliente e loja) ===== */
+function perfilEnt39(d, dark) {
+  if (!d) return;
+  var C = dark ? { bg: '#1b1e24', fg: '#fff', ln: '#555' } : { bg: '#fff', fg: '#111', ln: '#cfd4dc' };
+  var el = function (t, css, x) { var e = document.createElement(t); if (css) e.style.cssText = css; if (x != null) e.textContent = x; return e; };
+  var dl = document.createElement('dialog');
+  dl.style.cssText = 'width:min(380px,92vw);padding:16px;border-radius:14px;border:1px solid ' + C.ln + ';background:' + C.bg + ';color:' + C.fg;
+  var nome = String(d.nome || 'Entregador');
+  var av = el('div', 'width:64px;height:64px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font:800 28px system-ui;background:#f59e0b;color:#111', nome.trim().charAt(0).toUpperCase() || '🛵');
+  var nota = d.n ? '⭐ ' + String(d.nota).replace('.', ',') + ' · ' + d.n + (d.n === 1 ? ' avaliação' : ' avaliações') : 'Novo no RIVO · ainda sem avaliações';
+  dl.append(av, el('div', 'text-align:center;font-weight:800;font-size:18px', nome), el('div', 'text-align:center;font-size:14px;margin:4px 0 12px;opacity:.9', nota));
+  var lin = function (r, v) { if (!v) return; var l = el('div', 'display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid ' + C.ln + ';font-size:14px'); l.append(el('span', 'opacity:.7', r), el('b', '', v)); dl.append(l); };
+  lin('Veículo', d.veic);
+  lin('Placa', d.placa);
+  lin('Trabalha como', d.cat === 'frete' ? 'Frete (caminhão, utilitário)' : d.cat === 'urbano' ? 'Entregador urbano' : '');
+  if (!d.veic && !d.placa) dl.append(el('p', 'font-size:13px;opacity:.7;text-align:center;margin:8px 0', 'Este entregador ainda não cadastrou veículo e placa.'));
+  var fx = el('button', 'display:block;width:100%;margin-top:12px;padding:10px;border-radius:10px;border:1px solid ' + C.ln + ';background:transparent;color:inherit;font-size:15px;font-weight:700;cursor:pointer', 'Fechar'); fx.type = 'button';
+  fx.onclick = function () { dl.close(); };
+  dl.addEventListener('close', function () { dl.remove(); });
+  document.body.append(dl); dl.showModal();
+}
+/* ===== v39: chat da entrega (cliente · entregador · loja), uma conversa só por entrega ===== */
   function chat39(o) {
     var C = o.dark ? { bg: '#1b1e24', fg: '#fff', ln: '#555', me: '#2f6f4e', ot: '#2d323b' } : { bg: '#fff', fg: '#111', ln: '#cfd4dc', me: '#2563eb', ot: '#e8ecf2' };
     var d = document.createElement('dialog'), last = 0, busy = 0, ativo = true, seen = {}, tm = null;
@@ -865,8 +921,12 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
     const d = rv.drv, pos = rv.pos, min = pos ? Math.round((Date.now() - pos.ts) / 60000) : 0, nome = esc(d ? d.nome : 'Entregador');
     const nota = d && d.n ? '⭐ ' + String(d.nota).replace('.', ',') : 'novo', px = rivoPerto(rv), cn = !!(rv.chat && rv.chat.k !== 'l' && rv.chat.last > (eco.st['cs' + o.rid] || 0));
     const txt = rv.st === 'procurando' ? '🛵 RIVO: procurando entregador…' : rv.st === 'aceita' ? `🛵 ${nome} (${nota}) está indo à loja${px ? ' · ' + px.txt : ''}` : rv.st === 'coletada' ? `🛵 ${nome} (${nota}) saiu com o pedido${px ? ' · ' + px.txt : ''}` : '🛵 RIVO: ' + esc(rv.st);
+    const cent = (c) => 'R$ ' + ((Number(c) || 0) / 100).toFixed(2).replace('.', ',');
+    const propsHtml = rv.st === 'procurando' && Array.isArray(rv.props) && rv.props.length
+      ? `<p class="mu sm"><b>💬 Propostas de entregadores</b> (você oferece ${cent(rv.taxa)})</p>` + rv.props.map((q) => `<p class="mu sm">🛵 ${esc(q.nome)} (${q.n ? '⭐ ' + String(q.nota).replace('.', ',') : 'novo'}${q.veic ? ' · ' + esc(q.veic) : ''}) pede <b>${cent(q.valor)}</b></p><div class="acts2"><button class="btn full" data-a="rivoProp" data-id="${o.id}" data-pid="${esc(q.id)}" data-ok="1">Aceitar ${cent(q.valor)}</button><button class="btn full" data-a="rivoProp" data-id="${o.id}" data-pid="${esc(q.id)}" data-ok="0">Recusar</button></div>`).join('')
+      : '';
     const alerta = px && px.naLoja ? '📍 O entregador chegou! Entregue o pedido a ele agora.' : (rv.st === 'aceita' || rv.st === 'coletada') ? (!pos ? 'Aguardando a posição do entregador.' : min >= 2 ? `⚠ Sem sinal do entregador há ${min} min. Ligue para ele.` : '') : '';
-    return `<p class="mu sm">${txt}${alerta ? `<br><b>${alerta}</b>` : ''}</p><div class="acts2"><button class="btn full" data-a="rivoMapa" data-id="${o.id}">Ver no mapa</button>${rv.st === 'aceita' || rv.st === 'coletada' ? `<button class="btn full" data-a="rivoChat" data-id="${o.id}">💬 Chat${cn ? ' · nova mensagem' : ''}</button>` : ''}${rv.st === 'procurando' || rv.st === 'aceita' ? `<button class="btn full" data-a="rivoCancelar" data-id="${o.id}">Cancelar chamada</button>` : ''}</div>`;
+    return `<p class="mu sm">${txt}${alerta ? `<br><b>${alerta}</b>` : ''}</p><div class="acts2"><button class="btn full" data-a="rivoMapa" data-id="${o.id}">Ver no mapa</button>${d && (rv.st === 'aceita' || rv.st === 'coletada') ? `<button class="btn full" data-a="rivoPerfil" data-id="${o.id}">👤 Perfil do entregador</button>` : ''}${rv.st === 'aceita' || rv.st === 'coletada' ? `<button class="btn full" data-a="rivoChat" data-id="${o.id}">💬 Chat${cn ? ' · nova mensagem' : ''}</button>` : ''}${rv.st === 'procurando' || rv.st === 'aceita' ? `<button class="btn full" data-a="rivoCancelar" data-id="${o.id}">Cancelar chamada</button>` : ''}</div>${propsHtml}`;
   }
   function cartaoPedido(o) {
     const min = Pedidos.minutosDesde(o), prox = Pedidos.proximaEtapa(o);
@@ -1109,6 +1169,8 @@ ${antigos ? `<div class="acts"><button class="btn" data-a="ecoAntigos">Enviar ${
       const r = L.h[i], t = (k, j) => `<input type="time" data-hf="${i},${k},${j}" value="${esc(r.f[k][j])}" aria-label="${DIAS[i]}, ${k ? '2ª' : '1ª'} faixa, ${j ? 'fecha' : 'abre'}">`;
       return `<div class="hrow${r.on ? '' : ' off'}"><label class="hck"><input type="checkbox" data-hon="${i}"${r.on ? ' checked' : ''} aria-label="${DIAS[i]} aberto"><b>${DIAS[i]}</b></label>${r.on ? `<div class="hts">${t(0, 0)}<span>às</span>${t(0, 1)}<span class="mu">e</span>${t(1, 0)}<span>às</span>${t(1, 1)}</div>` : '<span class="hfech">Fechado</span>'}</div>`;
     }).join('');
+    eco.rivoCfg();
+    const rc = eco.st.rcfg, modoBtn = (v, tx) => `<button class="btn${rc && (rc.auto === (v === 'auto')) ? ' pri' : ''}" data-a="rivoModo" data-v="${v}">${tx}</button>`;
     return `<header class="top"><div><h1>Estabelecimento</h1><p class="mu">Os dados da sua loja. Ao salvar, eles vão sozinhos para a página da loja no MiHelp.</p></div></header>
 ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
 <label class="f">Nome da loja<input data-l="nome" value="${esc(L.nome)}" placeholder="Ex.: Lanchonete do Zé" maxlength="60"></label>
@@ -1117,7 +1179,10 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
 <label class="f">WhatsApp<input data-l="contato" value="${esc(L.contato)}" type="tel" inputmode="tel" placeholder="(66) 99999-9999" maxlength="20"></label></section>
 <section class="mc"><h2>Entrega</h2>
 <label class="f">Taxa de entrega (R$)<input data-l="taxa" value="${esc(L.taxa)}" inputmode="decimal" placeholder="0,00" maxlength="8"></label>
-<p class="mu sm">É somada ao total do pedido de quem escolhe entrega, no MiHelp e aqui. Deixe 0,00 se a loja não cobra. Quem retira no local não paga taxa.</p></section>
+<p class="mu sm">É somada ao total do pedido de quem escolhe entrega, no MiHelp e aqui. Deixe 0,00 se a loja não cobra. Quem retira no local não paga taxa.</p>
+<h3 style="margin:14px 0 6px">Quem faz a entrega?</h3>
+<div class="acts">${modoBtn('auto', '🛵 Chamar o RIVO sozinho')}${modoBtn('proprio', '🏍 Tenho meu próprio entregador')}</div>
+<p class="mu sm">${rc ? (rc.auto ? 'Cada pedido de entrega chama um entregador do RIVO na hora (a loja precisa ter marcado onde fica).' : 'O RIVO não é chamado sozinho. Você entrega com o seu pessoal, e ainda pode apertar "Chamar RIVO" em um pedido quando quiser.') : 'Carregando…'}</p></section>
 <section class="mc"><h2>Horário de funcionamento</h2>
 <p class="mu sm">Marque os dias em que a loja abre. Se fecha de madrugada, use por exemplo 18:00 às 02:00. A 2ª faixa é para quem faz pausa no meio do dia.</p>${linhas}
 <div class="acts" style="margin-top:12px"><button class="btn" data-a="horCopiar">Copiar a segunda para todos os dias</button></div></section>

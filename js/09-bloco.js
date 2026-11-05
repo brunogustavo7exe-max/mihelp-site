@@ -1159,6 +1159,27 @@ function leaflet36(){if(window.L)return Promise.resolve();if(window._lfp)return 
   const j=document.createElement('script');j.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';j.onload=()=>cp.then(ok);j.onerror=()=>{window._lfp=null;no()};document.head.append(j)})}
 const pino36=(t,cor)=>L.divIcon({className:'',html:'<div style="width:30px;height:30px;border-radius:50%;background:'+cor+';color:#111;font:700 15px/30px system-ui;text-align:center;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5)">'+t+'</div>',iconSize:[30,30],iconAnchor:[15,15]});
 function kmLinha36(a,b){const R=6371,r=Math.PI/180,dl=(b.lat-a.lat)*r,dn=(b.lng-a.lng)*r,h=Math.sin(dl/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
+/* ===== perfil do entregador (cliente e loja) ===== */
+function perfilEnt39(d, dark) {
+  if (!d) return;
+  var C = dark ? { bg: '#1b1e24', fg: '#fff', ln: '#555' } : { bg: '#fff', fg: '#111', ln: '#cfd4dc' };
+  var el = function (t, css, x) { var e = document.createElement(t); if (css) e.style.cssText = css; if (x != null) e.textContent = x; return e; };
+  var dl = document.createElement('dialog');
+  dl.style.cssText = 'width:min(380px,92vw);padding:16px;border-radius:14px;border:1px solid ' + C.ln + ';background:' + C.bg + ';color:' + C.fg;
+  var nome = String(d.nome || 'Entregador');
+  var av = el('div', 'width:64px;height:64px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font:800 28px system-ui;background:#f59e0b;color:#111', nome.trim().charAt(0).toUpperCase() || '🛵');
+  var nota = d.n ? '⭐ ' + String(d.nota).replace('.', ',') + ' · ' + d.n + (d.n === 1 ? ' avaliação' : ' avaliações') : 'Novo no RIVO · ainda sem avaliações';
+  dl.append(av, el('div', 'text-align:center;font-weight:800;font-size:18px', nome), el('div', 'text-align:center;font-size:14px;margin:4px 0 12px;opacity:.9', nota));
+  var lin = function (r, v) { if (!v) return; var l = el('div', 'display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid ' + C.ln + ';font-size:14px'); l.append(el('span', 'opacity:.7', r), el('b', '', v)); dl.append(l); };
+  lin('Veículo', d.veic);
+  lin('Placa', d.placa);
+  lin('Trabalha como', d.cat === 'frete' ? 'Frete (caminhão, utilitário)' : d.cat === 'urbano' ? 'Entregador urbano' : '');
+  if (!d.veic && !d.placa) dl.append(el('p', 'font-size:13px;opacity:.7;text-align:center;margin:8px 0', 'Este entregador ainda não cadastrou veículo e placa.'));
+  var fx = el('button', 'display:block;width:100%;margin-top:12px;padding:10px;border-radius:10px;border:1px solid ' + C.ln + ';background:transparent;color:inherit;font-size:15px;font-weight:700;cursor:pointer', 'Fechar'); fx.type = 'button';
+  fx.onclick = function () { dl.close(); };
+  dl.addEventListener('close', function () { dl.remove(); });
+  document.body.append(dl); dl.showModal();
+}
 /* ===== v39: chat da entrega (cliente · entregador · loja), uma conversa só por entrega ===== */
 function chat39(o) {
   var C = o.dark ? { bg: '#1b1e24', fg: '#fff', ln: '#555', me: '#2f6f4e', ot: '#2d323b' } : { bg: '#fff', fg: '#111', ln: '#cfd4dc', me: '#2563eb', ot: '#e8ecf2' };
@@ -1231,6 +1252,7 @@ function rivoCard31(x){const rv=x.rivo,card=mk8('div','lj-rivo');card.style.cssT
     if(rv.dest&&rv.st==='coletada')l+=' · a cerca de '+kmLinha36(p,rv.dest).toFixed(1).replace('.',',')+' km em linha reta de você';}
    card.append(mk8('p','note',l))}
  }
+ if(d&&emRota)card.append(botao8('👤 Ver perfil do entregador','more',()=>perfilEnt39(d,false)));
  if(emRota){const cn=x.chat&&x.chat.k!=='c'&&x.chat.last>(x.chatSeen||0);card.append(botao8('💬 Falar com o entregador'+(cn?' · nova mensagem':''),cn?'cta2':'more',()=>chat39({titulo:'Chat da entrega',como:'c',chave:x.ch,rid:x.rid,req:chama8,vis:n=>{x.chatSeen=n},quick:["Estou na porta 👋", "Já estou descendo", "Pode deixar na portaria", "Pode me ligar?", "Onde você está?", "Obrigado!"]})))}
  return card}
 function envView29(w,d,L,x,temNovo,volta,redesenha){
