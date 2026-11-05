@@ -1164,13 +1164,16 @@ const AVK30='mh_aval_entrega';
 const SELOS_LOJA37=['Pedido veio certo','Comida quente','Bem embalado','Caprichado','Valeu o preço','Atendimento nota 10'];
 const SELOS_ENT37=['Entregou na hora','Não demorou','Pedido chegou inteiro','Educado','Cuidou bem do pedido','Achou o endereço fácil'];
 const seloPref37=a=>a.length?'🏅 '+a.join(' · '):'';
-function estrelas30(rot,sub,selos){const w=mk8('div','lj-av'),row=mk8('div','lj-stars');let n=0;const bs=[];const esc=new Set();
- const pinta=()=>bs.forEach((b,k)=>{b.classList.toggle('on',k<n);b.setAttribute('aria-pressed',String(k+1===n))});
+function estrelas30(rot,sub,selos){const w=mk8('div','lj-rate'),row=mk8('div','lj-stars');let n=0;const bs=[];const esc=new Set();
+ const NT30=['','Ruim','Regular','Bom','Muito bom','Incrível'];
+ const hint=mk8('span','lj-hint','Toque nas estrelas');
+ const pinta=()=>{bs.forEach((b,k)=>{b.classList.toggle('on',k<n);b.setAttribute('aria-pressed',String(k+1===n))});hint.textContent=n?NT30[n]:'Toque nas estrelas';hint.classList.toggle('on',n>0);w.classList.toggle('rated',n>0)};
  for(let i=1;i<=5;i++){const b=document.createElement('button');b.type='button';b.textContent='\u2605';b.setAttribute('aria-label',i+(i===1?' estrela':' estrelas'));b.onclick=()=>{n=i;pinta()};bs.push(b);row.append(b)}
- const ti=document.createElement('input');ti.type='text';ti.maxLength=140;ti.placeholder='Comentário (opcional)';ti.setAttribute('aria-label','Comentário: '+rot);
- w.append(mk8('b',null,rot),mk8('span','note',sub),row);
+ const ti=document.createElement('input');ti.type='text';ti.maxLength=140;ti.placeholder='Quer deixar um comentário? (opcional)';ti.setAttribute('aria-label','Comentário: '+rot);
+ const hd=mk8('div','lj-rh');hd.append(mk8('b',null,rot),mk8('span','note',sub));
+ w.append(hd,row,hint);
  const lim=()=>{ti.maxLength=Math.max(0,140-(esc.size?seloPref37([...esc]).length+3:0))};
- if(selos&&selos.length){const sl=mk8('div','lj-selos');sl.setAttribute('role','group');sl.setAttribute('aria-label','Selos: o que foi bom');selos.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='lj-selo';b.textContent=t;b.setAttribute('aria-pressed','false');b.onclick=()=>{if(esc.has(t))esc.delete(t);else if(esc.size<4)esc.add(t);b.setAttribute('aria-pressed',String(esc.has(t)));b.classList.toggle('on',esc.has(t));lim();if(ti.value.length>ti.maxLength)ti.value=ti.value.slice(0,ti.maxLength)};sl.append(b)});w.append(mk8('span','note','Toque nos selos que combinam (até 4):'),sl)}
+ if(selos&&selos.length){const sw=mk8('div','lj-sw'),sl=mk8('div','lj-selos');sl.setAttribute('role','group');sl.setAttribute('aria-label','Selos: o que foi bom');selos.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='lj-selo';b.textContent=t;b.setAttribute('aria-pressed','false');b.onclick=()=>{if(esc.has(t))esc.delete(t);else if(esc.size<4)esc.add(t);b.setAttribute('aria-pressed',String(esc.has(t)));b.classList.toggle('on',esc.has(t));lim();if(ti.value.length>ti.maxLength)ti.value=ti.value.slice(0,ti.maxLength)};sl.append(b)});sw.append(mk8('span','lj-sl','O que foi bom? (até 4)'),sl);w.append(sw)}
  w.append(ti);
  return{el:w,nota:()=>n,selos:()=>[...esc],txt:()=>{const t=ti.value.trim(),p=seloPref37([...esc]);return p?(p+(t?' — '+t:'')).slice(0,140):t}}}
 function confView30(w,d,L,x,temNovo,volta,redesenha){
@@ -1184,6 +1187,7 @@ function confView30(w,d,L,x,temNovo,volta,redesenha){
   box.classList.add('bad');box.append(mk8('div','lj-ok','\u2715'),mk8('h4',null,'Pedido não recebido'),mk8('p','lj-es','Fale com a loja pelo WhatsApp para resolver.'),mk8('p','note','A loja e a entrega ficam avisadas de que esse pedido não chegou.'));
   zap('\ud83d\udcac Falar com a loja no WhatsApp','cta2');ac.append(botao8('Na verdade, recebi','more',()=>manda(true)),botao8('Fechar','more',()=>{x.av=1;envGrava29(x);redesenha()}))}
  else{
+  box.classList.add('rate');
   box.append(mk8('div','lj-ok','\ud83c\udf89'),mk8('h4',null,'Pedido recebido. Bom apetite!'),mk8('p','note','Conta como foi? Leva 10 segundos.'));
   const b1=estrelas30('\ud83c\udf54 O lanche — '+L.nome,'Sabor, capricho e como veio embalado.',SELOS_LOJA37),b2=entrega?estrelas30('\ud83d\udef5 A entrega — '+(x.drv?x.drv.nome+(x.drv.n?' · \u2605 '+String(x.drv.nota).replace('.',',')+' ('+x.drv.n+')':' · novo no RIVO'):'entregador'),'Rapidez e cuidado do entregador.',SELOS_ENT37):null;
   box.append(b1.el);if(b2)box.append(b2.el);

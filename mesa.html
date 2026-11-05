@@ -162,6 +162,28 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
 .cbx p{margin:0;padding:10px 12px;color:var(--mu);font-size:13px}
 .cbok{color:var(--ok);font-size:12px;margin-top:4px;display:block}
 .loc{margin-top:6px}
+
+/* RIVO no cartão do pedido: bloco do entregador + propostas */
+.rv{display:grid;gap:10px;padding:12px;border:1px solid var(--ln);border-radius:12px;background:var(--sf2)}
+.rv-h{display:flex;align-items:center;gap:10px}
+.rv-ic{flex:none;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--acb);font-size:18px}
+.rv-ic.pulse{animation:rvp 1.8s ease-in-out infinite}
+@keyframes rvp{0%,100%{box-shadow:0 0 0 0 rgba(248,159,46,.35)}50%{box-shadow:0 0 0 6px rgba(248,159,46,0)}}
+.rv-t{min-width:0;display:grid;gap:1px;line-height:1.3}.rv-t b{font-size:14.5px}.rv-t span{font-size:12.5px;color:var(--mu)}
+.rv-al{font-size:12.5px;font-weight:600;line-height:1.35;padding:8px 10px;border-radius:8px;background:var(--wrb);color:var(--wr)}.rv-al.ok{background:var(--okb);color:var(--ok)}
+.rv-bt{display:flex;flex-wrap:wrap;gap:6px}
+.rv-bt .btn{flex:1 1 auto;padding:7px 10px;font-size:13px;background:var(--sf)}
+.rv-bt .btn.dg{flex:0 0 auto;margin-left:auto;background:transparent;border-color:transparent;color:var(--er)}
+.rv-bt .btn.dg:hover{background:var(--erb)}
+.rv-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--er);margin-left:4px;vertical-align:middle}
+.pp{display:grid;gap:8px;padding:10px;border:1px solid rgba(248,159,46,.3);border-radius:10px;background:var(--sf)}
+.pp-h{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
+.pp-h span{font-size:12px;color:var(--mu);background:var(--sf2);padding:2px 8px;border-radius:99px;white-space:nowrap}
+.pp-i{display:grid;gap:8px;padding-top:8px;border-top:1px solid var(--ln)}.pp-h+.pp-i{border-top:0;padding-top:0}
+.pp-w{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.pp-n{min-width:0;display:grid;line-height:1.3}.pp-n b{font-size:14px}.pp-n span{font-size:12.5px;color:var(--mu)}
+.pp-v{font-size:17px;font-weight:800;color:var(--ac);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pp-b{display:grid;grid-template-columns:1.4fr 1fr;gap:6px}.pp-b .btn{padding:8px 10px;font-size:13px}
 </style>
 </head>
 <body>
@@ -920,13 +942,21 @@ function perfilEnt39(d, dark) {
     if (!rv || ['cancelada', 'expirada'].includes(rv.st)) return `<div class="acts2"><button class="btn full" data-a="rivoChamar" data-id="${o.id}">🛵 ${rv ? 'Chamar o RIVO de novo' : 'Chamar RIVO'}</button></div>`;
     const d = rv.drv, pos = rv.pos, min = pos ? Math.round((Date.now() - pos.ts) / 60000) : 0, nome = esc(d ? d.nome : 'Entregador');
     const nota = d && d.n ? '⭐ ' + String(d.nota).replace('.', ',') : 'novo', px = rivoPerto(rv), cn = !!(rv.chat && rv.chat.k !== 'l' && rv.chat.last > (eco.st['cs' + o.rid] || 0));
-    const txt = rv.st === 'procurando' ? '🛵 RIVO: procurando entregador…' : rv.st === 'aceita' ? `🛵 ${nome} (${nota}) está indo à loja${px ? ' · ' + px.txt : ''}` : rv.st === 'coletada' ? `🛵 ${nome} (${nota}) saiu com o pedido${px ? ' · ' + px.txt : ''}` : '🛵 RIVO: ' + esc(rv.st);
     const cent = (c) => 'R$ ' + ((Number(c) || 0) / 100).toFixed(2).replace('.', ',');
-    const propsHtml = rv.st === 'procurando' && Array.isArray(rv.props) && rv.props.length
-      ? `<p class="mu sm"><b>💬 Propostas de entregadores</b> (você oferece ${cent(rv.taxa)})</p>` + rv.props.map((q) => `<p class="mu sm">🛵 ${esc(q.nome)} (${q.n ? '⭐ ' + String(q.nota).replace('.', ',') : 'novo'}${q.veic ? ' · ' + esc(q.veic) : ''}) pede <b>${cent(q.valor)}</b></p><div class="acts2"><button class="btn full" data-a="rivoProp" data-id="${o.id}" data-pid="${esc(q.id)}" data-ok="1">Aceitar ${cent(q.valor)}</button><button class="btn full" data-a="rivoProp" data-id="${o.id}" data-pid="${esc(q.id)}" data-ok="0">Recusar</button></div>`).join('')
+    const props = rv.st === 'procurando' && Array.isArray(rv.props) ? rv.props : [];
+    const ativa = rv.st === 'aceita' || rv.st === 'coletada';
+    let titulo, sub;
+    if (rv.st === 'procurando') { titulo = 'Procurando entregador…'; sub = props.length ? props.length + (props.length === 1 ? ' proposta recebida' : ' propostas recebidas') : (rv.taxa ? 'Você oferece ' + cent(rv.taxa) : 'Chamada enviada ao RIVO'); }
+    else if (rv.st === 'aceita') { titulo = nome; sub = nota + ' · está indo à loja' + (px ? ' · ' + px.txt : ''); }
+    else if (rv.st === 'coletada') { titulo = nome; sub = nota + ' · saiu com o pedido' + (px ? ' · ' + px.txt : ''); }
+    else { titulo = 'RIVO'; sub = esc(rv.st); }
+    const propsHtml = props.length
+      ? `<div class="pp"><div class="pp-h"><b>Propostas</b><span>Você oferece ${cent(rv.taxa)}</span></div>` + props.map((q) => `<div class="pp-i"><div class="pp-w"><div class="pp-n"><b>${esc(q.nome)}</b><span>${q.n ? '⭐ ' + String(q.nota).replace('.', ',') : 'Novo'}${q.veic ? ' · ' + esc(q.veic) : ''}</span></div><div class="pp-v">${cent(q.valor)}</div></div><div class="pp-b"><button class="btn pri" data-a="rivoProp" data-id="${o.id}" data-pid="${esc(q.id)}" data-ok="1">Aceitar</button><button class="btn" data-a="rivoProp" data-id="${o.id}" data-pid="${esc(q.id)}" data-ok="0">Recusar</button></div></div>`).join('') + `</div>`
       : '';
-    const alerta = px && px.naLoja ? '📍 O entregador chegou! Entregue o pedido a ele agora.' : (rv.st === 'aceita' || rv.st === 'coletada') ? (!pos ? 'Aguardando a posição do entregador.' : min >= 2 ? `⚠ Sem sinal do entregador há ${min} min. Ligue para ele.` : '') : '';
-    return `<p class="mu sm">${txt}${alerta ? `<br><b>${alerta}</b>` : ''}</p><div class="acts2"><button class="btn full" data-a="rivoMapa" data-id="${o.id}">Ver no mapa</button>${d && (rv.st === 'aceita' || rv.st === 'coletada') ? `<button class="btn full" data-a="rivoPerfil" data-id="${o.id}">👤 Perfil do entregador</button>` : ''}${rv.st === 'aceita' || rv.st === 'coletada' ? `<button class="btn full" data-a="rivoChat" data-id="${o.id}">💬 Chat${cn ? ' · nova mensagem' : ''}</button>` : ''}${rv.st === 'procurando' || rv.st === 'aceita' ? `<button class="btn full" data-a="rivoCancelar" data-id="${o.id}">Cancelar chamada</button>` : ''}</div>${propsHtml}`;
+    const naLoja = px && px.naLoja;
+    const alerta = naLoja ? '📍 O entregador chegou! Entregue o pedido a ele agora.' : ativa ? (!pos ? 'Aguardando a posição do entregador.' : min >= 2 ? `⚠ Sem sinal do entregador há ${min} min. Ligue para ele.` : '') : '';
+    const botoes = `<div class="rv-bt"><button class="btn" data-a="rivoMapa" data-id="${o.id}">🗺 Mapa</button>${d && ativa ? `<button class="btn" data-a="rivoPerfil" data-id="${o.id}">👤 Perfil</button>` : ''}${ativa ? `<button class="btn" data-a="rivoChat" data-id="${o.id}">💬 Chat${cn ? ' <i class="rv-dot"></i>' : ''}</button>` : ''}${rv.st === 'procurando' || rv.st === 'aceita' ? `<button class="btn dg" data-a="rivoCancelar" data-id="${o.id}">Cancelar chamada</button>` : ''}</div>`;
+    return `<div class="rv"><div class="rv-h"><span class="rv-ic${rv.st === 'procurando' ? ' pulse' : ''}">🛵</span><div class="rv-t"><b>${titulo}</b><span>${sub}</span></div></div>${alerta ? `<div class="rv-al${naLoja ? ' ok' : ''}">${alerta}</div>` : ''}${propsHtml}${botoes}</div>`;
   }
   function cartaoPedido(o) {
     const min = Pedidos.minutosDesde(o), prox = Pedidos.proximaEtapa(o);
