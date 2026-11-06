@@ -8,7 +8,7 @@ const CATS=['Restaurante','Lanchonete','Bar','Loja','Serviço','Turismo','Hotel/
 const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const seguro=u=>/^https?:\/\/[^\s]+$/i.test(String(u||''))?u:'';
 const logado=()=>!!A.usrTk();
-const msg=t=>{$('vMsg').textContent=t||''};const msgC=t=>{$('cMsg').textContent=t||''};
+const msg=t=>{$('vMsg').textContent=t||''};
 const dica=r=>{try{return A.admTk()&&r&&r.j&&r.j.detalhe?' ('+r.j.detalhe+')':''}catch(e){return ''}};
 let cid=(window.MH_CIDADE||{}).slug||'barra-do-garcas',cat='';
 try{const m=window.MH_CIDADE;if(m){if(!CID.some(x=>x[0]===m.slug))CID.push([m.slug,m.nome]);cid=m.slug}}catch(e){}

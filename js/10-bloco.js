@@ -342,33 +342,6 @@ function selosEl(nome){const c={};(AV[nome]||[]).forEach(x=>av2(x[2]).tags.forEa
 /* frase do perfil e mural de recados */
 const REC={},FRASE={};
 function recAdd(alvo,de,texto,quando){const l=REC[alvo]||(REC[alvo]=[]);if(l.some(x=>x[0]===de&&x[1]===texto&&Math.abs(x[2]-quando)<120000))return;l.push([de,texto,quando]);l.sort((a,b)=>a[2]-b[2]);while(l.length>40)l.shift()}
-function postarRec(alvo,texto){
-  if(!eu||alvo===eu.nome)return 'Você não pode deixar recado no seu próprio mural.';
-  texto=String(texto||'').trim().slice(0,100);if(!texto)return 'Escreva o recado.';
-  const ag=Date.now();if(ag-(postarRec.t||0)<30000)return 'Espere alguns segundos para mandar outro recado.';
-  postarRec.t=ag;recAdd(alvo,eu.nome,texto,ag);
-  try{if(window.MH_DB&&MH_DB.ok&&!por(alvo))MH_DB.recado(alvo,eu.nome,texto)}catch(x){}
-  return true}
-function renderMural(d,pes,meu){
-  const mk=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
-  d.append(mk('h4',0,'Mural de recados'));
-  const box=mk('div');d.append(box);
-  const pinta=()=>{box.textContent='';
-    const l=(REC[pes.nome]||[]).filter(x=>!bloqueados.has(x[0])).slice(-5).reverse();
-    if(!l.length)box.append(mk('p','note',meu?'Ninguém deixou recado ainda.':'Ainda sem recados. Seja o primeiro.'));
-    l.forEach(x=>{const b=mk('div','dep');b.append(mk('b',0,x[0]+' · '+new Date(x[2]).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})));
-      b.append(document.createElement('br'),document.createTextNode(x[1]));
-      if(eu&&x[0]!==eu.nome){const dn=mk('button','more','denunciar');dn.type='button';dn.style.cssText='padding:2px 8px;font-size:11px;margin-left:8px';
-        dn.onclick=()=>{try{window.MH_denuncia&&MH_denuncia(x[0])}catch(e){}dn.textContent='denunciado';dn.disabled=true};b.append(dn)}
-      box.append(b)})};
-  pinta();
-  if(eu&&!meu){const f=document.createElement('form');f.style.cssText='display:flex;gap:6px;margin-top:6px';
-    const i=document.createElement('input');i.type='text';i.maxLength=100;i.placeholder='Deixe um recado (até 100 letras)';i.setAttribute('aria-label','Recado para '+pes.nome);
-    const bt=mk('button','more','Enviar');bt.type='submit';const er=mk('p','note');er.setAttribute('role','status');
-    f.append(i,bt);f.addEventListener('submit',e=>{e.preventDefault();const r=postarRec(pes.nome,i.value);if(r===true){i.value='';er.textContent='Recado enviado.';pinta()}else er.textContent=r});
-    d.append(f,er)}
-  else if(!eu)d.append(mk('p','note','Cadastre-se para deixar recado.'));
-  if(pes.bot)d.append(mk('p','note','Perfil de demonstração: recados aqui ficam só nesta tela.'))}
 function resumo(nome){const l=AV[nome]||[];if(!l.length)return null;return {m:l.reduce((a,x)=>a+x[1],0)/l.length,n:l.length}}
 /* ===== fotos de perfil, selo ✔ Verificado e lista de profissionais ===== */
 const FOTO={},VER={},VERT={};
@@ -483,7 +456,6 @@ function carregaV8(){if(!apiOn8())return;
 window.MH_prosRecarrega=carregaV8;
 function carregaFav8(){if(!apiOn8()||!tk8())return;chama8('/favoritos/minhas').then(r=>{if(r.ok&&r.j&&r.j.ok){V8.fav.lojas=new Set(r.j.lojas||[]);refreshProf()}}).catch(()=>{})}
 /* ===== compartilhar: menu do celular (WhatsApp, Instagram...) ou copia o link ===== */
-const apiBase8=()=>String((window.MH_CFG||{}).api||'').replace(/\/+$/,'');
 /* links apontam para o próprio site (o site já abre o perfil quando a página tem ?helper= ou ?loja=) */
 const siteBase8=()=>{try{const o=location.origin;if(/^https?:\/\//.test(o)&&!/localhost|127\.0\.0\.1/.test(o))return o+'/'}catch(e){}return 'https://www.dcastrolabs.com/'};
 const linkLoja8=c=>siteBase8()+'?loja='+encodeURIComponent(c);
@@ -813,7 +785,6 @@ async function qrTotem8(titulo,sub,url,arq){
  ac.append(botao8('⬇ Baixar PNG','cta2',()=>{const a=document.createElement('a');a.download=(arq||'totem')+'.png';a.href=cv.toDataURL('image/png');document.body.append(a);a.click();a.remove()}),
   botao8('🖨 Imprimir','more',()=>{const w=window.open('','_blank');if(!w)return;w.document.write('<title>Totem</title><body style="margin:0;text-align:center"><img src="'+cv.toDataURL('image/png')+'" style="max-width:100%;max-height:100vh" onload="print()">');w.document.close()}),
   botao8('Fechar','more',()=>d.close()));d.append(ac)}
-const qrLoja8=L=>qrTotem8(L.nome,L.tipo||'',linkLoja8(L.chave)+'&avaliar=1','totem-'+L.chave);
 const qrHelper8=(n,w)=>qrTotem8(n,w||'Helper','' +linkHelper8(n)+'&avaliar=1','totem-'+String(n).toLowerCase().replace(/[^a-z0-9]+/g,'-'));
 function formPedir8(d,L){d.textContent='';d.append(mk8('h3',null,'Quero fazer parte de '+L.nome));
  d.append(mk8('p','note','O dono precisa aprovar. Você escolhe se o seu nome aparece no perfil da loja.'));
@@ -1212,7 +1183,7 @@ function kmLinha36(a,b){const R=6371,r=Math.PI/180,dl=(b.lat-a.lat)*r,dn=(b.lng-
 /* ===== perfil do entregador (cliente e loja) ===== */
 function perfilEnt39(d, dark) {
   if (!d) return;
-  var C = dark ? { bg: '#1b1e24', fg: '#fff', ln: '#555' } : { bg: '#fff', fg: '#111', ln: '#cfd4dc' };
+  var C = { bg: 'var(--surf,#1b1e24)', fg: 'var(--text,#fff)', ln: 'var(--line,#3a3f4a)' };
   var el = function (t, css, x) { var e = document.createElement(t); if (css) e.style.cssText = css; if (x != null) e.textContent = x; return e; };
   var dl = document.createElement('dialog');
   dl.style.cssText = 'width:min(380px,92vw);padding:16px;border-radius:14px;border:1px solid ' + C.ln + ';background:' + C.bg + ';color:' + C.fg;
@@ -1232,25 +1203,25 @@ function perfilEnt39(d, dark) {
 }
 /* ===== v39: chat da entrega (cliente · entregador · loja), uma conversa só por entrega ===== */
 function chat39(o) {
-  var C = o.dark ? { bg: '#1b1e24', fg: '#fff', ln: '#555', me: '#2f6f4e', ot: '#2d323b' } : { bg: '#fff', fg: '#111', ln: '#cfd4dc', me: '#2563eb', ot: '#e8ecf2' };
+  var C = { bg: 'var(--surf,#1b1e24)', fg: 'var(--text,#fff)', ln: 'var(--line,#3a3f4a)', me: 'var(--gold,#2563eb)', ot: 'rgba(var(--gold-rgb,46,168,255),.14)', mefg: 'var(--on-gold,#fff)', inb: 'var(--bg,#0f1115)' };
   var d = document.createElement('dialog'), last = 0, busy = 0, ativo = true, seen = {}, tm = null;
-  d.style.cssText = 'width:min(460px,94vw);padding:12px;border-radius:14px;border:1px solid ' + C.ln + ';background:' + C.bg + ';color:' + C.fg;
+  d.className = 'mh-chat39'; d.style.cssText = 'width:min(460px,94vw);padding:14px;border-radius:18px;border:1px solid ' + C.ln + ';background:' + C.bg + ';color:' + C.fg;
   var el = function (t, css, x) { var e = document.createElement(t); if (css) e.style.cssText = css; if (x != null) e.textContent = x; return e; };
   var pill = 'padding:6px 12px;border-radius:999px;border:1px solid ' + C.ln + ';background:transparent;color:inherit;font-size:13px;cursor:pointer';
   var top = el('div', 'display:flex;justify-content:space-between;align-items:center;margin-bottom:8px'), fechar = el('button', pill, 'Fechar'); fechar.type = 'button';
   top.append(el('b', '', o.titulo), fechar);
-  var box = el('div', 'height:240px;overflow:auto;display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid ' + C.ln + ';border-radius:10px');
+  var box = el('div', 'height:240px;overflow:auto;display:flex;flex-direction:column;gap:6px;padding:10px;border:1px solid ' + C.ln + ';border-radius:14px;background:' + C.inb);
   box.setAttribute('role', 'log'); box.setAttribute('aria-live', 'polite');
   var vazio = el('p', 'opacity:.65;font-size:13px;margin:auto;text-align:center', 'Nenhuma mensagem ainda. Toque numa resposta rápida ou escreva.'); box.append(vazio);
   var qk = el('div', 'display:flex;flex-wrap:wrap;gap:6px;margin:8px 0');
-  var row = el('div', 'display:flex;gap:6px'), inp = el('input', 'flex:1;min-width:0;padding:9px 10px;border-radius:10px;border:1px solid ' + C.ln + ';background:transparent;color:inherit;font-size:15px'), sb = el('button', pill + ';font-weight:700', 'Enviar');
+  var row = el('div', 'display:flex;gap:6px'), inp = el('input', 'flex:1;min-width:0;padding:11px 14px;border-radius:12px;border:1px solid ' + C.ln + ';background:' + C.inb + ';color:' + C.fg + ';caret-color:var(--gold,#fff);font-size:15px;outline:0'), sb = el('button', pill + ';font-weight:700', 'Enviar');
   inp.type = 'text'; inp.maxLength = 200; inp.placeholder = 'Escreva uma mensagem…'; inp.setAttribute('aria-label', 'Mensagem'); sb.type = 'button'; row.append(inp, sb);
   var st = el('p', 'font-size:12px;opacity:.8;margin:6px 0 0;min-height:16px'); st.setAttribute('role', 'status');
   d.append(top, box, qk, row, st);
   var nomes = { c: 'cliente', d: 'entregador', l: 'loja' };
   function pinta(m) {
     if (seen[m.id]) return; seen[m.id] = 1; if (vazio.parentNode) vazio.remove();
-    var mine = m.k === o.como, b = el('div', 'max-width:82%;padding:7px 10px;border-radius:12px;font-size:14px;word-break:break-word;align-self:' + (mine ? 'flex-end' : 'flex-start') + ';background:' + (mine ? C.me : C.ot) + ';color:' + (mine ? '#fff' : C.fg));
+    var mine = m.k === o.como, b = el('div', 'max-width:82%;padding:7px 10px;border-radius:12px;font-size:14px;word-break:break-word;align-self:' + (mine ? 'flex-end' : 'flex-start') + ';background:' + (mine ? C.me : C.ot) + ';color:' + (mine ? C.mefg : C.fg));
     b.append(el('div', 'font-size:11px;opacity:.75;margin-bottom:2px', (mine ? 'Você' : m.n + ' (' + nomes[m.k] + ')') + ' · ' + new Date(m.ts).toTimeString().slice(0, 5)), el('div', '', m.t)); box.append(b);
   }
   function poll() {
@@ -1387,7 +1358,7 @@ function painelPed8(pane,d,L){const C=CARD8[L.chave],ch=L.chave,rec=!C||(C.abert
   pane.append(w)};
  draw()}
 function painelServ8(pane,d,L){const sv=L.servicos||[];
- if(!sv.length){pane.append(mk8('p','note',L.souDono?'Você ainda não cadastrou serviços. Toque em "Gerenciar minha loja" e depois em "Serviços e preços".':'Esta loja ainda não cadastrou serviços.'));return}
+ if(!sv.length){pane.append(mk8('p','note',L.souDono?'Você ainda não cadastrou serviços. Cadastre no Domin (Minha loja > Abrir no Domin).':'Esta loja ainda não cadastrou serviços.'));return}
 
  sv.forEach(s=>{const c=mk8('div','v8serv'),t=mk8('div','v8servinfo');
   t.append(mk8('b',null,s.nome),mk8('span','note','🕒 '+durTxt8(s.min)),mk8('span','note','💲 a partir de '+brl8(s.valor)));c.append(t);
@@ -1452,7 +1423,6 @@ async function abrirAgenda8(){
  const r=await chama8('/perfil/meu');
  if(!r.ok||!(r.j&&r.j.ok)){d.textContent='';d.append(mk8('p','note',r.status===401?'Entre na conta de novo para abrir a agenda.':erro8(r)),botao8('Fechar','more',()=>d.close()));return}
  const E=r.j;
- if(false){d.textContent='';d.append(mk8('h3',null,'Minha agenda'),mk8('p','note',''),botao8('Fechar','more',()=>d.close()));return}
  const A=Object.assign({on:1,dias:[1,2,3,4,5,6],ini:'09:00',fim:'17:00'},E.agenda||{});A.dias=(A.dias||[]).slice();
  const naLoja=(E.lojas||[]).length>0||(E.vinculos||[]).some(v=>v.status==='aceito');
  const st=mk8('p','note');st.setAttribute('role','status');
@@ -1560,129 +1530,6 @@ const PERFIS8={
   cats:['Compra de mercadoria','Aluguel','Funcionários','Energia e internet','Divulgação','Contador'],
   dicas:['Comece pelo caixa: lance cada venda no dia em que acontecer.','Gasto fixo do mês, lance no começo do mês.','Chame sua equipe e use a comissão para pagar cada um certinho.']}
 };
-function perfil8(tipo){for(const g in GRUPOS8){if(GRUPOS8[g].includes(tipo))return PERFIS8[g]}return PERFIS8.geral}
-function guiaNegocio8(box,G,L,ir,envia,d,E){
- const P=perfil8(L.tipo),R=G.resumo;
- const linha=(a,b)=>{const x=mk8('div','v8row');x.style.justifyContent='space-between';x.append(mk8('span',null,a),mk8('b',null,b));return x};
- /* 1) como está o negócio */
- const entradas=(G.movs||[]).filter(m=>m.tipo!=='saida');
- const baixos=(G.produtos||[]).filter(p=>p.min>0&&p.qtd<=p.min);
- const c0=mk8('div','v8card');c0.append(mk8('h4',null,'📈 Como está o '+(L.nome||'negócio')+' em '+G.mes));
- if(!entradas.length&&!R.gastos){c0.append(mk8('p','note','Ainda não tem lançamentos neste mês. Faça o primeiro passo da lista abaixo e os números aparecem aqui.'))}
- else{
-  c0.append(linha('Entrou',rs8(R.entradas)),linha('Gastos e saídas',rs8((R.saidas||0)+(R.gastos||0)+(R.comissao||0))),linha('Sobrou',rs8(R.resultado)));
-  if(R.entradas>0){c0.append(linha('Margem (quanto sobra de cada R$ 100)','R$ '+Math.round(R.resultado/R.entradas*100)));}
-  if(entradas.length){c0.append(linha('Venda média (ticket médio)',rs8(R.entradas/entradas.length)))}
-  if(R.entradas>0&&R.gastos>0){c0.append(linha('Gastos fixos pesam',Math.round(R.gastos/R.entradas*100)+'% do que entrou'))}
-  if(baixos.length)c0.append(mk8('p','note','⚠️ '+baixos.length+' produto(s) com estoque baixo: '+baixos.slice(0,4).map(p=>p.nome).join(', ')+(baixos.length>4?'…':'')+'.'));
-  if(R.entradas>0&&R.resultado<0)c0.append(mk8('p','note','⚠️ Este mês os gastos passaram do que entrou. Olhe a aba Gastos para ver onde está pesando.'));
- }
- box.append(c0);
- /* 2) primeiros passos, com marcação automática */
- const hojeFechado=(G.fechamentos||[]).some(x=>x.dia===G.hoje);
- const passos=[
-  ['Criar o negócio',true,null],
-  ['Colocar os serviços e valores no perfil (o cliente já pode reservar)',null,['💰 Abrir Serviços e preços',()=>formServicos8(d,E,L)]],
-  ['Lançar a primeira venda no Caixa',entradas.length>0,['💵 Ir para o Caixa',()=>ir('caixa')]],
-  ['Lançar os gastos fixos do mês (aluguel, energia, internet)',(G.gastos||[]).length>0,['🧾 Ir para Gastos',()=>ir('gastos')]]
- ];
- if(P.vende)passos.push(['Cadastrar o que você vende no Estoque',(G.produtos||[]).length>0,['📦 Ir para o Estoque',()=>ir('estoque')]]);
- passos.push(['Chamar a sua equipe e definir a comissão',(G.equipe||[]).length>0,['🤝 Ir para Comissão',()=>ir('com')]]);
- passos.push(['Fechar o caixa de hoje',hojeFechado,['🔒 Ir para o Caixa',()=>ir('caixa')]]);
- const feitos=passos.filter(p=>p[1]===true).length;
- const c1=mk8('div','v8card');c1.append(mk8('h4',null,'🧭 Primeiros passos ('+feitos+' de '+passos.length+')'));
- passos.forEach(([t,ok,bt])=>{const x=mk8('div','v8row');x.style.justifyContent='space-between';x.append(mk8('span',null,(ok===true?'✅ ':'⬜ ')+t));if(ok!==true&&bt)x.append(botao8(bt[0],'more',bt[1]));c1.append(x)});
- box.append(c1);
- /* 3) guia do tipo de negócio */
- const c2=mk8('div','v8card');c2.append(mk8('h4',null,'💡 Guia para '+P.t.toLowerCase()));
- P.dicas.forEach(t=>c2.append(mk8('p','note','• '+t)));
- if(P.obra)c2.append(botao8('📋 Abrir a Tabela de preços da construção','cta2',()=>{d.close();abrirConstrucao8()}));
- box.append(c2);
- /* 4) categorias de gasto sugeridas (um toque) */
- const faltam=P.cats.filter(k=>!(G.cats||[]).includes(k));
- if(faltam.length){
-  const c3=mk8('div','v8card');c3.append(mk8('h4',null,'🧾 Categorias de gasto para o seu tipo de negócio'),mk8('p','note','Ajuda a ver para onde o dinheiro vai. Sugestões: '+faltam.join(', ')+'.'));
-  if(G.dono)c3.append(botao8('➕ Adicionar estas categorias','cta2',async()=>{const x=await chama8('/gestao/cfg',{chave:L.chave,cats:(G.cats||[]).slice(8).concat(faltam)});if(x.ok&&x.j&&x.j.ok)ir('guia','Categorias adicionadas.');else{c3.append(mk8('p','note','❌ '+erro8(x)))}}));
-  else c3.append(mk8('p','note','Só o dono da loja pode adicionar categorias.'));
-  box.append(c3);
- }
- /* 5) rotina */
- const c4=mk8('div','v8card');c4.append(mk8('h4',null,'🗓️ Rotina simples'),
-  mk8('p','note','• Todo dia: lançar as vendas e fechar o caixa.'),
-  mk8('p','note','• Toda semana: conferir o estoque baixo e cobrar o que ficou para receber.'),
-  mk8('p','note','• Todo mês: lançar os gastos fixos, ver quanto sobrou e pagar a comissão.'));
- box.append(c4);
-}
-async function formGestao8(d,E,L,aba,mes,aviso){
- d.textContent='';
- const st=mk8('p','note');st.setAttribute('role','status');if(aviso)st.textContent=aviso;
- const cab=mk8('div','v8row v8cab');cab.style.justifyContent='space-between';cab.append(mk8('h3',null,'📊 Gestão de '+L.nome),botao8('✕ Fechar','more',()=>d.close()));
- d.append(cab,st,mk8('p','note','Carregando…'));
- const r=await chama8('/gestao/resumo?chave='+encodeURIComponent(L.chave)+(mes?'&mes='+mes:''));
- d.textContent='';d.append(cab,st);
- if(!(r.ok&&r.j&&r.j.ok)){st.style.color='var(--red)';st.textContent='❌ '+erro8(r);d.append(botao8('← Voltar','more',()=>abrirEspaco8('lojas')));return}
- const G=r.j,R=G.resumo;
- if(!aba)aba=((G.movs||[]).length||(G.produtos||[]).length||(G.gastos||[]).length)?'caixa':'guia';
- const recarrega=(m,a)=>formGestao8(d,E,L,a||aba,G.mes,m);
- const envia=async(path,body,ok,a)=>{st.style.color='';st.textContent='⏳ Salvando…';const x=await chama8(path,Object.assign({chave:L.chave},body));
-  if(x.ok&&x.j&&x.j.ok){recarrega(ok||'Salvo.',a);return x}st.style.color='var(--red)';st.textContent='❌ '+erro8(x);return x};
- d.append(mk8('p','note','🔒 Só você'+(G.dono?' (e quem você autorizar com o cargo "Gestor" na equipe)':'')+' vê estes números. Nada aparece no perfil público.'));
- const mc=campo8('Mês','month',{value:G.mes});mc.i.onchange=()=>{if(mc.i.value)recarrega('',aba)};d.append(mc.l);
- const tabs=mk8('div','v8acts');[['guia','🧭 Guia'],['caixa','💵 Caixa'],['estoque','📦 Estoque'],['gastos','🧾 Gastos'],['com','🤝 Comissão']].forEach(([k,t])=>{const b=botao8(t,k===aba?'cta2':'more',()=>{aba=k;recarrega('',k)});tabs.append(b)});d.append(tabs);
- const box=mk8('div');d.append(box);
- const linha=(a,b)=>{const x=mk8('div','v8row');x.style.justifyContent='space-between';x.append(mk8('span',null,a),mk8('b',null,b));return x};
- const lista=(vazio,itens)=>{if(!itens.length)box.append(mk8('p','note',vazio))};
- if(aba==='guia'){guiaNegocio8(box,G,L,(a,m)=>recarrega(m||'',a),envia,d,E)}else if(aba==='caixa'){
-  const c=mk8('div','v8card');c.append(mk8('h4',null,'Resumo de '+G.mes),linha('Vendido hoje',rs8(R.hoje)),linha('Faturamento do mês',rs8(R.entradas)),linha('  em dinheiro',rs8(R.porForma.dinheiro)),linha('  no Pix',rs8(R.porForma.pix)),linha('  no cartão',rs8(R.porForma.cartao)),linha('Saídas do caixa',rs8(R.saidas)),linha('Gastos da empresa',rs8(R.gastos)),linha('Comissões',rs8(R.comissao)),linha('Sobrou (resultado)',rs8(R.resultado)));box.append(c);
-  const f=mk8('div','v8card');f.append(mk8('h4',null,'Lançar no caixa'));
-  const tp=campo8('Tipo','select');tp.i.add(new Option('Entrada (venda / serviço)','entrada'));tp.i.add(new Option('Saída (retirada, troco, compra)','saida'));
-  const vl=campo8('Valor (R$) — deixe vazio se escolher produto','text',{inputMode:'decimal',maxLength:12,placeholder:'Ex.: 35,00'});
-  const fp=campo8('Forma de pagamento','select');[['dinheiro','Dinheiro'],['pix','Pix'],['cartao','Cartão']].forEach(([v,t])=>fp.i.add(new Option(t,v)));
-  const ds=campo8('Descrição (se quiser)','text',{maxLength:80,placeholder:'Ex.: Corte + barba'});
-  const dt=campo8('Dia','date',{value:G.hoje});
-  const pr=campo8('Quem atendeu (para a comissão)','select');pr.i.add(new Option('— ninguém —',''));G.equipe.forEach(m=>pr.i.add(new Option(m.nome,m.quem)));
-  const pd=campo8('Produto vendido (dá baixa no estoque)','select');pd.i.add(new Option('— nenhum —',''));G.produtos.forEach(p=>pd.i.add(new Option(p.nome+' ('+p.qtd+' em estoque)',p.id)));
-  const qt=campo8('Quantidade','number',{min:1,value:1});
-  const so=[pr.l,pd.l,qt.l];tp.i.onchange=()=>so.forEach(x=>{x.hidden=tp.i.value==='saida'});
-  f.append(tp.l,vl.l,fp.l,ds.l,dt.l,pr.l,pd.l,qt.l,botao8('💾 Lançar','cta2 v8go',()=>{const ent=tp.i.value==='entrada';
-   envia('/gestao/mov',{tipo:tp.i.value,valor:num8(vl.i.value),forma:fp.i.value,desc:ds.i.value,dia:dt.i.value,prof:ent?pr.i.value:'',itens:ent&&pd.i.value?[{id:pd.i.value,qtd:+qt.i.value||1}]:[]},'Lançado!')}));box.append(f);
-  const fc=mk8('div','v8card');fc.append(mk8('h4',null,'Fechar o caixa de hoje'),mk8('p','note','Guarda os totais do dia. Se quiser, diga quanto você contou na gaveta para comparar.'));
-  const ct=campo8('Dinheiro contado na gaveta (opcional)','text',{inputMode:'decimal',maxLength:12});fc.append(ct.l,botao8('🔒 Fechar caixa de hoje','cta2',()=>envia('/gestao/fechar',{dia:G.hoje,contado:ct.i.value===''?'':num8(ct.i.value)},'Caixa de hoje fechado.')));
-  G.fechamentos.forEach(x=>fc.append(linha(dtG8(x.dia)+' · entrou '+rs8(x.entradas)+' · saiu '+rs8(x.saidas),'saldo '+rs8(x.saldo)+(x.contado!=null?' · gaveta '+rs8(x.contado):''))));box.append(fc);
-  const h=mk8('div','v8card');h.append(mk8('h4',null,'Lançamentos do mês'));lista('Nenhum lançamento neste mês.',G.movs);
-  G.movs.forEach(m=>{const x=mk8('div','v8row');x.append(mk8('span',null,dtG8(m.dia)+' · '+(m.tipo==='saida'?'➖ ':'➕ ')+(m.desc||(m.itens&&m.itens[0]?m.itens.map(i=>i.qtd+'x '+i.nome).join(', '):'sem descrição'))+' · '+m.forma),mk8('b',null,rs8(m.valor)),botao2x8('🗑','more',()=>envia('/gestao/apagar',{id:m.id},'Apagado.')));h.append(x)});box.append(h);
- }else if(aba==='estoque'){
-  let ed=null;const f=mk8('div','v8card');const tit=mk8('h4',null,'Adicionar produto');f.append(tit);
-  const n=campo8('Produto','text',{maxLength:60,placeholder:'Ex.: Pomada, Shampoo, Camiseta'}),q=campo8('Quantidade em estoque','number',{min:0,value:0}),c=campo8('Preço de custo (R$)','text',{inputMode:'decimal'}),v=campo8('Preço de venda (R$)','text',{inputMode:'decimal'}),mn=campo8('Avisar quando chegar em (quantidade)','number',{min:0,value:0});
-  f.append(n.l,q.l,c.l,v.l,mn.l,botao8('💾 Salvar produto','cta2 v8go',()=>envia('/gestao/produto',{id:ed,nome:n.i.value,qtd:q.i.value,custo:num8(c.i.value),venda:num8(v.i.value),min:mn.i.value},'Produto salvo.')));box.append(f);
-  const h=mk8('div','v8card');h.append(mk8('h4',null,'Meus produtos ('+G.produtos.length+')'));lista('Nenhum produto ainda.',G.produtos);
-  const val=G.produtos.reduce((s,p)=>s+(p.qtd||0)*(p.custo||0),0);if(G.produtos.length)h.append(mk8('p','note','Dinheiro parado em estoque (a preço de custo): '+rs8(val)));
-  G.produtos.forEach(p=>{const baixo=p.min>0&&p.qtd<=p.min;const x=mk8('div','v8card');x.append(linha((baixo?'⚠️ ':'')+p.nome,p.qtd+' '+(p.un||'un')),mk8('p','note','Custo '+rs8(p.custo)+' · Venda '+rs8(p.venda)+(p.venda>0&&p.custo>0?' · lucro '+rs8(p.venda-p.custo)+' por unidade':'')+(baixo?' · ESTOQUE BAIXO':'')));
-   const qq=document.createElement('input');qq.type='number';qq.min=1;qq.value=1;qq.style.width='70px';qq.setAttribute('aria-label','Quantidade');const ac=mk8('div','v8acts');
-   ac.append(qq,botao8('➖ Dar baixa','more',()=>envia('/gestao/ajuste',{id:p.id,delta:-(+qq.value||1)},'Baixa feita.')),botao8('➕ Repor','more',()=>envia('/gestao/ajuste',{id:p.id,delta:+qq.value||1},'Estoque reposto.')),
-   botao8('✏️ Editar','more',()=>{ed=p.id;tit.textContent='Editando: '+p.nome;n.i.value=p.nome;q.i.value=p.qtd;c.i.value=String(p.custo||'').replace('.',',');v.i.value=String(p.venda||'').replace('.',',');mn.i.value=p.min||0;f.scrollIntoView({behavior:'smooth'})}),
-   botao2x8('🗑','more',()=>envia('/gestao/apagar',{id:p.id},'Produto apagado.')));x.append(ac);h.append(x)});box.append(h);
- }else if(aba==='gastos'){
-  const por={};G.gastos.forEach(x=>{por[x.cat]=(por[x.cat]||0)+x.valor});
-  const c=mk8('div','v8card');c.append(mk8('h4',null,'Gastos de '+G.mes+': '+rs8(R.gastos)));Object.keys(por).forEach(k=>c.append(linha(k,rs8(por[k]))));c.append(linha('Faturamento menos gastos',rs8(R.entradas-R.gastos)));box.append(c);
-  const f=mk8('div','v8card');f.append(mk8('h4',null,'Lançar gasto'));
-  const ct=campo8('Categoria','select');G.cats.forEach(k=>ct.i.add(new Option(k,k)));const nc=campo8('Ou crie uma categoria nova','text',{maxLength:24,placeholder:'Ex.: Contador, Embalagens'});
-  const vl=campo8('Valor (R$)','text',{inputMode:'decimal'}),ds=campo8('Descrição (se quiser)','text',{maxLength:80}),dt=campo8('Dia','date',{value:G.hoje});
-  f.append(ct.l,nc.l,vl.l,ds.l,dt.l,botao8('💾 Salvar gasto','cta2 v8go',async()=>{const novo=nc.i.value.trim();
-   if(novo.length>=2&&G.dono&&!G.cats.includes(novo)){await chama8('/gestao/cfg',{chave:L.chave,cats:G.cats.slice(8).concat([novo])})}
-   envia('/gestao/gasto',{cat:novo.length>=2?novo:ct.i.value,valor:num8(vl.i.value),desc:ds.i.value,dia:dt.i.value},'Gasto lançado.')}));box.append(f);
-  const h=mk8('div','v8card');h.append(mk8('h4',null,'Gastos do mês'));lista('Nenhum gasto neste mês.',G.gastos);
-  G.gastos.forEach(g=>{const x=mk8('div','v8row');x.append(mk8('span',null,dtG8(g.dia)+' · '+g.cat+(g.desc?' · '+g.desc:'')),mk8('b',null,rs8(g.valor)),botao2x8('🗑','more',()=>envia('/gestao/apagar',{id:g.id},'Apagado.')));h.append(x)});box.append(h);
- }else{
-  const c=mk8('div','v8card');c.append(mk8('h4',null,'Comissão de '+G.mes),mk8('p','note','Defina a porcentagem de cada pessoa da equipe. Quando você lança uma entrada no caixa e marca "Quem atendeu", o valor entra na conta dela.'));
-  if(!G.equipe.length)c.append(mk8('p','note','Sua equipe está vazia. Convide pessoas em "Chamar alguém para a equipe".'));
-  const cur={};G.comissoes.forEach(x=>{cur[x.quem]=x});const ins={};
-  G.equipe.forEach(m=>{const x=cur[m.quem]||{pct:0,base:0,valor:0};const p=campo8(m.nome+' — % de comissão','number',{min:0,max:100,step:'0.5',value:x.pct||0,disabled:!G.dono});ins[m.quem]=p.i;c.append(p.l,mk8('p','note','Vendeu/atendeu '+rs8(x.base)+' → a receber '+rs8(x.valor)))});
-  if(G.dono&&G.equipe.length)c.append(botao8('💾 Salvar comissões','cta2 v8go',()=>{const com={};for(const q in ins)com[q]=+ins[q].value||0;envia('/gestao/cfg',{com},'Comissões salvas.')}));
-  c.append(linha('Total a pagar de comissão',rs8(R.comissao)));box.append(c);
- }
- if(!aviso)st.textContent='';
-}
 async function abrirConstrucao8(){
  const d=window.__cDlg8||(window.__cDlg8=novoDlg8('Tabela de preços da construção'));d.textContent='';
  const cab=mk8('div','v8row v8cab');cab.style.justifyContent='space-between';cab.append(mk8('h3',null,'📋 Preços da construção'),botao8('✕ Fechar','more',()=>d.close()));d.append(cab,mk8('p','note','Carregando…'));if(!d.open)d.showModal();
@@ -1700,27 +1547,6 @@ async function abrirConstrucao8(){
  pinta(false);
 }
 
-function formServicos8(d,E,L,aviso){d.textContent='';
- const st=mk8('p','note');st.setAttribute('role','status');if(aviso)st.textContent=aviso;
- const cab=mk8('div','v8row v8cab');cab.style.justifyContent='space-between';cab.append(mk8('h3',null,'💰 Serviços de '+L.nome),botao8('✕ Fechar','more',()=>d.close()));
- d.append(cab,st,mk8('p','note','Cadastre o que a sua loja faz. O cliente escolhe o serviço, depois o profissional e o horário. Todos da equipe usam esta mesma lista.'));
- const lista=(L.servicos||[]).map(s=>({nome:s.nome,min:s.min,valor:s.valor}));if(!lista.length)lista.push({nome:'',min:30,valor:0});
- const box=mk8('div');d.append(box);
- const MINS=[15,30,45,60,75,90,120,150,180,240];
- function pinta(foco){box.textContent='';
-  lista.forEach((s,i)=>{const c=mk8('div','v8card');c.append(mk8('h4',null,'Serviço '+(i+1)));
-   const l1=mk8('label',null,'Nome do serviço'),n=document.createElement('input');n.type='text';n.maxLength=50;n.placeholder='Ex.: Corte, Barba, Escova';n.value=s.nome;n.oninput=()=>{s.nome=n.value};l1.append(n);
-   const l2=mk8('label',null,'Quanto tempo dura'),m=document.createElement('select');(MINS.includes(s.min)?MINS:MINS.concat([s.min]).sort((a,b)=>a-b)).forEach(x=>m.add(new Option(durTxt8(x),x)));m.value=s.min;m.onchange=()=>{s.min=+m.value};l2.append(m);
-   const l3=mk8('label',null,'Valor (R$)'),v=document.createElement('input');v.type='text';v.inputMode='decimal';v.maxLength=9;v.placeholder='Ex.: 25,00';v.value=s.valor?String(s.valor).replace('.',','):'';v.oninput=()=>{s.valor=Number(String(v.value).replace(',','.'))||0};l3.append(v);
-   c.append(l1,l2,l3,botao2x8('🗑 Tirar este serviço','more',()=>{lista.splice(i,1);pinta()}));box.append(c);if(foco&&i===lista.length-1)setTimeout(()=>{try{n.focus()}catch(e){}},50)})}
- pinta();
- if(lista.length<20)d.append(botao8('➕ Adicionar serviço','more',()=>{lista.push({nome:'',min:30,valor:0});pinta(true)}));
- d.append(botao8('💾 Salvar serviços','cta2 v8go',async()=>{
-  const limpa=lista.filter(s=>String(s.nome).trim().length>=2);
-  st.style.color='';st.textContent='⏳ Salvando…';
-  const r=await chama8('/estabelecimentos/servicos',{chave:L.chave,servicos:limpa.map(s=>({nome:String(s.nome).trim(),min:s.min,valor:s.valor}))});
-  if(r.ok&&r.j&&r.j.ok){carregaV8();const r2=await chama8('/perfil/meu');if(r2.ok&&r2.j&&r2.j.ok)pintaEspaco8(d,r2.j,'Serviços salvos! Agora o cliente já pode reservar.');else abrirEspaco8('lojas')}
-  else{st.style.color='var(--red)';st.textContent='❌ '+erro8(r)}}),botao8('← Voltar','more',()=>abrirEspaco8('lojas')))}
 
 /* no perfil do Helper: no próprio perfil, atalho para a agenda; no dos outros, onde marcar horário */
 /* Cheers para o Helper: o Pix só aparece para quem está logado e o Helper escolheu mostrar */
@@ -2020,16 +1846,6 @@ function abrirPerfilJanela(){
   const w=$('cadWin');if(w)w.scrollIntoView({behavior:'smooth',block:'nearest'})}
 {const q=$('perfSq');if(q)q.addEventListener('click',abrirPerfilJanela)}
 /* painel do Cliente: atalhos + próximos horários marcados */
-function painelCliente8(){const w=mk8('div','mhp-tiles');w.append(mk8('h4',null,'Meu painel'));
- const g=mk8('div','mhp-g');
- [['🗓','Meus agendamentos',()=>abrirHorarios8()],['🔒','Conta e privacidade',()=>abrirEspaco8('conta')],['🤝','Minhas equipes',()=>abrirEspaco8('equipes')]].forEach(x=>{const b=document.createElement('button');b.type='button';const i=document.createElement('span');i.textContent=x[0];b.append(i,x[1]);b.onclick=x[2];g.append(b)});
- w.append(g);const tg=(w,g)=>{const h=w.querySelector('h4'),t=document.createElement('button');t.type='button';t.className='mhp-tg';const txt=h.textContent,ar=document.createElement('i');ar.setAttribute('aria-hidden','true');ar.textContent='▾';  const ap=f=>{w.classList.toggle('fechado',f);t.setAttribute('aria-expanded',String(!f));try{localStorage.setItem('mh_painel_fechado',f?'1':'0')}catch(e){}};  t.append(txt,ar);h.textContent='';h.append(t);t.onclick=()=>ap(!w.classList.contains('fechado'));let f=false;try{f=localStorage.getItem('mh_painel_fechado')==='1'}catch(e){}w.classList.toggle('fechado',f);t.setAttribute('aria-expanded',String(!f))}; tg(w,g);
- const box=mk8('div');w.append(box);
- if(apiOn8()&&tk8()){chama8('/reservas/minhas').then(r=>{if(!r.ok||!(r.j&&r.j.ok))return;const l=(r.j.comoCliente||[]).slice(0,3);
-  box.append(mk8('h4',null,'Onde estou agendado'));
-  if(!l.length){box.append(mk8('p','note','Nenhum horário marcado. Abra uma loja, toque em "Serviços" e depois em "Reservar".'));return}
-  l.forEach(x=>{const c=mk8('div','v8card');c.append(mk8('b',null,diaBR8(x.dia)+' · '+hm8(x.ini)+' às '+hm8(x.ini+x.min)),mk8('p','note',x.servico+' · '+brl8(x.valor)),mk8('p',null,'📍 '+(x.estNome?x.estNome+' · ':'')+'com '+x.helperNome));box.append(c)})}).catch(()=>{})}
- return w}
 function renderMeuPerfil(novo){
   const reg=$('reg'); if(!reg||!eu) return;
   if(FRASE[eu.nome]==null){try{const fv=localStorage.getItem('mh_frase:'+eu.nome.toLowerCase());if(fv)FRASE[eu.nome]=fv}catch(e){}}
@@ -2092,6 +1908,14 @@ function renderMeuPerfil(novo){
   reg.append(mk('p','note','Assim as outras pessoas veem o seu perfil. Nesta prévia, as avaliações vêm de bots de demonstração, com notas inventadas.'));
   if(window.MH_PAINEL)MH_PAINEL.organiza(reg);
 }
+/* O cadastro é da pessoa. Loja e empresa só nas telas de criar negócio. */
+function nomeDeLoja(txt){
+  const t=String(txt||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  if(/\d/.test(t)||/[@&\/_#]/.test(t))return true;
+  const P=new Set(['loja','lojas','ltda','eireli','mei','epp','comercio','comercial','barbearia','salao','restaurante','lanchonete','padaria','pizzaria','hamburgueria','mercado','mercadinho','supermercado','farmacia','drogaria','oficina','mecanica','autopecas','petshop','clinica','studio','estudio','estetica','academia','acougue','distribuidora','atacado','atacadista','varejo','empresa','servicos','construtora','imobiliaria','papelaria','boutique','tabacaria','sorveteria','acaiteria','confeitaria','cafeteria','lavanderia','assistencia','instituto','associacao','grupo','sistemas','solucoes','importados','express','store','shop']);
+  const w=t.split(/[^a-z]+/).filter(Boolean);
+  return w.some(x=>P.has(x))||/\bpet shop\b|\bauto (center|pecas|eletrica)\b|\bbar (do|da|e)\b/.test(t);
+}
 function fazerCadastro(e){
   if(e) e.preventDefault();
   try{
@@ -2101,6 +1925,7 @@ function fazerCadastro(e){
     const nRaw=$('n')?$('n').value:'';
     const n=nomeCurto(nRaw);
     if(!n){mostrarErroCad('Digite seu nome.');if($('n'))$('n').focus();return false;}
+    if(nomeDeLoja(nRaw)){mostrarErroCad('No cadastro vale só o seu nome de pessoa (ex.: Maria Souza). Nome de loja ou empresa não pode aqui. Depois de entrar, crie a loja em Meu espaço profissional > Criar meu negócio.');if($('n'))$('n').focus();return false;}
     const tel=($('t')&&$('t').value||'').trim();
     if(tel.length<8){mostrarErroCad('Digite um telefone válido (com DDD).');if($('t'))$('t').focus();return false;}
     const em=($('e')&&$('e').value||'').trim();

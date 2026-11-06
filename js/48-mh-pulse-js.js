@@ -11,9 +11,6 @@ const shortCity=c=>({
 
 /* Números REAIS vindos do servidor (/stats). Sem servidor, mostra "—" em vez de inventar. */
 const STATS={cad:null,help:null};
-function accLocal(){
-  try{return Object.values(JSON.parse(localStorage.getItem('mh_acc')||'{}')||{})}catch(e){return []}
-}
 /* número de fundador = posição REAL no cadastro, dada pelo servidor (0 = ainda não sabemos) */
 function fundadorDe(nome){
   try{const n=Number(localStorage.getItem('mh_num:'+String(nome||'').toLowerCase()));return n>0?n:0}catch(e){return 0}

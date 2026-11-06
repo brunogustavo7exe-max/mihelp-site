@@ -212,11 +212,6 @@ async function lerFotos(){
   it.forEach(x=>{(window.MH_FOTO_PUB=window.MH_FOTO_PUB||{})[x.autor]=String(x.texto||'');if(window.MH_RX&&MH_RX.foto)MH_RX.foto(x.autor,x.texto)});window.MH_FOTOS_LIDAS=true}
  catch(e){diag('fotos: '+msgErro(e),true)}}
 let recOff=false;
-async function lerRec(){
- if(recOff)return;
- try{const r=await q(COL.rec).ascending('_createdDate').limit(500).find(),it=(r&&r.items)||[];
-  if(window.MH_RX&&MH_RX.rec)MH_RX.rec(it.map(x=>({alvo:x.alvo,de:x.de,texto:x.texto,_quando:dt(x._createdDate).getTime()})))}
- catch(e){recOff=true;diag('recados (crie a coleção Recados no CMS): '+msgErro(e),true)}}
 async function lerFrases(){
  try{const r=await q(COL.msg).eq('tipo','frase').descending('_createdDate').limit(300).find(),it=((r&&r.items)||[]).slice().reverse();
   it.forEach(x=>{if(window.MH_RX&&MH_RX.frase)MH_RX.frase(x.autor,x.texto)})}

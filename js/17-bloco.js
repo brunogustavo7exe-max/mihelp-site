@@ -123,8 +123,8 @@ const esconde=()=>[document.querySelector('#f .role'),$('roleNote'),$('trab'),$(
 function modo(on){login=on;esconde().forEach(e=>{if(e){if(on)e.style.setProperty('display','none','important');else e.style.removeProperty('display')}});if(on)$('trab').hidden=true;else if(typeof 0==='number'){const h=document.querySelector('input[name=r]:checked');$('trab').hidden=!(h&&h.value==='Helper')}
   $('pw').autocomplete=on?'current-password':'new-password';$('pwf').querySelector('small').style.display=on?'none':'block';
   const idLabel=$('n').closest('.f')?.querySelector('label');
-  if(idLabel)idLabel.textContent=on?'Telefone':'Nome';
-  $('n').type=on?'tel':'text';$('n').inputMode=on?'numeric':'';$('n').autocomplete=on?'tel':'name';$('n').placeholder=on?'(66) 90000-0000':'';
+  if(idLabel)idLabel.textContent=on?'Telefone':'Seu nome (de pessoa)';const nn=$('nNota');if(nn)nn.style.display=on?'none':'block';
+  $('n').type=on?'tel':'text';$('n').inputMode=on?'numeric':'';$('n').autocomplete=on?'tel':'name';$('n').placeholder=on?'(66) 90000-0000':'Ex.: Maria Souza';
   $('btnCad').textContent=on?'Entrar':'Criar minha conta';jt.textContent=on?'Quero criar uma conta':'Já tenho conta: entrar';
   const er=$('ferr');if(er){er.style.display='none'}try{marca()}catch(x){}}
 jt.addEventListener('click',e=>{e.preventDefault();modo(!login)});
