@@ -102,3 +102,14 @@ dialog.mh-chat39 input::placeholder{color:var(--faint,var(--mute));opacity:1;-we
 dialog.mh-chat39 input:focus{border-color:var(--gold)!important;box-shadow:0 0 0 3px rgba(var(--gold-rgb),.22)!important}
 dialog.mh-chat39 input:disabled{opacity:.55}
 dialog.mh-chat39 button{color:var(--text)}
+
+/* Do que você precisa? no celular: botões compactos (ícone ao lado do texto), como em Comércios */
+@media(max-width:700px){
+:root:root #need #needRow.need-row,:root:root #need .need-row#needRow{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+:root:root #need #needRow .need-sep{grid-column:1/-1}
+:root:root #need #needRow button.need-cat{flex-direction:row!important;justify-content:flex-start!important;align-items:center!important;min-height:54px!important;height:auto!important;padding:8px 12px!important;gap:10px!important;border-radius:14px!important;text-align:left!important;font:700 14px/1.2 var(--sans)!important}
+:root:root #need #needRow button.need-cat:has(.nc-sos){padding-right:34px!important}
+:root:root #need #needRow button.need-cat .nc-ic{font-size:22px!important;flex:none}
+:root:root #need #needRow button.need-cat .nc-t{flex:1;min-width:0;overflow-wrap:break-word;word-break:normal}
+:root:root #need #needRow button.need-cat .nc-sos{top:50%!important;right:8px!important;transform:translateY(-50%);font-size:10px!important;padding:2px 4px!important}
+}

@@ -1198,6 +1198,9 @@ function perfilEnt39(d, dark) {
   if (!d.veic && !d.placa) dl.append(el('p', 'font-size:13px;opacity:.7;text-align:center;margin:8px 0', 'Este entregador ainda não cadastrou veículo e placa.'));
   var fx = el('button', 'display:block;width:100%;margin-top:12px;padding:10px;border-radius:10px;border:1px solid ' + C.ln + ';background:transparent;color:inherit;font-size:15px;font-weight:700;cursor:pointer', 'Fechar'); fx.type = 'button';
   fx.onclick = function () { dl.close(); };
+  dl.append(fx);
+  dl.style.outline = '0';
+  dl.addEventListener('click', function (e) { if (e.target === dl) dl.close(); });
   dl.addEventListener('close', function () { dl.remove(); });
   document.body.append(dl); dl.showModal();
 }

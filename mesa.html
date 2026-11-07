@@ -184,6 +184,25 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
 .pp-n{min-width:0;display:grid;line-height:1.3}.pp-n b{font-size:14px}.pp-n span{font-size:12.5px;color:var(--mu)}
 .pp-v{font-size:17px;font-weight:800;color:var(--ac);font-variant-numeric:tabular-nums;white-space:nowrap}
 .pp-b{display:grid;grid-template-columns:1.4fr 1fr;gap:6px}.pp-b .btn{padding:8px 10px;font-size:13px}
+
+/* Entregadores fixos da loja (MESA ⇄ RIVO) */
+.eql{display:grid;gap:10px;margin-top:10px}
+.eqc{display:grid;gap:10px;padding:12px;border:1px solid var(--ln);border-radius:12px;background:var(--sf2)}
+.eqc-h{display:flex;align-items:center;gap:10px}
+.eqc-av{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:17px;background:var(--acb);color:var(--ac)}
+.eqc-t{min-width:0;display:grid;gap:1px;line-height:1.3}.eqc-t b{font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.eqc-t span{font-size:12.5px;color:var(--mu)}
+.eqs{margin-left:auto;flex:none;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap}
+.eqs.livre{background:var(--okb);color:var(--ok)}.eqs.entrega{background:var(--acb);color:var(--ac)}.eqs.fora,.eqs.convidado{background:var(--wrb);color:var(--wr)}.eqs.offline{background:var(--sf);color:var(--mu);border:1px solid var(--ln)}
+.eqc-i{font-size:12.5px;color:var(--mu);line-height:1.4}
+.eqk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--tx);margin-bottom:10px}
+.eqk input{width:18px;height:18px;accent-color:var(--ac)}
+.eqm{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.eqp{display:grid;gap:8px}
+.eqp .btn{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;width:100%}
+.eqp .btn[disabled]{opacity:.55}
+.eqp small{font-size:12px;color:var(--mu);font-weight:500}
+a.btn{text-decoration:none;display:inline-block;text-align:center}
+@media (max-width:800px){.nav{overflow-x:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}.nv{flex:1 0 auto;padding:11px 10px}}
 </style>
 </head>
 <body>
@@ -427,6 +446,7 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
   function cidMinha(o) { let sel = null; try { sel = JSON.parse(localStorage.getItem('mh_cidade_sel') || 'null'); } catch (e) {} const r = {}; if (sel && sel.slug && sel.nome) r[sel.slug] = sel.nome; Object.keys(o || {}).forEach((k) => { if (!r[k]) r[k] = o[k]; }); return r; }
   const eco = {
     rv: {},   // entrega do RIVO de cada pedido (só na memória; vem do servidor a cada 15 s)
+    fx: { itens: null, max: 20, busy: false, erro: '', ts: 0, form: { tel: '', fora: true } },   // equipe de entregadores fixos (só na memória; vem do servidor)
     form: { tel: '', senha: '', nome: '', email: '', aceite: false, keep: (() => { try { return localStorage.getItem('mh_keep') !== '0'; } catch (_) { return true; } })(), tipo: '', cidade: '' },
     st: { msg: '', ocupado: false, lojas: null, cat: null, carregando: false, erro: '', ultimo: 0, repetir: false, modo: 'entrar' },
     token() { try { return localStorage.getItem('mh_tk') || sessionStorage.getItem('mh_tk') || ''; } catch (_) { return ''; } },
@@ -618,7 +638,67 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
           if (rv && rv.st === 'entregue' && p.status !== 'entregue') { p.status = 'entregue'; p.entregueEm = Date.now(); eco.faturar(p); mudou = true; }
         }
         if (mudou) { salvar('pedidos'); renderizar(); }
+        if (eco.fx.itens === null && Object.values(eco.rv).some((x) => x && x.fixo)) eco.fixSync(true);   // para o botão Ligar do entregador da equipe
       } finally { eco.st.rivoBusy = false; }
+    },
+    /* ---- entregadores fixos da loja: a lista, o estado de cada um e a posição vêm do servidor ---- */
+    async fixSync(forcar) {
+      const e = estado.config.eco;
+      if (!e || !e.chave || !eco.token() || eco.fx.busy) return;
+      if (!forcar && estado.visao !== 'entregadores') return;
+      eco.fx.busy = true;
+      try {
+        const r = await eco.req('/mesa/entregadores?chave=' + encodeURIComponent(e.chave));
+        const antes = JSON.stringify([eco.fx.itens, eco.fx.erro]);
+        if (r.ok && r.j && r.j.ok) { eco.fx.itens = Array.isArray(r.j.itens) ? r.j.itens : []; eco.fx.max = Number(r.j.max) || 20; eco.fx.erro = ''; eco.fx.ts = Date.now(); }
+        else eco.fx.erro = eco.erro(r);
+        if (JSON.stringify([eco.fx.itens, eco.fx.erro]) !== antes && (estado.visao === 'entregadores' || estado.visao === 'pedidos')) renderizar();
+      } finally { eco.fx.busy = false; }
+    },
+    leaflet() {
+      return window.L ? Promise.resolve() : new Promise((ok, no) => {
+        const c = document.createElement('link'); c.rel = 'stylesheet'; c.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css'; document.head.append(c);
+        const j = document.createElement('script'); j.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'; j.onload = ok; j.onerror = no; document.head.append(j);
+      });
+    },
+    /* mapa da equipe: a loja e cada entregador fixo que ela pode ver (livre e online, ou em entrega da loja) */
+    mapaEquipe(foco) {
+      const d = document.createElement('dialog');
+      d.style.cssText = 'width:min(680px,94vw);padding:12px;border-radius:14px;border:1px solid #555;background:#1b1e24;color:#fff';
+      const tit = document.createElement('b'), info = document.createElement('p'), box = document.createElement('div'), fechar = document.createElement('button');
+      tit.textContent = 'Equipe de entregadores'; info.className = 'mu sm'; info.setAttribute('role', 'status'); info.textContent = 'Carregando…';
+      box.style.cssText = 'height:360px;border-radius:10px;overflow:hidden;background:#222;margin:8px 0'; fechar.className = 'btn'; fechar.textContent = 'Fechar';
+      d.append(tit, info, box, fechar); document.body.append(d); d.showModal();
+      let tm = null, mapa = null, ajustou = '';
+      const mk = {};
+      const fim = () => { clearInterval(tm); try { d.close(); } catch (_) { /* já fechado */ } d.remove(); };
+      fechar.onclick = fim; d.addEventListener('cancel', () => { clearInterval(tm); setTimeout(() => d.remove(), 0); });
+      const pino = (t, cor, anel) => L.divIcon({ className: '', html: '<div style="width:30px;height:30px;border-radius:50%;background:' + cor + ';color:#111;font:700 15px/30px system-ui;text-align:center;border:2px solid ' + (anel || '#fff') + '">' + t + '</div>', iconSize: [30, 30], iconAnchor: [15, 15] });
+      const atualiza = async () => {
+        if (!d.isConnected) { clearInterval(tm); return; }
+        await eco.fixSync(true);
+        const itens = eco.fx.itens || [], pts = [], vivos = new Set();
+        const ponto = (k, ll, ic, tt) => { vivos.add(k); if (mk[k]) { mk[k].setLatLng([ll.lat, ll.lng]); mk[k].setIcon(ic); } else mk[k] = L.marker([ll.lat, ll.lng], { icon: ic }).addTo(mapa).bindPopup(tt); pts.push([ll.lat, ll.lng]); };
+        const e = estado.config.eco;
+        let comPos = 0;
+        itens.forEach((f) => {
+          if (!f.pos || f.pos.lat == null) return;
+          comPos++;
+          const seg = Math.round((Date.now() - (f.pos.ts || 0)) / 1000);
+          ponto('f' + f.tel, f.pos, pino('🛵', f.est === 'entrega' ? '#f89f2e' : '#7dff9a', foco && foco === f.tel ? '#ff6b5e' : '#fff'), (f.nome || 'Entregador') + ' · ' + (f.est === 'entrega' ? 'em entrega da loja' : 'livre') + (seg > 90 ? ' · sem sinal há ' + Math.round(seg / 60) + ' min' : ''));
+        });
+        Object.keys(mk).forEach((k) => { if (!vivos.has(k)) { mapa.removeLayer(mk[k]); delete mk[k]; } });
+        const total = itens.filter((f) => f.vinculo === 'ativo').length;
+        info.textContent = !total ? 'Você ainda não tem entregadores na equipe.' : comPos ? comPos + (comPos === 1 ? ' entregador aparece no mapa' : ' entregadores aparecem no mapa') + ' · atualiza sozinho' : 'Nenhum entregador compartilhando a posição agora. Só aparece quem está online no RIVO ou em uma entrega da sua loja.';
+        mapa.invalidateSize();
+        const k = pts.length + ':' + (foco || '');
+        if (pts.length && ajustou !== k) { ajustou = k; pts.length > 1 ? mapa.fitBounds(pts, { padding: [30, 30], maxZoom: 17 }) : mapa.setView(pts[0], 16); }
+        else if (!pts.length && !ajustou) { ajustou = 'x'; mapa.setView([-15.89, -52.26], 13); }
+      };
+      eco.leaflet().then(() => {
+        mapa = L.map(box); L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(mapa);
+        atualiza(); tm = setInterval(atualiza, 8000);
+      }).catch(() => { info.textContent = 'Não consegui carregar o mapa agora.'; });
     },
     mapaRivo(p, chave) {
       const d = document.createElement('dialog');
@@ -817,10 +897,12 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
       },
       async rivoCancelar(t) {
         const p = buscarPedido(t.dataset.id), e = estado.config.eco;
-        if (!p || !p.rid || !e || !e.chave || !confirm('Cancelar a chamada do RIVO para este pedido?')) return false;
+        if (!p || !p.rid || !e || !e.chave) return false;
+        const rvc = eco.rv[p.rid];
+        if (!confirm(rvc && rvc.fixo ? 'Tirar este pedido do entregador? Depois você escolhe outro ou chama o RIVO.' : 'Cancelar a chamada do RIVO para este pedido?')) return false;
         const r = await eco.req('/rivo/cancelar', { chave: e.chave, rid: p.rid });
         if (!(r.ok && r.j && r.j.ok)) { aviso(eco.erro(r)); return false; }
-        aviso('Chamada cancelada.'); await eco.rivoSync();
+        aviso(eco.rv[p.rid] && eco.rv[p.rid].fixo ? 'Pedido liberado. Escolha outro entregador ou chame o RIVO.' : 'Chamada cancelada.'); await eco.rivoSync();
       },
       rivoChat(t) {
         const p = buscarPedido(t.dataset.id), e = estado.config.eco;
@@ -846,6 +928,72 @@ body.deslogado #entrada{display:grid;min-height:100vh;place-items:center;padding
         const p = buscarPedido(t.dataset.id), e = estado.config.eco;
         if (!p || !p.rid || !e || !e.chave) return false;
         eco.mapaRivo(p, e.chave); return false;
+      },
+      /* ---- entregadores fixos ---- */
+      async fixConvidar() {
+        const e = estado.config.eco;
+        if (!e || !e.chave) { aviso('Conecte a loja ao MiHelp primeiro.'); return false; }
+        const f = eco.fx.form, dig = String(f.tel || '').replace(/\D/g, '');
+        if (dig.length < 10) { aviso('Digite o telefone com DDD, o mesmo da conta do entregador no MiHelp.'); return false; }
+        const r = await eco.req('/mesa/entregador/convidar', { chave: e.chave, tel: f.tel, fora: f.fora !== false });
+        if (!(r.ok && r.j && r.j.ok)) { aviso(eco.erro(r)); return false; }
+        const n0 = (eco.fx.itens || []).length;
+        f.tel = '';
+        await eco.fixSync(true);
+        aviso((eco.fx.itens || []).length > n0 ? 'Convite enviado. Quando o entregador aceitar no RIVO, ele entra na equipe.' : 'Convite registrado. Se esse telefone tiver conta no MiHelp, ele aparece na lista. Se não aparecer, peça para a pessoa criar a conta no MiHelp e convide de novo.');
+      },
+      async fixFora(t) {
+        const e = estado.config.eco, f = (eco.fx.itens || []).find((x) => x.tel === t.dataset.tel);
+        if (!e || !e.chave || !f) return false;
+        const r = await eco.req('/mesa/entregador/config', { chave: e.chave, tel: f.tel, fora: f.fora ? false : true });
+        if (!(r.ok && r.j && r.j.ok)) { aviso(eco.erro(r)); return false; }
+        aviso(f.fora ? 'Agora ' + (f.nome || 'o entregador') + ' fica só com as entregas da sua loja.' : (f.nome || 'O entregador') + ' pode fazer entregas por fora quando estiver livre.');
+        await eco.fixSync(true);
+      },
+      async fixRemover(t) {
+        const e = estado.config.eco, f = (eco.fx.itens || []).find((x) => x.tel === t.dataset.tel);
+        if (!e || !e.chave || !f) return false;
+        if (!confirm(f.vinculo === 'ativo' ? 'Tirar ' + (f.nome || 'este entregador') + ' da sua equipe?' : 'Cancelar o convite para ' + (f.nome || 'este entregador') + '?')) return false;
+        const r = await eco.req('/mesa/entregador/remover', { chave: e.chave, tel: f.tel });
+        if (!(r.ok && r.j && r.j.ok)) { aviso(eco.erro(r)); return false; }
+        aviso('Pronto.'); await eco.fixSync(true);
+      },
+      fixMapa(t) { eco.mapaEquipe(t.dataset.tel || ''); return false; },
+      fixPedido(t) {   // abre o mapa da entrega que o fixo está fazendo agora
+        const e = estado.config.eco, p = estado.pedidos.find((x) => x.rid && x.rid === t.dataset.rid);
+        if (!e || !e.chave || !p) { aviso('Não achei esse pedido neste aparelho.'); return false; }
+        eco.mapaRivo(p, e.chave); return false;
+      },
+      async fixEscolher(t) {   // "Meu entregador": a loja escolhe um fixo livre para o pedido
+        const p = buscarPedido(t.dataset.id), e = estado.config.eco;
+        if (!p || !p.rid || !e || !e.chave) { aviso('Conecte a loja ao MiHelp para usar seus entregadores.'); return false; }
+        await eco.fixSync(true);
+        const ativos = (eco.fx.itens || []).filter((f) => f.vinculo === 'ativo');
+        const dl = document.createElement('dialog');
+        dl.style.cssText = 'width:min(420px,92vw);padding:16px;border-radius:14px;border:1px solid #555;background:#1b1e24;color:#fff';
+        const h = document.createElement('b'), sub = document.createElement('p'), lista = document.createElement('div'), fechar = document.createElement('button');
+        h.textContent = 'Quem leva o pedido #' + p.id + '?'; sub.className = 'mu sm';
+        sub.textContent = ativos.length ? 'Escolha um entregador da sua equipe. O cliente acompanha no MiHelp e avalia como qualquer entrega.' : 'Você ainda não tem entregador na equipe. Convide pelo telefone na aba Entregadores.';
+        lista.className = 'eqp'; fechar.className = 'btn'; fechar.textContent = 'Cancelar'; fechar.style.marginTop = '10px';
+        const fim = () => { try { dl.close(); } catch (_) { /* já fechado */ } dl.remove(); };
+        const ROT = { livre: 'Livre', entrega: 'Em entrega', fora: 'Em entrega por fora', offline: 'Offline', convidado: 'Convite pendente' };
+        ativos.forEach((f) => {
+          const b = document.createElement('button'), ok = f.est === 'livre';
+          b.className = 'btn' + (ok ? ' pri' : ''); b.disabled = !ok;
+          const a = document.createElement('span'), c = document.createElement('small');
+          a.textContent = '🏍 ' + (f.nome || 'Entregador') + (f.n ? ' · ⭐ ' + String(f.nota).replace('.', ',') : ''); c.textContent = ROT[f.est] || f.est; if (ok) c.style.color = 'inherit';
+          b.append(a, c);
+          b.onclick = async () => {
+            b.disabled = true;
+            const r = await eco.req('/mesa/atribuir', { chave: e.chave, rid: p.rid, tel: f.tel });
+            if (r.ok && r.j && r.j.ok) { fim(); aviso('Pedido passado para ' + (f.nome || 'o entregador') + '.'); await eco.rivoSync(); eco.fixSync(true); renderizar(); return; }
+            if (r.j && r.j.semLocal) { fim(); aviso('Marque antes onde a loja fica: aperte "Chamar RIVO" uma vez, ou use o botão de localização da loja.'); return; }
+            b.disabled = !ok; aviso(eco.erro(r));
+          };
+          lista.append(b);
+        });
+        dl.append(h, sub, lista, fechar); document.body.append(dl); fechar.onclick = fim; dl.addEventListener('cancel', () => setTimeout(() => dl.remove(), 0)); dl.showModal();
+        return false;
       },
       ecoTrocar() { estado.config.eco = null; eco.st.lojas = null; eco.gravarCfg(); eco.abrirTela(); },
       ecoSair() { eco.guardar(''); estado.config.eco = null; eco.st.lojas = null; eco.st.erro = ''; eco.st.modo = 'entrar'; eco.gravarCfg(); aviso('Você saiu da conta.'); },
@@ -939,7 +1087,7 @@ function perfilEnt39(d, dark) {
   function rivoBloco(o) {
     if (o.origem !== 'mihelp' || !o.rid || o.tipo !== 'entrega' || ['entregue', 'cancelado'].includes(o.status)) return '';
     const rv = eco.rv[o.rid];
-    if (!rv || ['cancelada', 'expirada'].includes(rv.st)) return `<div class="acts2"><button class="btn full" data-a="rivoChamar" data-id="${o.id}">🛵 ${rv ? 'Chamar o RIVO de novo' : 'Chamar RIVO'}</button></div>`;
+    if (!rv || ['cancelada', 'expirada'].includes(rv.st)) return `<div class="acts2"><button class="btn full" data-a="rivoChamar" data-id="${o.id}">🛵 ${rv ? 'Chamar o RIVO de novo' : 'Chamar RIVO'}</button><button class="btn full" data-a="fixEscolher" data-id="${o.id}">🏍 Meu entregador</button></div>`;
     const d = rv.drv, pos = rv.pos, min = pos ? Math.round((Date.now() - pos.ts) / 60000) : 0, nome = esc(d ? d.nome : 'Entregador');
     const nota = d && d.n ? '⭐ ' + String(d.nota).replace('.', ',') : 'novo', px = rivoPerto(rv), cn = !!(rv.chat && rv.chat.k !== 'l' && rv.chat.last > (eco.st['cs' + o.rid] || 0));
     const cent = (c) => 'R$ ' + ((Number(c) || 0) / 100).toFixed(2).replace('.', ',');
@@ -947,15 +1095,16 @@ function perfilEnt39(d, dark) {
     const ativa = rv.st === 'aceita' || rv.st === 'coletada';
     let titulo, sub;
     if (rv.st === 'procurando') { titulo = 'Procurando entregador…'; sub = props.length ? props.length + (props.length === 1 ? ' proposta recebida' : ' propostas recebidas') : (rv.taxa ? 'Você oferece ' + cent(rv.taxa) : 'Chamada enviada ao RIVO'); }
-    else if (rv.st === 'aceita') { titulo = nome; sub = nota + ' · está indo à loja' + (px ? ' · ' + px.txt : ''); }
-    else if (rv.st === 'coletada') { titulo = nome; sub = nota + ' · saiu com o pedido' + (px ? ' · ' + px.txt : ''); }
+    else if (rv.st === 'aceita') { titulo = nome; sub = (rv.fixo ? '🏍 da sua equipe · ' : '') + nota + ' · está indo à loja' + (px ? ' · ' + px.txt : ''); }
+    else if (rv.st === 'coletada') { titulo = nome; sub = (rv.fixo ? '🏍 da sua equipe · ' : '') + nota + ' · saiu com o pedido' + (px ? ' · ' + px.txt : ''); }
     else { titulo = 'RIVO'; sub = esc(rv.st); }
     const propsHtml = props.length
       ? `<div class="pp"><div class="pp-h"><b>Propostas</b><span>Você oferece ${cent(rv.taxa)}</span></div>` + props.map((q) => `<div class="pp-i"><div class="pp-w"><div class="pp-n"><b>${esc(q.nome)}</b><span>${q.n ? '⭐ ' + String(q.nota).replace('.', ',') : 'Novo'}${q.veic ? ' · ' + esc(q.veic) : ''}</span></div><div class="pp-v">${cent(q.valor)}</div></div><div class="pp-b"><button class="btn pri" data-a="rivoProp" data-id="${o.id}" data-pid="${esc(q.id)}" data-ok="1">Aceitar</button><button class="btn" data-a="rivoProp" data-id="${o.id}" data-pid="${esc(q.id)}" data-ok="0">Recusar</button></div></div>`).join('') + `</div>`
       : '';
     const naLoja = px && px.naLoja;
     const alerta = naLoja ? '📍 O entregador chegou! Entregue o pedido a ele agora.' : ativa ? (!pos ? 'Aguardando a posição do entregador.' : min >= 2 ? `⚠ Sem sinal do entregador há ${min} min. Ligue para ele.` : '') : '';
-    const botoes = `<div class="rv-bt"><button class="btn" data-a="rivoMapa" data-id="${o.id}">🗺 Mapa</button>${d && ativa ? `<button class="btn" data-a="rivoPerfil" data-id="${o.id}">👤 Perfil</button>` : ''}${ativa ? `<button class="btn" data-a="rivoChat" data-id="${o.id}">💬 Chat${cn ? ' <i class="rv-dot"></i>' : ''}</button>` : ''}${rv.st === 'procurando' || rv.st === 'aceita' ? `<button class="btn dg" data-a="rivoCancelar" data-id="${o.id}">Cancelar chamada</button>` : ''}</div>`;
+    const fxTel = rv.fixo && ativa ? ((eco.fx.itens || []).find((x) => x.ent && x.ent.rid === o.rid) || {}).tel : '';
+    const botoes = `<div class="rv-bt"><button class="btn" data-a="rivoMapa" data-id="${o.id}">🗺 Mapa</button>${fxTel ? `<a class="btn" href="tel:+${esc(fxTel)}">📞 Ligar</a>` : ''}${rv.st === 'procurando' ? `<button class="btn" data-a="fixEscolher" data-id="${o.id}">🏍 Meu entregador</button>` : ''}${d && ativa ? `<button class="btn" data-a="rivoPerfil" data-id="${o.id}">👤 Perfil</button>` : ''}${ativa ? `<button class="btn" data-a="rivoChat" data-id="${o.id}">💬 Chat${cn ? ' <i class="rv-dot"></i>' : ''}</button>` : ''}${rv.st === 'procurando' || rv.st === 'aceita' ? `<button class="btn dg" data-a="rivoCancelar" data-id="${o.id}">${rv.fixo ? 'Tirar do entregador' : 'Cancelar chamada'}</button>` : ''}</div>`;
     return `<div class="rv"><div class="rv-h"><span class="rv-ic${rv.st === 'procurando' ? ' pulse' : ''}">🛵</span><div class="rv-t"><b>${titulo}</b><span>${sub}</span></div></div>${alerta ? `<div class="rv-al${naLoja ? ' ok' : ''}">${alerta}</div>` : ''}${propsHtml}${botoes}</div>`;
   }
   function cartaoPedido(o) {
@@ -1098,6 +1247,49 @@ ${c.erro ? `<p class="err" role="alert">${esc(c.erro)}</p>` : ''}<div class="bar
     return `<div class="ph-body">${h}</div>`;
   }
 
+  function telaEntregadores() {
+    const e = estado.config.eco, cx = eco.fx;
+    const cab = `<header class="top"><div><h1>Entregadores</h1><p class="mu">Sua equipe de entregadores. Eles usam o app RIVO, e o cliente acompanha e avalia cada entrega pelo MiHelp, igual aos entregadores do RIVO.</p></div></header>`;
+    if (!e || !e.chave) return cab + `<p class="callout">Conecte a loja ao MiHelp para montar sua equipe. <button class="lnk" data-a="ir" data-v="conexao">Conectar</button></p>`;
+    if (cx.itens === null || Date.now() - cx.ts > 10000) eco.fixSync(true);
+    const itens = cx.itens;
+    const ROT = { livre: 'Livre', entrega: 'Em entrega', fora: 'Em entrega por fora', offline: 'Offline', convidado: 'Convite pendente' };
+    const minAtras = (ts) => { const m = Math.round((Date.now() - (ts || 0)) / 60000); return m < 1 ? 'agora' : 'há ' + m + ' min'; };
+    const cartao = (f) => {
+      const ini = esc((f.nome || '?').trim().charAt(0).toUpperCase() || '?'), ped = f.ent && estado.pedidos.find((p) => p.rid === f.ent.rid);
+      const nota = f.n ? '⭐ ' + String(f.nota).replace('.', ',') + ' (' + f.n + ')' : 'Sem avaliações';
+      const veic = [f.veic, f.placa].filter(Boolean).map(esc).join(' · ');
+      const info = f.vinculo === 'convidado' ? 'Esperando o entregador aceitar no RIVO.'
+        : f.est === 'entrega' ? 'Entregando ' + (ped ? 'o pedido #' + ped.id : 'um pedido da sua loja') + (f.pos ? ' · posição ' + minAtras(f.pos.ts) : ' · sem posição ainda')
+        : f.est === 'fora' ? 'Fazendo uma entrega por fora. Você não vê onde ele está.'
+        : f.est === 'livre' ? (f.pos ? 'Online · posição ' + minAtras(f.pos.ts) : 'Online, sem posição ainda') : 'Está com o RIVO fechado.';
+      const botoes = [
+        f.pos ? `<button class="btn" data-a="fixMapa" data-tel="${esc(f.tel)}">🗺 Ver no mapa</button>` : '',
+        f.est === 'entrega' && ped ? `<button class="btn" data-a="fixPedido" data-rid="${esc(f.ent.rid)}">📦 Entrega</button>` : '',
+        f.vinculo === 'ativo' ? `<a class="btn" href="tel:+${esc(f.tel)}">📞 Ligar</a>` : '',
+        f.vinculo === 'ativo' ? `<button class="btn" data-a="fixFora" data-tel="${esc(f.tel)}" aria-pressed="${f.fora ? 'true' : 'false'}">${f.fora ? '✅ Pode fazer entregas por fora' : '🚫 Só entregas da loja'}</button>` : '',
+        `<button class="btn dg" data-a="fixRemover" data-tel="${esc(f.tel)}">${f.vinculo === 'ativo' ? 'Remover' : 'Cancelar convite'}</button>`,
+      ].join('');
+      return `<article class="eqc"><div class="eqc-h"><span class="eqc-av">${ini}</span><div class="eqc-t"><b>${esc(f.nome || 'Entregador')}</b><span>${f.vinculo === 'ativo' ? nota + (veic ? ' · ' + veic : '') : '+' + esc(f.tel)}</span></div><span class="eqs ${esc(f.est)}">${esc(ROT[f.est] || f.est)}</span></div><p class="eqc-i">${info}</p><div class="rv-bt">${botoes}</div></article>`;
+    };
+    const ativos = (itens || []).filter((f) => f.vinculo === 'ativo').length, pend = (itens || []).length - ativos;
+    const lista = itens === null ? (cx.erro ? '' : '<p class="mu sm">Carregando a equipe…</p>')
+      : itens.length ? `<div class="eql">${itens.map(cartao).join('')}</div>`
+      : '<p class="mu sm" style="margin-top:10px">Você ainda não tem entregadores na equipe. Convide pelo telefone: a pessoa precisa ter conta no MiHelp e aceitar o convite no app RIVO.</p>';
+    return cab + `${cx.erro ? `<p class="callout" style="background:var(--erb);color:var(--er)">${esc(cx.erro)}</p>` : ''}
+<section class="mc"><div class="eqm"><h2 style="margin:0">Minha equipe${itens ? ` <span class="mu sm">${ativos} ${ativos === 1 ? 'ativo' : 'ativos'}${pend ? ' · ' + pend + (pend === 1 ? ' convite pendente' : ' convites pendentes') : ''}</span>` : ''}</h2><button class="btn" data-a="fixMapa" data-tel="">🗺 Mapa da equipe</button></div>${lista}</section>
+<section class="mc"><h2>Convidar entregador</h2>
+<label class="f">Telefone da conta dele no MiHelp<input data-fxf="tel" value="${esc(cx.form.tel)}" type="tel" inputmode="tel" placeholder="(66) 99999-9999" maxlength="20" autocomplete="off"></label>
+<label class="eqk"><input type="checkbox" data-fxc="fora"${cx.form.fora !== false ? ' checked' : ''}> Pode fazer entregas por fora quando estiver livre</label>
+<div class="acts"><button class="btn pri" data-a="fixConvidar"${itens && itens.length >= cx.max ? ' disabled' : ''}>Enviar convite</button></div>
+<p class="mu sm">Ele recebe o aviso no RIVO e só entra na equipe quando aceitar. ${itens ? `Limite de ${cx.max} entregadores.` : ''}</p></section>
+<section class="mc"><h2>Como funciona</h2>
+<p class="mu sm">Em cada pedido de entrega, na aba Pedidos, você escolhe: <b>🛵 Chamar RIVO</b> (qualquer entregador do RIVO) ou <b>🏍 Meu entregador</b> (alguém da sua equipe). O cliente acompanha o mapa e avalia o entregador nos dois casos.</p>
+<p class="mu sm">Você só vê a posição do entregador enquanto ele está online no RIVO ou fazendo uma entrega da sua loja. Se ele estiver em uma entrega por fora, aparece só "em entrega por fora".</p>
+<p class="mu sm">Fase de testes: nada é cobrado por enquanto. Depois, a mensalidade da equipe será paga pela loja, com valor menor para quem não tem entregadores próprios.</p></section>
+<img class="dcby" data-dc alt="D'Castro Labs" style="margin-top:28px">`;
+  }
+
   function telaPrevia() {
     return `<header class="top"><div><h1>Prévia do cardápio digital</h1><p class="mu">Teste como cliente: peça um item, preencha os dados e finalize. O pedido cai na aba Pedidos.</p></div></header>
 ${estado.tela === 'ok' ? `<p class="callout">O pedido #${estado.ultimoPedido} chegou no painel. <button class="lnk" data-a="ir" data-v="pedidos">Ver em Pedidos</button></p>` : ''}<div class="stage"><div class="phone">${celular()}</div></div>`;
@@ -1212,7 +1404,7 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
 <p class="mu sm">É somada ao total do pedido de quem escolhe entrega, no MiHelp e aqui. Deixe 0,00 se a loja não cobra. Quem retira no local não paga taxa.</p>
 <h3 style="margin:14px 0 6px">Quem faz a entrega?</h3>
 <div class="acts">${modoBtn('auto', '🛵 Chamar o RIVO sozinho')}${modoBtn('proprio', '🏍 Tenho meu próprio entregador')}</div>
-<p class="mu sm">${rc ? (rc.auto ? 'Cada pedido de entrega chama um entregador do RIVO na hora (a loja precisa ter marcado onde fica).' : 'O RIVO não é chamado sozinho. Você entrega com o seu pessoal, e ainda pode apertar "Chamar RIVO" em um pedido quando quiser.') : 'Carregando…'}</p></section>
+<p class="mu sm">${rc ? (rc.auto ? 'Cada pedido de entrega chama um entregador do RIVO na hora (a loja precisa ter marcado onde fica).' : 'O RIVO não é chamado sozinho. Você escolhe a cada pedido: "Meu entregador" (cadastre sua equipe na aba Entregadores) ou "Chamar RIVO".') : 'Carregando…'}</p></section>
 <section class="mc"><h2>Horário de funcionamento</h2>
 <p class="mu sm">Marque os dias em que a loja abre. Se fecha de madrugada, use por exemplo 18:00 às 02:00. A 2ª faixa é para quem faz pausa no meio do dia.</p>${linhas}
 <div class="acts" style="margin-top:12px"><button class="btn" data-a="horCopiar">Copiar a segunda para todos os dias</button></div></section>
@@ -1220,8 +1412,8 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
 <img class="dcby" data-dc alt="D'Castro Labs" style="margin-top:28px">`;
   }
 
-  const TELAS = { pedidos: telaPedidos, cardapio: telaCardapio, previa: telaPrevia, estabelecimento: telaEstabelecimento, conexao: telaConexao };
-  const NAVEGACAO = [['pedidos', 'Pedidos'], ['cardapio', 'Cardápio'], ['previa', 'Prévia'], ['estabelecimento', 'Estabelecimento'], ['conexao', 'Conexão']];
+  const TELAS = { pedidos: telaPedidos, entregadores: telaEntregadores, cardapio: telaCardapio, previa: telaPrevia, estabelecimento: telaEstabelecimento, conexao: telaConexao };
+  const NAVEGACAO = [['pedidos', 'Pedidos'], ['entregadores', 'Entregadores'], ['cardapio', 'Cardápio'], ['previa', 'Prévia'], ['estabelecimento', 'Estabelecimento'], ['conexao', 'Conexão']];
   const LOGO_MESA = document.querySelector('.brand img').src;
 
   /* ---------- renderização preservando foco, seleção, rolagem e formulários ---------- */
@@ -1448,6 +1640,8 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
     if (d.p) estado.config[d.p] = e.target.value;
     if (d.ef) eco.form[d.ef] = e.target.value;
     if (d.ec) eco.form[d.ec] = e.target.checked;
+    if (d.fxf) eco.fx.form[d.fxf] = e.target.value;
+    if (d.fxc) eco.fx.form[d.fxc] = e.target.checked;
     if (d.l && estado.loja) estado.loja[d.l] = e.target.value;
     if (d.hf && estado.loja) { const [i, k, j] = d.hf.split(',').map(Number); estado.loja.h[i].f[k][j] = e.target.value; }
     if ('o' in d && estado.detalhe) estado.detalhe.obs = e.target.value;
@@ -1456,7 +1650,7 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
     const el = e.target, d = el.dataset;
     if (d.eco) { eco.alternar(d.eco, el.checked); renderizar(); return; }
     if (d.hon !== undefined && estado.loja) { const r = estado.loja.h[Number(d.hon)]; r.on = el.checked; if (r.on && !r.f[0][0] && !r.f[0][1]) r.f[0] = ['08:00', '18:00']; renderizar(); return; }
-    if (d.l || d.hf || d.ec || d.ef) return;   // campos de formulário: já atualizados no evento input
+    if (d.l || d.hf || d.ec || d.ef || d.fxf || d.fxc) return;   // campos de formulário: já atualizados no evento input
     if ('preco' in d) {   // preço editado na linha: atualiza só o campo, sem redesenhar a tela
       const item = buscarItem(d.id), centavos = Money.interpretar(el.value);
       if (Number.isNaN(centavos)) aviso('Preço inválido.');
@@ -1514,8 +1708,8 @@ ${eco.faixa()}<section class="mc"><h2>Dados da loja</h2>
     repositorio.aoMudarExternamente(async () => { await carregarEstado(); renderizar(); });
     setInterval(atualizarTempos, 30000);
     setInterval(eco.tic, 60000); eco.tic();
-    setInterval(async () => { await eco.buscar(); await eco.rivoSync(); eco.enviarStatus(); }, 15000);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) { eco.buscar(); eco.rivoSync(); eco.enviarStatus(); } });
+    setInterval(async () => { await eco.buscar(); await eco.rivoSync(); eco.enviarStatus(); eco.fixSync(); }, 15000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) { eco.buscar(); eco.rivoSync(); eco.enviarStatus(); eco.fixSync(); } });
   }
   iniciar();
 })(window.MESA);
