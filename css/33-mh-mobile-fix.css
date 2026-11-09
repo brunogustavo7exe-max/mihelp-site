@@ -1,0 +1,21 @@
+
+/* Mobile: topo compacto, cards lado a lado e lista de estabelecimentos visível */
+#praca{scroll-margin-top:12px}
+@media(max-width:640px){
+  nav.nv.nv-s{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:8px 0}
+  nav.nv.nv-s>.more:is(#navSup,#navApps,#navMais,#navAjustes,[href*="instagram.com"],#navBaixar),
+  nav.nv.nv-s.nv-aberto>.more:not(#navSup):not(#navApps):not(#navMais){width:100%!important;min-width:0!important;min-height:38px!important;padding:6px 8px!important;font-size:13px!important;line-height:1.1;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;flex:none!important;justify-content:center}
+  nav.nv.nv-s>#mhCidBar{margin:0;min-width:0;justify-content:stretch}
+  nav.nv.nv-s.nv-aberto>#mhCidBar{grid-column:1/-1}
+  nav.nv #mhCidBtn{width:100%;min-height:38px!important;padding:6px 6px!important;font-size:12px!important;letter-spacing:-.1px!important}
+  #mhCidPan{right:0;left:auto}
+  .mhi .andar-g{gap:6px;padding:8px}
+  .mhi .andar-g button{min-height:62px;padding:6px 4px;gap:2px;font-size:14px}
+  .mhi .andar-g button span{font-size:24px}
+  .mhi .andar-h{padding:8px 12px}
+  #profList .pcard,#pcList .pcard{flex-direction:column;align-items:center;text-align:center;gap:6px;padding:12px 8px}
+  #profList .pinfo,#pcList .pinfo{align-items:center;width:100%;flex:none}
+  #profList .pinfo b,#pcList .pinfo b{max-width:100%}
+  #profList .prow,#pcList .prow{justify-content:center}
+  #profList .pcall,#pcList .pcall{width:100%;min-height:40px;padding:0 6px}
+}

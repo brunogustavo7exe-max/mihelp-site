@@ -1,0 +1,56 @@
+
+/* ===== v13: scrollbar nos aros neon, abas sem rolagem lateral, botões e janelas no tema ===== */
+:root{--sb1:var(--n1,var(--gold));--sb2:var(--n2,var(--gold2));--sb3:var(--n3,var(--gold2));--sbr:var(--n-rgb,var(--gold-rgb))}
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-track{background:var(--deep);border-left:1px solid rgba(var(--sbr),.14);margin:0}
+::-webkit-scrollbar-corner{background:var(--deep)}
+::-webkit-scrollbar-thumb,::-webkit-scrollbar-thumb:horizontal{min-height:56px;border-radius:99px;border:3px solid var(--deep);background:linear-gradient(180deg,color-mix(in srgb,var(--sb1) 55%,var(--deep)),color-mix(in srgb,var(--sb2) 48%,var(--deep)) 55%,color-mix(in srgb,var(--sb3) 42%,var(--deep)));box-shadow:0 0 6px rgba(var(--sbr),.22)}
+::-webkit-scrollbar-thumb:horizontal{background:linear-gradient(90deg,color-mix(in srgb,var(--sb1) 55%,var(--deep)),color-mix(in srgb,var(--sb2) 48%,var(--deep)) 55%,color-mix(in srgb,var(--sb3) 42%,var(--deep)))}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,color-mix(in srgb,var(--sb1) 80%,var(--deep)),color-mix(in srgb,var(--sb3) 70%,var(--deep)));box-shadow:0 0 9px rgba(var(--sbr),.4)}
+dialog::-webkit-scrollbar-track{background:rgba(0,0,0,.22);margin:20px 0;border-left:0;border-radius:99px}
+@supports not selector(::-webkit-scrollbar){*{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--sb1) 55%,var(--deep)) var(--deep)}}
+
+/* janelas: mesmo acabamento do resto do site */
+:root:root dialog.v8dlg{border-radius:24px;background:radial-gradient(120% 50% at 50% 0,rgba(var(--sbr),.16),transparent 70%),var(--surf)}
+:root:root dialog.v8dlg:not(:has(.lj-capa)){padding:22px 20px}
+.v8dlg :is(button.more,a.more){display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:14px;border:1px solid transparent;background:linear-gradient(var(--surf),var(--surf)) padding-box,linear-gradient(120deg,var(--sb1),var(--sb2),var(--sb3)) border-box;color:var(--text);font:800 14px var(--sans);box-shadow:0 0 12px rgba(var(--sbr),.22);cursor:pointer;transition:transform .12s,box-shadow .2s,filter .2s}
+.v8dlg :is(button.more,a.more):hover{filter:brightness(1.15);transform:translateY(-1px);box-shadow:0 0 18px rgba(var(--sbr),.5)}
+.v8dlg :is(button.more,a.more):active{transform:scale(.97)}
+
+/* abas do perfil: tudo visível, sem rolar para o lado */
+.v8dlg .lj-tabs{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;overflow:visible;padding:5px;border-radius:18px;border:1px solid rgba(var(--sbr),.4);background:linear-gradient(180deg,rgba(var(--sbr),.10),rgba(var(--sbr),.02)),var(--deep,var(--bg));box-shadow:inset 0 0 18px rgba(var(--sbr),.10),0 0 14px rgba(var(--sbr),.14)}
+.v8dlg .lj-tabs button{position:relative;flex-direction:column;gap:3px;min-width:0;min-height:58px;padding:7px 2px;font-size:12.5px;line-height:1.1;border-radius:13px}
+.lj-ti{font-size:21px;line-height:1}.lj-tl{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.v8dlg .lj-tabs .lj-tc{position:absolute;top:4px;right:5px;min-width:18px;height:18px;padding:0 5px;font:800 11px/18px var(--sans)}
+.v8dlg .lj-tabs button[aria-selected=true]{background:linear-gradient(135deg,var(--sb1),var(--sb2));box-shadow:0 0 16px rgba(var(--sbr),.5)}
+
+/* janela de reserva */
+.v8book .v8head{gap:14px;padding-bottom:14px;margin-bottom:12px;border-bottom:1px solid rgba(var(--sbr),.25)}
+.v8book .v8head>div:first-child{border-radius:50%;box-shadow:0 0 0 2px var(--surf),0 0 0 4px var(--sb1),0 0 16px rgba(var(--sbr),.6)}
+.v8book .v8head .note{margin:0;font:700 11px var(--sans);letter-spacing:.9px;text-transform:uppercase;color:var(--sb2)}
+.v8book .v8head h3{font-size:22px;margin:2px 0 0}
+.bk-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 6px}
+.bk-st{display:grid;justify-items:center;gap:4px;text-align:center;opacity:.55}
+.bk-st i{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;border:1px solid var(--line);font:800 12px var(--sans);font-style:normal}
+.bk-st em{font:700 11px var(--sans);font-style:normal;color:var(--mute)}
+.bk-st.on,.bk-st.done{opacity:1}
+.bk-st.on i{background:linear-gradient(135deg,var(--sb1),var(--sb2));border-color:transparent;color:var(--on-gold,#201804);box-shadow:0 0 14px rgba(var(--sbr),.6)}
+.bk-st.on em{color:var(--text)}.bk-st.done i{border-color:var(--sb3);color:var(--sb3)}
+.v8book .v8passo{font-size:20px;margin:12px 0 8px}
+.v8book .mhp-big.bk-sv{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:4px 12px;padding:14px 16px;border:1px solid transparent;border-radius:16px;background:linear-gradient(var(--bg),var(--bg)) padding-box,linear-gradient(120deg,rgba(var(--sbr),.55),rgba(var(--sbr),.12),rgba(var(--sbr),.55)) border-box;transition:transform .12s,box-shadow .2s}
+.v8book .mhp-big.bk-sv:hover{transform:translateY(-1px);box-shadow:0 0 18px rgba(var(--sbr),.35)}
+.bk-n{grid-column:1/3;font:800 16px/1.25 var(--sans);overflow-wrap:anywhere}
+.bk-m{grid-column:1;justify-self:start;padding:2px 10px;border-radius:99px;background:rgba(var(--sbr),.14);font:700 12px var(--sans);color:var(--read)}
+.bk-p{grid-column:2;grid-row:2;font:700 13px var(--sans);color:var(--sb3)}
+.bk-go{grid-column:3;grid-row:1/3;font:300 30px/1 var(--sans);color:var(--sb1)}
+.v8book .v8pros{gap:12px}
+.v8book .v8pro{padding:14px 10px;border:1px solid transparent;border-radius:16px;background:linear-gradient(var(--bg),var(--bg)) padding-box,linear-gradient(135deg,var(--sb1),var(--sb2),var(--sb3)) border-box;box-shadow:0 0 12px rgba(var(--sbr),.2)}
+.v8book .v8pro:disabled{background:var(--bg);border:1px dashed var(--line);box-shadow:none;filter:grayscale(.6)}
+.v8book .v8pro small{padding:1px 8px;border-radius:99px;background:rgba(255,255,255,.08);font:700 11px var(--sans);color:var(--mute)}
+.v8book .v8dia,.v8book .mhp-chip{border:1px solid var(--line);border-radius:14px;transition:box-shadow .15s,border-color .15s}
+.v8book .v8dia:hover,.v8book .mhp-chip:hover{border-color:var(--sb1);box-shadow:0 0 12px rgba(var(--sbr),.35)}
+.v8book .v8dia.on,.v8book .mhp-chip.on{background:linear-gradient(135deg,var(--sb1),var(--sb2));border-color:transparent;box-shadow:0 0 16px rgba(var(--sbr),.55)}
+.v8book .v8card{padding:14px;border:1px solid rgba(var(--sbr),.4);border-radius:16px;background:linear-gradient(180deg,rgba(var(--sbr),.08),rgba(var(--sbr),.02))}
+.bk-foot{display:flex;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(var(--sbr),.2)}
+.bk-foot .more{flex:1}
+@media(max-width:420px){.bk-st em{font-size:10px}.v8dlg .lj-tabs button{font-size:11.5px}}

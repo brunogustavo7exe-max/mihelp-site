@@ -693,7 +693,7 @@ function pintaLoja8(d,L,aba,aviso){d.textContent='';
  if(L.logado&&!L.souDono)lk.append(botao8(L.favoritada?'★ Nos favoritos':'☆ Favoritar','more',async()=>{const on=!L.favoritada;const r=await chama8('/favoritos',{alvo:'l:'+L.chave,on});if(r.ok&&r.j&&r.j.ok){L.favoritada=on;if(on)V8.fav.lojas.add(L.chave);else V8.fav.lojas.delete(L.chave);pintaLoja8(d,L,aba);refreshProf()}else pintaLoja8(d,L,aba,erro8(r))}));
  d.append(lk);
  const tabs=mk8('div','v8tabs lj-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Seções da loja');
- ((L.modo==='agenda'&&((L.servicos||[]).length||L.souDono)?[['serv','🗓 Serviços',(L.servicos||[]).length]]:[]).concat(CARD8[L.chave]?[['card','🍽 Cardápio',CARD8[L.chave].itens.length],['ped','🛒 Pedido',pedQtd8(L.chave)]]:[]).concat(L.equipeOculta?[]:[['equipe','👥 Equipe',L.totalEquipe]]).concat([['aval','⭐ Avaliações',L.n]])).forEach(([k,t,n])=>{const b=mk8('button',null,t);b.type='button';b.dataset.aba=k;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(aba===k));const c=mk8('span','lj-tc',String(n));c.hidden=k==='ped'&&!n;b.append(c);b.onclick=()=>{pintaLoja8(d,L,k);const t2=d.querySelector('.lj-tabs');if(t2)t2.scrollIntoView({block:'start'})};tabs.append(b)});
+ ((L.modo==='agenda'&&((L.servicos||[]).length||L.souDono)?[['serv','🗓 Serviços',(L.servicos||[]).length]]:[]).concat(CARD8[L.chave]?[['card','🍽 Cardápio',CARD8[L.chave].itens.length],['ped','🛒 Pedido',pedQtd8(L.chave)]]:[]).concat(L.equipeOculta?[]:[['equipe','👥 Equipe',L.totalEquipe]]).concat([['aval','⭐ Avaliações',L.n]])).forEach(([k,t,n])=>{const sp=t.indexOf(' '),b=mk8('button');b.append(mk8('span','lj-ti',t.slice(0,sp)),mk8('span','lj-tl',t.slice(sp+1)));b.type='button';b.dataset.aba=k;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(aba===k));const c=mk8('span','lj-tc',String(n));c.hidden=k==='ped'&&!n;b.append(c);b.onclick=()=>{pintaLoja8(d,L,k);const t2=d.querySelector('.lj-tabs');if(t2)t2.scrollIntoView({block:'start'})};tabs.append(b)});
  d.append(tabs);
  const pane=mk8('div','lj-pane');pane.setAttribute('role','tabpanel');cabPane8(pane,L,aba);
  if(aba==='serv'){painelServ8(pane,d,L)}else if(aba==='card'){painelCard8(pane,d,L)}else if(aba==='ped'){painelPed8(pane,d,L)}else if(aba==='equipe'){
@@ -1384,9 +1384,10 @@ function reservar8(d,L,pre){pre=pre||{};
   const r=await chama8('/reservas',{chave:L.chave,itens:R.cart.map(c=>({uid:c.pro.uid,servico:c.sv.id,dia:c.dia,ini:c.ini}))});R.busy=false;
   if(r.ok&&r.j&&r.j.ok){R.feito=R.cart;R.cart=[];R.tela='ok'}else R.msg=erro8(r);pinta()}
  function pinta(){d.textContent='';
-  const top=mk8('div','v8head');top.append(avatarLoja8(L,48));const hd=mk8('div');hd.append(mk8('p','note','Reservar em'),mk8('h3',null,L.nome));top.append(hd);d.append(top);
+  const top=mk8('div','v8head');d.classList.add('v8book');top.append(avatarLoja8(L,48));const hd=mk8('div');hd.append(mk8('p','note','Reservar em'),mk8('h3',null,L.nome));top.append(hd);d.append(top);
+  {const ix={serv:0,prof:1,dia:2,cart:3,ok:4}[R.tela]||0,stp=mk8('div','bk-steps');['Serviço','Profissional','Dia e hora','Confirmar'].forEach((n,i)=>{const e=mk8('span','bk-st'+(i<ix?' done':i===ix?' on':''));e.append(mk8('i',null,i<ix?'✓':String(i+1)),mk8('em',null,n));stp.append(e)});d.append(stp)}
   if(R.tela==='serv'){d.append(mk8('p','v8passo','Escolha o serviço'));
-   svs.forEach(s=>{const b=mk8('button','mhp-big');b.type='button';b.append(document.createTextNode(s.nome),mk8('small',null,durTxt8(s.min)+' · a partir de '+brl8(s.valor)));b.onclick=()=>escolheServ(s);d.append(b)});
+   svs.forEach(s=>{const b=mk8('button','mhp-big');b.type='button';b.classList.add('bk-sv');b.append(mk8('span','bk-n',s.nome),mk8('span','bk-m','⏱ '+durTxt8(s.min)),mk8('span','bk-p','a partir de '+brl8(s.valor)),mk8('span','bk-go','›'));b.onclick=()=>escolheServ(s);d.append(b)});
    d.append(R.cart.length?botao8('← Voltar ao meu horário','more',()=>{R.tela='cart';pinta()}):botao8('← Voltar','more',()=>pintaLoja8(d,L,'serv')))}
   else if(R.tela==='prof'){d.append(mk8('p','note','Serviço selecionado: '+R.sv.nome),mk8('p','v8passo','Escolha o profissional'));
    const ps=pros(),todos=(L.equipe||[]).filter(m=>m.helper!==false);if(!ps.length)d.append(mk8('p','note','Ninguém está recebendo marcações agora. Você pode chamar a loja pela conversa.'));
@@ -1416,7 +1417,8 @@ function reservar8(d,L,pre){pre=pre||{};
   else if(R.tela==='ok'){d.append(mk8('div','v8ok','✅'),mk8('p','v8passo','Horário marcado!'));
    R.feito.forEach(c=>d.append(mk8('p',null,c.sv.nome+' com '+c.pro.nome+' · '+diaBR8(c.dia)+' às '+hm8(c.ini))));
    d.append(mk8('p','note','O profissional já vê a sua reserva. Para cancelar, abra "Meus horários".'),botao8('🗓 Ver meus horários','more',()=>{d.close();abrirHorarios8()}))}
-  d.append(botao8(R.tela==='ok'?'Fechar':'✕ Fechar','more pa-close',()=>d.close()))}
+  d.append(botao8(R.tela==='ok'?'Fechar':'✕ Fechar','more pa-close',()=>d.close()));
+  const ft=mk8('div','bk-foot');[...d.children].filter(x=>x.matches&&x.matches('button.more')&&/^(←|✕|Fechar)/.test(x.textContent.trim())).forEach(x=>ft.append(x));if(ft.children.length)d.append(ft)}
  const s0=pre.sv&&svs.find(x=>x.id===pre.sv);
  if(s0)escolheServ(s0);else pinta()}
 

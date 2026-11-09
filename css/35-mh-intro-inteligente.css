@@ -1,0 +1,6 @@
+
+:root:root .intro-mini:not([hidden]){display:flex!important}
+.intro-mini{flex-wrap:wrap;gap:4px 10px}
+.intro-mini .im-slogan{flex:1 1 100%;font:800 17px/1.2 var(--sans,system-ui);color:var(--text)}
+.intro-mini .im-slogan em{font-style:normal;color:var(--gold2)}
+@media(min-width:641px){.intro-mini .im-slogan{flex:1 1 auto;font-size:19px}}
