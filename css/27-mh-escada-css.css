@@ -1,0 +1,5 @@
+
+/* Escadinha: Classificados, Voz da Cidade e Gastos entram na coluna que estiver mais curta, sem deixar espaço vazio */
+.jcol>.mh-bal{margin:0}
+#voz.mh-bal{margin-top:0!important}
+@media(max-width:860px){:root[data-tema] .mh-bal{order:6}}

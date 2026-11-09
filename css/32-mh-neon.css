@@ -1,0 +1,115 @@
+
+/* ===== Camada neon anos 80 (Miami Neon, Terminal, Brasa, Neon Claro): fundo em degradê, aros em degradê com brilho ===== */
+:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]){--rimc:var(--n1),var(--n2),var(--n3),var(--n1);--glow:0 0 0 1px rgba(var(--n-rgb),.16),0 0 14px rgba(var(--n-rgb),.42),0 0 36px rgba(var(--n2-rgb),.20)}
+:root[data-tema=terminal]{--rimc:#C8FF00,#00E5FF,#9B4DFF,#FF2FB3,#C8FF00}
+:root[data-tema=neonclaro]{--glow:0 0 0 1px rgba(255,62,181,.10),0 0 12px rgba(255,62,181,.28),0 0 30px rgba(25,199,232,.16)}
+:root[data-tema=brasa]{--glow:0 0 0 1px rgba(255,143,177,.18),0 0 12px rgba(255,88,37,.26),0 0 32px rgba(255,143,177,.16)}
+
+/* fundo da página */
+:root[data-tema=miami]{background-color:#120A1F;background-image:radial-gradient(900px 600px at 0 100%,rgba(30,160,255,.38),transparent 65%),radial-gradient(900px 600px at 100% 0,rgba(255,47,160,.36),transparent 65%),linear-gradient(135deg,#0E1A4A 0%,#2A1163 45%,#5B1573 75%,#8A1568 100%);background-attachment:fixed}
+:root[data-tema=terminal]{background-color:#101010;background-image:radial-gradient(700px 380px at 10% -6%,rgba(200,255,0,.12),transparent 70%),radial-gradient(700px 380px at 92% -6%,rgba(155,77,255,.10),transparent 70%);background-attachment:fixed}
+:root[data-tema=brasa]{background-color:#651424;background-image:radial-gradient(900px 600px at 0 0,rgba(255,88,37,.14),transparent 60%),radial-gradient(900px 600px at 100% 100%,rgba(90,70,255,.28),transparent 65%),linear-gradient(135deg,#651424 0%,#4D1032 42%,#2E1252 78%,#1A1244 100%);background-attachment:fixed}
+:root[data-tema=neonclaro]{background-color:#FFF4FB;background-image:radial-gradient(circle at 12% 62%,#fff 0 1.5px,transparent 2.6px),radial-gradient(circle at 31% 74%,#fff 0 2px,transparent 3px),radial-gradient(circle at 47% 58%,#fff 0 1.5px,transparent 2.6px),radial-gradient(circle at 68% 80%,#fff 0 2px,transparent 3px),radial-gradient(circle at 83% 64%,#fff 0 1.5px,transparent 2.6px),radial-gradient(circle at 92% 88%,#fff 0 2px,transparent 3px),radial-gradient(circle at 20% 90%,#fff 0 2px,transparent 3px),radial-gradient(circle at 56% 94%,#fff 0 1.5px,transparent 2.6px),linear-gradient(180deg,#FFFFFF 0%,#FFFFFF 38%,#FFD9F0 72%,#FFB3E0 100%);background-attachment:fixed}
+:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) body{background:transparent!important}
+
+/* chão em grade (Miami Neon) e brilho RGB embaixo (Terminal, estilo Razer) */
+:root[data-tema=miami] body::before{content:"";position:fixed;left:-50%;right:-50%;bottom:0;height:44vh;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(var(--n-rgb),.34) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--n-rgb),.34) 1px,transparent 1px);background-size:46px 46px;transform:perspective(380px) rotateX(62deg);transform-origin:50% 100%;-webkit-mask-image:linear-gradient(to top,#000 0,transparent 88%);mask-image:linear-gradient(to top,#000 0,transparent 88%);opacity:.6}
+
+@keyframes mhRgb{to{background-position:-200% 0}}
+:root[data-tema=terminal] body::before{content:"";position:fixed;left:0;right:0;bottom:0;height:40vh;z-index:-1;pointer-events:none;background:radial-gradient(60% 100% at 8% 100%,rgba(200,255,0,.30),transparent 70%),radial-gradient(60% 100% at 50% 100%,rgba(0,229,255,.24),transparent 70%),radial-gradient(60% 100% at 92% 100%,rgba(155,77,255,.30),transparent 70%)}
+:root[data-tema=terminal] body::after{content:"";position:fixed;left:0;right:0;bottom:0;height:3px;z-index:5;pointer-events:none;background:linear-gradient(90deg,#C8FF00,#00E5FF,#9B4DFF,#FF2FB3,#C8FF00,#00E5FF);background-size:200% 100%;box-shadow:0 0 14px 2px rgba(0,229,255,.5);animation:mhRgb 7s linear infinite}
+@media(prefers-reduced-motion:reduce){:root[data-tema=terminal] body::after{animation:none}}
+
+/* caixas: aro em degradê reluzente */
+@property --rang{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes mhSpin{to{--rang:360deg}}
+:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) :is(.win,.vcard,.andar,.jn-s,.prof,.mh-bal,.salao,.need-cat,.vg,.apoio-box){border:1px solid transparent!important;background:linear-gradient(var(--surf),var(--surf)) padding-box,conic-gradient(from var(--rang,0deg),var(--rimc)) border-box!important;background-origin:border-box!important;box-shadow:var(--glow)!important}
+:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) :is(#needRow button,#cfgPan){border:1px solid transparent!important;background:linear-gradient(var(--surf),var(--surf)) padding-box,conic-gradient(from var(--rang,0deg),var(--rimc)) border-box!important;background-origin:border-box!important;box-shadow:var(--glow)!important}
+:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) :is(.win,.vcard,.andar,.jn-s,.prof,.mh-bal,.salao,.need-cat,.vg,.apoio-box):not(.shake),:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) :is(#needRow button,#cfgPan){animation:mhSpin 8s linear infinite}
+@media(prefers-reduced-motion:reduce){:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) :is(.win,.vcard,.andar,.jn-s,.prof,.mh-bal,.salao,.need-cat,.vg,.apoio-box,#needRow button,#cfgPan){animation:none!important}}
+/* outdoors: sem moldura nem rótulo "Publicidade"; cada vaga e o cartão de doação são caixas separadas */
+:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro])[data-tema] .side>.win>.bar{display:none!important}
+:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) .side .apoio-box{margin-top:14px}
+:root[data-tema] .side .vcol::before{content:none!important;display:none!important}
+/* letreiros de cima removidos em todos os temas (o aviso da equipe continua) */
+:root[data-tema] .top-letreiros :is(.mq,.tk,.tka){display:none!important}
+:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) :is(#needRow button,.need-cat):hover,:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) :is(#needRow button,.need-cat):focus-visible{filter:brightness(1.1);box-shadow:var(--glow),0 0 28px rgba(var(--n-rgb),.55)!important}
+:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) .win>.bar{background:linear-gradient(90deg,rgba(var(--n-rgb),.22),rgba(var(--n2-rgb),.10)),var(--surf)!important;border-bottom:1px solid rgba(var(--n-rgb),.45)!important}
+:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) #cfgBtn,:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) #temaBtn{border:1px solid var(--n1)!important;box-shadow:0 0 14px rgba(var(--n-rgb),.6)!important}
+:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) dialog{border:1px solid var(--n1)!important;box-shadow:var(--glow)!important}
+:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) dialog::backdrop{background:rgba(var(--n-rgb),.14);backdrop-filter:blur(2px)}
+:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) nav.nv .more:not(.baixar){border-color:rgba(var(--n-rgb),.6)!important;box-shadow:0 0 10px rgba(var(--n-rgb),.28)}
+
+/* botões cheios: degradê pôr do sol com brilho */
+:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) :is(.go,.cta2,.send button.p,.tabs button[aria-selected=true],.cat-row button.on,.sugf button,.wtabs button.on,.atabs button.on,.fl-tabs button[aria-pressed=true],.seg button[aria-pressed=true],.role input:checked+span,.dur input:checked+span,nav.nv .more.baixar){background:linear-gradient(135deg,var(--b1),var(--b2))!important;border-color:transparent!important;color:var(--on-gold)!important;box-shadow:0 0 16px rgba(var(--n-rgb),.55)}
+
+/* campos: brilho ao focar */
+:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) :is(input,select,textarea):focus{box-shadow:0 0 0 2px rgba(var(--n-rgb),.40),0 0 16px rgba(var(--n-rgb),.45)!important;outline:none}
+
+/* título com degradê */
+:root:is([data-tema=miami],[data-tema=terminal],[data-tema=brasa],[data-tema=neonclaro]) h1 span{background:linear-gradient(90deg,var(--n1),var(--n2),var(--n3));-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 10px rgba(var(--n-rgb),.5))}
+
+/* avaliação do pedido: cartões limpos (a classe antiga lj-av colidia com o avatar da loja e puxava borda/brilho) */
+.lj-env.rate{padding:18px 12px 14px;gap:12px}
+.lj-env.rate .lj-ok{width:46px;height:46px;font-size:22px}
+.lj-env.rate h4{font-size:19px}
+.lj-env.rate>.note{margin:-4px 0 2px}
+.lj-rate{display:grid;gap:10px;width:100%;box-sizing:border-box;text-align:left;padding:14px 14px 12px;border:1px solid var(--line);border-radius:16px;background:rgba(var(--gold-rgb),.04)}
+.lj-rh{display:grid;gap:2px}.lj-rh b{font-size:15px}.lj-rh .note{font-size:12.5px;color:var(--mute)}
+.lj-rate .lj-stars{display:flex;gap:2px;justify-content:space-between;max-width:280px}
+.lj-rate .lj-stars button{flex:1;width:auto;max-width:54px;height:46px;border:0;border-radius:10px;background:transparent;color:rgba(var(--gold-rgb),.22);font-size:34px;line-height:1;padding:0;cursor:pointer;transition:color .12s,transform .12s}
+.lj-rate .lj-stars button:hover{transform:scale(1.12)}
+.lj-rate .lj-stars button.on{background:transparent;color:var(--gold);text-shadow:0 0 14px rgba(var(--gold-rgb),.45)}
+.lj-hint{font-size:12.5px;color:var(--faint,var(--mute));min-height:16px;margin-top:-4px}.lj-hint.on{color:var(--gold);font-weight:700}
+.lj-sw{display:none;gap:8px}.lj-rate.rated .lj-sw{display:grid;animation:ljsw .22s ease-out}
+@keyframes ljsw{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.lj-sl{font-size:12.5px;color:var(--mute)}
+.lj-rate .lj-selos{margin:0;gap:6px}
+.lj-rate .lj-selo{min-height:34px;padding:5px 12px;font-size:12.5px;font-weight:600;border-color:var(--line);background:transparent}
+.lj-rate .lj-selo.on{background:rgba(var(--gold-rgb),.16);border-color:var(--gold);color:var(--gold)}
+.lj-rate input{width:100%;box-sizing:border-box;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:9px 2px;font:500 14px var(--sans);color:var(--text);outline:0}
+.lj-rate input:focus{border-bottom-color:var(--gold)}
+
+/* ===== avaliação do pedido v2: limpa, organizada e no tema do site ===== */
+.lj-env.rate{gap:14px;padding:22px 16px 18px;justify-items:stretch;text-align:center}
+.lj-env.rate .lj-ok{justify-self:center;width:52px;height:52px;font-size:24px}
+.lj-env.rate h4{font-size:20px;line-height:1.25;margin:2px 0 0}
+.lj-env.rate>.note{margin:-6px 0 4px;font-size:13.5px;color:var(--mute)}
+.lj-env.rate .lj-rate{display:grid;gap:14px;padding:16px;border:1px solid var(--line)!important;border-radius:18px;background:rgba(var(--gold-rgb),.06)!important;box-shadow:none!important;animation:none!important;text-align:left}
+.lj-env.rate .lj-rh{display:grid;gap:3px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.lj-env.rate .lj-rh b{font-size:16px;line-height:1.3;color:var(--text)}
+.lj-env.rate .lj-rh .note{font-size:13px;color:var(--mute);line-height:1.4}
+.lj-env.rate .lj-stars{display:flex;gap:6px;justify-content:center;max-width:none;width:100%}
+.lj-env.rate .lj-stars button{flex:1 1 0;width:auto;max-width:56px;height:52px;border:0!important;border-radius:14px;background:rgba(var(--gold-rgb),.08)!important;color:rgba(var(--gold-rgb),.35)!important;font-size:30px;line-height:1;padding:0;cursor:pointer;box-shadow:none!important;transition:transform .12s,background .12s,color .12s}
+.lj-env.rate .lj-stars button:hover{transform:translateY(-2px);background:rgba(var(--gold-rgb),.16)!important}
+.lj-env.rate .lj-stars button.on{background:rgba(var(--gold-rgb),.20)!important;color:var(--gold)!important;text-shadow:0 0 12px rgba(var(--gold-rgb),.55)}
+.lj-env.rate .lj-hint{text-align:center;font-size:13px;margin:-6px 0 0;min-height:18px;color:var(--mute)}
+.lj-env.rate .lj-hint.on{color:var(--gold);font-weight:800}
+.lj-env.rate .lj-sw{gap:10px;padding-top:12px;border-top:1px dashed var(--line)}
+.lj-env.rate .lj-sl{font-size:13px;font-weight:700;color:var(--read,var(--text))}
+.lj-env.rate .lj-selos{display:flex;flex-wrap:wrap;gap:8px;margin:0}
+.lj-env.rate .lj-selo{min-height:36px;padding:6px 14px;border-radius:999px;border:1px solid var(--line)!important;background:transparent!important;color:var(--text);font:600 13px var(--sans);box-shadow:none!important;transition:background .12s,border-color .12s}
+.lj-env.rate .lj-selo:hover{border-color:var(--gold)!important}
+.lj-env.rate .lj-selo.on{background:rgba(var(--gold-rgb),.20)!important;border-color:var(--gold)!important;color:var(--gold)}
+.lj-env.rate .lj-rate input{display:block;width:100%;box-sizing:border-box;min-height:46px;padding:12px 14px;border:1px solid var(--line)!important;border-radius:12px;background:var(--bg)!important;color:var(--text)!important;-webkit-text-fill-color:var(--text);caret-color:var(--gold);font:500 14px var(--sans);outline:0;box-shadow:none}
+.lj-env.rate .lj-rate input::placeholder{color:var(--faint,var(--mute));opacity:1;-webkit-text-fill-color:var(--faint,var(--mute))}
+.lj-env.rate .lj-rate input:focus{border-color:var(--gold)!important;box-shadow:0 0 0 3px rgba(var(--gold-rgb),.22)!important}
+.lj-env.rate .v8acts{display:grid;gap:8px}
+@media(max-width:420px){.lj-env.rate{padding:18px 10px 14px}.lj-env.rate .lj-rate{padding:14px 12px}.lj-env.rate .lj-stars button{height:48px;font-size:27px}}
+/* chat da entrega: nunca mais caixa branca */
+dialog.mh-chat39 input{background:var(--bg)!important;color:var(--text)!important;-webkit-text-fill-color:var(--text);caret-color:var(--gold)}
+dialog.mh-chat39 input::placeholder{color:var(--faint,var(--mute));opacity:1;-webkit-text-fill-color:var(--faint,var(--mute))}
+dialog.mh-chat39 input:focus{border-color:var(--gold)!important;box-shadow:0 0 0 3px rgba(var(--gold-rgb),.22)!important}
+dialog.mh-chat39 input:disabled{opacity:.55}
+dialog.mh-chat39 button{color:var(--text)}
+
+/* Do que você precisa? no celular: botões compactos (ícone ao lado do texto), como em Comércios */
+@media(max-width:700px){
+:root:root #need #needRow.need-row,:root:root #need .need-row#needRow{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+:root:root #need #needRow .need-sep{grid-column:1/-1}
+:root:root #need #needRow button.need-cat{flex-direction:row!important;justify-content:flex-start!important;align-items:center!important;min-height:54px!important;height:auto!important;padding:8px 12px!important;gap:10px!important;border-radius:14px!important;text-align:left!important;font:700 14px/1.2 var(--sans)!important}
+:root:root #need #needRow button.need-cat:has(.nc-sos){padding-right:34px!important}
+:root:root #need #needRow button.need-cat .nc-ic{font-size:22px!important;flex:none}
+:root:root #need #needRow button.need-cat .nc-t{flex:1;min-width:0;overflow-wrap:break-word;word-break:normal}
+:root:root #need #needRow button.need-cat .nc-sos{top:50%!important;right:8px!important;transform:translateY(-50%);font-size:10px!important;padding:2px 4px!important}
+}

@@ -1,0 +1,20 @@
+
+/* ===== MiHelp mobile v1: botões do topo alinhados + Profissionais | Estabelecimentos lado a lado ===== */
+@media(max-width:640px){
+ nav.nv.nv-s{display:grid!important;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch}
+ nav.nv.nv-s>#navSup,nav.nv.nv-s>#navApps,nav.nv.nv-s>#navMais,nav.nv.nv-s>#navAjustes,nav.nv.nv-s>[href*="instagram.com"],nav.nv.nv-s>#navBaixar{flex:none!important;width:100%!important;min-width:0;min-height:42px;padding:8px 8px;font-size:13.5px;white-space:normal!important;text-align:center;line-height:1.15;box-sizing:border-box}
+ nav.nv.nv-s.nv-aberto>.more:not(#navSup):not(#navApps):not(#navMais){flex:none!important;width:100%}
+ nav.nv.nv-s>.andar{grid-column:1/-1}
+ nav.nv.nv-s>.need,nav.nv.nv-s>hr{grid-column:1/-1}
+ #mhCidBar{display:block!important;margin:0!important;width:100%;grid-column:auto;justify-self:stretch}
+ #mhCidBtn{display:flex!important;align-items:center;justify-content:center;width:100%;min-height:42px!important;padding:8px 10px!important;font:700 14px var(--sans,system-ui)!important;box-sizing:border-box}
+ #mhCidPan{left:auto;right:0;width:min(86vw,300px)}
+ #mhCidBar:nth-child(even) #mhCidPan{right:0}
+ .mh-abas{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 0}
+ .mh-abas button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:86px;padding:10px 6px;border-radius:14px;border:1px solid var(--line);background:var(--surf);color:var(--read);font:800 15px/1.2 var(--sans);cursor:pointer}
+ .mh-abas button span{font-size:30px;line-height:1}
+ .mh-abas button[aria-pressed=true]{border-color:var(--gold);color:var(--gold2);box-shadow:0 0 0 1px var(--gold) inset}
+ html.mh-aba-prof #praca{display:none!important}
+ html.mh-aba-est #prof{display:none!important}
+}
+@media(min-width:641px){.mh-abas{display:none}}
