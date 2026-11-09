@@ -1,0 +1,13 @@
+
+/* intro: sem sobra de espaço ao lado no celular */
+@media(max-width:640px){:root:root h1.glitch{max-width:none;text-wrap:balance}:root:root .intro-pack .sub,:root:root .intro-pack .feira-note{max-width:none}}
+/* ofícios: grupos com destaque (urgência em vermelho, dia a dia em dourado) e sem buraco no fim das linhas */
+:root:root:root #need .need-sep{display:flex;align-items:center;gap:10px;margin:14px 0 2px;font:800 15px var(--sans);letter-spacing:.2px;color:var(--text)}
+:root:root:root #need .need-sep::after{content:"";flex:1;height:2px;border-radius:2px;background:linear-gradient(90deg,#4cc9ff,transparent)}
+:root:root:root #need .need-sep:first-child{margin-top:0;color:#ff8da1}
+:root:root:root #need .need-sep:first-child::after{background:linear-gradient(90deg,#ff4d6d,transparent)}
+:root:root:root #need #needRow button.need-cat:has(.nc-sos){background:linear-gradient(145deg,rgba(255,77,109,.30),rgba(120,20,60,.18))!important;border-color:#ff4d6d!important;box-shadow:0 0 0 1px rgba(255,77,109,.35),0 6px 18px rgba(255,60,90,.28)!important}
+:root:root:root #need #needRow button.need-cat:not(:has(.nc-sos)){background:linear-gradient(145deg,rgba(60,200,255,.22),rgba(60,120,255,.07))!important;border-color:#4cc9ff!important;box-shadow:0 0 0 1px rgba(76,201,255,.28),0 6px 16px rgba(60,160,255,.20)!important}
+:root:root:root #need #needRow button.need-cat:hover{transform:translateY(-2px)}
+:root:root:root #need #needRow button.need-cat[data-cat="Outro"]{grid-column:span 2}
+@media(max-width:640px){:root:root:root #need #needRow button.need-cat[data-cat="Gás"]{grid-column:span 2}:root:root:root #need #needRow button.need-cat{font-size:13px!important;gap:6px!important;padding-left:10px!important}:root:root:root #need #needRow button.need-cat:has(.nc-sos){padding-right:26px!important}:root:root:root #need #needRow button.need-cat .nc-t{hyphens:none}}

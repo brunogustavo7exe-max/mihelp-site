@@ -1,0 +1,8 @@
+
+#mhDuo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 14px}
+#mhDuo button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:92px;padding:12px 6px;border-radius:16px;border:1px solid var(--line);background:var(--surf);color:var(--read);font:800 16px/1.15 var(--sans);text-align:center;cursor:pointer;min-width:0}
+#mhDuo button span{font-size:32px;line-height:1}
+#mhDuo button:active{transform:scale(.97)}
+#mhDuo button[aria-selected=true]{border-color:var(--gold);color:var(--gold2);background:var(--deep,var(--surf));outline:3px solid var(--gold);outline-offset:1px}
+@media(min-width:641px){:root:root #need #needRow{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
+html[data-lista=helpers] #praca,html[data-lista=est] #prof{display:none!important}

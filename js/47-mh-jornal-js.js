@@ -14,7 +14,7 @@ const topo=()=>{const t=document.getElementById('mhInicio')||document.body;t.scr
 function fechaTudo(){document.querySelectorAll('section.jn-o').forEach(x=>x.classList.remove('jn-o'))}
 function barra(s){if(s.querySelector(':scope>.jn-bar'))return;const b=document.createElement('div');b.className='jn-bar';const x=document.createElement('button');x.type='button';x.textContent='← Voltar ao início';x.onclick=()=>{fechaTudo();topo()};b.append(x);s.prepend(b)}
 function abreSecao(el){if(!ligado())return;const s=el.closest&&el.closest('section.jn-s');if(!s)return;document.querySelectorAll('section.jn-o').forEach(x=>{if(x!==s)x.classList.remove('jn-o')});s.classList.add('jn-o');barra(s)}
-const DOCK={guia:'vale',rivo:'rivo',anunciar:'vagas'};
+const DOCK={guia:'vale',rivo:'rivo',anunciar:'vagas'};window.MH_ABRE=abreSecao;window.MH_FECHA=fechaTudo;
 /* captura: abre a seção ANTES dos outros códigos do site rolarem até ela. No Modo Foco quem manda é o aviso do próprio Modo Foco. */
 document.addEventListener('click',e=>{
  if(R.classList.contains('modo-foco'))return;
@@ -24,8 +24,8 @@ document.addEventListener('click',e=>{
 /* botão "Ver tudo" / "Esconder" (8 letras cada) junto dos atalhos grandes */
 const nav=document.getElementById('mhInicio');
 function pinta(){const b=document.getElementById('jnTog');if(!b)return;const lim=ligado();b.textContent='';const i=document.createElement('span');i.textContent=lim?'📰':'🧹';b.append(i,lim?'Ver tudo':'Esconder');b.setAttribute('aria-pressed',lim?'false':'true')}
-if(nav){const b=document.createElement('button');b.type='button';b.id='jnTog';b.title='Esconder ou mostrar as seções da página';b.onclick=()=>{if(ligado()){R.classList.remove('jn');gravaModo('tudo')}else{R.classList.add('jn');fechaTudo();gravaModo('limpo')}pinta()};(nav.querySelector('.andar.c3 .andar-h')||nav).append(b)}
-if(lerModo()==='limpo')R.classList.add('jn');
+/* botão Ver tudo/Esconder removido: as seções já ficam fechadas e abrem pelos atalhos */
+R.classList.add('jn');try{gravaModo('limpo')}catch(e){}
 pinta();
 /* quem chega por um link já apontando para uma seção (ex.: #classificados) vê essa seção */
 const h=location.hash.slice(1);if(h){const el=document.getElementById(h);if(el)abreSecao(el)}

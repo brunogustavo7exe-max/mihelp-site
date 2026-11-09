@@ -38,7 +38,7 @@
 #pcChips button:hover{border-color:var(--gold)}
 #pcChips button[aria-pressed=true]{background:linear-gradient(180deg,var(--gold2),var(--gold));color:var(--on-gold,#201804);border-color:transparent}
 #pcList{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-@media(max-width:640px){#pcList{grid-template-columns:1fr}}
+@media(max-width:640px){#pcList{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .vfil{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
 .vfil button{min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surf);color:var(--read);font:700 14px var(--sans);cursor:pointer}
 .vfil button[aria-pressed=true]{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#201804;border-color:transparent}

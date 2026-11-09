@@ -135,7 +135,7 @@ dialog.port-lb img{display:block;max-width:92vw;max-height:80vh;border-radius:10
 .ppg{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px;color:var(--read);font:600 14px var(--sans)}
 .ppg button{min-height:42px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--surf);color:var(--gold2);font:700 14px var(--sans);cursor:pointer}
 .ppg button:disabled{opacity:.4;cursor:not-allowed}
-@media(max-width:640px){#profList{grid-template-columns:1fr}.pcard{padding:12px 10px}}
+@media(max-width:640px){#profList{grid-template-columns:repeat(2,minmax(0,1fr))}.pcard{padding:12px 10px}}
 /* Com anúncio ativo, a faixa de publicidade fica TRAVADA logo abaixo dos letreiros (compacta). Sem anúncio, rola normal. */
 @media (max-width:1199px){
   #adtop.tem-ads{position:sticky;top:var(--sticky-h,0px);z-index:45;padding:5px 10px 5px;box-shadow:0 4px 12px rgba(0,0,0,.35)}

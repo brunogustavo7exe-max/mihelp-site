@@ -44,7 +44,7 @@ function init(){
  var su=document.createElement('select');su.setAttribute('aria-label','Estado');
  UFS.forEach(function(u){var o=document.createElement('option');o.value=u;o.textContent=u;su.append(o)});su.value=c.uf;
  var sc=document.createElement('select');sc.className='mhc-c';sc.setAttribute('aria-label','Cidade');
- var bt=document.createElement('button');bt.type='button';bt.id='mhCidBtn';bt.setAttribute('aria-expanded','false');bt.setAttribute('aria-controls','mhCidPan');bt.textContent='📍 '+c.nome+(regOn&&emReg?' + região':' · '+c.uf)+' ▾';
+ var bt=document.createElement('button');bt.type='button';bt.id='mhCidBtn';bt.setAttribute('aria-expanded','false');bt.setAttribute('aria-controls','mhCidPan');bt.textContent='📍 '+c.nome+(window.matchMedia&&matchMedia('(max-width:640px)').matches?'':(regOn&&emReg?' + região':' · '+c.uf))+' ▾';
  var pan=document.createElement('div');pan.id='mhCidPan';pan.append(lb,su,sc);
  if(emReg){var rl=document.createElement('label');rl.style.cssText='display:flex;gap:8px;align-items:center;margin-top:8px;font:600 13px var(--sans,system-ui);cursor:pointer';var rk=document.createElement('input');rk.type='checkbox';rk.checked=regOn;
   rk.onchange=function(){try{localStorage.setItem('mh_regiao',rk.checked?'1':'0')}catch(e){}location.reload()};rl.append(rk,document.createTextNode('Ver a região toda ('+REG.map(function(s){return NOMES[s]||s}).slice(0,6).join(', ')+(REG.length>6?'…':'')+')'));pan.append(rl)}

@@ -216,17 +216,10 @@ function setupIntroDismiss(){
     mini.hidden=!hidden;
     try{localStorage.setItem(KEY,hidden?'1':'0')}catch(e){}
   }
-  window.MH_hideIntro=()=>apply(true);
+  window.MH_hideIntro=()=>{};
+  /* A intro fica sempre aparecendo (completa). */
   let saved=false;
-  try{saved=localStorage.getItem(KEY)==='1'}catch(e){}
-  /* quem já tem conta neste aparelho: intro some sozinha */
-  try{
-    const sess=sessionStorage.getItem('mh_sess')||localStorage.getItem('mh_sess');
-    const tk=localStorage.getItem('mh_tk')||sessionStorage.getItem('mh_tk');
-    if(sess||tk) saved=true;
-  }catch(e){}
   apply(saved);
-  if(hide)hide.onclick=()=>apply(true);
   if(show)show.onclick=()=>apply(false);
 }
 
@@ -274,7 +267,7 @@ function setupNeed(){
   /* 1º toque: mostra os profissionais da categoria · 2º toque (só nas urgentes): pergunta se é emergência e só então manda o SOS */
   const URG=['Eletricista','Encanador','Chaveiro','Gás','Borracheiro'];
   let sel='';const info=document.createElement('div');info.id='needInfo';info.hidden=true;row.after(info);
-  const filtra=v=>{if(v){try{window.MH_ABA8&&MH_ABA8('helpers')}catch(e){}}const q=document.getElementById('profQ');if(q){q.value=v||'';q.dispatchEvent(new Event('input'))}};
+  const filtra=v=>{if(v){try{window.MH_ABA8&&MH_ABA8('helpers')}catch(e){}try{window.MH_DUO&&MH_DUO('helpers')}catch(e){}}const q=document.getElementById('profQ');if(q){q.value=v||'';q.dispatchEvent(new Event('input'))}};
   const marca=o=>{sel=o;row.querySelectorAll('.need-cat').forEach(b=>b.classList.toggle('on',b.dataset.cat===o))};
   const limpa=()=>{marca('');filtra('');info.hidden=true;info.textContent=''};
   function mostraInfo(o){
@@ -413,7 +406,7 @@ function setupNeed(){
     estC.textContent='';
     const todas=TG.flatMap(g=>g[2]);const outros=[];try{(MH_LOJAS8()||[]).forEach(l=>{const t=l.tipo||'Outro';if(!todas.includes(t)&&!outros.includes(t))outros.push(t)})}catch(e){}
     const G=TG.concat(outros.length?[['📦','Outros',outros]]:[]);
-    const ver=t=>{som('pop');try{MH_TIPO8(t)}catch(e){}const pr=document.getElementById('praca');if(pr)pr.scrollIntoView({behavior:'smooth',block:'nearest'})};
+    const ver=t=>{som('pop');try{MH_TIPO8(t)}catch(e){}const pr=document.getElementById('praca');try{window.MH_DUO&&MH_DUO('est')}catch(e){}if(pr){pr.hidden=false;setTimeout(()=>pr.scrollIntoView({behavior:'smooth',block:'start'}),60)}};
     if(estAb){const g=G.find(x=>x[1]===estAb);
       const bk=mk('button','nc-back','← Todas as categorias');bk.type='button';bk.onclick=()=>{som('soft');estAb=null;desenhaEst()};
       estC.append(bk,mk('h4','nc-h',g[0]+' '+g[1]));const w=mk('div','nc-chips');
