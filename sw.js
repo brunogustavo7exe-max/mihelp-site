@@ -1,6 +1,6 @@
 /* MiHelp + Domin — service worker. Fica na RAIZ do site, ao lado do index.html e do labs.html.
    Troque VERSAO sempre que publicar uma mudança grande, para limpar o cache antigo. */
-const VERSAO = 'mihelp-v2';
+const VERSAO = 'mihelp-v3';
 const SHELL = [
   './',
   'index.html',
@@ -46,6 +46,20 @@ self.addEventListener('fetch', (e) => {
           return r;
         })
         .catch(() => caches.match(chave).then((r) => r || (domin ? Response.error() : caches.match('./'))))
+    );
+    return;
+  }
+
+  /* css e js do site: rede primeiro, sempre conferindo se mudou (evita servir peça velha do cache
+     junto com um index.html novo — era isso que mostrava a interface antiga por um instante). */
+  if (/\.(css|js)$/.test(url.pathname)) {
+    e.respondWith(
+      fetch(req, { cache: 'no-cache' })
+        .then((r) => {
+          if (r && r.ok) { const copia = r.clone(); caches.open(VERSAO).then((c) => c.put(req, copia)).catch(() => {}); }
+          return r;
+        })
+        .catch(() => caches.match(req))
     );
     return;
   }

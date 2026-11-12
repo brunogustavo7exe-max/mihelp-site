@@ -653,6 +653,21 @@ function montaProf(){const need=document.getElementById('need');if(!need||docume
 setTimeout(montaProf,0);
 
 /* ===== v8: perfil do estabelecimento ===== */
+/* ===== resposta do dono às avaliações ===== */
+const RESP8={ler(){try{return JSON.parse(localStorage.getItem('mh_resp_v1'))||{}}catch(e){return{}}},gr(o){try{localStorage.setItem('mh_resp_v1',JSON.stringify(o))}catch(e){}}};
+function blocoResp8(b,a,L,d,aba){
+ if(!a.id)return;const k=L.chave+':'+a.id,r=a.resposta||RESP8.ler()[k];let slot=null;
+ const salva=async t=>{let local=false;
+  if(apiOn8()){const x=await chama8('/avaliar/responder',{id:a.id,texto:t});
+   if(x.ok){abrirLoja8(L.chave);return}
+   if(x.status!==404){pintaLoja8(d,L,aba,erro8(x));return}local=true}else local=true;
+  if(local){const o=RESP8.ler();if(t)o[k]={texto:t,em:Date.now()};else delete o[k];RESP8.gr(o);pintaLoja8(d,L,aba,'Modo teste: a resposta fica salva só neste aparelho até o servidor ser atualizado.')}};
+ const form=t0=>{if(slot)slot.remove();slot=mk8('div','av-resp');const t=document.createElement('textarea');t.maxLength=300;t.rows=3;t.value=t0||'';t.placeholder='Agradeça, esclareça ou ofereça ajuda. Seja educado: todo mundo vai ler.';t.style.cssText='width:100%;min-height:78px';
+  const bar=mk8('div','av-rb');bar.append(botao8('Cancelar','more',()=>pintaLoja8(d,L,aba)),botao8('📨 Publicar resposta','cta2',()=>{const v=t.value.trim();if(v.length<5){alert('Escreva um pouco mais na resposta.');return}salva(v)}));
+  slot.append(mk8('b',null,'↩ Responder como '+(L.nome||'a loja')),t,mk8('p','note','Até 300 caracteres. Não exponha dados pessoais do cliente.'),bar);b.append(slot);t.focus()};
+ if(r&&r.texto){const w=mk8('div','av-resp');w.append(mk8('b',null,'↩ Resposta de '+(L.nome||'a loja')),mk8('p','av-c',r.texto));
+  if(L.souDono){const bar=mk8('div','av-rb');bar.append(botao8('✏️ Editar','more',()=>{w.remove();form(r.texto)}),botao2x8('🗑 Remover','more',()=>salva('')));w.append(bar)}b.append(w)}
+ else if(L.souDono)b.append(botao8('↩ Responder','more av-rbtn',()=>form('')))}
 function novoDlg8(rot){const d=document.createElement('dialog');d.className='v8dlg';d.setAttribute('aria-label',rot);document.body.append(d);d.addEventListener('click',e=>{if(e.target===d)d.close()});return d}
 let lojaDlg8=null,espDlg8=null,admDlg8=null;
 const erro8=r=>((r&&r.j&&r.j.erro)||'Não deu certo. Tente de novo.')+(r&&r.j&&r.j.liberaEm?' Libera em '+dataBR8(r.j.liberaEm)+'.':'');
@@ -717,7 +732,7 @@ function pintaLoja8(d,L,aba,aviso){d.textContent='';
    sm.append(big,bars);pane.append(sm)}
   if(L.comentariosOcultos&&L.n)pane.append(mk8('p','note','Os comentários ficam visíveis só para o dono da loja. Aqui aparecem as estrelas.'));
   else L.avaliacoes.forEach(a=>{const b=mk8('div','av-it'),hd=mk8('div','av-h');hd.append(mk8('span','av-st',estr(a.estrelas)));if(a.autor)hd.append(mk8('b',null,a.autor));
-   b.append(hd,mk8('p','av-c',a.comentario||'(sem comentário)'));
+   b.append(hd,mk8('p','av-c',a.comentario||'(sem comentário)'));try{blocoResp8(b,a,L,d,aba)}catch(e){console.error(e)}
    if(apiOn8()&&MH_API.admTk()&&document.body.classList.contains('adm')){const x=botao2x8('🗑 Apagar','more',async()=>{const r=await MH_API.req('/avaliar/apagar',{token:MH_API.admTk(),body:{id:a.id}});if(r.ok)abrirLoja8(L.chave);else pintaLoja8(d,L,aba,erro8(r))});x.style.marginLeft='auto';hd.append(x)}
    pane.append(b)})}
  d.append(pane);
@@ -729,7 +744,7 @@ function pintaLoja8(d,L,aba,aviso){d.textContent='';
   if(!L.meuVinculo)ac.append(botao8('🙋 Quero fazer parte','more pa-sec',()=>formPedir8(d,L)));
   else if(L.meuVinculo.status==='pedido')d.append(mk8('p','note','Seu pedido para entrar na equipe está esperando o dono.'));
   else if(L.meuVinculo.status==='convidado')d.append(mk8('p','note','O dono convidou você. Responda em "Meu espaço profissional".'));
-  if(L.podeAvaliar){if(L.jaAvaliei)d.append(mk8('p','note','Você já avaliou esta loja.'));else ac.append(botao8('⭐ Avaliar','more pa-sec',()=>formAvalLoja8(d,L)))}
+  if(L.podeAvaliar){if(L.jaAvaliei){d.append(mk8('p','note','Você já avaliou esta loja. Pode manter, editar ou apagar.'));ac.append(botao8('✏️ Editar minha avaliação','more pa-sec',()=>formAvalLoja8(d,L,(L.avaliacoes||[]).find(a=>a.minha||(eu&&a.autor===eu.nome)))),botao2x8('🗑 Apagar minha avaliação','more pa-sec',()=>apagarMinha8(d,L,aba)))}else ac.append(botao8('⭐ Avaliar','more pa-sec',()=>formAvalLoja8(d,L)))}
   else if(L.meuVinculo&&L.meuVinculo.status==='aceito')d.append(mk8('p','note','Quem trabalha na loja não avalia a própria loja.'))}
  if(apiOn8()&&MH_API.admTk()&&document.body.classList.contains('adm'))ac.append(botao2x8('🗑 Apagar loja (adm)','more pa-sec',async()=>{const r=await MH_API.req('/estabelecimentos/apagar',{token:MH_API.admTk(),body:{chave:L.chave}});if(r.ok){d.close();carregaV8()}else pintaLoja8(d,L,aba,erro8(r))}));
  if(apiOn8()&&MH_API.admTk()&&document.body.classList.contains('adm'))ac.append(botao8('🔁 Oferecer a um Helper (adm)','more pa-sec',async()=>{const t=prompt('Telefone do Helper que vai ficar com a loja (ele precisa aceitar):');if(!t)return;const r=await MH_API.req('/estabelecimentos/transferir',{token:MH_API.admTk(),body:{chave:L.chave,tel:t}});pintaLoja8(d,L,aba,r.ok&&r.j&&r.j.ok?'Oferta enviada. Se o telefone for de um Helper, ele vê em "Meu espaço profissional".':erro8(r))}));
@@ -800,15 +815,19 @@ function formPedir8(d,L){d.textContent='';d.append(mk8('h3',null,'Quero fazer pa
   if(r.ok&&r.j&&r.j.ok){const r2=await chama8('/estabelecimentos/ver?chave='+encodeURIComponent(L.chave));cd[L.chave]=ag;try{localStorage.setItem('mh_pedidos',JSON.stringify(cd))}catch(e){}pintaLoja8(d,r2.j&&r2.j.ok?r2.j:L,'equipe','Pedido enviado. Agora é só esperar o dono aprovar.')}else{st.style.color='var(--red)';st.textContent=erro8(r)}}),
   botao8('Voltar','more',()=>pintaLoja8(d,L,'equipe')));
  d.append(l1,l2,st,ac)}
-function formAvalLoja8(d,L){d.textContent='';d.append(mk8('h3',null,'Avaliar '+L.nome));
- let nt=5;const row=mk8('div');row.style.cssText='display:flex;gap:6px;margin:8px 0;flex-wrap:wrap';const bs=[];
+async function apagarMinha8(d,L,aba){const r=await chama8('/avaliar/apagar-minha',{chave:L.chave});
+ if(r.ok&&r.j&&r.j.ok){carregaV8();const r2=await chama8('/estabelecimentos/ver?chave='+encodeURIComponent(L.chave));pintaLoja8(d,r2.j&&r2.j.ok?r2.j:L,'aval','Sua avaliação foi apagada.')}
+ else if(r.status===404)pintaLoja8(d,L,aba,'Ainda não dá pra apagar: o servidor precisa ser atualizado.');
+ else pintaLoja8(d,L,aba,erro8(r))}
+function formAvalLoja8(d,L,ed){d.textContent='';d.append(mk8('h3',null,(ed?'Editar sua avaliação de ':'Avaliar ')+L.nome));
+ let nt=(ed&&ed.estrelas)||5;const row=mk8('div');row.style.cssText='display:flex;gap:6px;margin:8px 0;flex-wrap:wrap';const bs=[];
  const pinta=()=>bs.forEach((x,k)=>{x.setAttribute('aria-pressed',String(k+1===nt));x.style.background=k+1===nt?'var(--gold)':'';x.style.color=k+1===nt?'#111':''});
  for(let i=1;i<=5;i++){const b=botao8('★ '+i,'more',()=>{nt=i;pinta()});bs.push(b);row.append(b)}pinta();
- const lb=mk8('label',null,'Comentário (opcional, até 140 letras)');const ti=document.createElement('input');ti.type='text';ti.maxLength=140;lb.append(ti);
+ const lb=mk8('label',null,'Comentário (opcional, até 140 letras)');const ti=document.createElement('input');ti.type='text';ti.maxLength=140;ti.value=(ed&&ed.comentario)||'';lb.append(ti);
  const st=mk8('p','note');st.setAttribute('role','status');
  const ac=mk8('div','perfil-acoes');
- ac.append(botao8('Enviar avaliação','cta2 pa-main',async()=>{st.style.color='';st.textContent='Enviando…';const r=await chama8('/avaliar',{chave:L.chave,estrelas:nt,comentario:ti.value.trim()});
-  if(r.ok&&r.j&&r.j.ok){carregaV8();const r2=await chama8('/estabelecimentos/ver?chave='+encodeURIComponent(L.chave));pintaLoja8(d,r2.j&&r2.j.ok?r2.j:L,'aval','Avaliação enviada. Obrigado!')}else{st.style.color='var(--red)';st.textContent=erro8(r)}}),
+ ac.append(botao8(ed?'Salvar alterações':'Enviar avaliação','cta2 pa-main',async()=>{st.style.color='';st.textContent='Enviando…';const dd={chave:L.chave,estrelas:nt,comentario:ti.value.trim()};let r=await chama8(ed?'/avaliar/editar':'/avaliar',dd);if(ed&&r.status===404)r=await chama8('/avaliar',dd);
+  if(r.ok&&r.j&&r.j.ok){carregaV8();const r2=await chama8('/estabelecimentos/ver?chave='+encodeURIComponent(L.chave));pintaLoja8(d,r2.j&&r2.j.ok?r2.j:L,'aval',ed?'Avaliação atualizada.':'Avaliação enviada. Obrigado!')}else{st.style.color='var(--red)';st.textContent=erro8(r)}}),
   botao8('Voltar','more',()=>pintaLoja8(d,L,'equipe')));
  d.append(row,lb,mk8('p','note','O seu comentário e o seu nome aparecem para todo mundo no perfil da loja.'),st,ac)}
 
@@ -2122,7 +2141,7 @@ window.MH_FX={
 desenharOnline();mostrar('sala');atualizarPapel();
 window.MH_UI={online:()=>desenharOnline(),nota:t=>nota(painel.sala,t),botsOn:()=>BOTS,eu:()=>eu,sos:()=>atualizarSosCount(),
 perfil:n=>{if(pfDlg&&pfDlg.open)pfDlg.close();abrirPerfil(n)},
-avs:()=>AV,
+avs:()=>AV,priv:n=>{try{abrirPrivado(n)}catch(e){}},
 entrarConta:c=>{eu={nome:c.nome,role:c.role,work:c.work,status:'disponivel'};try{if(window.MH_DB)MH_DB.meu=c.nome}catch(x){}renderMeuPerfil();liberarChatForcado();desenharOnline();try{refreshProf();carregaV8();carregaFav8()}catch(x){}return true},
 entrarAdm:n=>{n=String(n||'').trim().replace(/\s+/g,' ').slice(0,24);if(!n)return 'Digite um nome.';
  if(PESSOAS.some(p=>p.nome===n))return 'Esse nome já é de outra pessoa na sala. Escolha outro.';

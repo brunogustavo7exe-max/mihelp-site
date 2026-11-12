@@ -1,0 +1,7 @@
+
+/* Botão da cidade: entra na mesma fileira dos outros botões, mesma altura e alinhado à esquerda (antes ficava solto à direita) */
+@media(min-width:641px){
+  html:root nav.nv>#mhCidBar{display:inline-flex!important;flex:0 0 auto!important;width:auto!important;margin:0!important;align-self:center;justify-content:flex-start!important}
+  html:root nav.nv #mhCidBtn{min-height:38px!important;padding:6px 14px!important;font:600 14px var(--sans,system-ui)!important;border-radius:999px}
+  html:root #mhCidPan{left:0!important;right:auto!important}
+}
