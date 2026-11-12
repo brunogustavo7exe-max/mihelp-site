@@ -111,7 +111,7 @@ dialog.mhp::backdrop{background:rgba(0,0,0,.85)}
 /* v11: equipe, dias e horas organizados no celular + alertas em destaque */
 .pteam{display:grid!important;grid-template-columns:auto 1fr;gap:10px 12px;align-items:center}
 .pteam .pinfo{min-width:0}.pteam .pinfo b{white-space:normal;overflow:visible}
-.pteam .pacts{grid-column:1/-1;display:flex;gap:8px}.pteam .pacts .pcall{flex:1 1 0;min-height:46px}
+.pteam .pacts{grid-column:1/-1;display:flex;gap:8px}.pteam .pacts .pcall{flex:1 1 0;min-height:42px}
 .pteam .pmarca{grid-column:1/-1;width:100%;min-height:50px;font-size:17px;font-weight:800;border-radius:12px}
 .v8dias{display:grid!important;grid-template-columns:repeat(4,1fr);gap:8px}
 .v8dia{min-width:0!important;padding:8px 2px!important;font-size:16px!important}

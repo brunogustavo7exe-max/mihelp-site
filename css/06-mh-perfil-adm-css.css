@@ -131,7 +131,22 @@ dialog.port-lb img{display:block;max-width:92vw;max-height:80vh;border-radius:10
 .pinfo .pw{font-size:14px;color:var(--read)}
 .pinfo .pe{font-size:13px;color:var(--gold2)}
 .pinfo .prow{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
-.pcall{flex:none;min-height:44px;padding:0 14px;border-radius:12px;border:0;background:linear-gradient(180deg,var(--gold2),var(--gold));color:#201804;font:800 14px var(--sans);cursor:pointer}
+.pcall{flex:none;min-height:38px;padding:0 14px;border-radius:10px;border:1px solid rgba(var(--gold-rgb),.38);background:rgba(var(--gold-rgb),.13);color:var(--gold2);font:600 13px var(--sans);letter-spacing:.2px;cursor:pointer;transition:background .15s,border-color .15s,transform .1s;-webkit-tap-highlight-color:transparent}
+.pcall:hover{background:rgba(var(--gold-rgb),.2);border-color:rgba(var(--gold-rgb),.55)}
+.pcall:active{background:rgba(var(--gold-rgb),.28);transform:scale(.97)}
+.pcall:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+/* letreiro: "Trabalha na ..." preso dentro do card e rolando quando não cabe */
+.pcard{min-width:0;overflow:hidden}
+.pinfo .prow{min-width:0;max-width:100%}
+.pinfo .plink{display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box;padding:3px 10px;overflow:hidden;text-overflow:clip;text-align:center;font:600 11.5px var(--sans);border-color:rgba(var(--gold-rgb),.35);background:rgba(var(--gold-rgb),.07);color:var(--gold2)}
+.plink .plk{display:inline-block;white-space:nowrap}
+.plink .plk i{font-style:normal;display:inline-block;padding-right:2.2em}
+.plink .plw{display:block;overflow:hidden;width:100%}
+.plink.rola .plw{text-align:left;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 10px,#000 calc(100% - 10px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 10px,#000 calc(100% - 10px),transparent 100%)}
+.plink.rola .plk{animation:plkRola var(--plk-dur,10s) linear infinite}
+.plink.rola:hover .plk,.plink.rola:active .plk{animation-play-state:paused}
+@keyframes plkRola{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.plink.rola .plk{animation:none}.plink.rola .plw{-webkit-mask-image:none;mask-image:none}}
 .ppg{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px;color:var(--read);font:600 14px var(--sans)}
 .ppg button{min-height:42px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--surf);color:var(--gold2);font:700 14px var(--sans);cursor:pointer}
 .ppg button:disabled{opacity:.4;cursor:not-allowed}

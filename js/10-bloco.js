@@ -536,13 +536,14 @@ function avatarLoja8(l,px){const d=mk8('span','avt');d.style.width=d.style.heigh
  if(l.logo&&/^data:image\//.test(l.logo)){const im=document.createElement('img');im.src=l.logo;im.alt='Logo de '+l.nome;d.append(im)}
  else{let h=0;for(const c of l.nome)h=(h*31+c.charCodeAt(0))%360;d.style.background='hsl('+h+',45%,32%)';d.textContent=(l.nome.trim()[0]||'?').toUpperCase();d.setAttribute('aria-hidden','true')}
  return d}
+function letreiro8(a,sp,tx){try{if(!window.ResizeObserver)return;const ro=new ResizeObserver(()=>{const w=sp.parentNode.clientWidth;if(!w)return;const had=a.classList.contains('rola');a.classList.remove('rola');if(sp.children.length>1)sp.removeChild(sp.lastChild);const cab=sp.scrollWidth<=w;if(!cab){sp.append(mk8('i',null,tx));a.classList.add('rola');a.style.setProperty('--plk-dur',Math.max(8,Math.round(sp.scrollWidth/2/28))+'s')}});ro.observe(a)}catch(e){}}
 function cardHelper8(h){
  const c=mk8('div','pcard');c.append(avatarEl(h.nome,56));
  const t=mk8('div','pinfo');
  const r=resumo(h.nome);
  const row=mk8('span','prow');row.append(selo(h.nome));{const sm=window.MH_SELOS&&MH_SELOS.mini('p:'+h.nome);if(sm)row.append(sm)}
  if(h.bot)row.append(mk8('span','selo nao','exemplo'));
- (h.lojas||[]).forEach(l=>{const a=mk8('button','plink','🏪 Trabalha na '+l.nome);a.type='button';a.title='Ver o estabelecimento';a.onclick=()=>abrirLoja8(l.chave);row.append(a)});
+ (h.lojas||[]).forEach(l=>{const a=mk8('button','plink');const tx='🏪 Trabalha na '+l.nome;const sp=mk8('span','plk');sp.append(mk8('i',null,tx));const pw=mk8('span','plw');pw.append(sp);a.append(pw);a.type='button';a.title=tx+' · ver o estabelecimento';a.setAttribute('aria-label',tx);a.onclick=()=>abrirLoja8(l.chave);letreiro8(a,sp,tx);row.append(a)});
  t.append(mk8('b',null,h.nome),mk8('span','pw',h.work||'Helper'),mk8('span','pe',r?estr(Math.round(r.m))+' '+r.m.toFixed(1).replace('.',',')+' ('+r.n+')':'☆☆☆☆☆ novo'),row);
  const bt=mk8('button','pcall','💬 Chamar');bt.type='button';bt.setAttribute('aria-label','Chamar '+h.nome);bt.onclick=()=>chamarHelper(h);
  c.append(t,bt);return c}

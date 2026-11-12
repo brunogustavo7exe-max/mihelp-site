@@ -17,5 +17,5 @@
   #profList .pinfo,#pcList .pinfo{align-items:center;width:100%;flex:none}
   #profList .pinfo b,#pcList .pinfo b{max-width:100%}
   #profList .prow,#pcList .prow{justify-content:center}
-  #profList .pcall,#pcList .pcall{width:100%;min-height:40px;padding:0 6px}
+  #profList .pcall,#pcList .pcall{width:100%;min-height:36px;padding:0 6px;font-size:13px}
 }
