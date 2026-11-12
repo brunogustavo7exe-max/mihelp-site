@@ -251,7 +251,7 @@
      <textarea id="vzTxt" maxlength="600" rows="3" placeholder="Conte o que acontece, há quanto tempo e quem deveria resolver. Pode cobrar prefeito e vereador à vontade." required></textarea>
      <div class="vzrow"><select id="vzTipo"><option value="opiniao">💬 Opinião</option><option value="fato">📎 Fato com prova (foto, documento ou link)</option></select><label class="vzfile">📷 Foto <input type="file" id="vzFoto" accept="image/*" hidden></label><label class="vzan"><input type="checkbox" id="vzNome"> Mostrar meu nome (se desmarcar, fica anônimo)</label></div>
      <div class="vzrow"><button type="button" id="vzGeo" class="vzb">📍 Usar minha localização</button><span class="note" id="vzGeoSt">Use só quando estiver no local do problema.</span></div>
-     <img id="vzPrev" alt="" hidden>
+     <img id="vzPrev" alt="" hidden><button type="button" class="img-rm" id="vzRm">🗑 Remover foto</button>
      <button type="submit" class="cta2">Publicar</button> <button type="button" id="vzCan" class="vzghost">Cancelar</button>
     </form>
     <div class="vzrow vzfilt"><select id="vzFc"></select><select id="vzOrd"><option value="top">Mais apoiados</option><option value="new">Mais recentes</option></select></div>
@@ -767,7 +767,7 @@
       <div class="f"><label for="dn">Nome do negócio</label><input id="dn" type="text" required maxlength="40"></div>
       <div class="f"><label for="dx">Texto do anúncio (até 60 letras)</label><input id="dx" type="text" required maxlength="60"></div>
       <div class="f"><label for="dl">Link ou WhatsApp (opcional)</label><input id="dl" type="text" maxlength="80"></div>
-      <div class="f"><label for="dpick">Imagem (opcional)</label><input id="di" type="file" accept="image/png,image/jpeg,image/webp" hidden><button type="button" class="imgpick" id="dpick"><img id="dprev" alt="Prévia da imagem escolhida" hidden><span class="imgpick-t">+ Adicionar imagem</span><span class="imgpick-c">Trocar</span></button><p class="note" id="dierr" role="alert" style="color:var(--red)"></p></div>
+      <div class="f"><label for="dpick">Imagem (opcional)</label><input id="di" type="file" accept="image/png,image/jpeg,image/webp" hidden><button type="button" class="imgpick" id="dpick"><img id="dprev" alt="Prévia da imagem escolhida" hidden><span class="imgpick-t">+ Adicionar imagem</span><span class="imgpick-c">Trocar</span></button><button type="button" class="img-rm" id="dirm">🗑 Remover imagem</button><p class="note" id="dierr" role="alert" style="color:var(--red)"></p></div>
       <p class="note" id="dtot"></p>
       <p class="note">Todo anúncio, com ou sem imagem, é conferido antes de ir ao ar. Não aceitamos conteúdo enganoso, golpe, conteúdo adulto ou ofensivo.</p>
       <div class="dbt"><button class="go" type="submit">Pagar por Pix</button><button class="cx" type="button" id="dcx">Cancelar</button></div>

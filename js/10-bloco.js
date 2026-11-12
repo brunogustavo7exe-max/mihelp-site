@@ -1689,7 +1689,7 @@ function formLoja8(d,E,L){d.textContent='';d.append(mk8('h3',null,L?'Editar '+L.
   const cl=mk8('label',null,'🎨 Cor própria ');const ci=document.createElement('input');ci.type='color';ci.value='#2f6fe4';ci.oninput=()=>{capa='c:'+ci.value.toLowerCase();capaMuda=true;redes()};cl.append(ci);
   const fl=mk8('label',null,'🖼 Enviar foto');const fi2=document.createElement('input');fi2.type='file';fi2.accept='image/*';fi2.hidden=true;fl.append(fi2);
   fi2.onchange=async()=>{const f=fi2.files[0];if(!f)return;try{capa=await capaRedim8(f);capaMuda=true;redes();st.style.color='';st.textContent='Capa pronta. Toque em Salvar.'}catch(e){st.style.color='var(--red)';st.textContent=e.message||'Não consegui usar a imagem.'}};
-  row.append(cl,fl,botao8('Voltar ao automático','more',()=>{capa='';capaMuda=true;redes()}));
+  row.append(cl,fl,botao8('🗑 Remover capa','more',()=>{capa='';capaMuda=true;redes()}));
   cp.append(prev,sw,row,mk8('p','note','Escolha um degradê, uma cor sua ou uma foto deitada (ela é cortada em faixa larga). Só aparece no perfil depois de salvar.'));d.append(cp)}
  const det=document.createElement('details');det.append(mk8('summary',null,'➕ Mais informações (só se quiser)'));d.append(det);alvo=det;
  const end=campo('Endereço (opcional)','text',100,L&&L.endereco,'Rua, número, bairro');
@@ -1697,7 +1697,8 @@ function formLoja8(d,E,L){d.textContent='';d.append(mk8('h3',null,L?'Editar '+L.
  const wa=campo('WhatsApp da loja (opcional)','text',20,L&&L.contato,'(66) 99999-9999');
  const desc=campo('Descrição curta (opcional)','text',200,L&&L.descricao,'Horário, especialidades…');
  const lf=mk8('label',null,'Logo (opcional)');const fi=document.createElement('input');fi.type='file';fi.accept='image/*';lf.append(fi);det.append(lf);
- let logo;fi.onchange=async()=>{const f=fi.files[0];if(!f)return;try{logo=await logoRedim8(f);st.style.color='';st.textContent='Logo pronto.'}catch(e){logo=undefined;st.style.color='var(--red)';st.textContent=e.message||'Não consegui usar a imagem.'}};
+ const lrm=botao8('🗑 Remover logo','more',()=>{logo='';fi.value='';lrm.hidden=true;st.style.color='';st.textContent='Logo removido. Toque em Salvar.'});lrm.hidden=!(L&&L.logo);det.append(lrm);
+ let logo;fi.onchange=async()=>{const f=fi.files[0];if(!f)return;try{logo=await logoRedim8(f);lrm.hidden=false;st.style.color='';st.textContent='Logo pronto.'}catch(e){logo=undefined;st.style.color='var(--red)';st.textContent=e.message||'Não consegui usar a imagem.'}};
  const donoCk=mk8('label','ck');const donoIn=document.createElement('input');donoIn.type='checkbox';donoIn.checked=L?!!L.donoVisivel:false;donoCk.append(donoIn,mk8('span',null,'Mostrar o meu nome como dono no perfil da loja'));det.append(donoCk);
  const eqCk=mk8('label','ck');const eqIn=document.createElement('input');eqIn.type='checkbox';eqIn.checked=L?L.equipeVisivel!==0:true;eqCk.append(eqIn,mk8('span',null,'Mostrar a equipe no perfil da loja (só lojas de conversa; loja com agenda sempre mostra)'));det.append(eqCk);
  const invCk=mk8('label','ck');const invIn=document.createElement('input');invIn.type='checkbox';invIn.checked=!!(L&&L.invest);invCk.append(invIn,mk8('span',null,'Aceito conversar com quem quiser investir'));det.append(invCk);
@@ -2362,6 +2363,7 @@ previa:()=>{item.end=Date.now()+m*60000;vs[vaga]=item;build();tick();msg.textCon
 
 const di=document.getElementById('di'),dprev=document.getElementById('dprev'),dier=document.getElementById('dierr');
 document.getElementById('dpick').addEventListener('click',()=>di.click());
+document.getElementById('dirm').addEventListener('click',()=>{imgData=null;dprev.hidden=true;dprev.removeAttribute('src');dier.textContent='';di.value=''});
 di.addEventListener('change',()=>{
 imgData=null;dprev.hidden=true;dier.textContent='';
 const f=di.files[0];if(!f)return;

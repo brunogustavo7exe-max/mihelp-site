@@ -48,6 +48,10 @@ dialog[aria-label="Perfil"] .admbox .adm-vf:disabled{opacity:.45;cursor:not-allo
 .avt-cam{position:absolute;right:-2px;bottom:-2px;width:24px;height:24px;border-radius:50%;background:var(--gold);color:#201804;font-size:12px;line-height:1;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg)}
 .avt-rm{background:none;border:0;padding:4px;color:var(--mute);font:600 13px var(--sans);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .avt-rm:hover{color:var(--text)}
+.img-rm{display:none;background:none;border:0;padding:6px 2px;margin-top:4px;color:var(--mute);font:600 13px var(--sans);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.img-rm:hover{color:var(--text)}
+.imgpick:has(#dprev:not([hidden])) + .img-rm{display:inline-block}
+#voz #vzPrev:not([hidden]) + .img-rm{display:inline-block}
 /* salão visual: bonequinhos da sala com balão de fala */
 .salao{margin:0 0 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);overflow:visible}
 .sl-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;font:600 13px var(--sans);color:var(--read)}
