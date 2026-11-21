@@ -199,7 +199,7 @@ DB.portfoto=async function(slot,u){
 DB.contato=async function(o){
  if(!DB.ok)return;const eu=window.MH_UI&&MH_UI.eu&&MH_UI.eu();if(!eu)return;
  const id=rid('k');seen.add(id);
- try{await ins(COL.msg,{_id:id,sala:'perfil',autor:eu.nome,papel:eu.role,oficio:eu.work||'',texto:JSON.stringify({ig:String(o.ig||''),wa:String(o.wa||''),mostrar:o.mostrar?1:0}).slice(0,200),tipo:'contato',categoria:'',respNome:'',respTexto:''})}
+ try{await ins(COL.msg,{_id:id,sala:'perfil',autor:eu.nome,papel:eu.role,oficio:eu.work||'',texto:JSON.stringify({ig:String(o.ig||''),wa:String(o.wa||''),mostrar:o.mostrar?1:0,r:Array.isArray(o.r)?o.r:[]}).slice(0,900),tipo:'contato',categoria:'',respNome:'',respTexto:''})}
  catch(e){diag('contatos: '+msgErro(e),true)}};
 /* o portfólio é lido só quando alguém abre aquele perfil (não pesa na entrada do site) */
 DB.portLer=async function(nome){

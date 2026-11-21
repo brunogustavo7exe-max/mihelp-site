@@ -57,6 +57,7 @@ dialog.v8dlg{width:min(94vw,560px)}
 .v8row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0}
 .v8card{border:1px solid var(--line);border-radius:12px;padding:10px;margin:8px 0;background:rgba(127,127,127,.06)}
 .v8card h4{margin:10px 0 4px}
+.inaug{text-align:center}.inaug-t{font:800 clamp(20px,6vw,30px) var(--sans);margin:4px 0;letter-spacing:.5px}
 .v8dlg label{display:block;font-size:13px;color:var(--read);margin-top:8px}
 .v8dlg label.ck{display:flex;gap:8px;align-items:flex-start;color:var(--text)}
 .v8dlg input[type=text],.v8dlg select{width:100%;box-sizing:border-box;min-height:42px;padding:0 10px;margin:4px 0;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;font:14px var(--sans)}

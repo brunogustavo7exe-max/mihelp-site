@@ -358,6 +358,61 @@ function setFoto(n,t){if(!n)return;if(t&&fotoOk(t))FOTO[n]=t;else if(!t)delete F
 window.MH_VERIF=function(n,v,quando){n=String(n||'');if(!n)return;if(quando&&quando<(VERT[n]||0))return;VERT[n]=quando||Date.now();if(v)VER[n]=1;else delete VER[n];salvaVer();refreshProf()};
 window.MH_FOTOVER={foto:n=>FOTO[n]||'',ver:n=>!!VER[n]};
 window.MH_profRefresh=refreshProf;
+/* ===== v40: redes e contatos livres (Instagram, Telegram, Facebook, TikTok, site...) =====
+   Helper: guardado junto do 'contato' (Mensagens, campo r). Loja: dentro de horario.r (com cópia local, igual à capa).
+   Cada item é [tipo, valor]. Na hora de mostrar, tudo é validado de novo: só links http/https, e-mail e WhatsApp viram link. */
+window.MH_REDES=(function(){
+ const TIPOS=[['instagram','📸 Instagram','@seunegocio'],['telegram','✈️ Telegram','@seuusuario'],['whatsapp','💬 Outro WhatsApp','(66) 99999-9999'],['facebook','👍 Facebook','nome da página ou link'],['tiktok','🎵 TikTok','@seuusuario'],['youtube','▶️ YouTube','@seucanal ou link'],['linkedin','💼 LinkedIn','link do perfil'],['x','✖️ X (Twitter)','@seuusuario'],['email','✉️ E-mail','seu@email.com'],['site','🌐 Site','www.seusite.com.br'],['outro','🔗 Outro link','cole o link aqui']];
+ const MAXN=6,MAXJ=800,NOME={};TIPOS.forEach(t=>NOME[t[0]]=t[1]);
+ const tira=(v,re)=>String(v||'').trim().replace(re,'').replace(/[\/?#].*$/,'').replace(/^@/,'');
+ const pareceUrl=v=>/[\/]/.test(v)||/\.[a-z]{2,}(\/|$)/i.test(v);
+ function urlOk(v){v=String(v||'').trim();if(!v||/\s/.test(v))return '';
+  if(!/^https?:\/\//i.test(v)){if(/^[a-z][a-z0-9+.-]*:/i.test(v))return '';v='https://'+v}
+  try{const u=new URL(v);if(!/^https?:$/.test(u.protocol)||!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(u.hostname))return '';return u.href.length<=120?u.href:''}catch(e){return ''}}
+ const host=u=>{try{return new URL(u).hostname.replace(/^www\./,'')}catch(e){return u}};
+ /* devolve {t,v,url,txt} ou null se o valor não serve */
+ function norm(t,v){v=String(v||'').trim();if(!v||v.length>120)return null;let u;
+  switch(t){
+   case 'instagram':u=tira(v,/^(https?:\/\/)?(www\.)?instagram\.com\//i);return /^[A-Za-z0-9._]{1,30}$/.test(u)?{t,v:u,url:'https://instagram.com/'+u,txt:'@'+u}:null;
+   case 'telegram':u=tira(v,/^(https?:\/\/)?(www\.)?(t|telegram)\.me\//i);return /^[A-Za-z0-9_]{4,32}$/.test(u)?{t,v:u,url:'https://t.me/'+u,txt:'@'+u}:null;
+   case 'tiktok':u=tira(v,/^(https?:\/\/)?(www\.)?tiktok\.com\/@?/i);return /^[A-Za-z0-9._]{2,24}$/.test(u)?{t,v:u,url:'https://tiktok.com/@'+u,txt:'@'+u}:null;
+   case 'x':u=tira(v,/^(https?:\/\/)?(www\.)?(x|twitter)\.com\//i);return /^[A-Za-z0-9_]{1,15}$/.test(u)?{t,v:u,url:'https://x.com/'+u,txt:'@'+u}:null;
+   case 'whatsapp':{const d=v.replace(/\D/g,'');return /^\d{10,13}$/.test(d)&&(d.length<12||d.startsWith('55'))?{t,v:d,url:'https://wa.me/'+(d.length<=11?'55'+d:d),txt:'WhatsApp '+d.replace(/^55(?=\d{10,11}$)/,'')}:null}
+   case 'email':return v.length<=80&&/^[^\s@<>"']{1,64}@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/.test(v)?{t,v,url:'mailto:'+v,txt:v}:null;
+   case 'facebook':if(pareceUrl(v)){u=urlOk(v);return u?{t,v:u,url:u,txt:'Facebook'}:null}u=v.replace(/^@/,'');return /^[A-Za-z0-9.]{3,50}$/.test(u)?{t,v:u,url:'https://facebook.com/'+u,txt:'Facebook'}:null;
+   case 'youtube':if(pareceUrl(v)){u=urlOk(v);return u?{t,v:u,url:u,txt:'YouTube'}:null}u=v.replace(/^@/,'');return /^[A-Za-z0-9._-]{3,30}$/.test(u)?{t,v:u,url:'https://youtube.com/@'+u,txt:'YouTube'}:null;
+   case 'linkedin':if(pareceUrl(v)){u=urlOk(v);return u?{t,v:u,url:u,txt:'LinkedIn'}:null}u=v.replace(/^@/,'');return /^[A-Za-z0-9-]{3,60}$/.test(u)?{t,v:u,url:'https://linkedin.com/in/'+u,txt:'LinkedIn'}:null;
+   case 'site':case 'outro':u=urlOk(v);return u?{t,v:u,url:u,txt:host(u)}:null;
+  }return null}
+ /* aceita o que veio do servidor (qualquer coisa) e devolve só itens válidos, no máximo MAXN */
+ function lista(arr){const o=[];if(!Array.isArray(arr))return o;for(const p of arr){if(o.length>=MAXN)break;if(!Array.isArray(p)||typeof p[0]!=='string')continue;const n=norm(p[0],p[1]);if(n)o.push(n)}return o}
+ const cabe=itens=>JSON.stringify(itens).length<=MAXJ;
+ function render(arr){const L=lista(arr);if(!L.length)return null;const w=document.createElement('div');w.className='port-links rd-links';
+  L.forEach(n=>{const a=document.createElement('a');a.textContent=(NOME[n.t]||'🔗').split(' ')[0]+' '+n.txt;a.href=n.url;a.target='_blank';a.rel='noopener noreferrer';w.append(a)});return w}
+ function css(){if(document.getElementById('rdCss'))return;const s=document.createElement('style');s.id='rdCss';
+  s.textContent='.rd-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:6px 0}.rd-row select{flex:0 0 auto;max-width:100%}.rd-row input[type=text]{flex:1 1 150px;min-width:0}.rd-row button{flex:0 0 auto}.rd-erro{color:var(--red)}';
+  document.head.append(s)}
+ function editor(inicial){css();
+  const w=document.createElement('div'),box=document.createElement('div'),msg=document.createElement('p');msg.className='note';msg.setAttribute('role','status');
+  const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+  const linhas=[];
+  const nova=(t,v)=>{const r=el('div','rd-row'),s=document.createElement('select');s.setAttribute('aria-label','Qual rede ou contato');TIPOS.forEach(x=>s.add(new Option(x[1],x[0])));s.value=NOME[t]?t:'instagram';
+   const i=document.createElement('input');i.type='text';i.maxLength=120;i.autocomplete='off';i.setAttribute('aria-label','Usuário ou link');i.value=v||'';
+   const ph=()=>{i.placeholder=(TIPOS.find(x=>x[0]===s.value)||[])[2]||''};ph();s.onchange=ph;
+   const x=el('button','more','×');x.type='button';x.setAttribute('aria-label','Remover esta linha');
+   const L={r,s,i};x.onclick=()=>{r.remove();linhas.splice(linhas.indexOf(L),1);add.hidden=linhas.length>=MAXN};
+   r.append(s,i,x);box.append(r);linhas.push(L);add.hidden=linhas.length>=MAXN};
+  const add=el('button','more','➕ Adicionar rede ou link');add.type='button';add.onclick=()=>nova('instagram','');
+  w.append(box,add,msg);
+  lista(inicial).forEach(n=>nova(n.t,n.t==='instagram'||n.t==='telegram'||n.t==='tiktok'||n.t==='x'?'@'+n.v:n.v));
+  return{el:w,valor(){msg.textContent='';const itens=[];
+   for(const L of linhas){const v=L.i.value.trim();if(!v)continue;const n=norm(L.s.value,v);
+    if(!n){const e='Confira "'+(NOME[L.s.value]||'link')+'": '+((TIPOS.find(x=>x[0]===L.s.value)||[])[2]?'use algo como '+TIPOS.find(x=>x[0]===L.s.value)[2]:'o link não parece certo')+'.';msg.textContent=e;msg.classList.add('rd-erro');return{itens:[],erro:e}}
+    itens.push([n.t,n.v])}
+   if(!cabe(itens)){const e='Tem coisa demais nas redes. Tire uma ou use links mais curtos.';msg.textContent=e;msg.classList.add('rd-erro');return{itens:[],erro:e}}
+   msg.classList.remove('rd-erro');return{itens}}}}
+ return{TIPOS,norm,lista,render,editor,cabe,MAXN}})();
+
 /* ===== portfólio do helper: até 4 fotos + Instagram + WhatsApp =====
    Guardado na coleção Mensagens (sala 'perfil'), igual à foto e à frase do perfil: tipo 'portfoto' (texto = "posição|foto") e tipo 'contato' (texto = JSON).
    Vale a mais recente de cada posição. Nenhuma coleção nova no CMS e nenhuma mudança no worker. */
@@ -366,11 +421,12 @@ const portOk=u=>typeof u==='string'&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$
 const igOk=v=>{v=String(v||'').trim().replace(/^@/,'').replace(/^https?:\/\/(www\.)?instagram\.com\//i,'').replace(/[\/?#].*$/,'');return /^[A-Za-z0-9._]{1,30}$/.test(v)?v:''};
 const waOk=v=>{const t=String(v||'').replace(/\D/g,'');return /^\d{10,13}$/.test(t)&&(t.length<12||t.startsWith('55'))?t:''};
 function setPort(n,i,u){if(!n||!(i>=0&&i<PORT_N))return;const a=PORT[n]=PORT[n]||new Array(PORT_N).fill('');a[i]=u&&portOk(u)?u:''}
-function setContato(n,o){if(!n||!o||typeof o!=='object')return;CONT[n]={ig:igOk(o.ig),wa:waOk(o.wa),mostrar:o.mostrar?1:0}}
+function setContato(n,o){if(!n||!o||typeof o!=='object')return;CONT[n]={ig:igOk(o.ig),wa:waOk(o.wa),mostrar:o.mostrar?1:0,r:window.MH_REDES?MH_REDES.lista(o.r).map(x=>[x.t,x.v]):[]}}
 function salvarPortLocal(){if(!eu)return;try{localStorage.setItem('mh_port:'+eu.nome.toLowerCase(),JSON.stringify({f:PORT[eu.nome]||[],c:CONT[eu.nome]||null}))}catch(e){}}
 function carregarPortLocal(){if(!eu||PORT[eu.nome]||CONT[eu.nome])return;try{const o=JSON.parse(localStorage.getItem('mh_port:'+eu.nome.toLowerCase())||'null');if(o){(o.f||[]).forEach((u,i)=>setPort(eu.nome,i,u));if(o.c)setContato(eu.nome,o.c)}}catch(e){}}
 const portTs={};
 function carregaPort(nome){const D=window.MH_DB;if(!D||!D.ok||!D.portLer)return Promise.resolve();if(Date.now()-(portTs[nome]||0)<60000)return Promise.resolve();portTs[nome]=Date.now();return D.portLer(nome).catch(()=>{})}
+window.MH_CONT={carrega:carregaPort,get:n=>{const c=CONT[n]||{};return{ig:c.ig||'',wa:c.mostrar&&c.wa?c.wa:'',r:c.r||[]}}};
 function portRedim(f){return new Promise((ok,err)=>{
  if(!f||!/^image\//.test(f.type))return err(new Error('Escolha uma foto (imagem).'));
  if(f.size>12*1024*1024)return err(new Error('A foto é muito grande.'));
@@ -381,8 +437,8 @@ function portRedim(f){return new Promise((ok,err)=>{
 function verFotoPort(src){const d=document.createElement('dialog');d.className='port-lb';d.setAttribute('aria-label','Foto do portfólio');const im=document.createElement('img');im.src=src;im.alt='Foto do portfólio';d.append(im);d.addEventListener('click',()=>d.close());d.addEventListener('close',()=>d.remove());document.body.append(d);d.showModal()}
 /* o que aparece no perfil de quem olha (some sozinho se o helper não preencheu nada) */
 function portfolioEl(nome){
- const f=(PORT[nome]||[]).filter(Boolean),c=CONT[nome]||{},ig=c.ig||'',wa=c.mostrar&&c.wa?c.wa:'';
- if(!f.length&&!ig&&!wa)return null;
+ const f=(PORT[nome]||[]).filter(Boolean),c=CONT[nome]||{},ig=c.ig||'',wa=c.mostrar&&c.wa?c.wa:'',rd=window.MH_REDES?MH_REDES.render(c.r):null;
+ if(!f.length&&!ig&&!wa&&!rd)return null;
  const el=(t,cl,x)=>{const e=document.createElement(t);if(cl)e.className=cl;if(x!=null)e.textContent=x;return e};
  const w=el('div','port');w.append(el('h4',0,'Portfólio'));
  if(f.length){const row=el('div','port-row');f.forEach((u,i)=>{const b=el('button','port-th');b.type='button';b.setAttribute('aria-label','Ver foto '+(i+1)+' do portfólio');const im=document.createElement('img');im.src=u;im.alt='';b.append(im);b.onclick=()=>verFotoPort(u);row.append(b)});w.append(row)}
@@ -390,6 +446,7 @@ function portfolioEl(nome){
   if(ig){const a=el('a',0,'📸 @'+ig);a.href='https://instagram.com/'+encodeURIComponent(ig);a.target='_blank';a.rel='noopener noreferrer';lk.append(a)}
   if(wa){const a=el('a',0,'💬 WhatsApp');a.href='https://wa.me/'+(wa.length<=11?'55'+wa:wa);a.target='_blank';a.rel='noopener noreferrer';lk.append(a)}
   w.append(lk)}
+ if(rd)w.append(rd);
  return w}
 /* editor do próprio helper: fica fechadinho até a pessoa abrir, para o perfil continuar limpo */
 function editorPortfolio(){
@@ -410,12 +467,15 @@ function editorPortfolio(){
  const campo=(rot,id,ph,max)=>{const f=el('div','f'),l=el('label',0,rot);l.htmlFor=id;const i=document.createElement('input');i.id=id;i.type='text';i.maxLength=max;i.placeholder=ph;i.autocomplete='off';f.append(l,i);det.append(f);return i};
  const ig=campo('Instagram do seu trabalho (opcional)','portIg','@seunegocio',60),wa=campo('WhatsApp do seu trabalho (opcional)','portWa','(66) 99999-9999',20);
  const lab=el('label','ck'),ck=document.createElement('input');ck.type='checkbox';ck.id='portMo';lab.append(ck,el('span',0,'Mostrar meu WhatsApp no meu perfil. Se marcar, qualquer pessoa que abrir o perfil vê o número.'));det.append(lab);
- const preenche=()=>{const c=CONT[eu.nome]||{};if(document.activeElement!==ig)ig.value=c.ig?'@'+c.ig:'';if(document.activeElement!==wa)wa.value=c.wa||'';ck.checked=!!c.mostrar};
+ det.append(el('h4',0,'Outras redes e contatos (opcional)'),el('p','note','Fica livre: coloque Telegram, Facebook, TikTok, site… o que quiser que o cliente veja no seu perfil.'));
+ const rdW=el('div');det.append(rdW);let rdEd=null;
+ const rdPinta=()=>{if(rdEd&&rdW.contains(document.activeElement))return;rdEd=MH_REDES.editor((CONT[eu.nome]||{}).r);rdW.textContent='';rdW.append(rdEd.el)};
+ const preenche=()=>{rdPinta();const c=CONT[eu.nome]||{};if(document.activeElement!==ig)ig.value=c.ig?'@'+c.ig:'';if(document.activeElement!==wa)wa.value=c.wa||'';ck.checked=!!c.mostrar};
  const sv=el('button','more','Salvar contatos');sv.type='button';const m2=el('p','note');m2.setAttribute('role','status');
  sv.onclick=()=>{m2.style.color='';const igv=igOk(ig.value),wav=waOk(wa.value);
   if(ig.value.trim()&&!igv){m2.style.color='var(--red)';m2.textContent='Instagram inválido. Use só o nome de usuário, como @seunegocio.';return}
   if(wa.value.trim()&&!wav){m2.style.color='var(--red)';m2.textContent='WhatsApp inválido. Use o DDD e o número.';return}
-  const o={ig:igv,wa:wav,mostrar:ck.checked&&wav?1:0};setContato(eu.nome,o);salvarPortLocal();try{window.MH_DB&&MH_DB.ok&&MH_DB.contato(o)}catch(e){}
+  const rv=rdEd.valor();if(rv.erro)return;const o={ig:igv,wa:wav,mostrar:ck.checked&&wav?1:0,r:rv.itens};if(JSON.stringify(o).length>780){m2.style.color='var(--red)';m2.textContent='Tem coisa demais nos contatos. Tire uma rede.';return}setContato(eu.nome,o);salvarPortLocal();try{window.MH_DB&&MH_DB.ok&&MH_DB.contato(o)}catch(e){}
   ig.value=igv?'@'+igv:'';wa.value=wav;ck.checked=!!o.mostrar;m2.textContent='Salvo.'};
  det.append(sv,m2);
  desenha();preenche();
@@ -497,6 +557,7 @@ async function qrCompartilhar8(titulo,texto,url){
   dl:'<path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 20h14"/>',
   sh:'<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/>',
   ln:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  id:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6.5 16c.5-1.5 1.7-2 2.5-2s2 .5 2.5 2M14 10h4M14 13h3"/>',
   st:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>'};
  const qb=(ic,txt,cls,fn)=>{const b=mk8('button','qb '+cls);b.type='button';
   if(ic){const v=document.createElementNS('http://www.w3.org/2000/svg','svg');v.setAttribute('viewBox','0 0 24 24');v.setAttribute('aria-hidden','true');v.innerHTML=IC[ic];b.append(v)}
@@ -508,9 +569,10 @@ async function qrCompartilhar8(titulo,texto,url){
    try{const b=await blob();if(b&&navigator.canShare&&navigator.share){const f=new File([b],arq+'.png',{type:'image/png'});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],title:titulo,text:texto+(texto?' ':'')+url});return}}}catch(e){if(e&&e.name==='AbortError')return}
    compartilharSimples8(titulo,texto,url,aviso)});
  const bCopiar=qb('ln','Copiar link','sec',async()=>{if(await copiar())flip(bCopiar,'Link copiado ✓')});
+ const bCartao=qb('id','Cartão de visita','sec wide',()=>{d.close();cartaoVisita8(url)});
  const bTotem=qb('st','Totem de avaliação','sec wide',()=>{d.close();qrTotem8(titulo.replace(/ no MiHelp$/,''),'',url+(url.includes('?')?'&':'?')+'avaliar=1','totem-'+arq)});
  const bFechar=qb(null,'Fechar','ghost wide',()=>d.close());
- bx.append(bBaixar,bShare,bCopiar,bTotem,bFechar);d.append(bx,st)}
+ bx.append(bBaixar,bShare,bCopiar,bCartao,bTotem,bFechar);d.append(bx,st)}
 /* favoritar Helper no servidor (o favorito local do site continua; isto deixa o Helper ver quantas pessoas o favoritaram) */
 function favSrv8(nome,on){if(!apiOn8()||!tk8())return;const h=(window.MH_PROS||[]).find(x=>x.nome===nome);if(!h||!h.uid)return;chama8('/favoritos',{alvo:'h:'+h.uid,on:!!on}).catch(()=>{})}
 /* link recebido (?loja=... ou ?helper=...): abre o perfil direto */
@@ -694,7 +756,16 @@ function pintaLoja8(d,L,aba,aviso){d.textContent='';
  {const ped=CARD8[L.chave],rec=ped&&ped.itens&&ped.itens.length?(ped.aberta!==false&&L.aberto!==false):null;
   if(rec!==null)d.append(mk8('p','v8status '+(rec?'on':'off'),rec?'🟢 Aberta agora, recebendo pedidos':'🔴 Fechada para pedidos no momento'));
   else if(L.aberto!==null&&L.aberto!==undefined){const p=mk8('p','v8status '+(L.aberto?'on':'off'),(L.aberto?'🟢 ':'🔴 ')+L.statusTxt);d.append(p)}}
- const hs=horarioTxt8(L.horario);if(hs.length){const dt=document.createElement('details');dt.append(mk8('summary',null,'Horário de funcionamento'));hs.forEach(t=>dt.append(mk8('div','note',t)));d.append(dt)}
+ const ex8=extraLoja8(L),hj8=hojeIso8();
+ {const alvo=ex8.i?inaugOk8(ex8.i):0;if(alvo){const sp0=d.querySelector('.v8status');if(sp0)sp0.remove();
+  const bx=mk8('div','v8card inaug'),ct=mk8('div','inaug-t'),dt=new Date(alvo);
+  bx.append(mk8('b',null,'🎉 Inauguração em breve'),mk8('p','note',dt.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'})+' às '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})),ct,mk8('p','note','faltam'));
+  bx.insertBefore(bx.lastChild,ct);
+  const tk=()=>{const f=alvo-Date.now();if(!bx.isConnected&&bx.dataset.v){clearInterval(iv);return}if(f<=0){ct.textContent='É hoje! Já pode abrir 🎊';clearInterval(iv);return}ct.textContent=contagem8(f)};
+  const iv=setInterval(tk,1000);tk();bx.dataset.v='1';d.append(bx)}}
+ {const fh=ex8.f.find(x=>x[0]===hj8);if(fh){const ab=abertoFer8(fh);if(ab!==null){let sp=d.querySelector('.v8status');if(!sp){sp=mk8('p','v8status');d.append(sp)}sp.className='v8status '+(ab?'on':'off');sp.textContent=(ab?'🟢 Aberto agora':'🔴 Fechado agora')+' · '+fh[1]+(fh[2]==='f'?' (hoje não abrimos)':fh[2]==='m'?' (hoje só até o meio-dia)':' (horário especial de hoje)')}}}
+ {const lim8=iso8(new Date(Date.now()+14*864e5)),pr=ex8.f.filter(x=>x[0]<=lim8);if(pr.length){const bx=mk8('div','v8card');bx.append(mk8('b',null,'📅 Feriados e datas especiais'));pr.forEach(x=>bx.append(mk8('p','note',fraseFer8(x,x[0]===hj8))));d.append(bx)}}
+ const hs=horarioTxt8(L.horario);if(hs.length||ex8.f.length){const dt=document.createElement('details');dt.append(mk8('summary',null,'Horário de funcionamento'));hs.forEach(t=>dt.append(mk8('div','note',t)));if(ex8.f.length){dt.append(mk8('div','note','Feriados e datas especiais:'));ex8.f.forEach(x=>dt.append(mk8('div','note',fraseFer8(x,false))))}d.append(dt)}
  if(L.endereco)d.append(mk8('p','note','📍 '+L.endereco));
  if(L.descricao)d.append(mk8('p',null,L.descricao));
  if(L.donoNome)d.append(mk8('p','note','👤 Dono: '+L.donoNome));
@@ -708,6 +779,7 @@ function pintaLoja8(d,L,aba,aviso){d.textContent='';
  lk.append(botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',(L.tipo||'')+(L.statusTxt?' · '+L.statusTxt:''),linkLoja8(L.chave),m=>{stt.textContent=m;setTimeout(()=>stt.textContent='',2500)})),stt);
  if(L.logado&&!L.souDono)lk.append(botao8(L.favoritada?'★ Nos favoritos':'☆ Favoritar','more',async()=>{const on=!L.favoritada;const r=await chama8('/favoritos',{alvo:'l:'+L.chave,on});if(r.ok&&r.j&&r.j.ok){L.favoritada=on;if(on)V8.fav.lojas.add(L.chave);else V8.fav.lojas.delete(L.chave);pintaLoja8(d,L,aba);refreshProf()}else pintaLoja8(d,L,aba,erro8(r))}));
  d.append(lk);
+ {const rd=window.MH_REDES?MH_REDES.render(ex8.r):null;if(rd)d.append(rd)}
  const tabs=mk8('div','v8tabs lj-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Seções da loja');
  ((L.modo==='agenda'&&((L.servicos||[]).length||L.souDono)?[['serv','🗓 Serviços',(L.servicos||[]).length]]:[]).concat(CARD8[L.chave]?[['card','🍽 Cardápio',CARD8[L.chave].itens.length],['ped','🛒 Pedido',pedQtd8(L.chave)]]:[]).concat(L.equipeOculta?[]:[['equipe','👥 Equipe',L.totalEquipe]]).concat([['aval','⭐ Avaliações',L.n]])).forEach(([k,t,n])=>{const sp=t.indexOf(' '),b=mk8('button');b.append(mk8('span','lj-ti',t.slice(0,sp)),mk8('span','lj-tl',t.slice(sp+1)));b.type='button';b.dataset.aba=k;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(aba===k));const c=mk8('span','lj-tc',String(n));c.hidden=k==='ped'&&!n;b.append(c);b.onclick=()=>{pintaLoja8(d,L,k);const t2=d.querySelector('.lj-tabs');if(t2)t2.scrollIntoView({block:'start'})};tabs.append(b)});
  d.append(tabs);
@@ -777,24 +849,99 @@ setInterval(()=>{try{
 }catch(e){}},2000);
 function carregaQR8(){return new Promise((ok,no)=>{if(window.qrcode)return ok();const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';sc.onload=()=>window.qrcode?ok():no();sc.onerror=no;document.head.append(sc)})}
 function linhasTxt8(g,t,w){const ps=String(t).split(' ');const out=[];let c='';ps.forEach(x=>{const n=c?c+' '+x:x;if(g.measureText(n).width>w&&c){out.push(c);c=x}else c=n});if(c)out.push(c);return out}
+/* ===== v42: totem e cartão seguem as cores (capa) e o logo da loja ===== */
+const rgbHex8=a=>'#'+a.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+const hexRgb8=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const lumRgb8=a=>(0.299*a[0]+0.587*a[1]+0.114*a[2])/255;
+/* escurece até o texto branco ficar legível por cima */
+const legivel8=h=>{let a=hexRgb8(h);const l=lumRgb8(a);if(l>0.45){const k=0.45/l;a=a.map(v=>v*k)}return rgbHex8(a)};
+function hslHex8(h,s,l){s/=100;l/=100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return rgbHex8([f(0)*255,f(8)*255,f(4)*255])}
+async function estiloLoja8(L){
+ try{const capa=L.capa||capaLocal8(L.chave)||'';let c1,c2,m;
+  if((m=/^g:(\d)$/.exec(capa))&&CAPAS8[+m[1]]){const cs=CAPAS8[+m[1]][1].match(/#[0-9a-fA-F]{6}/g);c1=cs[0];c2=cs[cs.length-1]}
+  else if((m=/^c:(#[0-9a-fA-F]{6})$/.exec(capa))){c1=m[1];c2=rgbHex8(hexRgb8(c1).map(v=>v*0.45))}
+  else if(/^data:image\/(jpeg|png|webp);base64,/.test(capa)){const im=await imgCarrega8(capa);if(im){const c=document.createElement('canvas');c.width=c.height=8;const g=c.getContext('2d');g.drawImage(im,0,0,8,8);const d=g.getImageData(0,0,8,8).data;let r=0,gg=0,b=0;for(let i=0;i<d.length;i+=4){r+=d[i];gg+=d[i+1];b+=d[i+2]}const n=d.length/4;c1=rgbHex8([r/n,gg/n,b/n]);c2=rgbHex8([r/n*.5,gg/n*.5,b/n*.5])}}
+  if(!c1){let h=0;for(const ch of String(L.nome||'?'))h=(h*31+ch.charCodeAt(0))%360;c1=hslHex8(h,55,38);c2=hslHex8((h+55)%360,60,20)}
+  return{c1:legivel8(c1),c2:legivel8(c2),logo:L.logo||''}}catch(e){return null}}
+async function estiloUrl8(url){try{const ch=new URL(url,location.href).searchParams.get('loja');if(!ch)return null;const r=await chama8('/estabelecimentos/ver?chave='+encodeURIComponent(ch));return r.ok&&r.j&&r.j.ok?await estiloLoja8(r.j):null}catch(e){return null}}
+function bandaTema8(g,E,W,h){if(!E){g.fillStyle='#111';g.fillRect(0,0,W,h);return}const gr=g.createLinearGradient(0,0,W,h);gr.addColorStop(0,E.c1);gr.addColorStop(1,E.c2);g.fillStyle=gr;g.fillRect(0,0,W,h)}
+function rodapeTema8(g,E,W,H){if(!E)return;const gr=g.createLinearGradient(0,0,W,0);gr.addColorStop(0,E.c1);gr.addColorStop(1,E.c2);g.fillStyle=gr;g.fillRect(0,H-22,W,22)}
+function logoTema8(g,im,cx,cy,r,cor){if(!im)return;g.save();g.beginPath();g.arc(cx,cy,r,0,Math.PI*2);g.clip();g.fillStyle='#fff';g.fillRect(cx-r,cy-r,r*2,r*2);const s=Math.min(im.width,im.height);g.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,cx-r,cy-r,r*2,r*2);g.restore();g.lineWidth=6;g.strokeStyle=cor||'#fff';g.beginPath();g.arc(cx,cy,r,0,Math.PI*2);g.stroke()}
+/* ===== v41: cartão de visita (QR + canais) — serve de "link na bio" para quem cria conteúdo =====
+   O QR leva direto ao perfil no MiHelp (helper ou loja); no cartão saem escritos o WhatsApp e as redes que a pessoa deixou públicos. */
+const fmtTel8=v=>{let d=String(v||'').replace(/\D/g,'');if(/^55\d{10,11}$/.test(d))d=d.slice(2);return d.length===11?'('+d.slice(0,2)+') '+d.slice(2,7)+'-'+d.slice(7):d.length===10?'('+d.slice(0,2)+') '+d.slice(2,6)+'-'+d.slice(6):d};
+const NOMEREDE8={instagram:['📸','Instagram'],telegram:['✈️','Telegram'],whatsapp:['💬','WhatsApp'],facebook:['👍','Facebook'],tiktok:['🎵','TikTok'],youtube:['▶️','YouTube'],linkedin:['💼','LinkedIn'],x:['✖️','X'],email:['✉️','E-mail'],site:['🌐','Site'],outro:['🔗','Link']};
+function linhasRedes8(r,add){if(!window.MH_REDES)return;MH_REDES.lista(r).forEach(n=>{const nr=NOMEREDE8[n.t]||['🔗','Link'];
+ const h=['instagram','telegram','tiktok','x'].includes(n.t)?'@'+n.v:n.t==='whatsapp'?fmtTel8(n.v):n.t==='email'?n.v:n.url.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'');add(nr[0],nr[1]+': '+h)})}
+/* junta tudo o que aparece no cartão a partir do link do perfil */
+async function dadosCartao8(url){
+ let p;try{p=new URL(url,location.href).searchParams}catch(e){return null}
+ const ch=p.get('loja'),hp=p.get('helper'),itens=[],add=(e,t)=>{if(t&&itens.length<9)itens.push([e,t])};
+ if(ch){const r=await chama8('/estabelecimentos/ver?chave='+encodeURIComponent(ch));const L=r.ok&&r.j&&r.j.ok?r.j:null;if(!L)return null;
+  const ex=extraLoja8(L);if(L.contato){const t=fmtTel8(L.contato);if(t)add('💬','WhatsApp: '+t)}
+  linhasRedes8(ex.r,add);if(L.endereco)add('📍',String(L.endereco).slice(0,60));
+  return{nome:L.nome,sub:[L.tipo,CID8[L.cidade]].filter(Boolean).join(' · '),foto:L.logo||'',itens,loja:true,estilo:await estiloLoja8(L)}}
+ if(hp){try{if(window.MH_CONT)await MH_CONT.carrega(hp)}catch(e){}
+  const c=window.MH_CONT?MH_CONT.get(hp):{ig:'',wa:'',r:[]},h=listaHelpers().find(x=>x.nome===hp)||{};
+  if(c.wa){const t=fmtTel8(c.wa);if(t)add('💬','WhatsApp: '+t)}
+  if(c.ig)add('📸','Instagram: @'+c.ig);linhasRedes8(c.r,add);
+  let foto='';try{foto=window.MH_FOTOVER?MH_FOTOVER.foto(hp):''}catch(e){}
+  return{nome:hp,sub:[h.work||'Helper','Barra do Garças e região'].join(' · '),foto,itens,loja:false}}
+ return null}
+const imgCarrega8=src=>new Promise(ok=>{if(!src)return ok(null);const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=src});
+async function cartaoVisita8(url){
+ const d=novoDlg8('Cartão de visita');d.textContent='';d.addEventListener('close',()=>d.remove());
+ d.append(mk8('h3',null,'🪪 Cartão de visita'),mk8('p','note','Montando o cartão…'));d.showModal();
+ let qr,D;try{await carregaQR8();qr=qrcode(0,'H');qr.addData(url);qr.make();D=await dadosCartao8(url)}catch(e){D=null}
+ if(!qr||!D){d.textContent='';d.append(mk8('h3',null,'Cartão de visita'),mk8('p','note','Não consegui montar agora (sem internet?). Tente de novo.'),botao8('Fechar','more',()=>d.close()));return}
+ const img=await imgCarrega8(D.foto),FN='Arial,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif',W=1080,mg=90;
+ const m=document.createElement('canvas').getContext('2d');m.font='bold 66px '+FN;
+ const nomeL=linhasTxt8(m,D.nome,W-2*mg).slice(0,2),n=qr.getModuleCount(),cel=Math.floor(560/n),real=cel*n;
+ const topoY=130+(img?250:70),H=topoY+nomeL.length*76+(D.sub?60:10)+real+150+110+(D.itens.length?60+D.itens.length*70:0)+130;
+ const cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+ const E=D.estilo||null;g.fillStyle='#fff';g.fillRect(0,0,W,H);bandaTema8(g,E,W,130);
+ g.fillStyle=E?'#fff':'#f5c518';g.font='bold 76px '+FN;g.textAlign='center';g.textBaseline='middle';g.fillText('MiHelp',W/2,68);
+ let y=130;
+ if(img){const r=90,cx=W/2,cy=y+40+r;g.save();g.beginPath();g.arc(cx,cy,r,0,Math.PI*2);g.clip();const s=Math.min(img.width,img.height);g.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,cx-r,cy-r,r*2,r*2);g.restore();g.lineWidth=6;g.strokeStyle=E?E.c1:'#f5c518';g.beginPath();g.arc(cx,cy,r,0,Math.PI*2);g.stroke();y=cy+r+60}else y+=70;
+ g.textBaseline='alphabetic';g.fillStyle='#111';g.font='bold 66px '+FN;nomeL.forEach(l=>{g.fillText(l,W/2,y);y+=76});
+ if(D.sub){g.fillStyle='#555';g.font='38px '+FN;g.fillText(D.sub.slice(0,56),W/2,y-6);y+=54}
+ y+=20;const x0=(W-real)/2;g.fillStyle='#fff';g.fillRect(x0-30,y-30,real+60,real+60);g.fillStyle='#000';
+ for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(qr.isDark(r,c))g.fillRect(x0+c*cel,y+r*cel,cel,cel);
+ g.strokeStyle=E?E.c1:'#111';g.lineWidth=6;g.strokeRect(x0-30,y-30,real+60,real+60);y+=real+100;
+ g.fillStyle='#111';g.font='bold 42px '+FN;g.fillText(D.loja?'Aponte a câmera e veja a loja':'Aponte a câmera e veja meus canais',W/2,y);y+=50;
+ if(D.itens.length){g.strokeStyle='#ddd';g.lineWidth=3;g.beginPath();g.moveTo(mg,y);g.lineTo(W-mg,y);g.stroke();y+=70;g.textAlign='left';
+  D.itens.forEach(it=>{g.font='44px '+FN;g.fillStyle='#111';g.fillText(it[0],mg,y);let f=42;g.font='bold '+f+'px '+FN;while(g.measureText(it[1]).width>W-2*mg-80&&f>24){f-=2;g.font='bold '+f+'px '+FN}g.fillStyle='#222';g.fillText(it[1],mg+80,y);y+=70});g.textAlign='center'}
+ g.fillStyle='#777';g.font='28px '+FN;g.fillText(url.replace(/^https?:\/\//,'').slice(0,60),W/2,H-60);rodapeTema8(g,E,W,H);
+ cv.style.cssText='width:100%;max-width:min(92vw,380px);height:auto;border:1px solid #ccc;border-radius:12px;background:#fff;display:block;margin:8px auto';
+ const arq='cartao-'+String(D.nome).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+ const st=mk8('p','note','');st.setAttribute('role','status');const av=t=>{st.textContent=t;setTimeout(()=>{if(st.textContent===t)st.textContent=''},3000)};
+ d.textContent='';d.append(mk8('h3',null,'🪪 Cartão de visita'),mk8('p','note',D.loja?'O QR leva direto para a loja no MiHelp. Imprima, cole no balcão ou mande a imagem no WhatsApp.':'O QR leva direto para o seu perfil no MiHelp. Cole a imagem na bio, nos destaques ou no canal: quem ler cai no seu perfil, com WhatsApp e todas as redes.'),cv);
+ if(!D.itens.length)d.append(mk8('p','note',D.loja?'Dica: preencha o WhatsApp e as redes em "Editar" para aparecerem escritos no cartão.':'Dica: preencha o WhatsApp e as redes em "Minha vitrine" para aparecerem escritos no cartão. O WhatsApp só sai se você marcar "Mostrar meu WhatsApp no meu perfil".'));
+ const ac=mk8('div','v8acts');
+ ac.append(botao8('⬇ Baixar PNG','cta2',()=>{const a=document.createElement('a');a.download=arq+'.png';a.href=cv.toDataURL('image/png');document.body.append(a);a.click();a.remove();av('✅ Cartão baixado.')}),
+  botao8('📤 Compartilhar','more',async()=>{try{const b=await new Promise(r=>cv.toBlob(r,'image/png'));const f=new File([b],arq+'.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:D.nome+' no MiHelp',text:url});return}}catch(e){if(e&&e.name==='AbortError')return}
+   try{await navigator.clipboard.writeText(url);av('✅ Link do perfil copiado. Para a imagem, use Baixar PNG.')}catch(e){av('Use Baixar PNG e envie a imagem.')}}),
+  botao8('🖨 Imprimir','more',()=>{const w=window.open('','_blank');if(!w)return;w.document.write('<title>Cartão</title><body style="margin:0;text-align:center"><img src="'+cv.toDataURL('image/png')+'" style="max-width:100%;max-height:100vh" onload="print()">');w.document.close()}),
+  botao8('Fechar','more',()=>d.close()));d.append(ac,st)}
 async function qrTotem8(titulo,sub,url,arq){
  const d=novoDlg8('QR do totem');d.textContent='';d.addEventListener('close',()=>d.remove());
  d.append(mk8('h3',null,'QR do totem'),mk8('p','note','Gerando…'));d.showModal();
  let qr;try{await carregaQR8();qr=qrcode(0,'H');qr.addData(url);qr.make()}catch(e){
   d.textContent='';d.append(mk8('h3',null,'QR do totem'),mk8('p','note','Não consegui gerar agora (sem internet?). Tente de novo.'),botao8('Fechar','more',()=>d.close()));return}
+ const E=await estiloUrl8(url),li=E?await imgCarrega8(E.logo):null;
  const W=1000,H=1400,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
- g.fillStyle='#fff';g.fillRect(0,0,W,H);g.fillStyle='#111';g.fillRect(0,0,W,150);
- g.fillStyle='#f5c518';g.font='bold 80px Arial,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('MiHelp',W/2,78);
+ g.fillStyle='#fff';g.fillRect(0,0,W,H);bandaTema8(g,E,W,150);
+ g.fillStyle=E?'#fff':'#f5c518';g.font='bold 80px Arial,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('MiHelp',W/2,78);logoTema8(g,li,110,75,52,'#fff');
  g.fillStyle='#111';g.font='bold 62px Arial,sans-serif';g.textBaseline='alphabetic';
  let y=250;linhasTxt8(g,'Avalie '+titulo,W-120).slice(0,2).forEach(l=>{g.fillText(l,W/2,y);y+=74});
  g.font='40px Arial,sans-serif';g.fillStyle='#444';if(sub){g.fillText(String(sub).slice(0,48),W/2,y-4);y+=50}
  const n=qr.getModuleCount(),tam=760,cel=Math.floor(tam/n),real=cel*n,x0=(W-real)/2,y0=Math.max(y+20,380);
  g.fillStyle='#fff';g.fillRect(x0-30,y0-30,real+60,real+60);g.fillStyle='#000';
  for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(qr.isDark(r,c))g.fillRect(x0+c*cel,y0+r*cel,cel,cel);
- g.strokeStyle='#111';g.lineWidth=6;g.strokeRect(x0-30,y0-30,real+60,real+60);
+ g.strokeStyle=E?E.c1:'#111';g.lineWidth=6;g.strokeRect(x0-30,y0-30,real+60,real+60);
  const yb=y0+real+110;g.fillStyle='#111';g.font='bold 54px Arial,sans-serif';g.fillText('⭐ Aponte a câmera do celular',W/2,yb);
  g.font='42px Arial,sans-serif';g.fillStyle='#444';g.fillText('e deixe sua avaliação e comentário',W/2,yb+60);
- g.font='30px Arial,sans-serif';g.fillStyle='#777';g.fillText(url.replace(/^https?:\/\//,'').slice(0,60),W/2,H-50);
+ g.font='30px Arial,sans-serif';g.fillStyle='#777';g.fillText(url.replace(/^https?:\/\//,'').slice(0,60),W/2,H-50);rodapeTema8(g,E,W,H);
  cv.style.cssText='width:100%;max-width:min(92vw,420px);height:auto;border:1px solid #ccc;border-radius:8px;background:#fff;display:block;margin:8px auto';
  d.textContent='';d.append(mk8('h3',null,'QR do totem'),mk8('p','note','O QR já aparece aqui na tela: dá para só tirar um print do celular e mostrar. Para imprimir, use A5 ou A4 (QR com pelo menos 4 cm) e teste com o seu celular antes de colar.'),cv);
  const ac=mk8('div','v8acts');
@@ -833,6 +980,70 @@ function formAvalLoja8(d,L,ed){d.textContent='';d.append(mk8('h3',null,(ed?'Edit
  d.append(row,lb,mk8('p','note','O seu comentário e o seu nome aparecem para todo mundo no perfil da loja.'),st,ac)}
 
 /* editor de horário (7 dias, até 2 faixas por dia) */
+/* ===== v40: feriados e datas especiais do estabelecimento =====
+   Guardado em horario.f = [[ 'AAAA-MM-DD', nome, situação, 'HH:MM-HH:MM' ]]  (situação: f fechado, d dia todo, m até meio-dia, h horário especial)
+   e horario.r = redes. Se o servidor não guardar esses campos, fica uma cópia só no aparelho do dono (igual à capa). */
+const pascoa8=y=>{const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mes=Math.floor((h+l-7*m+114)/31),dia=((h+l-7*m+114)%31)+1;return new Date(y,mes-1,dia)};
+const iso8=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const dataIso8=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s||''));if(!m)return null;const d=new Date(+m[1],+m[2]-1,+m[3]);return d.getFullYear()===+m[1]&&d.getMonth()===+m[2]-1&&d.getDate()===+m[3]?d:null};
+const DSEM8=['dom','seg','ter','qua','qui','sex','sáb'];
+const dataBr8=s=>{const d=dataIso8(s);return d?DSEM8[d.getDay()]+' '+String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0'):''};
+function feriadosAno8(y){const L=[['01-01','Ano Novo'],['04-21','Tiradentes'],['05-01','Dia do Trabalho'],['09-07','Independência'],['10-12','Nossa Senhora Aparecida'],['11-02','Finados'],['11-15','Proclamação da República'],['11-20','Consciência Negra'],['12-24','Véspera de Natal'],['12-25','Natal'],['12-31','Véspera de Ano Novo']].map(x=>[y+'-'+x[0],x[1]]);
+ const p=pascoa8(y),mv=(o,n)=>L.push([iso8(new Date(p.getFullYear(),p.getMonth(),p.getDate()+o)),n]);mv(-48,'Carnaval (segunda)');mv(-47,'Carnaval (terça)');mv(-2,'Sexta-feira Santa');mv(60,'Corpus Christi');return L}
+const hojeIso8=()=>iso8(new Date(Date.now()));
+const horaOk8=h=>/^([01]\d|2[0-3]):[0-5]\d$/.test(h||'');
+/* aceita o que veio do servidor/aparelho e devolve só entradas válidas de hoje em diante */
+function feriadosLimpa8(arr){const o=[],hj=hojeIso8();if(!Array.isArray(arr))return o;
+ for(const x of arr){if(o.length>=12)break;if(!Array.isArray(x)||!dataIso8(x[0])||x[0]<hj||!['f','d','m','h'].includes(x[2]))continue;
+  let h='';if(x[2]==='h'){const p=String(x[3]||'').split('-');if(p.length!==2||!horaOk8(p[0])||!horaOk8(p[1]))continue;h=p[0]+'-'+p[1]}
+  o.push([x[0],String(x[1]||'Data especial').slice(0,30),x[2],h])}
+ return o.sort((a,b)=>a[0]<b[0]?-1:1)}
+function fraseFer8(x,agora){const e=dataBr8(x[0])+' · '+x[1];
+ if(x[2]==='f')return '🔴 '+e+': '+(agora?'hoje estamos fechados':'ficaremos fechados');
+ if(x[2]==='d')return '🟢 '+e+': '+(agora?'hoje abrimos o dia todo':'abriremos o dia todo');
+ if(x[2]==='m')return '🟡 '+e+': '+(agora?'hoje ficamos abertos só até o meio-dia':'ficaremos abertos só até o meio-dia');
+ const p=x[3].split('-');return '🟡 '+e+': '+(agora?'hoje ficamos abertos':'ficaremos abertos')+' das '+p[0]+' às '+p[1]}
+/* aberto agora, segundo a regra do feriado (true/false), ou null se o feriado não muda nada */
+function abertoFer8(x){const n=new Date(Date.now()),m=n.getHours()*60+n.getMinutes(),mm=h=>+h.slice(0,2)*60+ +h.slice(3);
+ if(x[2]==='f')return false;if(x[2]==='d')return null;
+ const ini=x[2]==='m'?0:mm(x[3].split('-')[0]),fim=x[2]==='m'?720:mm(x[3].split('-')[1]);
+ return fim>ini?(m>=ini&&m<fim):(m>=ini||m<fim)}
+/* redes e feriados de uma loja: do servidor; se ele não guardou, a cópia deste aparelho (só para o dono) */
+const inaugOk8=v=>{const m=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(String(v||''));if(!m)return 0;const d=new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5]);return d.getMonth()===+m[2]-1&&d.getDate()===+m[3]&&d.getTime()>Date.now()?d.getTime():0};
+function contagem8(ms){const m=Math.max(0,Math.floor(ms/6e4)),d=Math.floor(m/1440),h=Math.floor(m%1440/60),mi=m%60,pl=(n,a,b)=>n+' '+(n===1?a:b);return pl(d,'dia','dias')+', '+pl(h,'hora','horas')+' e '+pl(mi,'minuto','minutos')}
+function extraLoja8(L,dono){let r=[],f=[],i='';const h=L&&L.horario;
+ if(h&&(h.r||h.f||h.i)){i=inaugOk8(h.i)?h.i:'';r=window.MH_REDES?MH_REDES.lista(h.r).map(n=>[n.t,n.v]):[];f=feriadosLimpa8(h.f)}
+ else if(L&&L.chave&&(dono||L.souDono)){try{const o=JSON.parse(localStorage.getItem('mihelp_extra_'+L.chave)||'null');if(o){r=window.MH_REDES?MH_REDES.lista(o.r).map(n=>[n.t,n.v]):[];f=feriadosLimpa8(o.f);i=inaugOk8(o.i)?o.i:''}}catch(e){}}
+ return{r,f,i}}
+function feriadosEditor8(inicial){
+ const w=mk8('div','v8fer'),hj=hojeIso8(),hd=dataIso8(hj),lim=iso8(new Date(hd.getFullYear(),hd.getMonth(),hd.getDate()+150)),fim=iso8(new Date(hd.getFullYear(),hd.getMonth(),hd.getDate()+365));
+ const ini=feriadosLimpa8(inicial),mapa={};ini.forEach(x=>mapa[x[0]]=x);
+ const base=feriadosAno8(hd.getFullYear()).concat(feriadosAno8(hd.getFullYear()+1)).filter(x=>x[0]>=hj&&x[0]<=fim).sort((a,b)=>a[0]<b[0]?-1:1);
+ const linhas=[],box=mk8('div'),extra=mk8('div');extra.hidden=true;
+ const OPC=[['','Não avisar'],['f','🔴 Fechado'],['d','🟢 Aberto o dia todo'],['m','🟡 Só até o meio-dia'],['h','🟡 Outro horário']];
+ const linha=(dt,nome,custom,ent)=>{const r=mk8('div','v8hrow'),L={dt,nome,custom};
+  if(custom){const di=document.createElement('input');di.type='date';di.min=hj;di.value=dt||'';di.setAttribute('aria-label','Dia');const ni=document.createElement('input');ni.type='text';ni.maxLength=30;ni.placeholder='Nome (ex.: aniversário da cidade)';ni.value=nome||'';ni.setAttribute('aria-label','Nome da data');L.di=di;L.ni=ni;r.append(di,ni)}
+  else r.append(mk8('b',null,dataBr8(dt)),mk8('span',null,nome));
+  const s=document.createElement('select');s.setAttribute('aria-label','Como vai funcionar em '+(nome||'essa data'));OPC.forEach(o=>s.add(new Option(o[1],o[0])));s.value=ent?ent[2]:'';
+  const a=document.createElement('input');a.type='time';a.setAttribute('aria-label','Abre');const b=document.createElement('input');b.type='time';b.setAttribute('aria-label','Fecha');
+  if(ent&&ent[2]==='h'){const p=ent[3].split('-');a.value=p[0];b.value=p[1]}
+  const hh=mk8('span',null);hh.append(a,' às ',b);const vis=()=>{hh.hidden=s.value!=='h'};vis();s.onchange=vis;
+  r.append(s,hh);if(custom){const x=botao8('×','more',()=>{r.remove();linhas.splice(linhas.indexOf(L),1)});x.setAttribute('aria-label','Remover esta data');r.append(x)}
+  Object.assign(L,{s,a,b,r});linhas.push(L);return r};
+ base.forEach(x=>{const e=mapa[x[0]];delete mapa[x[0]];(x[0]<=lim||e?box:extra).append(linha(x[0],x[1],false,e))});
+ Object.keys(mapa).forEach(k=>box.append(linha(k,mapa[k][1],true,mapa[k])));
+ const mais=botao8('Ver feriados mais para frente','more',()=>{extra.hidden=!extra.hidden;mais.textContent=extra.hidden?'Ver feriados mais para frente':'Esconder os mais distantes'});
+ const cust=botao8('➕ Outra data (aniversário da cidade, ponto facultativo…)','more',()=>box.append(linha('','',true,null)));
+ const msg=mk8('p','note');msg.setAttribute('role','status');
+ w.append(box,extra,mais,cust,msg);
+ return{el:w,valor(){msg.textContent='';const o=[];
+  for(const L of linhas){const s=L.s.value;if(!s)continue;const dt=L.custom?L.di.value:L.dt,nome=((L.custom?L.ni.value:L.nome)||'').trim()||'Data especial';
+   const erro=e=>{msg.style.color='var(--red)';msg.textContent=e;return{itens:[],erro:e}};
+   if(!dataIso8(dt)||dt<hj)return erro('Escolha um dia (de hoje em diante) em "Outra data".');
+   let h='';if(s==='h'){if(!horaOk8(L.a.value)||!horaOk8(L.b.value))return erro('Preencha o horário de abrir e fechar em '+nome+'.');h=L.a.value+'-'+L.b.value}
+   o.push([dt,nome.slice(0,30),s,h])}
+  if(o.length>12){const e='No máximo 12 datas. Tire algumas.';msg.style.color='var(--red)';msg.textContent=e;return{itens:[],erro:e}}
+  return{itens:o.sort((a,b)=>a[0]<b[0]?-1:1)}}}}
 function horarioEditor8(h){const w=mk8('div','v8hor');const N=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
  const pausa=mk8('label','ck');const pk=document.createElement('input');pk.type='checkbox';pk.checked=!!(h&&h.p);pausa.append(pk,mk8('span',null,'Fechado temporariamente (férias, reforma...)'));w.append(pausa);
  const linhas=[];
@@ -930,7 +1141,7 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
    s.append(mk8('p','note','Todo mundo tem acesso ao painel profissional. Só aparece em Profissionais da Região quem escolheu um ofício ou tem uma loja. Para sair da lista, remova os ofícios.'));
    if(E.favoritosRecebidos>0)s.append(mk8('p','note','⭐ '+E.favoritosRecebidos+(E.favoritosRecebidos===1?' pessoa favoritou':' pessoas favoritaram')+' você.'));
    const sh=mk8('span','note');sh.setAttribute('role','status');
-   s.append(botao8('🔗 Compartilhar meu perfil','more',()=>compartilhar8(eu.nome+' no MiHelp',(eu.work||'Helper')+' · Barra do Garças e região',linkHelper8(eu.nome),m=>{sh.textContent=m;setTimeout(()=>sh.textContent='',2500)})),sh);
+   s.append(botao8('🪪 Meu cartão de visita','more',()=>cartaoVisita8(linkHelper8(eu.nome))),botao8('🔗 Compartilhar meu perfil','more',()=>compartilhar8(eu.nome+' no MiHelp',(eu.work||'Helper')+' · Barra do Garças e região',linkHelper8(eu.nome),m=>{sh.textContent=m;setTimeout(()=>sh.textContent='',2500)})),sh);
   }}
 
  /* 2. privacidade + ofícios (só Helper) */
@@ -992,7 +1203,7 @@ function pintaEspaco8(d,E,aviso){d.textContent='';
   if(!E.lojas.length)s.append(mk8('p','note','Você ainda não criou nenhum. Barbearia, salão, loja de motos, oficina: crie e monte a sua equipe.'));
   E.lojas.forEach(L=>{
    const box=mk8('div','v8card');const row=mk8('div','v8row');row.append(mk8('b',null,L.nome),mk8('span','note',L.tipo+(CID8[L.cidade]?' · '+CID8[L.cidade]:'')));
-   const acts=mk8('div','v8acts');acts.append(botao8('👁 Ver perfil','more',()=>{d.close();abrirLoja8(L.chave)}),botao8('✏️ Editar','more',()=>formLoja8(d,E,L)),botao8('🧾 MESA','more',()=>{try{window.open(window.MH_MESA_URL||'mesa.html','_blank','noopener')}catch(e){}}),botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',L.tipo,linkLoja8(L.chave),m=>{st.style.color='';st.textContent=m})),botao2x8('🗑 Apagar','more',()=>envia('/estabelecimentos/apagar',{chave:L.chave},'Estabelecimento apagado.')));
+   const acts=mk8('div','v8acts');acts.append(botao8('👁 Ver perfil','more',()=>{d.close();abrirLoja8(L.chave)}),botao8('✏️ Editar','more',()=>formLoja8(d,E,L)),botao8('🪪 Cartão','more',()=>cartaoVisita8(linkLoja8(L.chave))),botao8('🧾 MESA','more',()=>{try{window.open(window.MH_MESA_URL||'mesa.html','_blank','noopener')}catch(e){}}),botao8('🔗 Compartilhar','more',()=>compartilhar8(L.nome+' no MiHelp',L.tipo,linkLoja8(L.chave),m=>{st.style.color='';st.textContent=m})),botao2x8('🗑 Apagar','more',()=>envia('/estabelecimentos/apagar',{chave:L.chave},'Estabelecimento apagado.')));
    box.append(row,acts);if(L.favs>0)box.append(mk8('p','note','⭐ '+L.favs+(L.favs===1?' pessoa favoritou':' pessoas favoritaram')+' esta loja.'));
    
    s.append(box)});
@@ -1596,7 +1807,7 @@ function blocoReserva8(pes,meu,fechar){
  lj.forEach(l=>{const b=mk8('button','cta2 mhp-go','📅 Marcar em '+l.nome);b.type='button';b.onclick=()=>{fechar();abrirLoja8(l.chave,{aba:'serv',pro:pes.nome})};w.append(b)});
  return w}
 
-const TIPOS_EXTRA8=['Construtora','Empreiteira'];
+const TIPOS_EXTRA8=['Construtora','Empreiteira','Loja de preço único'];
 const tiposLoja8=E=>{const l=(E&&E.tipos||[]).slice();TIPOS_EXTRA8.forEach(t=>{if(!l.includes(t)){const i=l.indexOf('Construção e reformas');l.splice(i>=0?i+1:l.length,0,t)}});return l};
 /* ===== criar negócio em passos (um toque por tela) ===== */
 function criarLoja8(d,E){
@@ -1695,6 +1906,8 @@ function formLoja8(d,E,L){d.textContent='';d.append(mk8('h3',null,L?'Editar '+L.
  const end=campo('Endereço (opcional)','text',100,L&&L.endereco,'Rua, número, bairro');
  const mapa=campo('Link do mapa (opcional)','text',300,L&&L.mapa,'https://maps.google.com/...');
  const wa=campo('WhatsApp da loja (opcional)','text',20,L&&L.contato,'(66) 99999-9999');
+ const ex0=L?extraLoja8(L,true):{r:[],f:[]};
+ det.append(mk8('h4',null,'Redes e contatos (opcional)'),mk8('p','note','Coloque onde o cliente pode te achar: Instagram, Telegram, Facebook, TikTok, site… Fica livre, você escolhe.'));const rdEd=MH_REDES.editor(ex0.r);det.append(rdEd.el);
  const desc=campo('Descrição curta (opcional)','text',200,L&&L.descricao,'Horário, especialidades…');
  const lf=mk8('label',null,'Logo (opcional)');const fi=document.createElement('input');fi.type='file';fi.accept='image/*';lf.append(fi);det.append(lf);
  const lrm=botao8('🗑 Remover logo','more',()=>{logo='';fi.value='';lrm.hidden=true;st.style.color='';st.textContent='Logo removido. Toque em Salvar.'});lrm.hidden=!(L&&L.logo);det.append(lrm);
@@ -1704,19 +1917,27 @@ function formLoja8(d,E,L){d.textContent='';d.append(mk8('h3',null,L?'Editar '+L.
  const invCk=mk8('label','ck');const invIn=document.createElement('input');invIn.type='checkbox';invIn.checked=!!(L&&L.invest);invCk.append(invIn,mk8('span',null,'Aceito conversar com quem quiser investir'));det.append(invCk);
  const invL=mk8('label',null,'O que você diz a quem quer investir (opcional)');const invT=document.createElement('input');invT.type='text';invT.maxLength=200;invT.placeholder='Ex.: Quero ampliar a oficina; converso com quem se interessar';invT.value=(L&&L.invest&&L.invest!=='Aceito conversar com quem quiser investir.')?L.invest:'';invL.append(invT);det.append(invL);det.append(mk8('p','note','Quem investe combina tudo direto com você. O MiHelp não intermedia, não garante retorno e não recebe nada.'));
  if(L&&window.MH_INVESTIR8){const eb=mk8('button','more','📈 Quero expandir meu negócio');eb.type='button';eb.onclick=()=>MH_INVESTIR8.expandir({nome:L.nome,tipo:L.tipo,cidade:L.cidade,chave:L.chave});det.append(eb,mk8('p','note','Cria um anúncio separado na aba Investir, com aprovação do MiHelp. O perfil comercial da loja não muda.'))}
- det.append(mk8('h4',null,'Horário de funcionamento (opcional)'));const hed=horarioEditor8(L&&L.horario);det.append(hed.el);alvo=d;
+ det.append(mk8('h4',null,'Horário de funcionamento (opcional)'));const hed=horarioEditor8(L&&L.horario);det.append(hed.el);
+ det.append(mk8('h4',null,'📅 Feriados e datas especiais (opcional)'),mk8('p','note','Avise o cliente se no feriado vocês abrem diferente (fechado, só até o meio-dia, outro horário). O aviso aparece no perfil alguns dias antes.'));const ferEd=feriadosEditor8(ex0.f);det.append(ferEd.el);
+ det.append(mk8('h4',null,'🎉 Ainda vai inaugurar? (opcional)'),mk8('p','note','Coloque o dia e a hora da inauguração. O perfil mostra a contagem regressiva: "faltam X dias, Y horas e Z minutos". Depois da hora ela some sozinha.'));
+ const inL=mk8('label',null,'Dia e hora da inauguração');const inI=document.createElement('input');inI.type='datetime-local';inI.value=ex0.i||'';inI.min=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16);inL.append(inI);det.append(inL,botao8('Limpar data','more',()=>{inI.value=''}));alvo=d;
  let atende,fun;
  if(!L){const l=mk8('label','ck');atende=document.createElement('input');atende.type='checkbox';l.append(atende,mk8('span',null,'Eu também atendo aqui (aparece o meu nome na equipe)'));d.append(l);fun=campo('Minha função (opcional)','text',30,'','Ex.: Barbeiro, Dono')}
  d.append(st);
  const ac=mk8('div','perfil-acoes');
  ac.append(botao8('Salvar','cta2 pa-main',async()=>{st.style.color='';
   if(!tipo.value){st.style.color='var(--red)';st.textContent='Digite o tipo de negócio e toque numa opção da lista (ou "Outro").';return}
+  const rv=rdEd.valor(),fv=ferEd.valor();if(rv.erro||fv.erro){st.style.color='var(--red)';st.textContent=rv.erro||fv.erro;return}
+  const inV=inI.value&&inaugOk8(inI.value)?inI.value:'';if(inI.value&&!inV){st.style.color='var(--red)';st.textContent='A inauguração precisa ser numa data e hora que ainda vão chegar.';return}
+  const horOut=Object.assign(hed.valor(),rv.itens.length?{r:rv.itens}:{},fv.itens.length?{f:fv.itens}:{},inV?{i:inV}:{});
   st.textContent='Salvando…';
-  const body={nome:nome.value.trim(),tipo:tipo.value,cidade:cid.value,endereco:end.value.trim(),mapa:mapa.value.trim(),contato:wa.value,modo:modo.value,descricao:desc.value.trim(),horario:hed.valor(),donoVisivel:donoIn.checked,equipeVisivel:eqIn.checked,invest:invIn.checked,investTxt:invT.value.trim()};
+  const body={nome:nome.value.trim(),tipo:tipo.value,cidade:cid.value,endereco:end.value.trim(),mapa:mapa.value.trim(),contato:wa.value,modo:modo.value,descricao:desc.value.trim(),horario:horOut,donoVisivel:donoIn.checked,equipeVisivel:eqIn.checked,invest:invIn.checked,investTxt:invT.value.trim()};
   if(logo!==undefined)body.logo=logo;
   if(L)body.chave=L.chave;else{body.atende=atende.checked;body.funcao=fun.value.trim()}
   const r=await chama8(L?'/estabelecimentos/editar':'/estabelecimentos',body);
   if(r.ok&&r.j&&r.j.ok){let aviso=L?'Estabelecimento atualizado.':'Estabelecimento criado! Agora convide a sua equipe.';const chv=L?L.chave:r.j.chave;
+   try{const k='mihelp_extra_'+chv;if(rv.itens.length||fv.itens.length||inV)localStorage.setItem(k,JSON.stringify({r:rv.itens,f:fv.itens,i:inV}));else localStorage.removeItem(k)}catch(e){}
+   if(chv&&(rv.itens.length||fv.itens.length||inV)){try{const vv=await chama8('/estabelecimentos/ver?chave='+encodeURIComponent(chv)),h2=vv.ok&&vv.j&&vv.j.horario;if(!h2||(rv.itens.length&&!h2.r)||(fv.itens.length&&!h2.f)||(inV&&!h2.i))aviso+=' Atenção: as redes, os feriados e a inauguração ficaram só neste aparelho; o servidor ainda não guarda esses campos.'}catch(e){}}
    if(capaMuda&&chv){try{if(capa)localStorage.setItem('mihelp_capa_'+chv,capa);else localStorage.removeItem('mihelp_capa_'+chv)}catch(e){}
     const b2=Object.assign({},body,{chave:chv,capa});delete b2.atende;delete b2.funcao;await chama8('/estabelecimentos/editar',b2)}
    carregaV8();const r2=await chama8('/perfil/meu');
